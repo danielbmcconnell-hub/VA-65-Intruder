@@ -15,7 +15,7 @@
     "test:ground": "node tests/run-browser.cjs --suite=ground",
     "test:renderer": "node tests/run-browser.cjs --suite=renderer",
     "test:build": "node tests/build-browser.cjs",
-    "test:pow": "node tests/pow-core.cjs && node tests/pow-ai.cjs && node tests/run-browser.cjs --suite=pow"
+    "test:pow": "node tests/pow-core.cjs && node tests/pow-ai.cjs && node tests/pow-river.cjs && node tests/run-browser.cjs --suite=pow"
   },
   "devDependencies": {
     "playwright": "1.62.1"

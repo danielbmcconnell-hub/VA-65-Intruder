@@ -822,6 +822,7 @@ body.desktop #hudbar{display:flex}
 <script src="assets/atlas-metadata.js"></script>
 <script src="assets/pow/core.js"></script>
 <script src="assets/pow/ai.js"></script>
+<script src="assets/pow/river.js"></script>
 <script src="assets/pow/history.js"></script>
 <script>
 /* ===== src/00-assets.js ===== */
@@ -15654,7 +15655,7 @@ class Game {
   }
 
   _groundLineOfSight(a,b,e){
-    const d=Math.hypot(b[0]-a[0],b[2]-a[2]),n=Math.max(2,Math.ceil(d/.35));
+    const d=Math.hypot(b[0]-a[0],b[2]-a[2]),n=Math.max(2,Math.ceil(d/.18));
     for(let i=1;i<n;i++){
       const t=i/n,x=a[0]+(b[0]-a[0])*t,z=a[2]+(b[2]-a[2])*t;
       if(e.camp?this._campSolidAt(x,z,.05):this._localSolidAt(x,z,.05))return false;
