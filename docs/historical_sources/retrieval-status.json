@@ -1,0 +1,38 @@
+[
+  {
+    "source": "NHHC Coker",
+    "url": "https://www.history.navy.mil/research/histories/biographies-list/bios-c/coker-george-t.html",
+    "retrieved": false,
+    "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+  },
+  {
+    "source": "VA POW oral histories",
+    "url": "https://www.va.gov/opa/publications/celebrate/pow.asp",
+    "retrieved": false,
+    "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+  },
+  {
+    "source": "Smithsonian American History",
+    "url": "https://americanhistory.si.edu/",
+    "retrieved": false,
+    "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+  },
+  {
+    "source": "USAF Museum POW history",
+    "url": "https://www.nationalmuseum.af.mil/Visit/Museum-Exhibits/Fact-Sheets/Display/Article/196809/return-with-honor-american-prisoners-of-war-in-southeast-asia/",
+    "retrieved": false,
+    "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+  },
+  {
+    "source": "DoD POW/MIA",
+    "url": "https://www.dpaa.mil/Our-Missing/Past-Conflicts/Vietnam-War/",
+    "retrieved": false,
+    "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+  },
+  {
+    "source": "USNI Coker oral history",
+    "url": "https://www.usni.org/press/oral-history/george-thomas-coker",
+    "retrieved": false,
+    "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+  }
+]

@@ -93,28 +93,16 @@ module.exports=async function progression(browser,target,evidenceDir){
    assert.deepEqual(photo,{src:'assets/photos/standing-portrait.jpeg',w:864,h:1223,filter:'none',mask:'none'});await shot('recovered-debrief-photo');record('Clean standing debrief photograph',photo,'Actual SAR debrief after hoist rescue');
    await page.locator('#debriefBody').getByRole('button',{name:'Ready Room',exact:true}).click();await page.click('#tabs [data-tab="log"]');
    const log=(await page.locator('#readyBody').innerText()).toLowerCase();assert.ok(log.includes('recovered by sar'));record('Cruise Log after rescue',{hasSAR:log.includes('recovered by sar')},'Actual log UI with a stored sortie');await shot('cruise-log');
-   // Entire Mission11 route with real narrative controls. Position at the climb
-   // point / river finish is explicit, so this verifies transitions, not difficulty.
+   // Mission11 now enters the physical POW chapter. Its full movement/guard/
+   // river/captivity coverage is in the dedicated POW suites, not button replay.
    await start(true);await ground();
    await page.evaluate(()=>{const G=App.game;G.evade.doom=0;G.evade.doomMax=1;G.t+=1/60;G.stepEvade(1/60)});
-   await page.waitForFunction(()=>document.getElementById('captTitle').textContent==='Vinh, 27 August 1966',null,{timeout:10000});await page.evaluate(()=>App.game.render(1/60));await shot('prison-capture');
-   await click('Go on');await click('Look at the door');await click('Answer the tapping through the wall');await click('Go on');
-   for(let i=0;i<5&&!(await page.locator('#captBody').getByRole('button',{name:'Tonight. 12 October 1967.',exact:true}).count());i++)await click('Work the door fittings');
-   await click('Tonight. 12 October 1967.');await click('Into the yard');
-   assert.ok(await page.evaluate(()=>App.game.evade.camp&&!App.game.evade.frozen));await clearCards();await page.evaluate(()=>App.game.render(1/60));await shot('prison-yard');
-   // Exercise all six solitary days and retry through actual existing buttons.
-   await page.evaluate(()=>App.game.recapturedInCamp());
-   for(let i=0;i<6;i++)await page.locator('#powSolitary').getByRole('button',{name:i%2?'Isometric exercises':'Design an imaginary city',exact:true}).click();
-   await page.locator('#powSolitary').getByRole('button',{name:'TRY THE ESCAPE AGAIN',exact:true}).click();
-   assert.ok(await page.evaluate(()=>App.game.evade.camp&&!App.game.evade.frozen));
-   const breakout=await page.evaluate(()=>{const G=App.game,e=G.evade;e.searchers=[];e.p=[e.goal[0],0,e.origin[1]+e.B-2];G.t+=1/60;G.stepEvade(1/60);G.render(1/60);return {breakout:G.breakoutOK,phase:G.phase}});
-   assert.ok(breakout.breakout);await page.waitForFunction(()=>document.getElementById('captTitle').textContent==='Hanoi, After Midnight',null,{timeout:10000});await click('Fifteen miles, and first light');
-   assert.ok(await page.evaluate(()=>App.game.evade.river));await clearCards();await page.evaluate(()=>App.game.render(1/60));await shot('river-escape');
-   await page.evaluate(()=>{const G=App.game,e=G.evade;e.searchers=[];e.locals=[];e.spawn=e.localRefill=e.cowT=1e9;e.p=[e.goal[0],0,e.goal[1]];G.t+=1/60;G.stepEvade(1/60)});
-   await page.waitForFunction(()=>document.getElementById('captTitle').textContent==='Downstream',null,{timeout:10000});await click('Close');
-   const ending=await page.evaluate(()=>({result:App.game.result,objectives:App.game.objState(),captured:App.game._capt}));
-   assert.ok(ending.result.pass&&ending.result.escaped&&ending.objectives.every(o=>o[2])&&ending.captured);await shot('mission11-debrief');record('Mission11 capture, cell, solitary retry, breakout, river and debrief',ending,'Actual narrative controls; accelerated doom clock and positions at existing climb/river objectives');
-   await page.locator('#debriefBody').getByRole('button',{name:'Ready Room',exact:true}).click();await page.click('#tabs [data-tab="log"]');assert.match((await page.locator('#readyBody').innerText()).toLowerCase(),/escaped/);record('Cruise Log after Mission11 escape',{passed:true},'Stored escape outcome and crew-return summary');
+   await page.waitForFunction(()=>App.game?.pow?.stage==='cell',null,{timeout:10000});
+   const prison=await page.evaluate(()=>({stage:App.game.pow?.stage,phase:App.game.phase,solidCount:App.game.pow?.solids.length,objects:App.game.pow?.objects.map(o=>o.id),checkpoint:Store.get('pow_checkpoint',null)?.stage}));
+   assert.equal(prison.stage,'cell');assert.equal(prison.phase,'evade');assert.ok(prison.solidCount>20);assert.equal(prison.checkpoint,'cell');
+   record('Mission11 parachute progression enters the physical prison chapter',prison,'Actual Mission11 ejection/descent; new playable chapter supersedes the former menu sequence');
+   await shot('mission11-physical-cell');
+   await page.evaluate(()=>{App.game=null;App.show('ready');App.renderReady();});
    // The regular mission capture route has a different narrative from Mission11.
    await start(false);await ground();await page.evaluate(()=>App.game.captured());
    await page.waitForFunction(()=>document.getElementById('captTitle').textContent==='Taken',null,{timeout:10000});

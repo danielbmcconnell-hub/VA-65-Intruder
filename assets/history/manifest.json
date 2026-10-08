@@ -1,0 +1,62 @@
+[
+  {
+    "file": "pow_roll_call_1960s.webp",
+    "sha256": "359af75ddbaade3c9d6b2824b67b1f98833e8f06dc183785371d8eef744fd52a",
+    "master": "reference_media/historical_photos_enhanced/Intruder_Yankee_Station_Historical_Photo_Assets/pow_roll_call_1960s.png",
+    "dimensions": [
+      2160,
+      1474
+    ],
+    "interpretiveColorization": false
+  },
+  {
+    "file": "ltjg_coker_may_1966_colorized.webp",
+    "sha256": "47cac3835b64bdb0771576be85ced04e88d92c578be9a5293ef7d41943d2a6fc",
+    "master": "reference_media/historical_photos_enhanced/Intruder_Yankee_Station_Historical_Photo_Assets/ltjg_coker_may_1966_colorized.png",
+    "dimensions": [
+      1200,
+      1308
+    ],
+    "interpretiveColorization": true
+  },
+  {
+    "file": "hanoi_hilton_aerial_colorized.webp",
+    "sha256": "6e651995f93af3f3491a1227ef14a93dc54743bcf0300d33fd123e00068e6ded",
+    "master": "reference_media/historical_photos_enhanced/Intruder_Yankee_Station_Historical_Photo_Assets/hanoi_hilton_aerial_colorized.png",
+    "dimensions": [
+      1656,
+      1200
+    ],
+    "interpretiveColorization": true
+  },
+  {
+    "file": "pow_prison_courtyard.webp",
+    "sha256": "dfa9d0f47bb3321cedda6af139fe80f24cb4531f26a36cbf971af425c9a5345f",
+    "master": "reference_media/historical_photos_enhanced/Intruder_Yankee_Station_Historical_Photo_Assets/pow_prison_courtyard.png",
+    "dimensions": [
+      1920,
+      1266
+    ],
+    "interpretiveColorization": false
+  },
+  {
+    "file": "pow_interrogation_scene.webp",
+    "sha256": "6c9d81918dc361b1746bf8117aa671ce139bca8785775f34a615005b11357ea6",
+    "master": "reference_media/historical_photos_enhanced/Intruder_Yankee_Station_Historical_Photo_Assets/pow_interrogation_scene.png",
+    "dimensions": [
+      1548,
+      1084
+    ],
+    "interpretiveColorization": false
+  },
+  {
+    "file": "pow_group_repatriation.webp",
+    "sha256": "e5bda2053391579b6077903d23a61dcb09b40c323cc6db2f72bc5bc953bfbf01",
+    "master": "reference_media/historical_photos_enhanced/Intruder_Yankee_Station_Historical_Photo_Assets/pow_group_repatriation.png",
+    "dimensions": [
+      4096,
+      2680
+    ],
+    "interpretiveColorization": false
+  }
+]

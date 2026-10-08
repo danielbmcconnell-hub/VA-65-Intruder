@@ -1,0 +1,66 @@
+{
+  "purpose": "historical photographic reference assets for Intruder: Yankee Station",
+  "method": "Upscale, local contrast and color adjustment; two grayscale images conservatively hand-colorized (estimated colors, not historically verified). No AI-generated geometry or altered faces.",
+  "items": [
+    {
+      "file": "pow_roll_call_1960s.png",
+      "web": "pow_roll_call_1960s.webp",
+      "source": "american-pows-stand-for-role-call-in-the-courtyard-of-nga.webp",
+      "dimensions": [
+        2160,
+        1474
+      ],
+      "colorization": false
+    },
+    {
+      "file": "ltjg_coker_may_1966_colorized.png",
+      "web": "ltjg_coker_may_1966_colorized.webp",
+      "source": "Coker 1966.jpg",
+      "dimensions": [
+        1200,
+        1308
+      ],
+      "colorization": true
+    },
+    {
+      "file": "hanoi_hilton_aerial_colorized.png",
+      "web": "hanoi_hilton_aerial_colorized.webp",
+      "source": "Hanoi Hilton.webp",
+      "dimensions": [
+        1656,
+        1200
+      ],
+      "colorization": true
+    },
+    {
+      "file": "pow_prison_courtyard.png",
+      "web": "pow_prison_courtyard.webp",
+      "source": "North Vietnam POW Prison Camp.webp",
+      "dimensions": [
+        1920,
+        1266
+      ],
+      "colorization": false
+    },
+    {
+      "file": "pow_interrogation_scene.png",
+      "web": "pow_interrogation_scene.webp",
+      "source": "POW.webp",
+      "dimensions": [
+        1548,
+        1084
+      ],
+      "colorization": false
+    },
+    {
+      "file": "pow_group_repatriation.png",
+      "web": "pow_group_repatriation.webp",
+      "source": "VIEP-200400-POW-03.webp",
+      "dimensions": [
+        4096,
+        2680
+      ],
+      "colorization": false
+    }
+  ]
+}

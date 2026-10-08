@@ -166,20 +166,18 @@ async function main(browser,target,evidenceDir) {
       return { fixture: 'real hut footprint with player near wall and live NPC outside', expected: 'contact push respects static solid', actual: { beforeBlocked: before, afterBlocked: after, relativePlayerX: e.p[0] - x }, passed: !before && !after };
     }) });
 
-    // Reproduce the real capture state transition before supplying the river position fixture.
+    // Mission11's legacy menu and automatic dawn recapture are superseded by
+    // physical POV chapters. Exercise the real landing capture into that chapter;
+    // actual river/daylight/performance outcomes are in pow-river-browser.cjs.
     await page.evaluate(() => { const G = App.game; G._capt = 0; G._escStage = 'landing'; G.phase = 'evade'; G.captured(); });
-    await page.waitForFunction(() => document.getElementById('captTitle').textContent === 'Vinh, 27 August 1966', null, { timeout: 15000 });
+    await page.waitForFunction(() => App.game?.pow?.stage === 'cell', null, { timeout: 15000 });
     await page.evaluate(() => App.game.render(1 / 60));
     await page.screenshot({ path: path.join(out, 'ground-captured-cell.png') });
-    results.push({ name: 'repeat-capture-after-river-transition', ...await page.evaluate(() => {
-      const G = App.game; document.getElementById('captVeil').classList.remove('on'); G.startCamp(1); G.startRiver(1);
-      const e = G.evade; e.light = 1; e.goal = [e.p[0] + 1500, e.p[2]]; e.searchers = []; e.locals = []; e.spawn = 1e9; e.localRefill = 1e9; e.cowT = 1e9;
-      const initialCaptured = G._capt; G.stepEvade(1 / 60);
-      return { fixture: 'actual captured() -> POW card; direct real startCamp/startRiver, dawn set to deadline and goal kept distant', expected: 'dawn recaptures player',
-        actual: { initialCaptured, phase: G.phase, hasEvade: !!G.evade, light: G.evade?.light }, passed: initialCaptured===1 && G.phase==='done' && !G.evade };
+    results.push({ name: 'landing-capture-enters-physical-prison', ...await page.evaluate(() => {
+      const G = App.game;
+      return { fixture: 'real captured() after Mission11 landing and asynchronous prison entry', expected: 'live collision-backed prison, checkpoint and controls',
+        actual: { captured: G._capt, phase: G.phase, stage: G.pow.stage, solids: G.pow.solids.length, frozen: G.evade.frozen }, passed: G._capt===1 && G.phase==='evade' && G.pow.stage==='cell' && G.pow.solids.length>20 && !G.evade.frozen };
     }) });
-    await page.evaluate(() => App.game.render(1 / 60));
-    await page.screenshot({ path: path.join(out, 'ground-river-recapture-skipped.png') });
 
     for(const result of results){result.status=result.passed?'passed':'failed';assert.ok(result.passed,result.name);}
     const report = { scope: 'Fixture-assisted Chromium browser checks using Milestone 1 Game methods and actual custom WebGL 2 rendering. No source edits or method stubs. Not human gameplay completion or physical iPhone Safari validation.',

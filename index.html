@@ -10,7 +10,7 @@
 }
 </style>
 </head><body>
-<title>Intruder: Yankee Station — Milestone 1</title>
+<title>Intruder: Yankee Station — Milestone 2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Share+Tech+Mono&display=swap">
@@ -818,7 +818,11 @@ body.desktop #hudbar{display:flex}
 <div id="runtimeHelp" role="status" aria-live="polite">This file preview may block interactive games. For reliable play, upload the web package and open its URL in Safari.</div>
 <script id="bootstrap-status">(function(){var box=document.getElementById('runtimeHelp');box.textContent='Starting game controls…';window.addEventListener('error',function(e){if(e.target!==window||!e.message)return;if(box){box.hidden=false;box.textContent='Game error: '+e.message+' ('+(e.lineno||'?')+':'+(e.colno||'?')+')';}});window.addEventListener('unhandledrejection',function(e){if(box){box.hidden=false;box.textContent='Startup issue: '+String(e.reason||'unknown')+' — use the hosted web package in Safari.';}});})();</script>
 
+<link rel="stylesheet" href="assets/pow/core.css">
 <script src="assets/atlas-metadata.js"></script>
+<script src="assets/pow/core.js"></script>
+<script src="assets/pow/ai.js"></script>
+<script src="assets/pow/history.js"></script>
 <script>
 /* ===== src/00-assets.js ===== */
 /* ===================================================================
@@ -14570,7 +14574,8 @@ class Game {
          At 0.35 against 1.25 the difference was not worth crossing the
          bank for, and the fastest way through was to ignore the cover
          entirely and march — which is the opposite of the lesson. */
-      const vis = clamp((1 - dm / 260), 0, 1)
+      const hasSight = this._groundAwareness(e,s,120);
+      const vis = (hasSight ? 1 : 0) * clamp((1 - dm / 260), 0, 1)
       * (e.running ? 1 : e.crouch ? (spd !== 0 ? 0.15 : 0.02) : spd !== 0 ? 0.45 : 0.06)
         * (e.river ? 0.12 + cover * 1.55 : 0.35 + cover * 0.9) * day;
       /* In the mud and the reeds a man who is not moving fast is very
@@ -14590,7 +14595,7 @@ class Game {
       s.sus = clamp((s.sus || 0) + (vis * rate - 0.17) * dt * 1.25, 0, 1.35);
       if (vis > peak) peak = vis;
       if ((s.sus || 0) > peakSus) peakSus = s.sus;
-      if (!s.seen && s.sus > 0.45 && !s._look) {
+      if (!s.seen && s.sus > 0.45 && !s._look && hasSight) {
         s._look = 1;
         /* He is looking straight at your patch of ground. Go down. */
         s.face = Math.atan2(e.p[0] - s.p[0], -(e.p[2] - s.p[2]));
@@ -14602,23 +14607,24 @@ class Game {
         }
       }
       if (s.sus < 0.3) s._look = 0;
-      if (!s.seen && s.sus >= 1) {
+      if (!s.seen && s.sus >= 1 && hasSight) {
         if(!s.armed){const h=Math.atan2(s.p[0]-e.p[0],-(s.p[2]-e.p[2]));
           s.flee=1;s.goal=[s.p[0]+Math.sin(h)*120,0,s.p[2]-Math.cos(h)*120];}
-        else s.goal = [e.p[0], 0, e.p[2]]; s.seen = 1;
+        else s.goal = [...s.lastKnown]; s.seen = 1;
         if (!e._spotted) { e._spotted = 1;
           if (e.river) A.vn('spotted'); else A.radio('PILOT', 'They have got eyes on. Move \u2014 now.', 'bad'); }
       } else if (s.seen) {
         /* And he can lose you again, if you break the line of sight and
            stay off your feet long enough. Being seen was permanent,
            which left nothing to do about it. */
-        if(!s.flee)s.goal = [e.p[0], 0, e.p[2]];
-        if (vis < 0.06 && dm > 55) {
+        if(!s.flee)s.goal = [...(s.lastKnown || s.goal)];
+        if (!hasSight || vis < 0.06) {
           s.lost = (s.lost || 0) + dt;
           if (s.lost > 7) { s.seen = 0; s.sus = 0.55; s.lost = 0;
-            s.goal = [e.p[0] + rnd(-180, 180), 0, e.p[2] + rnd(-180, 180)]; }
+            const last=s.lastKnown || s.goal;s.searchUntil=this.t+10;
+            s.goal = [last[0] + rnd(-18, 18), 0, last[2] + rnd(-18, 18)]; }
         } else s.lost = 0;
-      } else if (d < 40 && !s.flee) {
+      } else if (d < 40 && !s.flee && !(s.searchUntil && this.t<s.searchUntil)) {
         // nothing at the chute; they fan out
         s.goal = [e.chute[0] + rnd(-700, 700), 0, e.chute[1] + rnd(-700, 700)];
       }
@@ -14669,10 +14675,10 @@ class Game {
       }
       /* And a group of them closing together is not something one man
          with a revolver gets out of. */
-      if (dm < 9 && s.armed && s.seen) {
+      if (dm < 9 && s.armed && s.seen && hasSight) {
         let near = 0;
         for (const q of e.searchers)
-          if (q.alive && q.armed && q.seen
+          if (q.alive && q.armed && q.seen && this._groundAwareness(e,q,120)
               && Math.hypot(q.p[0] - e.p[0], q.p[2] - e.p[2]) < 9) near++;
         if (near >= 3) {
           e.surrounded = (e.surrounded || 0) + dt;
@@ -15086,6 +15092,23 @@ class Game {
     }
     return false;
   }
+  /* Sight is checked on a short cache, shared by local and search-party AI.
+     Hearing stores a location separately; it never supplies sight through walls. */
+  _groundAwareness(e,s,range=120){
+    if(s.armed===undefined)s.armed=!['farmer','villager'].includes(s.kind);
+    const dx=e.p[0]-s.p[0],dz=e.p[2]-s.p[2],d=Math.hypot(dx,dz),heading=Math.atan2(dx,-dz);
+    if(!Number.isFinite(s.face))s.face=heading;
+    const changed=!s._sightFrom || Math.hypot(s.p[0]-s._sightFrom[0],s.p[2]-s._sightFrom[1])>.6
+      || !s._sightTo || Math.hypot(e.p[0]-s._sightTo[0],e.p[2]-s._sightTo[1])>.6
+      || Math.abs(Math.atan2(Math.sin(s.face-(s._sightFace||0)),Math.cos(s.face-(s._sightFace||0))))>.2;
+    if(changed || this.t>=(s._sightAt||0) || s._sightRange!==range){
+      const cone=d<3.8 || Math.abs(Math.atan2(Math.sin(heading-s.face),Math.cos(heading-s.face)))<1.05;
+      s._sight=!!(s.alive && !(s.stunUntil && this.t<s.stunUntil) && d<range && cone && this._groundLineOfSight(s.p,e.p,e));
+      s._sightAt=this.t+.2;s._sightFrom=[s.p[0],s.p[2]];s._sightTo=[e.p[0],e.p[2]];s._sightFace=s.face;s._sightRange=range;
+      if(s._sight){s.lastKnown=[e.p[0],0,e.p[2]];s.lastSight=this.t;}
+    }
+    return !!s._sight;
+  }
   _stepLivingWorld(dt,e){
     if(!e || e.camp) return;
     e.localRefill=(e.localRefill||0)-dt;
@@ -15098,37 +15121,49 @@ class Game {
       if(!s.alive) continue;
       if(s.stunUntil && this.t<s.stunUntil){s.spd=0;continue;}
       const dm=Math.hypot(s.p[0]-e.p[0],s.p[2]-e.p[2]);
+      const hasSight=this._groundAwareness(e,s,42);
       const civilian=!s.armed;
-      const danger=(e.noise>0.20 && dm<125) || (dm<23 && (e.running||e.drawn||dm<11));
+      const heard=e.noise>0.20 && dm<125*clamp(e.noise,0,1);
+      if(heard && (this.t>=(s.heardUntil||0) || e.noise>(s.heardLevel||0)+.15)){
+        s.lastNoise=[e.p[0],0,e.p[2]];s.heardUntil=this.t+4;s.heardLevel=e.noise;
+        if(s.armed && !hasSight){s.goal=[...s.lastNoise];s.sus=Math.max(s.sus||0,.65);s.loiter=0;s.investigateUntil=this.t+9;}
+      }
+      const danger=heard || hasSight && dm<23 && (e.running||e.drawn||dm<11);
       if(civilian && danger && !s.flee) {
         s.flee=1; s.alerted=1; s.loiter=0; s.panicUntil=this.t+14;
-        const h=Math.atan2(s.p[0]-e.p[0],-(s.p[2]-e.p[2]));
+        const threat=s.lastKnown || s.lastNoise || s.p;
+        const h=Math.atan2(s.p[0]-threat[0],-(s.p[2]-threat[2]));
         s.goal=[s.p[0]+Math.sin(h)*120,0,s.p[2]-Math.cos(h)*120];
         s.wander=8;
-        if(Math.random()<0.40 && (!e._civilianCry||this.t-e._civilianCry>9)){
-          e._civilianCry=this.t;
-          this.app.radio('FARMER','Cứu với! Có người lạ! — Help! An armed stranger!', 'warn','vi-VN','Cứu với!');
-          // Shouted warnings bring armed men toward the hamlet.
-          this._alertWitnesses(e,s.p,110);
-        }
-      } else if(s.armed && (danger || (e.handsUp && dm<36))) {
+      } else if(s.armed && hasSight && (danger || s.seen || e.handsUp && dm<36)) {
         if(!s.seen && dm<42){
           s.seen=1;s.sus=1.1;s.loiter=0;
           if(!e._handsWarn||this.t-e._handsWarn>7){e._handsWarn=this.t;this.app.vn('hands');}
         }
-        s.goal=[e.p[0],0,e.p[2]];s.wander=3;
+        s.goal=[...s.lastKnown];s.wander=3;
+      }
+      if(civilian && hasSight && s.flee && !s.reportAt && !s.reported){s.reportAt=this.t+2.5;s.reportPoint=[...s.lastKnown];}
+      if(civilian && s.reportAt && !s.reported && this.t>=s.reportAt){
+        s.reported=true;this._alertWitnesses(e,s.reportPoint || s.p,55);
+        if(!e._civilianCry || this.t-e._civilianCry>9){e._civilianCry=this.t;
+          this.app.radio('FARMER','Có người lạ! — There is a stranger!','warn','vi-VN','Có người lạ!');}
+      }
+      if(s.armed && s.seen && !hasSight){
+        s.goal=[...(s.lastKnown || s.lastNoise || s.goal)];
+        if(this.t-(s.lastSight||0)>7){s.seen=0;s.sus=Math.min(s.sus||0,.45);s.investigateUntil=this.t+8;s.wander=3;}
       }
       s.wander-=dt;
       const distGoal=Math.hypot(s.goal[0]-s.p[0],s.goal[2]-s.p[2]);
-      if(!s.flee && !s.seen && (s.wander<=0 || distGoal<1.1)){
+      if(!s.flee && !s.seen && !(s.investigateUntil && this.t<s.investigateUntil) && (s.wander<=0 || distGoal<1.1)){
         s.wander=4+Math.random()*9;
         const a=Math.random()*TAU,d=3+Math.random()*17;
         s.goal=[s.home[0]+Math.sin(a)*d,0,s.home[1]-Math.cos(a)*d];
         s.loiter=0.7+Math.random()*2.6;
       }
       if(s.flee && distGoal<5){
-        if(this.t>(s.panicUntil||0) && dm>75){s.flee=0;s.alerted=0;s.wander=0;}
-        else {const a=Math.atan2(s.p[0]-e.p[0],-(s.p[2]-e.p[2]));
+        if(this.t>(s.panicUntil||0) && !hasSight){s.flee=0;s.alerted=0;s.wander=0;s.reportAt=0;s.reported=false;}
+        else {const threat=s.lastKnown || s.lastNoise || s.goal;
+          const a=Math.atan2(s.p[0]-threat[0],-(s.p[2]-threat[2]));
           s.goal=[s.p[0]+Math.sin(a)*65,0,s.p[2]-Math.cos(a)*65];}
       }
       if(s.loiter>0 && !s.flee && !s.seen){s.loiter-=dt;s.spd=0;continue;}
@@ -15155,9 +15190,15 @@ class Game {
   }
   _alertWitnesses(e,at,radius){
     for(const s of (e.searchers||[]).concat(e.locals||[])){
-      if(!s.alive || !s.armed) continue;
+      if(!s.alive) continue;
+      if(s.armed===undefined)s.armed=!['farmer','villager'].includes(s.kind);
+      if(!s.armed || s.stunUntil && this.t<s.stunUntil)continue;
       if(Math.hypot(s.p[0]-at[0],s.p[2]-at[2])>radius)continue;
-      s.seen=1;s.sus=1.1;s.goal=[at[0],0,at[2]];s.loiter=0;
+      const hasSight=this._groundAwareness(e,s,120);
+      if(hasSight){s.seen=1;s.sus=Math.max(s.sus||0,1.1);s.goal=[...s.lastKnown];}
+      else {s.sus=Math.max(s.sus||0,.7);s.lastNoise=[at[0],0,at[2]];
+        if(!s.seen)s.goal=[...s.lastNoise];s.investigateUntil=this.t+9;}
+      s.loiter=0;
     }
     e.spawn=Math.min(e.spawn||10,2.0);
   }
@@ -15769,11 +15810,11 @@ class Game {
         }
         /* A revolver going off in open country is the loudest thing for
            a mile, and every one of them turns toward it. */
+        this._alertWitnesses(e,e.p,700);
         for (const s of e.searchers.concat(e.locals || [])) {
           if (!s.alive) continue;
           if (Math.hypot(s.p[0] - e.p[0], s.p[2] - e.p[2]) < 700) {
-            if(s.armed){s.goal=[e.p[0],0,e.p[2]];s.seen=1;s.sus=1.2;s.loiter=0;}
-            else {const h=Math.atan2(s.p[0]-e.p[0],-(s.p[2]-e.p[2]));
+            if(!s.armed){const h=Math.atan2(s.p[0]-e.p[0],-(s.p[2]-e.p[2]));
               s.flee=1;s.loiter=0;s.panicUntil=this.t+18;
               s.goal=[s.p[0]+Math.sin(h)*160,0,s.p[2]-Math.cos(h)*160];}
           }
@@ -17049,7 +17090,17 @@ class Game {
        cast nothing at all. A guard's lamp is now a light: you can see
        where it falls, which turns 'LAMP: ON YOU' from a line of text
        into something happening in front of you. */
-    if (this.evade && this.evade.camp) {
+    if (this.pow) {
+      POW.ensureMeshes(this);
+      if (this.pow.river && POW.River && POW.River.ensureMeshes) POW.River.ensureMeshes(this);
+      const b = this.pow.base;
+      const lights = (this.pow.lights || []).slice(0,7).map(l => [l.p[0],l.p[1],l.p[2],l.power || .8,l.radius || 9,l.color || [1,.78,.48]]);
+      if (!lights.length && this.pow.stage!=='river') lights.push([b[0], b[1]+2.5, b[2]-.4, .80, 9, [1,.78,.48]]);
+      for (const actor of this.evade.searchers) if (actor.alive!==false && actor.lamp && lights.length<8)
+        lights.push([actor.p[0]+Math.sin(actor.face||0), actor.p[1]+1.1,
+          actor.p[2]-Math.cos(actor.face||0), .9, 12, [1,.78,.48]]);
+      R.setFires(lights);
+    } else if (this.evade && this.evade.camp) {
       const fl = this._campFires || (this._campFires = []);
       fl.length = 0;
       // a dim tungsten bulb, not a bonfire
@@ -17108,8 +17159,9 @@ class Game {
     } else if (this.evade) {
       // on your feet, head height, looking where you are walking
       const e2 = this.evade;
-      const fy = e2.camp ? this.campY : Math.max(terrainH(e2.p[0], e2.p[2]), 0);
-      eye = [e2.p[0], fy + (e2.crouch ? 1.16 : 1.68), e2.p[2]];
+      const fy = this.pow ? e2.p[1] : e2.camp ? this.campY : Math.max(terrainH(e2.p[0], e2.p[2]), 0);
+      const eyeHeight = this.pow && this.pow.river ? this.pow.river.eyeHeight : (e2.crouch ? 1.16 : 1.68);
+      eye = [e2.p[0], fy + eyeHeight, e2.p[2]];
       const lk = e2.look || 0;
       fwd = vnorm([Math.sin(e2.hdg) * Math.cos(lk), -0.04 + Math.sin(lk),
                    -Math.cos(e2.hdg) * Math.cos(lk)]);
@@ -17223,7 +17275,7 @@ class Game {
           // Use complete centred source plants; several original cells are sliced sheet edges.
           const valid=row===0?[7]:row===3?[0,4,5,7]:[0,1,2,3,4,5,6,7];
           sprites.push({ photoName:'vegetation',photoFrame:row*8+valid[seed%valid.length],
-            p:[p[0],Math.max(terrainH(p[0],p[2]),0),p[2]],
+            p:[p[0],this.pow ? p[1] : Math.max(terrainH(p[0],p[2]),0),p[2]],
             h:h*scale,w:w*scale,t:[0.87,0.92,0.81] });
           vegetationSprites++;
           return;
@@ -17256,15 +17308,17 @@ class Game {
           [1, 1, 1], [d[3][0], d[3][1], d[3][2], 0]);
       }
     }
-    for (const t of W.targets) {
+    if (!this.pow) for (const t of W.targets) {
       if (!t.alive && t.mesh !== 'bridge') { push(t.mesh, t.p, [t.yaw, 0, 0], [0.9, 0.35, 0.9], [0.25, 0.22, 0.2, 0]); continue; }
       push(t.mesh, t.p, [t.yaw, 0, 0], [1, 1, 1], t.alive ? [1, 1, 1, 0] : [0.3, 0.27, 0.25, 0]);
     }
-    for (const s of W.scenery) push(s.m, s.p, [s.y, 0, 0], [s.s, s.s, s.s], [1, 1, 1, 0]);
-    W.clutter(this.rend.eye, null, push);
+    if (!this.pow) {
+      for (const s of W.scenery) push(s.m, s.p, [s.y, 0, 0], [s.s, s.s, s.s], [1, 1, 1, 0]);
+      W.clutter(this.rend.eye, null, push);
+    }
     if (this.campGeo && this.evade && this.evade.camp)
       for (const g2 of this.campGeo)
-        push(g2.m, g2.p, [g2.y, 0, 0], [g2.s, g2.s, g2.s], g2.t || [1, 1, 1, 0]);
+        push(g2.m, g2.p, [g2.y, 0, 0], g2.scale || [g2.s, g2.s, g2.s], g2.t || [1, 1, 1, 0]);
     /* People from the terrain and the search party share one billboard pass.
        `sprites` was initialized before World.clutter() above. */
     if (this.evade) for (const sc of this.evade.searchers.concat(this.evade.locals || [])) {
@@ -17274,7 +17328,7 @@ class Game {
          like a delete key rather than a thing you had done. */
       if (!sc.alive && sc.alive !== undefined) {
         if (sc.downAt === undefined) continue;
-        const gy0 = this.evade.camp ? this.campY : Math.max(terrainH(sc.p[0], sc.p[2]), 0);
+        const gy0 = this.pow ? sc.p[1] : this.evade.camp ? this.campY : Math.max(terrainH(sc.p[0], sc.p[2]), 0);
         const fall = clamp((this.t - sc.downAt) / 0.75, 0, 1);
         if (fall < 1 && typeof sprCell === 'function'
             && this.rend.textures && this.rend.textures.people
@@ -17300,13 +17354,13 @@ class Game {
         }
         continue;
       }
-      const gy = this.evade.camp ? this.campY : Math.max(terrainH(sc.p[0], sc.p[2]), 0);
+      const gy = this.pow ? sc.p[1] : this.evade.camp ? this.campY : Math.max(terrainH(sc.p[0], sc.p[2]), 0);
       const face = sc.face !== undefined ? sc.face
         : Math.atan2(sc.goal[0] - sc.p[0], -(sc.goal[2] - sc.p[2]));
       /* Who is looking for you. In the camp they are soldiers; on the
          riverbank at dawn they are mostly not soldiers at all, which is
          the whole point of the riverbank. */
-      const mdl = this.evade.camp ? 'sentry'
+      const mdl = this.evade.camp && !this.pow ? 'sentry'
         : this.evade.river ? (((sc.p[0] * 7919) | 0) % 5 < 3 ? 'villagerC' : 'farmerC')
         : 'militia';
       /* A walk. The instances all share one mesh so the legs cannot
@@ -17375,9 +17429,9 @@ class Game {
          the one moment the sheet did not have a cell for. */
       const dpl = Math.hypot(sc.p[0] - this.evade.p[0], sc.p[2] - this.evade.p[2]);
       const closing = sc.seen && dpl < 15
-        && (this.evade.camp || sc.armed) && !sc.flee;
+        && ((this.evade.camp && !this.pow) || sc.armed) && !sc.flee;
       const kind = this.evade.handsUp && sc.armed && dpl<13 ? 'guardAim' : closing ? 'charge'
-        : this.evade.camp ? (sc.seen ? 'guardAim' : 'guard')
+        : this.evade.camp && !this.pow ? (sc.seen ? 'guardAim' : 'guard')
         : sc.kind ? ((sc.seen && sc.armed) ? 'guardAim'
                      : sc.kind === 'nva' ? 'guard' : sc.kind)
         : this.evade.river ? (((sc.p[0] * 7919) | 0) % 5 < 3 ? 'villager' : 'farmer')
@@ -17393,8 +17447,8 @@ class Game {
         sprites.push({ p: [sc.p[0] + swx, gy, sc.p[2] + swz],
                        h: 1.76, w: 0.96,
                        cell: cell, cols: SPR.cols, rows: SPR.rows,
-                       useCleanFigure: this.evade.camp || sc.kind==='nva',
-                       photoName: this.evade.camp ? 'nva'
+                       useCleanFigure: (this.evade.camp && !this.pow) || sc.kind==='nva',
+                       photoName: this.evade.camp && !this.pow ? 'nva'
                          : sc.kind === 'nva' ? 'nva'
                          : (sc.kind === 'vc' || sc.kind === 'vcFem') ? 'female_vc'
                          : (sc.kind === 'farmer' || sc.kind === 'villager' ||
@@ -17662,7 +17716,8 @@ class Game {
 
     /* ---- HUD ---- */
     this.st = this.hudState();
-    this.hud.draw(this.st);
+    if (this.pow) this.hud.g.clearRect(0,0,this.hud.W,this.hud.H);
+    else this.hud.draw(this.st);
     this.syncControls();
     this._updateWeaponView();
   }
@@ -17897,6 +17952,67 @@ const _flightFrame = App.frame;
 App.frame = function(now) {
   try { _flightFrame.call(this, now); }
   catch (e) { this.graphicsFailure(e); requestAnimationFrame(t => this.frame(t)); }
+};
+
+/* Milestone 2: additive first-person POW chapters using the existing renderer. */
+POW.ctx = { Game, App, MB, terrainH, Store, clamp, PI, TAU };
+POW.install();
+const _originalStepEvade = Game.prototype.stepEvade;
+Game.prototype.stepEvade = function(dt) {
+  return this.pow ? POW.tick(this,dt) : _originalStepEvade.call(this,dt);
+};
+App.cokerCamp = function(game) { return POW.begin(game,'cell'); };
+App.startPOW = function(saved) {
+  this.start(MISSIONS.find(m => m.escape));
+  this._powLaunch = {saved: saved || null, token:this._missionStart};
+};
+const _powFrame = App.frame;
+App.frame = function(now) {
+  if (this._powLaunch && this._powLaunch.token!==this._missionStart) this._powLaunch=null;
+  if (this._powLaunch && this.game && this.screen==='game' && !this.graphicsContextLost && document.getElementById('loader').style.display==='none') {
+    const launch=this._powLaunch;this._powLaunch=null;
+    POW.begin(this.game,launch.saved ? launch.saved.stage : 'cell',launch.saved);
+    document.getElementById('teach').classList.remove('on');
+    document.getElementById('teachPeek').classList.remove('on');
+  }
+  return _powFrame.call(this,now);
+};
+const _powReady = App.renderReady;
+App.renderReady = function() {
+  _powReady.call(this);
+  if (this.tab!=='ops' && this.tab!=='hist') return;
+  const card=document.createElement('article');card.className='card';card.id='powChapter';
+  card.innerHTML='<div class="body"><h2>Dirty Bird · The October escape</h2><p>First-person prison, rooftops and the route toward the Red River. Inspired by Navy Lieutenant George Coker and U.S. Air Force Captain George G. McKnight’s escape on October 12, 1967. Their actual attempt ended in recapture. The playable layout and alternate outcomes are fictional.</p><div class="btnrow"></div></div>';
+  const buttons=card.querySelector('.btnrow');
+  const add=(label,fn)=>{const button=document.createElement('button');button.className='btn';button.textContent=label;button.onclick=fn;buttons.appendChild(button);};
+  add('Enter the prison',()=>this.startPOW());
+  const saved=Store.get('pow_checkpoint',null);
+  if(saved && saved.version===2 && !saved.complete)add('Continue POW checkpoint',()=>this.startPOW(saved));
+  add('Historical photographs',()=>POWPhotos.open('coker'));
+  document.getElementById('readyBody').prepend(card);
+};
+const _powFinish = POW.finish;
+POW.finish = function(game,result) {
+  if(!game || !game.pow || game.pow.complete)return;
+  _powFinish.call(this,game,result);
+  const outcome=typeof result==='string'?{text:result}:result || {};
+  game.pow.result=outcome;POW.save(game);
+  const log=Store.get('pow_log',[]);
+  log.push({at:Date.now(),title:outcome.title || 'Captivity',text:outcome.text || '',day:game.pow.day,stage:game.pow.stage,fictional:outcome.historical!==true});
+  Store.set('pow_log',log.slice(-50));
+};
+const _powLog = App.renderLog;
+App.renderLog = function(body) {
+  _powLog.call(this,body);
+  const log=Store.get('pow_log',[]);if(!log.length)return;
+  const heading=document.createElement('h2');heading.textContent='POW chapters · player record';body.appendChild(heading);
+  for(const entry of log.slice().reverse()) {
+    const card=document.createElement('article');card.className='card';
+    const h=document.createElement('h3');h.textContent=entry.title+' · day '+entry.day;
+    const p=document.createElement('p');p.textContent=entry.text;
+    const small=document.createElement('p');small.className='dim';small.textContent=entry.fictional?'Fictional gameplay outcome · separate from the historical record':'Historical ending · separate from the flight record';
+    card.append(h,p,small);body.appendChild(card);
+  }
 };
 
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { });

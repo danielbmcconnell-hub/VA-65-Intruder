@@ -1,0 +1,11 @@
+# Milestone 2 · tested physical prison-to-river stage
+
+Adds the first-person Dirty Bird cell, real closed/open door collision, held lock preparation, corridor, continuous stair/roof elevation, rope descent and physically crossed Hanoi lane to the riverbank. Patrols have collision-backed navigation, scheduled duty, sight cones/LOS, remembered noises, investigation, pursuit, search and civilian reports. Keeps the A-6A physics/geometry/mission definitions and Milestone 1 tribute assets unchanged.
+
+The six optimized supplied WebPs are byte-identical to their reference originals. Enhanced PNG masters and the Gemini-generated interview summary are preserved. Source-video links, interpretation labels and blocked archival retrieval are documented. Hypothetical play is distinguished from the October 1967 Coker–McKnight escape and actual recapture.
+
+Verified in actual Chromium WebGL2: Ready Room launches the cell; a closed door stops a long forward walk; physical W/F/C controls collect the bracket and open hardware only after the full hold; walking passes corridor and stairs; feet and camera rise continuously to the roof; the rope is collected, attached and descended; walking crosses the Hanoi lane to the river boundary; checkpoints restore position/elevation and guard memory. The route fixture assigns guard duty away from the happy path; this tests physical accessibility and progression, not final human difficulty balance. Screenshots show the cell, rooftop guard and night street.
+
+Fourteen photograph layout/decode checks passed for desktop and emulated iPhone dimensions. The previous progression suite passed on both layouts, including actual Mission 11 landing capture into the new cell, SAR, audio, debrief and Cruise Log. Node simulation tests check swept collision, LOS, full path, timed interactions, checkpoint atomicity and guard perception/navigation independently of the GPU.
+
+This incremental stage stops at the riverbank. Expanded river journey and interactive captivity are implemented and tested in the following commits. The final Milestone 2 deployment archive, report and screenshots accompany the completed integration. Physical Windows Chrome and iPhone Safari playtesting remains a user/device test; emulation is not described as Safari testing.
