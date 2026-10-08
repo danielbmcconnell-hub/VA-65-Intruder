@@ -1,0 +1,10 @@
+{
+  "commit": "15b039289261be44d9ba5ae7a95b468a5a33501b",
+  "indexSHA256": "de763008699a5b7a2c1de46ce754d205951d33c4a94f9dfa256a22e5f177086d",
+  "browserRegressionChecks": 67,
+  "deploymentChecks": 3,
+  "screenshotsIncluded": 27,
+  "physicalIPhoneTested": false,
+  "physicalWindowsTested": false,
+  "milestone2Started": false
+}
