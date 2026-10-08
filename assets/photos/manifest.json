@@ -1,0 +1,164 @@
+[
+  {
+    "path": "assets/photos/carrier-portrait.jpeg",
+    "source": "reference_photos/clean_carrier_portrait.jpeg",
+    "sha256": "5ee93f36a9416d4a1f4944b2c830cc7aed9d9c3df9e0ab091b1e27befd7180de",
+    "dimensions": [
+      978,
+      1369
+    ]
+  },
+  {
+    "path": "assets/photos/crew-portrait.jpeg",
+    "source": "reference_photos/clean_carrier_portrait.jpeg",
+    "sha256": "5ee93f36a9416d4a1f4944b2c830cc7aed9d9c3df9e0ab091b1e27befd7180de",
+    "dimensions": [
+      978,
+      1369
+    ]
+  },
+  {
+    "path": "assets/photos/survival-portrait.jpg",
+    "source": "Original_Survival_Portrait.jpg",
+    "sha256": "c8e509cae3e6460665548cb6a03949fbac92e787f356eba14701185e43db76eb",
+    "dimensions": [
+      1060,
+      1484
+    ]
+  },
+  {
+    "path": "assets/photos/standing-portrait.jpeg",
+    "source": "reference_photos/clean_replacement_photo_recent.jpeg",
+    "sha256": "c69835f06a3614f071221f3467bc626fefe35984be76584260b0db33366f5fe1",
+    "dimensions": [
+      864,
+      1223
+    ]
+  },
+  {
+    "path": "assets/photos/tiger-insignia.png",
+    "source": "archive/original_user_game.html:IMG_TIGER",
+    "sha256": "d2e460e1cddffc3758b7631c8ef5fa16fe6b5a8f9b599e3c6bab9eb0ba24be6b",
+    "dimensions": [
+      460,
+      419
+    ]
+  },
+  {
+    "path": "assets/photos/kh_bow.jpg",
+    "source": "archive/original_user_game.html:PHOTOS.kh_bow",
+    "sha256": "e78d14de9c134d02cccd66fe705a902b995114dc205718b1eea69abc29e39a48",
+    "dimensions": [
+      860,
+      629
+    ]
+  },
+  {
+    "path": "assets/photos/launch1.jpg",
+    "source": "archive/original_user_game.html:PHOTOS.launch1",
+    "sha256": "b1fe8d19905ac8d5ba44e3f80d3b4d4a4cea327e863633e0307b6b8a83b2e90d",
+    "dimensions": [
+      860,
+      462
+    ]
+  },
+  {
+    "path": "assets/photos/inflight.jpg",
+    "source": "archive/original_user_game.html:PHOTOS.inflight",
+    "sha256": "054e767d8e83714ad433a56bb3c54e435cebb4516a2a71c023e53aaceec73304",
+    "dimensions": [
+      860,
+      627
+    ]
+  },
+  {
+    "path": "assets/photos/rtb.jpg",
+    "source": "archive/original_user_game.html:PHOTOS.rtb",
+    "sha256": "535386a29b88bdb65c6937e1c514271fe337f26f16cdebbfb30bc4675cd9fb64",
+    "dimensions": [
+      860,
+      516
+    ]
+  },
+  {
+    "path": "assets/photos/pair.jpg",
+    "source": "archive/original_user_game.html:PHOTOS.pair",
+    "sha256": "f5b475b9ec1d43cc94054ace2e36ad88865c479b0f6e03c2c5af3b85a77b7ae6",
+    "dimensions": [
+      860,
+      626
+    ]
+  },
+  {
+    "path": "assets/photos/approach.jpg",
+    "source": "archive/original_user_game.html:PHOTOS.approach",
+    "sha256": "ba2b82ba84b123ec832b4f6f6e11fd83f84058e7d9ab56eb84eec77b04a0b1f4",
+    "dimensions": [
+      860,
+      629
+    ]
+  },
+  {
+    "path": "assets/photos/overdeck.jpg",
+    "source": "archive/original_user_game.html:PHOTOS.overdeck",
+    "sha256": "efba85b802c9c20e8a4b98413571954d6170067a48e69c091b388f6ad7d48bc1",
+    "dimensions": [
+      860,
+      532
+    ]
+  },
+  {
+    "path": "assets/photos/kitty.jpg",
+    "source": "archive/original_user_game.html:PHOTOS.kitty",
+    "sha256": "11002268dfb468aa933da7e60b9d50cbc9df35ced9989415b2b7bdde67a25d82",
+    "dimensions": [
+      860,
+      725
+    ]
+  },
+  {
+    "path": "assets/photos/nose.jpg",
+    "source": "archive/original_user_game.html:PHOTOS.nose",
+    "sha256": "10d5baae40ede6f5211111752bcc78eb85d47f52221400f53231c69d868e6250",
+    "dimensions": [
+      860,
+      629
+    ]
+  },
+  {
+    "path": "assets/photos/officers.jpg",
+    "source": "archive/original_user_game.html:PHOTOS.officers",
+    "sha256": "22139a7227ebd91c546d40211efd07824da43afc6775ab048f78e1090b0ac12a",
+    "dimensions": [
+      980,
+      427
+    ]
+  },
+  {
+    "path": "assets/photos/readyroom.jpg",
+    "source": "archive/original_user_game.html:PHOTOS.readyroom",
+    "sha256": "7136808cc3c5af82a3b61ff694d8205c226a14bb72773ee80de39a8c32e7f686",
+    "dimensions": [
+      880,
+      438
+    ]
+  },
+  {
+    "path": "assets/photos/co.jpg",
+    "source": "archive/original_user_game.html:PHOTOS.co",
+    "sha256": "6ce18e40d3c31d5b3f5d5596f7c0f28a89a21dbd26ce48453b0b98585f14434a",
+    "dimensions": [
+      720,
+      569
+    ]
+  },
+  {
+    "path": "assets/figures-original.png",
+    "source": "archive/original_user_game.html:FIG_B64",
+    "sha256": "2b357f1d128f3a9be324778c0fbea527c7574ff8ca328cfb5391bf811d910883",
+    "dimensions": [
+      1536,
+      3456
+    ]
+  }
+]
