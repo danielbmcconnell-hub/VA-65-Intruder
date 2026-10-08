@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="520" viewBox="0 0 600 520"><defs>
+<linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f0c5a0"/><stop offset=".22" stop-color="#b57e60"/><stop offset=".5" stop-color="#d7a17e"/><stop offset=".79" stop-color="#8e5844"/><stop offset="1" stop-color="#55342d"/></linearGradient>
+<linearGradient id="cuff" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#66725b"/><stop offset=".42" stop-color="#434d3d"/><stop offset="1" stop-color="#202a22"/></linearGradient>
+<linearGradient id="steel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9ca8ad"/><stop offset=".16" stop-color="#25313b"/><stop offset=".50" stop-color="#59656c"/><stop offset=".79" stop-color="#172029"/><stop offset="1" stop-color="#778289"/></linearGradient>
+<linearGradient id="blade" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#bdc5c8"/><stop offset=".34" stop-color="#e9e7d7"/><stop offset=".38" stop-color="#596976"/><stop offset="1" stop-color="#a5b1b7"/></linearGradient>
+<radialGradient id="knuckle"><stop stop-color="#e0ae86"/><stop offset=".7" stop-color="#b78062"/><stop offset="1" stop-color="#7d4c3c"/></radialGradient>
+<filter id="shadow" x="-45%" y="-40%" width="190%" height="180%"><feGaussianBlur stdDeviation="10"/></filter></defs><ellipse cx="340" cy="520" rx="150" ry="35" fill="#000" opacity=".27" filter="url(#shadow)"/><path d="M350 520 L310 416 Q303 383 321 357 L359 328 Q392 330 408 352 L432 520 Z" fill="url(#cuff)" stroke="#182019" stroke-width="6"/>
+<path d="M324 415 Q356 426 395 400" fill="none" stroke="#9c9f79" stroke-width="5" opacity=".55"/><path d="M369 425 L408 520" fill="none" stroke="#11180f" stroke-width="4" opacity=".45"/>
+<path d="M320 354 Q312 333 330 308 L355 269 Q365 252 379 258 L408 284 Q420 305 403 332 L390 363 Q361 389 332 376 Z" fill="url(#skin)" stroke="#653e30" stroke-width="5"/>
+<path d="M342 304 Q352 291 366 297 M341 324 Q362 305 378 314 M343 347 Q368 334 389 344" fill="none" stroke="#754838" stroke-width="3" opacity=".8"/>
+<path d="M339 370 Q365 380 395 355" fill="none" stroke="#edb68a" stroke-width="4" opacity=".5"/>
+
+<!-- knife with combat survival blade pointing upward -->
+<path d="M306 276 L298 93 L326 23 L347 100 L348 277 Z" fill="url(#blade)" stroke="#34414a" stroke-width="5"/>
+<path d="M326 30 L325 275" stroke="#f8f6e8" stroke-width="3" opacity=".85"/>
+<path d="M300 118 L317 127 L300 139 L318 151 L301 162" fill="none" stroke="#4f626d" stroke-width="3"/>
+<path d="M292 281 L360 279" stroke="#3a3d32" stroke-width="14" stroke-linecap="round"/>
+<path d="M309 287 L347 286 L355 385 L310 392 Z" fill="#4c4434" stroke="#171b14" stroke-width="5"/>
+<path d="M308 308 L354 305 M309 327 L353 324 M312 347 L355 345 M311 366 L353 365" stroke="#918570" stroke-width="7"/>
+<!-- hand over grip -->
+<path d="M355 312 Q394 292 408 308 Q419 325 401 340 L358 357 Q340 362 331 347 Z" fill="url(#skin)" stroke="#694537" stroke-width="4"/>
+<path d="M360 326 Q378 316 390 321" stroke="#e8b899" stroke-width="4" fill="none"/>
+</svg>

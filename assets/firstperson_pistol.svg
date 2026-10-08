@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="520" viewBox="0 0 600 520"><defs>
+<linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f0c5a0"/><stop offset=".22" stop-color="#b57e60"/><stop offset=".5" stop-color="#d7a17e"/><stop offset=".79" stop-color="#8e5844"/><stop offset="1" stop-color="#55342d"/></linearGradient>
+<linearGradient id="cuff" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#66725b"/><stop offset=".42" stop-color="#434d3d"/><stop offset="1" stop-color="#202a22"/></linearGradient>
+<linearGradient id="steel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9ca8ad"/><stop offset=".16" stop-color="#25313b"/><stop offset=".50" stop-color="#59656c"/><stop offset=".79" stop-color="#172029"/><stop offset="1" stop-color="#778289"/></linearGradient>
+<linearGradient id="blade" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#bdc5c8"/><stop offset=".34" stop-color="#e9e7d7"/><stop offset=".38" stop-color="#596976"/><stop offset="1" stop-color="#a5b1b7"/></linearGradient>
+<radialGradient id="knuckle"><stop stop-color="#e0ae86"/><stop offset=".7" stop-color="#b78062"/><stop offset="1" stop-color="#7d4c3c"/></radialGradient>
+<filter id="shadow" x="-45%" y="-40%" width="190%" height="180%"><feGaussianBlur stdDeviation="10"/></filter></defs><ellipse cx="350" cy="500" rx="145" ry="38" fill="#000" opacity=".35" filter="url(#shadow)"/><path d="M350 520 L310 416 Q303 383 321 357 L359 328 Q392 330 408 352 L432 520 Z" fill="url(#cuff)" stroke="#182019" stroke-width="6"/>
+<path d="M324 415 Q356 426 395 400" fill="none" stroke="#9c9f79" stroke-width="5" opacity=".55"/><path d="M369 425 L408 520" fill="none" stroke="#11180f" stroke-width="4" opacity=".45"/>
+<path d="M320 354 Q312 333 330 308 L355 269 Q365 252 379 258 L408 284 Q420 305 403 332 L390 363 Q361 389 332 376 Z" fill="url(#skin)" stroke="#653e30" stroke-width="5"/>
+<path d="M342 304 Q352 291 366 297 M341 324 Q362 305 378 314 M343 347 Q368 334 389 344" fill="none" stroke="#754838" stroke-width="3" opacity=".8"/>
+<path d="M339 370 Q365 380 395 355" fill="none" stroke="#edb68a" stroke-width="4" opacity=".5"/>
+
+<!-- Smith & Wesson-style .38 shown from first-person slightly to the right -->
+<path d="M314 345 L305 265 L314 209 L320 166 L344 165 L349 216 L359 260 L358 340 Z" fill="url(#steel)" stroke="#171a1c" stroke-width="6"/>
+<path d="M316 179 L316 145 Q320 124 329 122 L336 147 L338 180 Z" fill="#31373c" stroke="#12171b" stroke-width="4"/>
+<ellipse cx="329" cy="142" rx="16" ry="11" fill="#151a1d" stroke="#96a1a9" stroke-width="4"/><ellipse cx="329" cy="142" rx="6" ry="4" fill="#05080a"/>
+<path d="M310 236 Q293 225 290 253 L289 296 Q307 319 354 309 L365 258 Q364 232 341 228 Z" fill="url(#steel)" stroke="#141c21" stroke-width="7"/>
+<circle cx="327" cy="269" r="25" fill="#525c61" stroke="#1b252c" stroke-width="5"/>
+<circle cx="327" cy="269" r="16" fill="#2d373d" stroke="#8c9ca3" stroke-width="3"/>
+<circle cx="327" cy="269" r="5" fill="#0e1417"/>
+<path d="M316 302 L327 360 L366 351 L358 306 Z" fill="#1f2429" stroke="#0c1013" stroke-width="5"/>
+<path d="M311 293 Q287 333 309 355 L340 356" fill="none" stroke="#161b1e" stroke-width="10"/>
+<path d="M314 192 L320 155 M343 192 L336 160" stroke="#a6b7be" stroke-width="3" opacity=".7"/>
+<!-- human thumb over grip -->
+<path d="M371 301 Q396 278 410 293 Q423 304 414 316 L380 342 Q359 352 351 340 Q344 328 357 317 Z" fill="url(#skin)" stroke="#724334" stroke-width="4"/>
+<path d="M390 297 Q401 300 401 313" stroke="#e9b48c" fill="none" stroke-width="3"/>
+</svg>

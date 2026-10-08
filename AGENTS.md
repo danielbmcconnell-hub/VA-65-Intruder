@@ -1,0 +1,3 @@
+# Codex project instructions
+
+Before edits, read README_START_HERE.md. Work in small, reversible stages. Preserve historical A-6A authenticity and originals of private family photographs. The engine is custom WebGL 2, not Three.js. Prioritize functioning controls, clear errors, correctness of sprite alpha and collisions, and real iPhone Safari tests. Distinguish unit tests, mocked browser tests, and verified 3D renders. Do not say an issue is fixed without a reproducible test. Don't add new mechanics before the startup, photos, and collision problems are stable. Commit tested milestones; include a concise changelog.

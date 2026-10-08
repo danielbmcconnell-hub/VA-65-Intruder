@@ -1,0 +1,80 @@
+{
+  "nva": {
+    "resolution": [
+      1536,
+      1728
+    ],
+    "cell": [
+      192,
+      288
+    ],
+    "cells": 48,
+    "transparent_percent": 76.8,
+    "bytes": 1677103
+  },
+  "female_vc": {
+    "resolution": [
+      1536,
+      1728
+    ],
+    "cell": [
+      192,
+      288
+    ],
+    "cells": 48,
+    "transparent_percent": 75.0,
+    "bytes": 1175769
+  },
+  "militia": {
+    "resolution": [
+      1536,
+      1728
+    ],
+    "cell": [
+      192,
+      288
+    ],
+    "cells": 48,
+    "transparent_percent": 69.5,
+    "bytes": 1254038
+  },
+  "farmer": {
+    "resolution": [
+      1536,
+      1728
+    ],
+    "cell": [
+      192,
+      288
+    ],
+    "cells": 48,
+    "transparent_percent": 70.6,
+    "bytes": 1693140
+  },
+  "cow": {
+    "resolution": [
+      2048,
+      1152
+    ],
+    "cell": [
+      256,
+      192
+    ],
+    "cells": 48,
+    "transparent_percent": 58.2,
+    "bytes": 1024164
+  },
+  "aviator": {
+    "resolution": [
+      1536,
+      1728
+    ],
+    "cell": [
+      192,
+      288
+    ],
+    "cells": 48,
+    "transparent_percent": 71.6,
+    "bytes": 1687398
+  }
+}

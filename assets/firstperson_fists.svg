@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="520" viewBox="0 0 600 520"><defs>
+<linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f0c5a0"/><stop offset=".22" stop-color="#b57e60"/><stop offset=".5" stop-color="#d7a17e"/><stop offset=".79" stop-color="#8e5844"/><stop offset="1" stop-color="#55342d"/></linearGradient>
+<linearGradient id="cuff" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#66725b"/><stop offset=".42" stop-color="#434d3d"/><stop offset="1" stop-color="#202a22"/></linearGradient>
+<linearGradient id="steel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9ca8ad"/><stop offset=".16" stop-color="#25313b"/><stop offset=".50" stop-color="#59656c"/><stop offset=".79" stop-color="#172029"/><stop offset="1" stop-color="#778289"/></linearGradient>
+<linearGradient id="blade" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#bdc5c8"/><stop offset=".34" stop-color="#e9e7d7"/><stop offset=".38" stop-color="#596976"/><stop offset="1" stop-color="#a5b1b7"/></linearGradient>
+<radialGradient id="knuckle"><stop stop-color="#e0ae86"/><stop offset=".7" stop-color="#b78062"/><stop offset="1" stop-color="#7d4c3c"/></radialGradient>
+<filter id="shadow" x="-45%" y="-40%" width="190%" height="180%"><feGaussianBlur stdDeviation="10"/></filter></defs>
+<!-- paired raised fists and olive sleeves, Doom-inspired -->
+<path d="M62 522 Q90 468 113 406 L147 339 L209 350 L202 414 L184 520 Z" fill="url(#cuff)" stroke="#1c241d" stroke-width="6"/>
+<path d="M540 522 Q499 451 482 405 L458 338 L391 354 L394 416 L424 520 Z" fill="url(#cuff)" stroke="#1c241d" stroke-width="6"/>
+<path d="M122 396 L204 399 M403 404 L490 390" stroke="#9ba487" stroke-width="5" opacity=".55"/>
+<path d="M125 347 Q112 323 135 302 L143 273 Q153 258 171 262 L198 270 Q220 284 224 320 L214 349 Q192 380 153 370 Z" fill="url(#skin)" stroke="#704637" stroke-width="5"/>
+<path d="M392 343 Q374 327 382 308 L400 276 Q414 257 434 264 L457 277 Q481 299 472 326 L457 366 Q414 376 392 343 Z" fill="url(#skin)" stroke="#704637" stroke-width="5"/>
+<rect x="132" y="271" width="83" height="49" rx="22" fill="url(#knuckle)" stroke="#83543c" stroke-width="4"/>
+<rect x="384" y="274" width="89" height="51" rx="24" fill="url(#knuckle)" stroke="#83543c" stroke-width="4"/>
+<path d="M157 273 Q151 290 159 305 M180 272 Q177 293 183 308 M199 278 Q203 293 202 308" fill="none" stroke="#765044" stroke-width="3"/>
+<path d="M405 276 Q399 296 409 311 M430 276 Q426 295 433 309 M454 286 Q457 296 451 310" fill="none" stroke="#795044" stroke-width="3"/>
+<path d="M127 330 Q112 320 102 335 Q95 350 119 354 L139 358" fill="url(#skin)" stroke="#704637" stroke-width="4"/>
+<path d="M476 330 Q496 317 502 338 Q505 351 479 360 L456 366" fill="url(#skin)" stroke="#704637" stroke-width="4"/>
+</svg>
