@@ -35,7 +35,18 @@ const server=http.createServer((req,res)=>{
    observed.photosDecoded=await page.evaluate(async()=>{const sources=[IMG_HERO,IMG_PHOTO,IMG_BN_STAND,IMG_BN_CROUCH,IMG_TIGER,FIG_SRC,...Object.values(PHOTOS).map(p=>p.s)];for(const src of sources){const im=new Image();im.src=src;await im.decode();if(!(im.naturalWidth>0&&im.naturalHeight>0))throw Error('Invalid photograph '+src)}return sources.length});assert.equal(observed.photosDecoded,18);
    assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
    await page.locator('#teach').dispatchEvent('click');await page.screenshot({path:path.join(root,'test-results','build-'+name+'-flight.png')});
-   checks.push({name:name+' packaged flight launches and renders with fresh default settings',passed:true,observed,errors,missing});console.log('PASS '+name+' packaged flight: default quality '+observed.quality+', '+observed.photosDecoded+' images decoded');await ctx.close();
+   checks.push({name:name+' packaged flight launches and renders with fresh default settings',passed:true,observed,errors,missing});console.log('PASS '+name+' packaged flight: default quality '+observed.quality+', '+observed.photosDecoded+' images decoded');
+   const pow=await page.evaluate(async()=>{
+     const G=App.game;POW.begin(G,'cell');G.paused=true;G.render(1/60);
+     const snapshot=POW.save(G);POW.begin(G,'cell',snapshot);G.paused=true;G.render(1/60);
+     let historicalPhotos=0;
+     for(const item of Object.values(POWPhotos.historicalPhotoAssets)){const im=new Image();im.src=item.src;await im.decode();if(!im.naturalWidth)throw Error('Invalid historical photograph '+item.src);historicalPhotos++;}
+     return {stage:G.pow.stage,solids:G.pow.solids.length,checkpoint:Store.get('pow_checkpoint',null)?.stage,historicalPhotos,riverLoaded:!!POW.River,captivityLoaded:!!POW.Captivity,gpuError:G.rend.gl.getError(),cameraHeight:G.rend.eye[1]-G.evade.p[1]};
+   });
+   assert.equal(pow.stage,'cell');assert.ok(pow.solids>20&&pow.riverLoaded&&pow.captivityLoaded);assert.equal(pow.checkpoint,'cell');assert.equal(pow.historicalPhotos,6);assert.equal(pow.gpuError,0);assert.ok(Math.abs(pow.cameraHeight-1.68)<.01);
+   assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
+   await page.screenshot({path:path.join(root,'test-results','build-'+name+'-pow.png')});
+   checks.push({name:name+' packaged POW chapter, checkpoint and historical photographs',passed:true,observed:pow,errors,missing});console.log('PASS '+name+' packaged POW chapter and six historical photographs');await ctx.close();
   }
   fs.writeFileSync(path.join(root,'test-results/build.json'),JSON.stringify({scope:'Runtime deployment folder byte checks and actual Chromium WebGL2 flight smoke; physical devices not tested',sourceSha256:manifest.entrySHA256,checks,recordedAt:new Date().toISOString()},null,2)+'\n');
   console.log('PASS deployment folder: all exact runtime hashes and desktop/native-touch flight, zero missing local assets or JavaScript/WebGL errors');

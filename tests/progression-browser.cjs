@@ -103,14 +103,13 @@ module.exports=async function progression(browser,target,evidenceDir){
    record('Mission11 parachute progression enters the physical prison chapter',prison,'Actual Mission11 ejection/descent; new playable chapter supersedes the former menu sequence');
    await shot('mission11-physical-cell');
    await page.evaluate(()=>{App.game=null;App.show('ready');App.renderReady();});
-   // The regular mission capture route has a different narrative from Mission11.
+   // Regular flight capture now joins the same physical captivity system.
    await start(false);await ground();await page.evaluate(()=>App.game.captured());
-   await page.waitForFunction(()=>document.getElementById('captTitle').textContent==='Taken',null,{timeout:10000});
-   await click('Go on');await click('Name, rank, service number, date of birth');await click('Answer the tapping');await click('Go on');
-   for(let i=0;i<2;i++)await click('Hold out');await click('Settle in and last it out');await click('Go on');
-   const returned=await page.evaluate(()=>({captured:App.game._capt,reason:App.game.captOutcome,text:App.game.debriefText(false,null,null,App.game.captOutcome)}));
-   assert.ok(returned.captured);assert.match(returned.reason,/Homecoming/);assert.match(returned.text,/survived capture/);record('Regular capture, tap-code captivity and Homecoming debrief',returned,'Actual existing narrative choices after invoking the real capture transition');
-   await shot('captivity-homecoming-debrief');
+   await page.waitForFunction(()=>App.game?.pow?.stage==='solitary',null,{timeout:10000});
+   const confinement=await page.evaluate(()=>({captured:App.game._capt,stage:App.game.pow.stage,phase:App.game.phase,objects:App.game.pow.objects.map(o=>o.id),day:App.game.pow.day,captureYear:App.game.pow.captivity.captureYear,checkpoint:Store.get('pow_checkpoint',null)?.stage}));
+   assert.equal(confinement.captured,1);assert.equal(confinement.stage,'solitary');assert.equal(confinement.phase,'evade');assert.equal(confinement.checkpoint,'solitary');assert.ok(confinement.objects.includes('cell-notebook'));
+   record('Regular mission capture enters interactive solitary confinement',confinement,'Real flight capture callback; extended time/puzzles/release are covered by the captivity suite');
+   await shot('captivity-physical-cell');
    assert.deepEqual(errors,[]);assert.deepEqual(badAssets,[]);record('No uncaught JavaScript errors or missing runtime assets',{errors,badAssets},'Throughout progression');
   }finally{await ctx.close()}
  }

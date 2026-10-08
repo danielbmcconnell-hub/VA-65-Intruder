@@ -441,6 +441,11 @@
       event.stopImmediatePropagation();const e=g.evade,factor=.0025*(A.set.sens || 1);e.hdg+=event.movementX*factor;e.pitchCmd=clamp((e.pitchCmd || 0)-event.movementY*factor,-.85,1.2);e.look=e.pitchCmd;
     },true);
     const stack=document.getElementById('stack');
+    const canvas=document.getElementById('gl');
+    if(canvas)canvas.addEventListener('webglcontextlost',()=>{
+      const g=current();touchLook=null;
+      if(g && g.pow){g.pow.touchInteract=false;g.pow.touchClimb=false;g.pow.holding=null;g.pow.interactLatched=false;}
+    });
     if(stack) {
       stack.addEventListener('pointerdown',event=>{const g=current();if(!g || !g.pow || g.paused || inputBlocked(g) || event.pointerType==='mouse' || event.target.closest('button,.tc,#stick') || event.clientX<innerWidth*.43)return;touchLook={id:event.pointerId,x:event.clientX,y:event.clientY};stack.setPointerCapture && stack.setPointerCapture(event.pointerId);event.preventDefault();});
       stack.addEventListener('pointermove',event=>{const g=current();if(!touchLook || touchLook.id!==event.pointerId || !g || !g.pow || inputBlocked(g))return;const e=g.evade;e.hdg+=(event.clientX-touchLook.x)*.006;e.pitchCmd=clamp((e.pitchCmd || 0)-(event.clientY-touchLook.y)*.006,-.85,1.2);e.look=e.pitchCmd;touchLook.x=event.clientX;touchLook.y=event.clientY;event.preventDefault();});

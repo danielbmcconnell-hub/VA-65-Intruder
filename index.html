@@ -823,6 +823,7 @@ body.desktop #hudbar{display:flex}
 <script src="assets/pow/core.js"></script>
 <script src="assets/pow/ai.js"></script>
 <script src="assets/pow/river.js"></script>
+<script src="assets/pow/captivity.js"></script>
 <script src="assets/pow/history.js"></script>
 <script>
 /* ===== src/00-assets.js ===== */
@@ -17963,6 +17964,15 @@ Game.prototype.stepEvade = function(dt) {
   return this.pow ? POW.tick(this,dt) : _originalStepEvade.call(this,dt);
 };
 App.cokerCamp = function(game) { return POW.begin(game,'cell'); };
+App.captivity = function(game) { return POW.begin(game,'solitary'); };
+const _originalCaptured = Game.prototype.captured;
+Game.prototype.captured = function() {
+  if (!this.pow) return _originalCaptured.call(this);
+  if (this.pow.stage==='solitary' || this.pow.complete) return;
+  this.pow.flags.recaptures=(this.pow.flags.recaptures || 0)+1;
+  this.pow.stats.recaptures=(this.pow.stats.recaptures || 0)+1;
+  return POW.begin(this,'solitary');
+};
 App.startPOW = function(saved) {
   this.start(MISSIONS.find(m => m.escape));
   this._powLaunch = {saved: saved || null, token:this._missionStart};
@@ -17998,6 +18008,11 @@ POW.finish = function(game,result) {
   _powFinish.call(this,game,result);
   const outcome=typeof result==='string'?{text:result}:result || {};
   game.pow.result=outcome;POW.save(game);
+  if (game.mis.escape) {
+    App.prog.done[game.mis.id]=1;
+    App.prog.grade[game.mis.id]=outcome.historical===true?'CAPTIVITY COMPLETE':'FICTIONAL ESCAPE';
+    Store.set('prog',App.prog);
+  }
   const log=Store.get('pow_log',[]);
   log.push({at:Date.now(),title:outcome.title || 'Captivity',text:outcome.text || '',day:game.pow.day,stage:game.pow.stage,fictional:outcome.historical!==true});
   Store.set('pow_log',log.slice(-50));

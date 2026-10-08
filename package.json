@@ -9,13 +9,13 @@
     "test:missions": "node tests/run-browser.cjs --suite=missions",
     "test:progression": "node tests/run-browser.cjs --suite=progression",
     "test:regressions": "node tests/run-browser.cjs --suite=regressions",
-    "test:assets": "node tests/check-preservation.cjs && python3 tests/check-atlases.py",
+    "test:assets": "node tests/check-preservation.cjs && node tests/check-pow-assets.cjs && python3 tests/check-atlases.py",
     "browsers:install": "playwright install chromium webkit",
     "build": "node tools/package-build.cjs",
     "test:ground": "node tests/run-browser.cjs --suite=ground",
     "test:renderer": "node tests/run-browser.cjs --suite=renderer",
     "test:build": "node tests/build-browser.cjs",
-    "test:pow": "node tests/pow-core.cjs && node tests/pow-ai.cjs && node tests/pow-river.cjs && node tests/run-browser.cjs --suite=pow"
+    "test:pow": "node tests/pow-core.cjs && node tests/pow-ai.cjs && node tests/pow-river.cjs && node tests/pow-captivity.cjs && node tests/pow-ground-awareness-browser.cjs && node tests/run-browser.cjs --suite=pow"
   },
   "devDependencies": {
     "playwright": "1.62.1"
