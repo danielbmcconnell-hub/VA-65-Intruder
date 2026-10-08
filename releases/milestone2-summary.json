@@ -1,0 +1,77 @@
+{
+  "sourceCommit": "ba5c2f2e29e8dba5e0fdeff939dccdbb8aa0be91",
+  "entrySHA256": "a2083e20ef09c97f8a3c6c917b93b5672375de1871c7a632bf0c1c5cc8eefee2",
+  "browserChecks": 147,
+  "pureSimulationChecks": 67,
+  "suites": [
+    {
+      "suite": "renderer",
+      "checks": 6,
+      "passed": true,
+      "recordedAt": "2026-10-08T23:36:32.249Z"
+    },
+    {
+      "suite": "missions",
+      "checks": 22,
+      "passed": true,
+      "recordedAt": "2026-10-08T23:41:27.212Z"
+    },
+    {
+      "suite": "progression",
+      "checks": 26,
+      "passed": true,
+      "recordedAt": "2026-10-08T23:42:32.609Z"
+    },
+    {
+      "suite": "ground",
+      "checks": 11,
+      "passed": true,
+      "recordedAt": "2026-10-08T23:42:41.622Z"
+    },
+    {
+      "suite": "photos",
+      "checks": 14,
+      "passed": true,
+      "recordedAt": "2026-10-08T23:42:52.616Z"
+    },
+    {
+      "suite": "prison",
+      "checks": 19,
+      "passed": true,
+      "recordedAt": "2026-10-08T23:43:06.999Z"
+    },
+    {
+      "suite": "river",
+      "checks": 14,
+      "passed": true,
+      "recordedAt": "2026-10-08T23:43:23.093Z"
+    },
+    {
+      "suite": "captivity",
+      "checks": 15,
+      "passed": true,
+      "recordedAt": "2026-10-08T23:43:47.689Z"
+    },
+    {
+      "suite": "controls",
+      "checks": 14,
+      "passed": true,
+      "recordedAt": "2026-10-08T23:45:59.790Z"
+    },
+    {
+      "suite": "awareness",
+      "checks": 6,
+      "passed": true,
+      "recordedAt": "2026-10-08T23:46:44.319Z"
+    }
+  ],
+  "historicalMediaImages": 6,
+  "physicalWindowsTestedHere": false,
+  "physicalIPhoneSafariTested": false,
+  "execution": "Actual Chromium WebGL2 with SwiftShader, desktop and touch fixtures; pure simulation tests have no GPU.",
+  "reruns": "Initial full runner stopped at the asynchronous context-loss comparison in controls. The snapshot fixture was corrected to record the actual loss event; the complete controls suite and previously unrun awareness suite subsequently passed. All preceding full-run suites passed and were retained.",
+  "packagedBuildChecks": 5,
+  "runtimeFiles": 48,
+  "deploymentZIPSHA256": "60b157363a58f6300ebafe8d2d91c3fb170f72fd6f3d9f94aa48d1ff142428ce",
+  "deploymentZIPBytes": 22289476
+}
