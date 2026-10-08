@@ -18,23 +18,6 @@ The integrated regression reports were recorded at 17:34–17:41 UTC; deployment
 
 The runtime ZIP contains 35 files including Netlify `_headers`, with `index.html` at the root. Reference folders, archive, test tooling and Git history are excluded. The evidence ZIP contains the reports and actual browser PNGs; `dist/build-manifest.json` identifies the release commit and runtime hashes. Milestone 2 has not begun.
 
-## Final result — 8 October 2026
-
-The full integrated browser run passed **67 checks** against the final game source, with no uncaught JavaScript errors. A separate deployment-folder check verified all runtime file hashes and real flight on both layouts. Physical Windows and iPhone Safari testing remains for the user's device trial; Milestone 2 has not begun.
-
-| Suite | Result | What ran |
-| --- | --- | --- |
-| Renderer | 6 passed | GPU resource lifetime, shader pixels/alpha/occlusion, context recovery and pending debrief |
-| Missions | 22 passed | All 11 briefs, starts and four-second flights on desktop and native emulated touch |
-| Progression | 28 passed | Two layouts: ejection, ground, audio, rescue, capture, prison/escape, photographs and logs |
-| Ground regressions | 11 passed | AI facing, weapons, surrender, timing, static/body/wreck collision and recapture |
-| Packaged build | 3 passed | Exact HTTP-served runtime hashes plus desktop/touch flight renders |
-| Asset preservation | Passed | Strict decoding, exact original photo/atlas bytes, derived RGB and unchanged flight/model/mission source |
-
-Tested `index.html` SHA-256: `de763008699a5b7a2c1de46ce754d205951d33c4a94f9dfa256a22e5f177086d`. The runtime ZIP has `index.html` at its root and includes only runtime assets and Netlify headers. Its content matches this source.
-
-The evidence ZIP contains the JSON reports and actual WebGL screenshots of desktop/touch flight, farmers, VC/NVA figures, vegetation, the prison cell/yard, river escape and clean recovered debrief photograph. Those scenes use controlled fixtures described below.
-
 ## Corrected defects
 
 - Corrupted standing debrief and ready-room/history portraits: exact supplied originals, native dimensions/aspect ratio, no filters or fades. Restored all twelve damaged cruise photographs, insignia PNG and photographic fallback sheet from the clean archived build. No AI-generated or retouched portraits.
@@ -57,7 +40,6 @@ python3 -m pip install -r requirements-dev.txt
 npm run test:assets
 npm test
 npm run build
-npm run test:build
 npm run test:build
 ```
 
