@@ -10,7 +10,7 @@
 }
 </style>
 </head><body>
-<title>Intruder: Yankee Station — Enhanced v7</title>
+<title>Intruder: Yankee Station — Milestone 1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Share+Tech+Mono&display=swap">
@@ -85,7 +85,7 @@ p{line-height:1.55;margin:0 0 .85em}
   filter:drop-shadow(0 6px 22px rgba(242,105,27,.40))}
 .eyebrow2{font-family:var(--ff-mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--tiger)}
 
-#boot .bigtitle{font-size:clamp(54px,10.5vw,122px);line-height:.84;margin:0}
+#boot .bigtitle{font-size:clamp(44px,7.3vw,92px);line-height:.84;margin:0}
 #boot .subtitle{margin-top:4px}
 .rule{height:2px;width:clamp(120px,22vw,260px);margin:clamp(16px,2.4vw,26px) 0;
   background:linear-gradient(90deg,var(--tiger),rgba(242,105,27,0))}
@@ -635,7 +635,7 @@ body.desktop #hudbar{display:flex}
         <img class="tigermark" id="bootTiger" alt="VA-65 squadron insignia: ATKRON SIXTY FIVE">
         <div>
           <div class="eyebrow">Attack Squadron Sixty-Five</div>
-          <div class="eyebrow2">The World Famous Fighting Tigers · V11 TACTICAL</div>
+          <div class="eyebrow2">The World Famous Fighting Tigers · MILESTONE 1</div>
         </div>
       </div>
 
@@ -651,7 +651,7 @@ body.desktop #hudbar{display:flex}
         <div class="n">LTJG William S. McConnell, USN</div>
         <div class="r">Bombardier/Navigator, A-6A Intruder<br>
         VA-65 &middot; USS <em>Kitty Hawk</em> (CVA-63) &middot; Carrier Air Wing Eleven<br>
-        <span class="mono">1968&ndash;1970</span></div>
+        <span class="mono">1968&ndash;1969</span></div>
       </div>
 
       <div class="bootactions" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
@@ -818,6 +818,7 @@ body.desktop #hudbar{display:flex}
 <div id="runtimeHelp" role="status" aria-live="polite">This file preview may block interactive games. For reliable play, upload the web package and open its URL in Safari.</div>
 <script id="bootstrap-status">(function(){var box=document.getElementById('runtimeHelp');box.textContent='Starting game controls…';window.addEventListener('error',function(e){if(e.target!==window||!e.message)return;if(box){box.hidden=false;box.textContent='Game error: '+e.message+' ('+(e.lineno||'?')+':'+(e.colno||'?')+')';}});window.addEventListener('unhandledrejection',function(e){if(box){box.hidden=false;box.textContent='Startup issue: '+String(e.reason||'unknown')+' — use the hosted web package in Safari.';}});})();</script>
 
+<script src="assets/atlas-metadata.js"></script>
 <script>
 /* ===== src/00-assets.js ===== */
 /* ===================================================================
@@ -2263,7 +2264,7 @@ class MB {
 
 /* ============================ Renderer ============================ */
 class Renderer {
-  constructor(canvas) {
+  constructor(canvas, quality = 2) {
     const gl = this.gl = canvas.getContext('webgl2', {
       antialias: true, alpha: false, depth: true, powerPreference: 'high-performance',
       preserveDrawingBuffer: false, failIfMajorPerformanceCaveat: false
@@ -2273,7 +2274,7 @@ class Renderer {
     this.floatBuf = !!gl.getExtension('EXT_color_buffer_float');
     gl.getExtension('OES_texture_float_linear');
     this.dpr = 1; this.W = 1; this.H = 1;
-    this.quality = 2;             // 0 low 1 med 2 high
+    this._quality = clamp(Math.round(Number(quality) || 0), 0, 2); // before GPU allocation
     this.bloomOn = true;
     this.matV = m4(); this.matP = m4(); this.matVP = m4(); this.matM = m4();
     this.fires = new Float32Array(32); this.fireN = 0;
@@ -2292,6 +2293,14 @@ class Renderer {
     this._buildFS();
     this._buildShadow();
     this.meshes = {};
+  }
+
+  get quality() { return this._quality; }
+  set quality(value) {
+    const next = clamp(Math.round(Number(value) || 0), 0, 2);
+    if (next === this._quality) return;
+    this._quality = next;
+    if (this.meshes && !this.gl.isContextLost()) this._buildShadow();
   }
 
   /* ---------------- programs ---------------- */
@@ -3160,6 +3169,7 @@ class Renderer {
       layout(location=4) in vec4 iTintFlip;
       uniform mat4 uVP; uniform vec3 uCam;
       out vec2 vT; out vec3 vW, vTint, vFace3;
+      flat out vec4 vCellBounds;
       void main(){
         vec3 toCam = uCam - iP; toCam.y = 0.0;
         float L = length(toCam);
@@ -3167,14 +3177,13 @@ class Renderer {
         vec3 wp = iP + r * (aQ.x * iHW.y) + vec3(0.0, aQ.y * iHW.x, 0.0);
         vW = wp;
         float cols = max(iCell.y, 1.0), rows = max(iCell.z, 1.0);
-        float idx = iCell.x;
+        float idx = clamp(iCell.x, 0.0, cols * rows - 1.0);
         float cx = mod(idx, cols), cy = floor(idx / cols);
         vec2 uv = vec2((aQ.x + 0.5), 1.0 - aQ.y);
-        // Half-texel atlas gutter: bilinear sampling must not pull the
-        // adjacent frame's transparent border into a moving character.
-        uv = clamp(uv, vec2(0.0032,0.0025), vec2(0.9968,0.9975));
         if (iTintFlip.w > 0.5) uv.x = 1.0 - uv.x;
-        vT = (vec2(cx, cy) + uv) / vec2(cols, rows);
+        vec2 grid = vec2(cols, rows);
+        vCellBounds = vec4(vec2(cx, cy) / grid, (vec2(cx, cy) + 1.0) / grid);
+        vT = (vec2(cx, cy) + uv) / grid;
         vTint = iTintFlip.xyz;
         /* The direction the sprite's face points, handed to the
            fragment stage. The sun uniforms live in the fragment
@@ -3184,14 +3193,19 @@ class Renderer {
       }
     `, GLSL_NOISE + GLSL_ATMOS + GLSL_SHADOW + `
       in vec2 vT; in vec3 vW, vTint, vFace3;
+      flat in vec4 vCellBounds;
       uniform sampler2D uTex; uniform vec3 uCam;
+      uniform vec2 uTexel; uniform float uAlphaPass, uPremultiplied;
       out vec4 o;
       void main(){
-        vec4 t = texture(uTex, vT);
-        // Cut out the transparent photography matte, but make surviving pixels solid.
-        // The former 0.14 cutoff + alpha blending made guards look like ghosts.
-        if (t.a < 0.55) discard;
-        vec3 alb = t.rgb * vTint;
+        // Clamp to the actual texture's pixel centres, including resized atlases.
+        vec2 uv = clamp(vT, vCellBounds.xy + uTexel * 0.5,
+                           vCellBounds.zw - uTexel * 0.5);
+        vec4 t = texture(uTex, uv);
+        if (t.a <= 1.0 / 255.0) discard;
+        if (uAlphaPass < 0.5 ? t.a < 0.98 : t.a >= 0.98) discard;
+        vec3 rgb = uPremultiplied > 0.5 ? t.rgb / max(t.a, 1.0 / 255.0) : t.rgb;
+        vec3 alb = rgb * vTint;
         /* Lit as a vertical surface: it sees half the sky, some bounce
            off the ground, and the sun according to which way it is
            turned relative to it. The painted shading in the sprite
@@ -3204,7 +3218,8 @@ class Renderer {
         // The previous full terrain lighting washed uniforms to pale patches.
         vec3 col = mix(alb * vec3(0.91), shaded, 0.44);
         col += alb * fireLight(vW, vec3(0.0, 1.0, 0.0));
-        o = vec4(applyFog(col, vW, uCam), 1.0);
+        float alpha = uAlphaPass < 0.5 ? 1.0 : t.a;
+        o = vec4(applyFog(col, vW, uCam) * alpha, alpha);
       }
     `);
     {
@@ -3366,12 +3381,28 @@ class Renderer {
   }
 
   /* ---------------- sizing / targets ---------------- */
+  _disposeTargets() {
+    const gl = this.gl;
+    for (const key of ['fbScene', 'fbB1', 'fbB2']) {
+      if (this[key]) gl.deleteFramebuffer(this[key]);
+      this[key] = null;
+    }
+    for (const key of ['texScene', 'texB1', 'texB2']) {
+      if (this[key]) gl.deleteTexture(this[key]);
+      this[key] = null;
+    }
+    if (this.depthScene) gl.deleteRenderbuffer(this.depthScene);
+    this.depthScene = null;
+  }
+
   resize(w, h, dpr) {
     const gl = this.gl;
+    if (gl.isContextLost()) return;
     const scale = this.quality === 0 ? 0.72 : this.quality === 1 ? 0.88 : 1.0;
     this.dpr = Math.min(dpr, this.quality === 2 ? 2 : 1.5) * scale;
     const W = Math.max(2, Math.round(w * this.dpr)), H = Math.max(2, Math.round(h * this.dpr));
     if (W === this.W && H === this.H) return;
+    this._disposeTargets();
     this.W = W; this.H = H;
     this.canvas.width = W; this.canvas.height = H;
     const fmt = this.floatBuf ? gl.RGBA16F : gl.RGBA8;
@@ -3389,13 +3420,15 @@ class Renderer {
       const f = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, f);
       gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tx, 0);
       if (depth) {
-        const rb = gl.createRenderbuffer(); gl.bindRenderbuffer(gl.RENDERBUFFER, rb);
+        const rb = this.depthScene = gl.createRenderbuffer(); gl.bindRenderbuffer(gl.RENDERBUFFER, rb);
         gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, w2, h2);
         gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, rb);
       }
-      gl.bindFramebuffer(gl.FRAMEBUFFER, null); return f;
+      const complete = gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE;
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      if (!complete) { gl.deleteFramebuffer(f); throw new Error('WebGL render target incomplete'); }
+      return f;
     };
-    if (this.fbScene) { /* let GC handle old ones */ }
     this.texScene = mkTex(W, H, fmt, type); this.fbScene = mkFBO(this.texScene, true, W, H);
     const bw = Math.max(2, W >> 2), bh = Math.max(2, H >> 2);
     this.bw = bw; this.bh = bh;
@@ -3437,17 +3470,19 @@ class Renderer {
        shape of a tree and covers about a tenth of what you can see. At
        high quality it is worth four times the memory to get both the
        reach and the sharpness; anything lower keeps the small map. */
-    const gl = this.gl, S = this.shadowSize = this.quality >= 2 ? 4096 : 2048;
+    const gl = this.gl;
+    if (this.fbShadow) gl.deleteFramebuffer(this.fbShadow);
+    if (this.shadowTex) gl.deleteTexture(this.shadowTex);
+    // A disabled one-pixel map keeps the shadow sampler valid at low quality.
+    const S = this.shadowSize = Math.min(gl.getParameter(gl.MAX_TEXTURE_SIZE),
+      this.quality === 0 ? 1 : this.quality === 2 ? 4096 : 2048);
     const t = this.shadowTex = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, t);
     gl.texStorage2D(gl.TEXTURE_2D, 1, gl.DEPTH_COMPONENT32F, S, S);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    const rep = (name === 'wear');
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, rep ? gl.REPEAT : gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, rep ? gl.REPEAT : gl.CLAMP_TO_EDGE);
-    if (rep) { gl.generateMipmap(gl.TEXTURE_2D);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); }
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_FUNC, gl.LEQUAL);
     const f = this.fbShadow = gl.createFramebuffer();
@@ -3457,7 +3492,7 @@ class Renderer {
     this.shadowOK = gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE;
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     this.matLightVP = m4(); this.matLightV = m4(); this.matLightP = m4();
-    this.shadows = true;
+    this.shadows = this.quality > 0;
   }
 
   /* Fit the light box to a patch of ground ahead of the camera. The whole
@@ -3566,10 +3601,12 @@ class Renderer {
     // shadow map, bound for every lit pass
     const on = this.shadowOK && this.shadows && this.quality > 0;
     gl.uniform1f(p.u.uShadowOn, on ? 1 : 0);
+    // Assign sampler units even with shadows disabled: sampler2D and
+    // sampler2DShadow must never share the sprite texture's unit zero.
+    gl.activeTexture(gl.TEXTURE7);
+    gl.bindTexture(gl.TEXTURE_2D, this.shadowTex);
+    gl.uniform1i(p.u.uShadow, 7);
     if (on) {
-      gl.activeTexture(gl.TEXTURE7);
-      gl.bindTexture(gl.TEXTURE_2D, this.shadowTex);
-      gl.uniform1i(p.u.uShadow, 7);
       gl.uniformMatrix4fv(p.u.uLightVP, false, this.matLightVP);
       gl.uniform3f(p.u.uShParam, this.shadowR * 2 / this.shadowSize, 6000, 1 / this.shadowSize);
     }
@@ -3649,22 +3686,29 @@ class Renderer {
     const t = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, t);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+    const sprite = name !== 'wear';
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, sprite);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, cv);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
     /* No mipmaps on a sprite atlas. Successive levels average the
        transparent gutter between cells into the figures, and with an
        alpha test on top of that the result is a man with holes
        punched through him and bits of his neighbour on his shoulder —
        which is exactly what the first pass drew. */
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, nearest ? gl.NEAREST : gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, nearest ? gl.NEAREST : gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    const ext = gl.getExtension('EXT_texture_filter_anisotropic');
-    if (ext) gl.texParameterf(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT,
-      Math.min(8, gl.getParameter(ext.MAX_TEXTURE_MAX_ANISOTROPY_EXT)));
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, sprite ? gl.CLAMP_TO_EDGE : gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, sprite ? gl.CLAMP_TO_EDGE : gl.REPEAT);
+    // Atlas mipmaps/anisotropy mix neighbouring frames. Material maps can tile.
+    if (!sprite) {
+      gl.generateMipmap(gl.TEXTURE_2D);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    }
     this.textures = this.textures || {};
-    this.textures[name] = { tex: t, w: cv.width, h: cv.height };
+    const old = this.textures[name];
+    this.textures[name] = { tex: t, w: cv.naturalWidth || cv.width,
+      h: cv.naturalHeight || cv.height, premultiplied: sprite };
+    if (old && old.tex) gl.deleteTexture(old.tex);
     return this.textures[name];
   }
 
@@ -3678,11 +3722,14 @@ class Renderer {
     const gl = this.gl, T = this.textures && this.textures[name];
     if (!T) return;
     const p = this.pSprite;
-    const n = Math.min(list.length, 900);
+    // Opaque interiors resolve occlusion first; soft edges blend far to near.
+    const sorted = list.slice().sort((a, b) => vdist2(a.p, this.eye) - vdist2(b.p, this.eye))
+      .slice(0, 900).reverse();
+    const n = sorted.length;
     if (!this._spBuf) this._spBuf = new Float32Array(900 * 12);
     const b = this._spBuf;
     for (let i = 0; i < n; i++) {
-      const s = list[i], o = i * 12;
+      const s = sorted[i], o = i * 12;
       b[o] = s.p[0]; b[o + 1] = s.p[1]; b[o + 2] = s.p[2];
       b[o + 3] = s.h; b[o + 4] = s.w === undefined ? s.h * 0.5 : s.w;
       /* `| 1` here instead of `|| 1` made eight columns into nine and
@@ -3699,17 +3746,25 @@ class Renderer {
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, T.tex);
     gl.uniform1i(p.u.uTex, 0);
+    gl.uniform2f(p.u.uTexel, 1 / T.w, 1 / T.h);
+    gl.uniform1f(p.u.uPremultiplied, T.premultiplied ? 1 : 0);
     gl.bindVertexArray(this.spVao);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.spInst);
     gl.bufferData(gl.ARRAY_BUFFER, b.subarray(0, n * 12), gl.DYNAMIC_DRAW);
-    // Opaque cutouts write depth. This keeps walls in front of guards and
-    // prevents sprites behind solid scenery from shining through.
+    // Solid interiors write depth so walls and nearer actors occlude them.
+    // Anti-aliased edges retain their alpha without punching holes in bodies.
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
     gl.depthMask(true);
     gl.disable(gl.BLEND);
     gl.disable(gl.CULL_FACE); // each billboard has two visible faces
+    gl.uniform1f(p.u.uAlphaPass, 0);
     gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, n);
+    gl.uniform1f(p.u.uAlphaPass, 1);
+    gl.depthMask(false);
+    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, n);
+    gl.disable(gl.BLEND); gl.depthMask(true);
     gl.enable(gl.CULL_FACE);
     gl.bindVertexArray(null);
   }
@@ -10926,7 +10981,9 @@ const App = {
   initGraphics() {
     if (this.rend) return;
     try {
-    this.rend = new Renderer($('#gl'));
+    this.bindGraphicsContext();
+    if (this.graphicsContextLost) throw new Error('WebGL display is waiting for restoration');
+    this.rend = new Renderer($('#gl'), this.set.quality);
     {
       this.rend.quality = this.set.quality;
       this.rend.bloomOn = true;
@@ -10935,9 +10992,10 @@ const App = {
       try { this.rend.texFromCanvas('people', buildSpriteSheet()); }
       catch (e) { /* no sprites; the mesh figures still draw */ }
       // Photographic character atlases: load independently, retain original fallback.
+      const renderer = this.rend;
       for (const name of ['nva','female_vc','militia','farmer','cow','aviator','vegetation']) {
         const im = new Image();
-        im.onload = () => { if (!this.rend) return;
+        im.onload = () => { if (this.rend !== renderer || renderer.gl.isContextLost()) return;
           try {
             // Smaller GPU textures on touch devices reduce iPhone/iPad memory pressure.
             // Canvas dimensions change, but the atlas UV layout stays identical.
@@ -10945,16 +11003,20 @@ const App = {
             if (IS_TOUCH && Math.max(im.naturalWidth, im.naturalHeight) > 1728) {
               const scale = 1728 / Math.max(im.naturalWidth, im.naturalHeight);
               const cv = document.createElement('canvas');
-              cv.width = Math.max(1, Math.round(im.naturalWidth*scale));
-              cv.height = Math.max(1, Math.round(im.naturalHeight*scale));
+              // Whole cell dimensions keep each 8×6 frame on a pixel boundary.
+              cv.width = Math.max(8, Math.floor(im.naturalWidth * scale / 8) * 8);
+              cv.height = Math.max(6, Math.floor(im.naturalHeight * scale / 6) * 6);
               const g = cv.getContext('2d');
               if (g) { g.imageSmoothingQuality = 'high'; g.drawImage(im, 0, 0, cv.width, cv.height); source = cv; }
             }
-            this.rend.texFromCanvas('photo_'+name, source);
+            renderer.texFromCanvas('photo_'+name, source);
           } catch(err) { console.warn('Sprite texture',name,err); }
         };
-        im.onerror = () => console.warn('Photographic atlas failed to load:',name);
-        im.src = 'assets/'+name+'.webp';
+        im.onerror = () => {
+          if (im.src.includes('/processed/')) im.src = 'assets/'+name+'.webp';
+          else console.warn('Photographic atlas failed to load:',name);
+        };
+        im.src = 'assets/processed/'+name+'.webp';
       }
 
       /* The real figures are cut out of a photograph, and that sheet is
@@ -10962,11 +11024,9 @@ const App = {
          fallback sheet first so nothing waits on a decode, then swap
          the photographed one in the moment it lands. */
       loadFigures(() => {
-        if (!FIGIMG || !this.rend) return;
+        if (!FIGIMG || this.rend !== renderer || renderer.gl.isContextLost()) return;
         try {
-          const old = this.rend.textures && this.rend.textures.people;
-          this.rend.texFromCanvas('people', buildSpriteSheet());
-          if (old && old.tex) this.rend.gl.deleteTexture(old.tex);
+          renderer.texFromCanvas('people', buildSpriteSheet());
         } catch (e) { /* keep the sheet we already have */ }
       });
       this.rend.meshFromBuilder('intruder', buildIntruder());
@@ -10994,6 +11054,83 @@ const App = {
       this.rend = null;
       throw e;
     }
+  },
+
+  bindGraphicsContext() {
+    const canvas = $('#gl');
+    if (this._graphicsContextBound === canvas) return;
+    this._graphicsContextBound = canvas;
+    canvas.addEventListener('webglcontextlost', event => {
+      event.preventDefault(); // allow the browser to restore this canvas
+      if (this.graphicsContextLost) return;
+      this.graphicsContextLost = true;
+      this._lostGL = this.rend && this.rend.gl;
+      const game = this.game, pending = this._graphicsResume;
+      this._graphicsResume = game ? { game,
+        paused: pending && pending.game === game ? pending.paused : game.paused } : null;
+      if (game) game.paused = true;
+      // Browser key/pointer releases may be lost while the context is suspended.
+      // Keyboard handlers retain this object; clear it without replacing it.
+      if (this.keys) for (const key of Object.keys(this.keys)) this.keys[key] = 0;
+      if(this.gctl)for(const key of Object.keys(this.gctl))if(typeof this.gctl[key]==='number')this.gctl[key]=0;
+      const knob=$('#stick .knob');if(knob)knob.style.transform='translate(0px,0px)';
+      for(const id of ['pickle','thrUp','thrDn','btnRun','btnCrouch'])$('#'+id)?.classList.remove('on');
+      // Keep the active Game so pending narrative/debrief callbacks remain
+      // valid. The frame loop skips simulation and GPU calls while lost.
+      this.rend = null;
+      $('#loader').style.display = 'none';
+      if (this.screen === 'game') this.graphicsContextNotice(false);
+    });
+    canvas.addEventListener('webglcontextrestored', () => {
+      this.graphicsContextLost = false;
+      const saved = this._graphicsResume;
+      try {
+        this.initGraphics();
+        if (saved && this._graphicsResume === saved) {
+          const game = saved.game;
+          game.rend = this.rend; game.world.rend = this.rend;
+          const m = game.mis, tail = m.brief && m.brief.tail;
+          if (tail) {
+            this._tailOn = tail;
+            this.rend.meshFromBuilder('intruder', buildIntruder(tail, m.brief.buno,
+              (m.brief.origin || '').split('(')[0]));
+            this.rend.meshFromBuilder('canopy', buildIntruder.glass);
+          }
+          this.game = game; game.paused = true;
+          this._acc = 0; this._last = performance.now();
+          this.graphicsContextNotice(true);
+        } else {
+          const notice = document.getElementById('graphicsRecovery');
+          if (notice) notice.remove();
+        }
+        this._lostGL = null;
+      } catch (error) { this.graphicsFailure(error); }
+    });
+  },
+
+  graphicsContextNotice(restored) {
+    const old = document.getElementById('graphicsRecovery'); if (old) old.remove();
+    const veil = document.createElement('div'); veil.id = 'graphicsRecovery';
+    veil.style.cssText = 'position:absolute;z-index:120;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(4,9,14,.94);overflow:auto;touch-action:pan-y';
+    const card = document.createElement('div'); card.style.cssText = 'max-width:540px;padding:24px;background:#111923;border:1px solid #40505f;color:#e9e5da;line-height:1.5';
+    const title = document.createElement('h2'); title.textContent = restored ? 'Flight display restored' : 'Flight display interrupted';
+    const text = document.createElement('p');
+    text.textContent = restored ? 'Your mission is preserved and paused. Resume when you are ready.' : 'Your mission is paused while the browser restores graphics. If the display cannot recover, reload the game or return to the Ready Room.';
+    const row = document.createElement('div'); row.className = 'btnrow';
+    const button = (label, action) => { const b = document.createElement('button'); b.className = 'btn'; b.textContent = label; b.onclick = action; row.appendChild(b); };
+    if (restored && this._graphicsResume) button(this.game && this.game.result ? 'View debrief' : 'Resume mission', () => {
+      const saved = this._graphicsResume; this._graphicsResume = null;
+      if (saved && this.game === saved.game) this.game.paused = saved.paused || !!this.game.result;
+      this._acc = 0; this._last = performance.now(); veil.remove();
+    });
+    if (restored && this.mission) button('Restart mission', () => {
+      this._graphicsResume = null; this.game = null; veil.remove(); this.start(this.mission);
+    });
+    if (!restored) button('Reload game', () => location.reload());
+    button('Ready Room', () => {
+      this._graphicsResume = null; this.game = null; veil.remove(); this.show('ready');
+    });
+    card.append(title, text, row); veil.appendChild(card); $('#game').appendChild(veil);
   },
 
   graphicsFailure(e) {
@@ -11086,15 +11223,15 @@ const App = {
          no sound, no flicker and nothing on the panel — so on any
          machine not running at a full sixty the radio felt broken. */
       e.txWant = 1; };
-    $('#btnSmoke').onclick = () => { const e = this.game && this.game.evade;
-      if (e && e.radio >= 1 && !e.smoke && !(e.rescue > e.eta * 0.55))
-        this.radio('PILOT', 'Not yet. Smoke before he is close enough to see it only tells them where I am.', 'warn');
-      this.keys.KeyG = 1; setTimeout(()=>{ this.keys.KeyG = 0; }, 160); };
-    $('#btnPistol').onclick = () => { this.keys.KeyF = 1; setTimeout(()=>{ this.keys.KeyF = 0; }, 90); };
-    $('#btnKnife').onclick = () => { this.keys.KeyV = 1; setTimeout(()=>{ this.keys.KeyV = 0; }, 110); };
-    $('#btnPunch').onclick = () => { this.keys.KeyP = 1; setTimeout(()=>{ this.keys.KeyP = 0; }, 110); };
-     $('#btnSurrender').onclick = () => { if (this.game) this.game.raiseHands(); };
-    $('#btnFire').onclick = () => { this.keys.Space = 1; setTimeout(()=>{ this.keys.Space = 0; }, 110); };
+    $('#btnSmoke').onclick = () => { const e=this.game&&this.game.evade;
+      if(!e || e.camp || e.river || e.radio<1 || e.smoke)return;
+      if(e.rescue>e.eta*.55)e.smokeWant=1;
+      else this.radio('PILOT','Not yet. Smoke before he is close enough to see it only tells them where I am.','warn');
+    };
+    for(const [id,weapon] of [['btnPistol','pistol'],['btnKnife','knife'],['btnPunch','fists']])
+      $('#'+id).onclick=()=>{const e=this.game&&this.game.evade;if(e&&!e.frozen)e.weaponWant=weapon;};
+    $('#btnSurrender').onclick=()=>{if(this.game)this.game.raiseHands();};
+    $('#btnFire').onclick=()=>{const e=this.game&&this.game.evade;if(e&&!e.frozen)e.attackWant=1;};
     $('#btnScope').onclick = () => this.toggleScope();
     /* The note card folds away on a tap and comes back on a tap. On a
        phone it covers a third of the screen, and there was no way to get
@@ -11398,6 +11535,7 @@ const App = {
      comes through the wall, in tap code, from the others.
      ==================================================================== */
   cokerCamp(G2) {
+    if (this.game !== G2) return;
     const V = $('#captVeil'), T = $('#captTitle'), B = $('#captBody');
     /* The cell interior is built (P.cellint, from the Hoa Lo
        photographs) and enterCell() stages it, but I could not get it
@@ -11557,6 +11695,7 @@ const App = {
      to a man who was going to be captured anyway. The choices here are
      the ones he actually had, and they cost what they actually cost. */
   firstContact(G2, kind, dist, done) {
+    if (this.game !== G2) return;
     const V = $('#captVeil'), T = $('#captTitle'), B = $('#captBody');
     V.classList.remove('scrim');
     V.classList.add('on');
@@ -11571,6 +11710,7 @@ const App = {
     const page = (title, html, choices, note) => {
       T.textContent = title;
       B.innerHTML = '';
+      V.classList.add('on'); // A choice can open a second card after closing the first.
       B.appendChild(el('div', '', FIG + html));
       if (note) B.appendChild(el('p', 'dim', '<span style="font-size:12.5px">' + note + '</span>'));
       const row = el('div', 'btnrow');
@@ -11703,6 +11843,7 @@ const App = {
 
   /* ---- the city, between the wall and the water ---- */
   cokerCity(G2) {
+    if (this.game !== G2) return;
     const V = $('#captVeil'), T = $('#captTitle'), B = $('#captBody');
     V.classList.add('on');
     T.textContent = 'Hanoi, After Midnight';
@@ -11722,6 +11863,7 @@ const App = {
 
   /* ---- how it ended, both ways ---- */
   cokerEnd(G2, how) {
+    if (this.game !== G2) return;
     const V = $('#captVeil'), T = $('#captTitle'), B = $('#captBody');
     V.classList.add('on');
     const page = (title, html, choices) => {
@@ -11762,6 +11904,7 @@ const App = {
   },
 
   captivity(G2) {
+    if (this.game !== G2) return;
     const V = $('#captVeil'), T = $('#captTitle'), B = $('#captBody');
     const S = { week: 0, resist: 1.0, strength: 1.0, contact: 0, prep: 0, gave: 0, tried: 0 };
     if (G2._blood === 'farmer') { S.strength -= 0.30; S.resist -= 0.12; }
@@ -11919,7 +12062,8 @@ const App = {
         <p>A Jolly Green comes down the valley in the afternoon with two Skyraiders working ahead of
         it, and a para-rescueman you will never be able to thank properly puts a hoist collar over
         your head.</p>`,
-        [['Go on', () => { this_done('Escaped from captivity and recovered.'); }, 'pri']],
+        [['Go on', () => { G2.breakoutOK = true; G2.escapedOK = true; G2.rescuedOK = true;
+          this_done('Escaped from captivity and recovered.'); }, 'pri']],
         'This did not happen to anybody. It is in the game because you asked for it to be possible; the history is in the card you just read.');
     }
 
@@ -12139,6 +12283,8 @@ const App = {
     for (const x of traps) if (x.wire >= 1 && x.wire <= 4) wires[x.wire - 1]++;
     const ceps = log.filter(x => x.cep !== null && x.cep !== undefined).map(x => x.cep);
     const avgCep = ceps.length ? Math.round(ceps.reduce((p, c) => p + c, 0) / ceps.length) : null;
+    const trucks = log.reduce((p, c) => p + (c.trucks || 0), 0);
+    const returned = log.filter(x => x.landed || x.rescued || x.escaped).length;
     const dropped = log.reduce((p, c) => p + (c.dropped || 0), 0);
     const killed = log.reduce((p, c) => p + (c.killed || 0), 0);
     const bolters = log.reduce((p, c) => p + (c.bolters || 0), 0);
@@ -12153,6 +12299,7 @@ const App = {
     add('Sorties flown', n);
     add('Recovered aboard', aboard + ' of ' + n, aboard === n ? 'good' : '');
     if (lost) add('Aircraft lost', lost, 'bad');
+    if (returned > aboard) add('Crew returned', returned + ' of ' + n, 'good');
     const ej = log.filter(x => x.ejected).length;
     if (ej) {
       const res = log.filter(x => x.rescued).length, cap = log.filter(x => x.captured).length;
@@ -12168,7 +12315,7 @@ const App = {
     /* Trucks are not the brief, so they are counted separately — but
        they are counted, because on the night they were the thing a
        crew came home pleased about. */
-    if (W.score.trucks) add('Vehicles destroyed (opportunity)', W.score.trucks, 'good');
+    if (trucks) add('Vehicles destroyed (opportunity)', trucks, 'good');
     if (avgCep !== null) add('Average miss distance', avgCep + ' ft',
       avgCep < 100 ? 'good' : avgCep > 300 ? 'bad' : '');
     body.appendChild(rows);
@@ -12184,8 +12331,10 @@ const App = {
         when.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
       const outcome = x.landed
         ? (x.trap || 'aboard')
-        : x.rescued
-          ? '<span style="color:var(--amber)">ejected · recovered by SAR</span>'
+        : x.escaped
+          ? '<span style="color:var(--amber)">escaped · ' + (x.rescued ? 'recovered' : 'reached the sea') + '</span>'
+          : x.rescued
+          ? '<span style="color:var(--amber)">' + (x.ejected ? 'ejected' : 'crash-landed') + ' · recovered by SAR</span>'
           : x.captured
             ? '<span style="color:var(--blood)">ejected · taken prisoner</span>'
             : '<span style="color:var(--blood)">' + (x.reason || 'did not return') + '</span>';
@@ -12265,7 +12414,7 @@ const App = {
           <div class="eyebrow">This game is dedicated to</div>
           <h2 style="margin:8px 0 6px;color:var(--bone)">LTJG William S. McConnell, USN</h2>
           <p class="dim" style="margin:0 0 12px">Bombardier/Navigator, A-6A Intruder<br>
-          VA-65, USS Kitty Hawk (CVA-63), Carrier Air Wing Eleven<br>1968&ndash;1970</p>
+          VA-65, USS Kitty Hawk (CVA-63), Carrier Air Wing Eleven<br>1968&ndash;1969</p>
           <p class="dim" style="margin:0 0 14px;font-size:13px">He flew in the right seat, which is where the attack was run from. Everything the Intruder could do that no other aeroplane in the fleet could do, it did because of the man sitting there.</p>
           <div class="honors">
             <div class="hrow"><span>Navy Unit Commendation</span><b>12 MAY &ndash; 3 DEC 1966</b></div>
@@ -12763,6 +12912,8 @@ const App = {
 
   /* ---------------- mission start ---------------- */
   start(m) {
+    const startToken = this._missionStart = (this._missionStart || 0) + 1;
+    this.game = null;
     this.audio.groundMode = false;
     // Give the loading panel a paint before any 3D setup is attempted.
     this.mission = m;
@@ -12771,15 +12922,16 @@ const App = {
     $('#loader').style.display = 'flex';
     $('#loadTitle').textContent = 'Starting flight display';
     setTimeout(() => {
+      if (this._missionStart !== startToken || this.screen !== 'game') return;
       try {
         this.initGraphics();
         if (!this.rend) throw new Error('WebGL2 renderer unavailable');
-        this.beginMission(m);
+        this.beginMission(m, startToken);
       } catch (e) { this.graphicsFailure(e); }
     }, 80);
   },
 
-  beginMission(m) {
+  beginMission(m, startToken = this._missionStart) {
     if (this.noGL) { alert('This device cannot run the 3D view.'); return; }
     this.mission = m;
     /* Repaint her in this mission's markings. The briefings already name
@@ -12810,8 +12962,11 @@ const App = {
     $('#radio').innerHTML = ''; $('#teach').classList.remove('on');
     { const pk = $('#teachPeek'); if (pk) pk.classList.remove('on'); }
     $('#pauseVeil').classList.remove('on'); $('#debriefVeil').classList.remove('on');
+    $('#captVeil').classList.remove('on', 'scrim');
+    const solitary = document.getElementById('powSolitary'); if (solitary) solitary.remove();
     $('#knee').classList.remove('on'); $('#btnChart').classList.remove('on');
     setTimeout(() => {
+      if (this._missionStart !== startToken || this.screen !== 'game') return;
       try { this.game = new Game(this, m); }
       catch(e) { this.graphicsFailure(e); return; }
       $('#loader').style.display = 'none';
@@ -12820,7 +12975,9 @@ const App = {
         if (this.audio.master) this.audio.master.gain.value = this.set.sound ? 0.55 : 0;
       } catch (audioError) { console.warn('Audio unavailable; gameplay continues',audioError); }
       if (IS_DESKTOP && !Store.get('sawkeys', 0)) { Store.set('sawkeys', 1); this.toggleLegend(true); }
-      if (IS_DESKTOP && this.set.mouse) setTimeout(() => this.toggleMouseFly(), 400);
+      if (IS_DESKTOP && this.set.mouse) setTimeout(() => {
+        if (this._missionStart === startToken && this.screen === 'game') this.toggleMouseFly();
+      }, 400);
     }, 900);
   },
 
@@ -12976,7 +13133,9 @@ class Game {
     this.ac.v = [Math.sin(c.hdg) * c.spd, 0, -Math.cos(c.hdg) * c.spd];
     this.ac.thr = 1; this.ac.gear = true; this.ac.hook = true; this.ac.onDeck = true;
     const M = this.mis;
-    this.ac.bombs = M.brief && /(\d+) ×/.test(M.brief.ord) ? parseInt(M.brief.ord.match(/(\d+) ×/)[1]) : 12;
+    const ord = M.brief && M.brief.ord || '';
+    const bombs = ord.match(/(\d+)\s*×\s*Mk\s*82/i);
+    this.ac.bombs = /^none$/i.test(ord.trim()) ? 0 : bombs ? parseInt(bombs[1], 10) : 12;
     this.bombsMax = this.ac.bombs;
     this.ac.arms = M.type === 'ironhand' ? 2 : 0;
     this.ac.fuel = 8000;
@@ -13888,7 +14047,7 @@ class Game {
     /* It folds down to the pill rather than vanishing, so a note that went
        by too fast can always be read again. */
     this._tt = setTimeout(() => {
-      if (!d.classList.contains('on')) return;
+      if (this.app.game !== this || !d.classList.contains('on')) return;
       d.classList.remove('on');
       if (pk) pk.classList.add('on');
     }, t.hold ? 21000 : 9500);
@@ -14036,6 +14195,7 @@ class Game {
      that should obviously have led here. One entry point now, and the
      chute and the wreck both come through it. */
   _startGroundPhase(px, pz, hdg, how) {
+    this._capturePending=false;
     const W = this.world;
     const c = { p: [px, 0, pz], drift: hdg || 0 };
     /* On Coker's mission there is no evasion on landing and there was
@@ -14069,7 +14229,7 @@ class Game {
          issued and almost never the right answer: six rounds, very loud,
          against a province. They are here because they were there, and
          because a man cornered sometimes has nothing else. */
-      rounds: 6, drawn: 0, lastShot: -99, kills: 0, noise: 0,
+      rounds: 6, hasPistol:true, hasKnife:true, drawn: 0, lastShot: -99, kills: 0, noise: 0,
       chute: [c.p[0], c.p[2]],            // they will find this and start here
       searchers: [], locals: [], spawn: 0, found: 0, exposure,
       // the pickup point: a clearing a few hundred metres off, away from people
@@ -14143,10 +14303,7 @@ class Game {
     const e = this.evade;
     if (!e) return;
     if (res.surrender) {
-      this.phase = 'done'; this.evade = null;
-      setTimeout(() => this.debrief(false,
-        'Surrendered to local militia within minutes of landing. Held until Operation Homecoming, 4 March 1973.'), 900);
-      return;
+      this.captured(); return;
     }
     if (res.exposure) e.exposure = clamp(e.exposure + res.exposure, 0, 1);
     if (res.spawn !== undefined) e.spawn = res.spawn;
@@ -14210,6 +14367,7 @@ class Game {
     }
     if(this._solitaryActive)return;
     e.t += dt;
+    if(e.frozen){if(e.camp)this._walkGuards(dt,e);return;}
     const gh = (x, z) => Math.max(terrainH(x, z), 0);
 
     /* Walking. Slow is quiet; running is seen.
@@ -14256,7 +14414,7 @@ class Game {
     /* A leg wound from the first minute is carried for the rest of it:
        a man who has been shot through the thigh does not run. */
     const hk = (e.hurt ? 0.62 : 1) * (e.crouch ? 0.52 : 1);
-    if (e.handsUp && (run && Math.abs(fwd)>0.2 || K.Space || K.KeyV)) {
+    if (e.handsUp && (run && Math.abs(fwd)>0.2 || K.Space || K.KeyV || e.attackWant)) {
       e.handsUp=false; e.handsT=0; A.radio('CREW','Breaking away. Move!', 'warn');
     }
     const spd = (e.handsUp ? 0 : (fwd > 0.25 ? (run && !e.crouch ? 4.3 : 2.1) * Math.min(1, fwd)
@@ -14275,8 +14433,8 @@ class Game {
     e.moving = spd !== 0;
     if (e.handsUp) {
       e.handsT=(e.handsT||0)+dt;
-      const captor=(e.searchers||[]).find(o=>o.alive && (e.camp || o.armed)
-        && Math.hypot(o.p[0]-e.p[0],o.p[2]-e.p[2])<7);
+      const captor=(e.searchers||[]).concat(e.locals||[]).find(o=>o.alive && (e.camp || o.armed)
+        && Math.hypot(o.p[0]-e.p[0],o.p[2]-e.p[2])<7 && this._groundLineOfSight(e.p,o.p,e));
       if(captor && e.handsT>1.1){
         if(e.camp) this.recapturedInCamp(); else this.captured();
         return;
@@ -14360,6 +14518,13 @@ class Game {
        rounds in the cylinder. */
     this._weapons(dt, e, A, K);
 
+    // Locals use the same close-contact capture rules as the search party.
+    for(const s of e.locals||[]){
+      const close=s.alive&&s.armed&&s.seen&&Math.hypot(s.p[0]-e.p[0],s.p[2]-e.p[2])<3.4
+        && !(s.stunUntil&&this.t<s.stunUntil)&&this._groundLineOfSight(e.p,s.p,e);
+      s.grab=close?(s.grab||0)+dt:Math.max(0,(s.grab||0)-dt*1.4);
+      if(s.grab>1.8){this.captured();return;}
+    }
     let peak = 0, peakSus = 0;
     for (const s of e.searchers) {
       if (!s.alive) continue;
@@ -14473,7 +14638,7 @@ class Game {
          reach you, and it takes them a couple of seconds — which is
          the couple of seconds in which a man with six rounds decides
          what kind of story this is going to be. */
-      if (dm < 3.4) {
+      if (dm < 3.4 && this._groundLineOfSight(e.p,s.p,e)) {
         if (!s.armed) {
           if (!s.alarm) {
             s.alarm = 1; s.seen = 1; s.sus = 1.4; s.flee=1;
@@ -14554,7 +14719,7 @@ class Game {
          of an open riverbank in a country of farmers, and at some point
          in the morning somebody was always going to look straight at
          them. Short of the sea when the day arrives, you are found. */
-      if (e.light >= 1.0 && !this._capt) {
+      if (e.light >= 1.0 && !this._capturePending) {
         A.radio('CREW', 'There is a man on the bank who has stopped walking.', 'bad');
         A.vn('here');
         this.captured(); return;
@@ -14742,8 +14907,8 @@ class Game {
     /* ---- smoke, which is how he tells them which green field ---- */
     if (!e.smoke && f > 0.55) {
       if (!e._in) { e._in = 1; A.radio('CREW', 'Jolly Green two minutes out. Pop smoke when you hear him.', ''); }
-      if (this.app.keys.KeyG || (this.app.gctl && this.app.gctl.smoke)) {
-        e.smoke = [e.p[0], gy(e.p[0], e.p[2]), e.p[2]];
+      if (e.smokeWant || this.app.keys.KeyG || (this.app.gctl && this.app.gctl.smoke)) {
+        e.smokeWant=0; e.smoke = [e.p[0], gy(e.p[0], e.p[2]), e.p[2]];
         e.pickup = [e.p[0], e.p[2]];
         A.radio('CREW', 'Smoke is out. Green smoke.', '');
         /* And a column of green smoke over a paddy field tells the
@@ -15049,7 +15214,8 @@ class Game {
       }
       if(blocked)continue;
       s.sus=Math.max(s.sus||0,1.25);s.seen=1;
-      s.face+=(Math.atan2(Math.sin(a-(s.face||0)),Math.cos(a-(s.face||0))))*Math.min(1,dt*12);
+      const face=Number.isFinite(s.face)?s.face:a;
+      s.face=face+Math.atan2(Math.sin(a-face),Math.cos(a-face))*Math.min(1,dt*12);
       if(!s.armed && !e.camp){
         s.flee=1;s.loiter=0;s.panicUntil=this.t+20;
         const away=a+Math.PI;
@@ -15446,16 +15612,38 @@ class Game {
     }
   }
 
+  _groundLineOfSight(a,b,e){
+    const d=Math.hypot(b[0]-a[0],b[2]-a[2]),n=Math.max(2,Math.ceil(d/.35));
+    for(let i=1;i<n;i++){
+      const t=i/n,x=a[0]+(b[0]-a[0])*t,z=a[2]+(b[2]-a[2])*t;
+      if(e.camp?this._campSolidAt(x,z,.05):this._localSolidAt(x,z,.05))return false;
+      if(!e.camp){const ay=Math.max(0,terrainH(a[0],a[2]))+1.35,by=Math.max(0,terrainH(b[0],b[2]))+1.35;
+        if(terrainH(x,z)>ay+(by-ay)*t)return false;}
+    }
+    return true;
+  }
   _weapons(dt, e, A, K) {
     if (!e.weaponMode) e.weaponMode = e.drawn ? 'pistol' : 'fists';
-    if (K.KeyF && this.t - (e._drawT || -9) > 0.35) {
-      e._drawT=this.t;
-      if(e.rounds>0 || e.drawn){e.weaponMode=e.weaponMode==='pistol'?'fists':'pistol'; e.drawn=e.weaponMode==='pistol';}
+    // Inventory belongs to the carried equipment, not the ammunition count.
+    if(e.hasPistol===undefined)e.hasPistol=!e.camp&&!e.river;
+    if(e.hasKnife===undefined)e.hasKnife=!e.camp&&!e.river;
+    if(e.weaponWant){
+      if(e.weaponWant==='fists'||e.weaponWant==='pistol'&&e.hasPistol||e.weaponWant==='knife'&&(e.hasKnife||e.fitting)){
+        e.weaponMode=e.weaponWant;e.drawn=e.weaponMode==='pistol';
+      }
+      e.weaponWant=null;
     }
-    if(K.KeyV && this.t - (e._selectKnifeT || -9) > .3){
+    const attack=!!(K.Space||e.attackWant);
+    const oldKeys=e._weaponKeys||{},keys={KeyF:!!K.KeyF,KeyV:!!K.KeyV,KeyP:!!K.KeyP};
+    e._weaponKeys=keys;
+    if (keys.KeyF && !oldKeys.KeyF) {
+      e._drawT=this.t;
+      if(e.hasPistol){e.weaponMode=e.weaponMode==='pistol'?'fists':'pistol'; e.drawn=e.weaponMode==='pistol';}
+    }
+    if(keys.KeyV && !oldKeys.KeyV && (e.hasKnife||e.fitting)){
       e._selectKnifeT=this.t; e.weaponMode='knife'; e.drawn=0;
     }
-    if(K.KeyP && this.t - (e._selectFistsT || -9) > .3){
+    if(keys.KeyP && !oldKeys.KeyP){
       e._selectFistsT=this.t; e.weaponMode='fists'; e.drawn=0;
     }
     if(e.handsUp) { e.weaponMode='fists'; e.drawn=0; }
@@ -15473,7 +15661,7 @@ class Game {
          sight, and a shot that missed because he was eight degrees off
          centre was the commonest reason the revolver felt broken. */
       const w = cone + clamp((26 - dm) / 26, 0, 1) * 0.42;
-      if (dm < cd && Math.abs(rb) < w) { cd = dm; closest = o; cIsCow = !!cow; }
+      if (dm < 60 && dm < cd && Math.abs(rb) < w && this._groundLineOfSight(e.p,o.p,e)) { cd = dm; closest = o; cIsCow = !!cow; }
     };
     for (const s of e.searchers) consider(s, 0.30, false);
     for (const s of (e.locals || [])) consider(s, 0.30, false);
@@ -15551,15 +15739,16 @@ class Game {
        a man who pressed fire with the revolver still in the holster, or
        with the cylinder empty, got silence — which reads as a broken
        game rather than as a holstered gun. */
-    if (K.Space && this.t - (e._trigT || -9) > 0.30 && e.weaponMode === 'pistol') {
+    if (attack && this.t - (e._trigT || -9) > 0.30 && e.weaponMode === 'pistol') {
       e._trigT = this.t;
+      if(e.rounds<=0 || !e.drawn)e.attackWant=0;
       if (!e.drawn) {
         A.radio('PILOT', 'The .38 is still in the holster — F draws it.', 'warn');
       } else if (e.rounds <= 0) {
         A.audio.burst('thunk', 0.18);
         A.radio('PILOT', 'Empty. Six rounds was all of it.', 'bad');
       } else if (this.t - e.lastShot > 0.85) {
-        e.lastShot = this.t; e.rounds--;
+        e.lastShot = this.t; e.rounds--; e.attackWant=0;
         A.audio.burst('gun', 0.5);
         e.noise = 1; e.muzzle = 0.14; e.actionT=this.t;
         this.shake = Math.max(this.shake || 0, 0.35);
@@ -15594,10 +15783,10 @@ class Game {
       }
     }
     // V11: left hand fists, right hand knife/fitting: one unified ATTACK input.
-    if(K.Space && e.weaponMode!=='pistol' && this.t-(e._meleeT||-9)>.54 && !e.handsUp){
-      e._meleeT=this.t;
+    if(attack && e.weaponMode!=='pistol' && this.t-(e._meleeT||-9)>.54 && !e.handsUp){
+      e._meleeT=this.t; e.attackWant=0;
       e.actionT=this.t;
-      const knife=e.weaponMode==='knife' && (e.rounds>0 || e.fitting);
+      const knife=e.weaponMode==='knife' && (e.hasKnife || e.fitting);
       const reach=knife?(e.fitting?2.05:2.8):1.7;
       A.audio.burst('thunk',knife?.27:.18);
       if(closest && cd < reach+(cIsCow?.55:0)){
@@ -15632,9 +15821,9 @@ class Game {
       const dx = e.p[0] - ox, dz = e.p[2] - oz;
       const d = Math.hypot(dx, dz);
       if (d >= r) return;
-      if (d < 1e-4) {e.p[0] += r; return;}
-      e.p[0] = ox + dx / d * r;
-      e.p[2] = oz + dz / d * r;
+      const nx=d<1e-4?e.p[0]+r:ox+dx/d*r,nz=d<1e-4?e.p[2]:oz+dz/d*r;
+      const q=this._moveOnFoot(e.p[0],e.p[2],nx-e.p[0],nz-e.p[2],.43,{...e,searchers:[],locals:[],cattle:[]});
+      e.p[0]=q[0];e.p[2]=q[1];
     };
     for (const s of e.searchers.concat(e.locals || [])) {
       if (!s.alive) continue;
@@ -15772,6 +15961,7 @@ class Game {
   }
 
   startCamp(prep, cellOnly) {
+    this._capturePending=false;
     const W = this.world;
     /* Well inland and well above the tide. Sited off the briefed point
        the compound came out straddling the shoreline, with the yard
@@ -15883,7 +16073,7 @@ class Game {
          whole yard behind him, and the first thing anyone did was walk
          forty yards the wrong way. */
       camp: 1, p: [cx - 6.0, 0, cz - 17.0], hdg: Math.atan2(8.0, -54.0), t: 0,
-      radio: 1, rounds: 0, drawn: 0, fitting: 1, lastShot: -99, kills: 0, noise: 0,
+      radio: 1, rounds: 0, hasPistol:false, hasKnife:false, drawn: 0, fitting: 1, lastShot: -99, kills: 0, noise: 0,
       chute: [cx, cz], searchers: guards, spawn: 1e9, found: 0, exposure: 0,
       pickup: [cx + 2, cz + B + 3], goal: [cx + 2, cz + B + 3],
       prep: prep || 0, alarm: 0, origin: [cx, cz], A: A, B: B
@@ -15920,8 +16110,7 @@ class Game {
     /* Sitting in the cell before the break. The guards still walk, and
        you can see them through the transom, but nobody is searching
        and nothing can be failed yet. */
-    if (e.frozen) { e.t += dt; this._walkGuards(dt, e); return; }
-    e.t += dt;
+    if (e.frozen) { this._walkGuards(dt, e); return; }
     this._weapons(dt, e, A2, this.app.keys);
     this._walkGuards(dt, e);
     for (const g of e.searchers) {
@@ -15959,7 +16148,7 @@ class Game {
           }
         }
       }
-      if (g.seen && dm < 2.2) {
+      if (g.seen && dm < 2.2 && this._groundLineOfSight(e.p,g.p,e)) {
         g.grab = (g.grab || 0) + dt;
         if (g.grab > 1.15) { A2.vn('down'); this.recapturedInCamp(); return true; }
       } else if (g.grab) g.grab = Math.max(0, g.grab - dt * 1.5);
@@ -15967,7 +16156,7 @@ class Game {
          metres and about forty degrees of it, and a man who is moving
          inside that is a man who has been seen. */
       const rel = Math.abs(((Math.atan2(dx2, -dz2) - g.face + PI) % TAU + TAU) % TAU - PI);
-      const inCone = rel < 0.62 && dm < 26;
+      const inCone = rel < 0.62 && dm < 26 && this._groundLineOfSight(e.p,g.p,e);
       if (inCone && !g.seen) {
         const moving = e.moving ? (e.running ? 1.0 : 0.42) : 0.05;
         const near = clamp(1 - dm / 26, 0, 1);
@@ -16002,6 +16191,7 @@ class Game {
     return false;
   }
   overTheWall() {
+    this.breakoutOK=true;
     if (this.phase === 'done') return;
     this.phase = 'done'; this.evade = null;
     setTimeout(() => this.app.cokerCity(this), 900);
@@ -16014,6 +16204,7 @@ class Game {
      found them anyway, twelve and a half hours after they went over the
      wall. You get the same mud and a better chance than he had. */
   startRiver(prep) {
+    this._capturePending=false;
     this._escStage = 'river';
     const W = this.world;
     // find a channel: the same river field the terrain cuts its water from
@@ -16054,7 +16245,7 @@ class Game {
     this.phase = 'evade';
     this.evade = {
       river: 1, p: [p0[0], 0, p0[1]], hdg: 0, t: 0, radio: 1, lastTx: -99,
-      rounds: 0, drawn: 0, fitting: 1, lastShot: -99, kills: 0, noise: 0,
+      rounds: 0, hasPistol:false, hasKnife:false, drawn: 0, fitting: 1, lastShot: -99, kills: 0, noise: 0,
       chute: [p0[0], p0[1]], searchers: [], spawn: 2.5, found: 0,
       exposure: 0.5, pickup: g0, goal: g0, rescue: 0, eta: 1e9,
       light: 0, prep: prep || 0
@@ -16066,6 +16257,7 @@ class Game {
   }
   escaped() {
     if (this.phase === 'done') return;
+    this.escapedOK=true;
     this.phase = 'done'; this.evade = null;
     setTimeout(() => this.app.cokerEnd(this, 'out'), 1200);
   }
@@ -16094,7 +16286,7 @@ class Game {
     const h=(tag,t)=>{const el=document.createElement(tag);el.textContent=t;return el;};
     const button=(title,fn)=>{const b=h('button',title);b.style.cssText='border:1px solid #496075;color:#eee9d9;background:#1b2937;margin:4px 3px 4px 0;padding:9px 11px;cursor:pointer;font:13px Arial;min-height:40px';b.onclick=fn;return b;};
     const finish=(resume)=>{
-      overlay.remove();this._solitaryActive=false;this._capt=0;
+      overlay.remove();this._solitaryActive=false;this._capturePending=false;
       if(resume){
         this.startCamp(clamp(state.prep+Math.max(0,state.resolve-35)/85,0,1),false);
         this.app.radio('CREW','The wall is still there. The second attempt must be quieter.', 'warn');
@@ -16129,8 +16321,8 @@ class Game {
 
   captured() {
     if(this.evade && this.evade.camp && this._escStage==='yard'){this.recapturedInCamp();return;}
-    if (this.phase === 'done' || this._capt) return;
-    this._capt = 1; this.phase = 'done';
+    if (this.phase === 'done' || this._capturePending) return;
+    this._capturePending=true; this._capt = 1; this.phase = 'done';
     /* What he did in the first minute follows him. A man who killed a
        farmer getting out of his harness was not treated as a prisoner
        of war afterwards, and the game should not pretend otherwise. */
@@ -16209,10 +16401,16 @@ class Game {
       } else if (o[1] === 'radar') {
         done = W.radar && !W.radar.alive; v = done ? 'destroyed' : 'transmitting';
       } else if (o[1] === 'trap') {
-        done = this.phase === 'done'; v = done ? 'aboard' : (this.phase === 'recovery' ? 'in the groove' : 'pending');
+        done = !!this.rescuedOK || !!(this.wire && this.ac.onDeck);
+        v = this.rescuedOK ? 'recovered by SAR' : done ? 'aboard' : (this.phase === 'recovery' ? 'in the groove' : 'pending');
       } else if (o[1] === 'launch') { done = !this.ac.onDeck; v = done ? 'airborne' : 'on the cat'; }
       else if (o[1] === 'approach') { done = this.shipRange < 4000; v = done ? 'in the pattern' : 'pending'; }
       else if (o[1] === 'discipline') { done = W.score.dropped === 0; v = W.score.dropped ? 'VIOLATED' : 'maintained'; }
+      else if (o[1] === 'eject') {
+        done = !!(this.ejected && this._outOfAircraft);
+        v = done ? 'survived' : this.chute ? 'under canopy' : 'pending';
+      } else if (o[1] === 'breakout') { done = !!this.breakoutOK; v = done ? 'out of the camp' : 'pending'; }
+      else if (o[1] === 'escape') { done = !!this.escapedOK; v = done ? 'reached the sea' : 'pending'; }
       out.push([o[0], v, done]);
     }
     return out;
@@ -16220,7 +16418,7 @@ class Game {
 
   checkObjectives() {
     const W = this.world, M = this.mis;
-    if (this.egressCalled || M.free) return;
+    if (this.egressCalled || M.free || M.escape) return;
     const st = this.objState();
     const combat = st.filter((s, i) => M.obj[i][1] !== 'trap');
     if (combat.length && combat.every(s => s[2])) {
@@ -16712,11 +16910,13 @@ class Game {
 
   /* ---------------- debrief ---------------- */
   debrief(landed, reason) {
-    if (this.result) return;
+    if (this.result || this.app.game !== this) return;
     const W = this.world, M = this.mis;
     const st = this.objState();
     const combat = st.filter((s, i) => M.obj[i][1] !== 'trap');
     const combatOK = combat.length ? combat.every(s => s[2]) : true;
+    const recovered = !!(landed || this.rescuedOK);
+    const survived = recovered || !!this.escapedOK;
     const cep = W.score.cep.length ? W.score.cep.reduce((a, b) => a + b, 0) / W.score.cep.length : null;
     // trap grade
     let trap = null, grade = '—';
@@ -16734,14 +16934,14 @@ class Game {
     // overall
     let pts = 0;
     if (combatOK) pts += 45; else pts += 45 * (combat.filter(s => s[2]).length / Math.max(combat.length, 1)) * 0.6;
-    if (landed) pts += 30;
+    if (survived) pts += 30;
     if (cep !== null) pts += clamp(20 - cep / 12, 0, 20);
     pts += clamp(15 - W.score.damage * 5, 0, 15);
     if (M.type === 'recce' && W.score.dropped > 0) pts -= 45;
     pts = clamp(Math.round(pts), 0, 100);
     grade = pts >= 88 ? 'A' : pts >= 74 ? 'B' : pts >= 58 ? 'C' : pts >= 42 ? 'D' : 'F';
-    const pass = landed && combatOK;
-    this.result = { pts, grade, pass };
+    const pass = (M.escape ? !!this.escapedOK : recovered) && combatOK;
+    this.result = { pts, grade, pass, recovered, escaped: !!this.escapedOK };
     /* Every sortie goes in the log, flown or lost. A squadron's record is
        not a list of the missions that went well. */
     try {
@@ -16752,6 +16952,7 @@ class Game {
         wire: landed ? this.wire : 0, trap: trap || '', bolters: this.bolters || 0,
         ejected: !!this.ejected, crashed: !!(this._outOfAircraft && !this.ejected),
         rescued: !!this.rescuedOK, captured: !!this._capt,
+        breakout: !!this.breakoutOK, escaped: !!this.escapedOK, trucks: W.score.trucks || 0,
         dropped: W.score.dropped, killed: W.score.killed, total: W.score.total,
         cep: cep === null ? null : Math.round(cep * M2FT), dmg: +W.score.damage.toFixed(2),
         seat: this.rightSeat ? 'BN' : 'PILOT'
@@ -16776,8 +16977,8 @@ class Game {
       '<img src="' + IMG_BN_STAND + '" alt="The bombardier/navigator back aboard, '
       + 'still in the flight gear he came down in"><figcaption>Recovered<br>'
       + 'LTJG W. S. McConnell</figcaption>'));
-    if (reason) b.appendChild(el('p', 'dim', '<strong style="color:var(--blood)">' + reason + '</strong>'));
-    if (this.captOutcome) b.appendChild(el('div', 'note',
+    if (reason) b.appendChild(el('p', 'dim', '<strong style="color:' + (survived ? 'var(--amber)' : 'var(--blood)') + '">' + reason + '</strong>'));
+    if (this.captOutcome || M.escape) b.appendChild(el('div', 'note',
       '<em>The record:</em> no American taken prisoner in North Vietnam escaped and reached safety. ' +
       'Between 12 February and 4 April 1973, 591 of them were flown home from Hanoi, some after ' +
       'more than eight years. That is how this ended for almost every man it happened to.'));
@@ -16799,6 +17000,9 @@ class Game {
     add('Battle damage', W.score.damage < 0.2 ? 'none' : W.score.damage < 1 ? 'light' : W.score.damage < 2.2 ? 'moderate' : 'severe',
       W.score.damage < 0.2 ? 'good' : W.score.damage > 2 ? 'bad' : '');
     if (trap) add('Trap', trap, /OK/.test(trap) ? 'good' : '');
+    if (this.escapedOK) add('Crew', this.rescuedOK ? 'escaped and recovered' : 'reached the sea', 'good');
+    else if (this.rescuedOK) add('Crew', 'recovered by SAR', 'good');
+    else if (this._capt) add('Crew', 'taken prisoner', 'bad');
     add('Score', pts + ' / 100');
     b.appendChild(rows);
     b.appendChild(el('p', 'dim', '<span style="font-size:13px">' + this.debriefText(pass, cep, trap, reason) + '</span>'));
@@ -16819,6 +17023,8 @@ class Game {
        the Jolly Green had just pulled out of a paddy was told the
        squadron had lost him — under a photograph captioned
        'Recovered'. */
+    if (this.escapedOK) return 'You completed the game’s escape route. This is an alternate outcome: Coker and McKnight were recaptured, and no American prisoner held in North Vietnam escaped and reached safety. The historical account remains in the mission ending.';
+    if (this._capt && !this.rescuedOK) return 'The crew survived capture. The captivity chapter has ended; the mission objectives and historical account above record the outcome. This does not mean the crew was killed.';
     if (this.rescuedOK) return 'The aeroplane is in a field in North Vietnam and the crew is on the Kitty Hawk, which is the trade every man in the ready room would take. A rescue like that one took two Skyraiders, a helicopter, and a great many people willing to fly into a place nobody sensible would go. In the real war the ones who came back owed it to them.';
     if (reason) return 'The squadron lost an aeroplane and a crew tonight. In the real war this is the point at which somebody packs a locker and writes a letter. Run it again — most of the crews who survived a tour did so because of things they learned the hard way on a night like this one.';
     if (!pass) return 'Incomplete. The target list was not cleared, or the aeroplane did not come back aboard. Both count.';
@@ -16924,7 +17130,7 @@ class Game {
       eye = vadd(eye, [rnd(-s, s) * 0.2, rnd(-s, s) * 0.2, rnd(-s, s) * 0.2]);
       fwd = vnorm(vadd(fwd, [rnd(-s, s) * 0.004, rnd(-s, s) * 0.004, rnd(-s, s) * 0.004]));
     }
-    R.setCamera(eye, fwd, up, this.extView ? 55 : 62, 1.2, 60000, asp);
+    R.setCamera(eye, fwd, up, this.extView ? 55 : 62, this.evade ? .12 : this.chute ? .35 : 1.2, 60000, asp);
 
     /* ---- instanced meshes & photographic world inhabitants ----
        Version 4: previously ONLY evade.searchers used photographs.
@@ -16959,7 +17165,7 @@ class Game {
         // running row 2, and farmer bending/working in row 3.
         const front = Math.abs(angle) < Math.PI/3;
         const back = Math.abs(angle) > 2*Math.PI/3;
-        const dirCell = front ? 0 : back ? 2 : 1;
+        const dirCell = front ? 0 : back ? (photo==='farmer'?2:3) : 1;
         const seed = Math.abs(Math.floor(p[0]*17.31 + p[2]*41.73));
         const isFieldWorker = mesh === 'farmer' || mesh === 'farmerC';
         const working = isFieldWorker && (seed % 5 < 3);
@@ -16976,6 +17182,7 @@ class Game {
           if (hasPhoto) {
             actor.photoName = photo;
             actor.photoFrame = frame;
+            if(photo==='nva') {actor.useCleanFigure=true;actor.cell=sprCell(mesh==='guardAim'?'guardAim':'guard',facing,R.eye[0],R.eye[2],p[0],p[2]);actor.cols=SPR.cols;actor.rows=SPR.rows;}
           } else {
             // Painted photographic fallback is still preferable to the
             // original faceted primitive. Use its 7x8 kind/direction atlas.
@@ -17008,12 +17215,14 @@ class Game {
           // Small coordinate hash gives a repeatable, nonrepeating landscape.
           const seed = (Math.abs(Math.floor(p[0]*17.31+p[2]*41.73)) % 8);
           let row = 0, h = 12, w = 8.8;
-          if (mesh === 'tree') { row = seed % 3 ? 0 : 4; h = 13.7; w = 10.2; }
+          if (mesh === 'tree') { row = 0; h = 13.7; w = 10.2; }
           if (mesh === 'palm') { row = 1; h = 11.0; w = 7.2; }
           if (mesh === 'bamboo') { row = 3; h = 7.9; w = 5.1; }
           if (mesh === 'bush') { row = 5; h = 2.5; w = 3.0; }
           const scale = (s && s[1]) || 1;
-          sprites.push({ photoName:'vegetation',photoFrame:row*8+seed,
+          // Use complete centred source plants; several original cells are sliced sheet edges.
+          const valid=row===0?[7]:row===3?[0,4,5,7]:[0,1,2,3,4,5,6,7];
+          sprites.push({ photoName:'vegetation',photoFrame:row*8+valid[seed%valid.length],
             p:[p[0],Math.max(terrainH(p[0],p[2]),0),p[2]],
             h:h*scale,w:w*scale,t:[0.87,0.92,0.81] });
           vegetationSprites++;
@@ -17179,11 +17388,12 @@ class Game {
       const camHeading = Math.atan2(this.rend.eye[0]-sc.p[0], -(this.rend.eye[2]-sc.p[2]));
       const angleToCam = Math.atan2(Math.sin(face-camHeading),Math.cos(face-camHeading));
       const idlePose = Math.abs(angleToCam)<PI/3 ? 0 :
-                       Math.abs(angleToCam)>2*PI/3 ? 3 : (angleToCam>0 ? 4 : 2);
+                       Math.abs(angleToCam)>2*PI/3 ? (['farmer','villager'].includes(sc.kind)?2:3) : 1;
       if (cell >= 0 && this.rend.textures && this.rend.textures.people) {
-        sprites.push({ p: [sc.p[0] + swx, gy + bob, sc.p[2] + swz],
-                       h: 1.76 + bob, w: 0.96 * wob,
+        sprites.push({ p: [sc.p[0] + swx, gy, sc.p[2] + swz],
+                       h: 1.76, w: 0.96,
                        cell: cell, cols: SPR.cols, rows: SPR.rows,
+                       useCleanFigure: this.evade.camp || sc.kind==='nva',
                        photoName: this.evade.camp ? 'nva'
                          : sc.kind === 'nva' ? 'nva'
                          : (sc.kind === 'vc' || sc.kind === 'vcFem') ? 'female_vc'
@@ -17191,9 +17401,9 @@ class Game {
                             (this.evade.river && !sc.armed)) ? 'farmer'
                          : 'militia',
                        photoFrame: (sc.hurt || (sc.flinch && this.t-sc.flinch < 0.45))
-                         ? 5*8 + Math.floor(this.t*7)%8
-                         : sc.seen && sc.armed ? 3*8 + Math.floor(this.t*4)%8
-                         : moving ? (sc.spd>3.1 ? 2*8 : 1*8) + (Math.floor(sc.ph*1.85)%8+8)%8
+                         ? 16
+                         : sc.seen && sc.armed ? 16
+                         : moving ? 8 + (Math.floor(sc.ph*1.27)%8+8)%8
                          : idlePose,
                        flip: moving && angleToCam>0 });
       } else {
@@ -17402,11 +17612,20 @@ class Game {
        the glass and the particles. */
     if (this._sprites && this._sprites.length) {
       const fallback = [], groups = {};
+      const anchored=(s,name,frame,cols,rows)=>{
+        const meta=PHOTO_ATLAS[name],f=meta&&meta.frames[frame];
+        if(!f||f.height<=0)return {...s,cols,rows,cell:frame};
+        const h=s.h/f.height;
+        // Preserve each photographed figure's source proportions at the requested height.
+        const w=name==='vegetation'||name==='cow'?s.w:h*(meta.width/cols)/(meta.height/rows);
+        return {...s,p:[s.p[0],s.p[1]-f.bottom*h,s.p[2]],h,w,cols,rows,cell:frame};
+      };
       for (const s of this._sprites) {
-        const nm = s.photoName;
-        if (nm && R.textures && R.textures['photo_'+nm]) {
-          (groups[nm] ||= []).push({...s, cols:8, rows:6, cell:s.photoFrame||0});
-        } else fallback.push(s);
+        const nm=s.photoName;
+        if(s.useCleanFigure)fallback.push(anchored({...s,flip:false},'people',s.cell,SPR.cols,SPR.rows));
+        else if(nm&&R.textures&&R.textures['photo_'+nm])
+          (groups[nm] ||= []).push(anchored(s,nm,s.photoFrame||0,8,6));
+        else fallback.push(s);
       }
       if (fallback.length) R.drawSprites('people', fallback);
       for (const [name, list] of Object.entries(groups)) R.drawSprites('photo_'+name, list);
@@ -17482,15 +17701,15 @@ class Game {
        does nothing is worse than one that says so. */
     const e5 = this.evade, pb = $('#btnPistol'), kb = $('#btnKnife'), fb=$('#btnPunch');
     if (pb) {
-      const has = !!(e5 && e5.rounds > 0);
+      const has = !!(e5 && (e5.hasPistol===undefined?!e5.camp&&!e5.river:e5.hasPistol));
       pb.classList.toggle('on', !!(e5 && e5.drawn));
       pb.classList.toggle('none', !has);
       pb.firstChild.nodeValue = has ? ('Pistol ' + e5.rounds) : 'No gun';
     }
     if (kb) {
-      const hasK = !!(e5 && (e5.rounds > 0 || e5.fitting));
+      const hasK = !!(e5 && (e5.hasKnife===undefined?!e5.camp&&!e5.river:e5.hasKnife) || e5 && e5.fitting);
       kb.classList.toggle('none', !hasK);
-      kb.firstChild.nodeValue = e5 && e5.fitting && !e5.rounds ? 'Fitting' : 'Knife';
+      kb.firstChild.nodeValue = e5 && e5.fitting && !e5.hasKnife ? 'Fitting' : 'Knife';
       kb.classList.toggle('on',!!(e5 && e5.weaponMode==='knife'));
     }
     if(fb)fb.classList.toggle('on',!!(e5 && (e5.weaponMode||'fists')==='fists'));
@@ -17637,7 +17856,7 @@ const STEP = 1 / 60;
 App.frame = function (now) {
   const raw = Math.min(0.30, (now - (this._last || now)) / 1000);
   this._last = now;
-  if (this.screen === 'game' && this.game) {
+  if (this.screen === 'game' && this.game && !this.graphicsContextLost) {
     const g = this.game;
     /* If the machine cannot hold a playable frame rate, drop the graphics a
        step and say so. Everything in this game was tested in a software

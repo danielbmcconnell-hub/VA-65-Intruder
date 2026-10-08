@@ -9,8 +9,12 @@
     "test:missions": "node tests/run-browser.cjs --suite=missions",
     "test:progression": "node tests/run-browser.cjs --suite=progression",
     "test:regressions": "node tests/run-browser.cjs --suite=regressions",
-    "test:assets": "node tests/check-preservation.cjs",
-    "browsers:install": "playwright install chromium webkit"
+    "test:assets": "node tests/check-preservation.cjs && python3 tests/check-atlases.py",
+    "browsers:install": "playwright install chromium webkit",
+    "build": "node tools/package-build.cjs",
+    "test:ground": "node tests/run-browser.cjs --suite=ground",
+    "test:renderer": "node tests/run-browser.cjs --suite=renderer",
+    "test:build": "node tests/build-browser.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"
