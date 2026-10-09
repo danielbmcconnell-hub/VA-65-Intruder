@@ -1,4 +1,21 @@
-# Milestone 2 — playable game downloads
+# Milestone 2.1 — playable game downloads
+
+This build adds explorable 3D memory projects, progressive counted POW communication, Denton and Stockdale photographs, an optional Morse lesson and a guarded subsequent escape from regular imprisonment. It preserves the custom WebGL engine, A-6A flight simulation, eleven missions and original tribute photographs.
+
+- [Download the Milestone 2.1 playable Netlify ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/milestone2-1/releases/Intruder_Yankee_Station_Milestone2_1.zip) — 23.3 MB.
+- [Download screenshots and test evidence](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/milestone2-1/releases/Intruder_Yankee_Station_Milestone2_1_Evidence.zip) — 54.9 MB, 51 actual browser screenshots.
+- [Browse eight sample screenshots](milestone2_1-screenshots/).
+- [Test report](../docs/MILESTONE_2_1_TEST_REPORT.md), [play guide](../docs/MILESTONE_2_1_PLAY_GUIDE.md) and [Netlify instructions](../docs/NETLIFY_DEPLOYMENT_MILESTONE_2_1.md).
+- [Historical source audit](../docs/MILESTONE_2_1_HISTORICAL_SOURCES.md).
+
+231 source browser checks, 133 Node/VM checks and five packaged-build checks passed. Actual Chromium WebGL2 and emulated phone controls were exercised. Physical Windows/iPhone Safari, hardware performance and human balance remain for your trial. The report identifies all fixtures and historical verification limits.
+
+Sign into this private repository, save the playable ZIP, choose **Extract All** on Windows and upload its extracted contents to Netlify. The folder root must contain `index.html`, `assets/` and `_headers`. Git-connected deployment uses branch `milestone2-1`, build command `npm run build`, publish directory `dist/site`. Choose **Ready Room → Enter the prison**. The live Netlify site was not changed by this delivery.
+
+Tested source: `83c6eb973cdbac19b077403f7532761e02695d97`. ZIP SHA-256: `801e271ff0d0453bd81315d2491a7a6c93be1bb72bae576745cff864076198c8`. `milestone2_1-build-manifest.json` records all 54 runtime hashes; `milestone2_1-summary.json` records counts and limits. Full Git ancestry and all older release files remain intact. The new branch does not overwrite Milestone 1 `main`/`work` or `milestone2`.
+
+## Preserved Milestone 2 delivery
+
 
 This test build adds physical prison escape, guard perception and pursuit, a playable river journey and fictional rescue, interactive captivity projects and counted tap-code communication. The custom WebGL engine, A-6A flight physics, all eleven mission definitions and original photographs are preserved.
 

@@ -1,0 +1,53 @@
+{
+  "sourceCommit": "83c6eb973cdbac19b077403f7532761e02695d97",
+  "entrySHA256": "db0cb23855c5a750adc6ff3147c44ee57f1fe94a7186ed8f18b69acefb46f1cb",
+  "runtimeFiles": 54,
+  "runtimeZIP": {
+    "file": "Intruder_Yankee_Station_Milestone2_1.zip",
+    "bytes": 23252878,
+    "sha256": "801e271ff0d0453bd81315d2491a7a6c93be1bb72bae576745cff864076198c8"
+  },
+  "browserChecks": {
+    "renderer": 6,
+    "missions": 22,
+    "progression": 26,
+    "ground": 11,
+    "photos": 33,
+    "prison": 19,
+    "river": 14,
+    "captivity": 15,
+    "controls": 14,
+    "awareness": 6,
+    "m21": 57,
+    "m21-recapture": 8
+  },
+  "browserTotal": 231,
+  "packagedChecks": 5,
+  "nodeVMChecks": {
+    "core": 8,
+    "ai": 15,
+    "river": 15,
+    "captivity": 23,
+    "countrysideAwareness": 6,
+    "solidarity": 23,
+    "morseDomainAndRecordedDOM": 15,
+    "mindscape": 10,
+    "regularConfinement": 18
+  },
+  "nodeVMTotal": 133,
+  "evidenceScreenshots": 51,
+  "recordedAt": "2026-10-09T02:08:23.818773+00:00",
+  "preservation": "Protected A-6A physics/model/markings, eleven mission definitions, original sprites and family photographs; eight historical images match uploaded originals exactly.",
+  "scope": "Actual Chromium WebGL2/SwiftShader desktop and touch-emulated phone layouts. Declared calendar, patrol-duty and view-steering fixtures. Real counted pulses, remembered-project decisions, collision-checked walking, held interactions, live guard response, recapture and checkpoint restore. Morse Node tests include a recorded DOM fixture. Physical Windows/iPhone Safari, sustained FPS and human difficulty balance remain untested.",
+  "incrementalVerification": "All ten existing suites completed. Captivity/controls reran after close-input repair; full 57-check M2.1 suite reran after compact phone HUD and lighting adjustments. Individual reports retain timestamps and source hashes. No failed/partial run counted.",
+  "repairsAndFixtureCorrections": [
+    "Moved transmission hook to validated send, avoiding undefined expected",
+    "Preserved extension state through restore and physical checkpoints during imagined projects",
+    "Cleared hidden modal focus/held controls",
+    "Qualified transfer prompt no longer competes with old door",
+    "Guard wanted memory persists after visible escape activity",
+    "Compacted phone project HUD and reduced overbright lights",
+    "Test approach precision, clear house aisle, sleep recovery and pending-interview/different-day observation fixtures corrected"
+  ],
+  "historicalVerification": "Three substantive Smithsonian pages retrieved/read; blocked sources, unresolved biographical/chronology/BACK US wording and user-photo provenance documented. Reconstructed dialogue/geometry and alternate rescue outcomes are labeled fictional."
+}

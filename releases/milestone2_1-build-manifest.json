@@ -1,0 +1,222 @@
+{
+  "commit": "83c6eb973cdbac19b077403f7532761e02695d97",
+  "entrySHA256": "db0cb23855c5a750adc6ff3147c44ee57f1fe94a7186ed8f18b69acefb46f1cb",
+  "files": [
+    {
+      "file": "index.html",
+      "sha256": "db0cb23855c5a750adc6ff3147c44ee57f1fe94a7186ed8f18b69acefb46f1cb"
+    },
+    {
+      "file": "assets/atlas-metadata.js",
+      "sha256": "042cc37786069adb0b58de7b17ba499ee8c0c2b93da0864288c4d184917e62d0"
+    },
+    {
+      "file": "assets/figures-original.png",
+      "sha256": "2b357f1d128f3a9be324778c0fbea527c7574ff8ca328cfb5391bf811d910883"
+    },
+    {
+      "file": "assets/photos/approach.jpg",
+      "sha256": "ba2b82ba84b123ec832b4f6f6e11fd83f84058e7d9ab56eb84eec77b04a0b1f4"
+    },
+    {
+      "file": "assets/photos/carrier-portrait.jpeg",
+      "sha256": "5ee93f36a9416d4a1f4944b2c830cc7aed9d9c3df9e0ab091b1e27befd7180de"
+    },
+    {
+      "file": "assets/photos/co.jpg",
+      "sha256": "6ce18e40d3c31d5b3f5d5596f7c0f28a89a21dbd26ce48453b0b98585f14434a"
+    },
+    {
+      "file": "assets/photos/crew-portrait.jpeg",
+      "sha256": "5ee93f36a9416d4a1f4944b2c830cc7aed9d9c3df9e0ab091b1e27befd7180de"
+    },
+    {
+      "file": "assets/photos/inflight.jpg",
+      "sha256": "054e767d8e83714ad433a56bb3c54e435cebb4516a2a71c023e53aaceec73304"
+    },
+    {
+      "file": "assets/photos/kh_bow.jpg",
+      "sha256": "e78d14de9c134d02cccd66fe705a902b995114dc205718b1eea69abc29e39a48"
+    },
+    {
+      "file": "assets/photos/kitty.jpg",
+      "sha256": "11002268dfb468aa933da7e60b9d50cbc9df35ced9989415b2b7bdde67a25d82"
+    },
+    {
+      "file": "assets/photos/launch1.jpg",
+      "sha256": "b1fe8d19905ac8d5ba44e3f80d3b4d4a4cea327e863633e0307b6b8a83b2e90d"
+    },
+    {
+      "file": "assets/photos/nose.jpg",
+      "sha256": "10d5baae40ede6f5211111752bcc78eb85d47f52221400f53231c69d868e6250"
+    },
+    {
+      "file": "assets/photos/officers.jpg",
+      "sha256": "22139a7227ebd91c546d40211efd07824da43afc6775ab048f78e1090b0ac12a"
+    },
+    {
+      "file": "assets/photos/overdeck.jpg",
+      "sha256": "efba85b802c9c20e8a4b98413571954d6170067a48e69c091b388f6ad7d48bc1"
+    },
+    {
+      "file": "assets/photos/pair.jpg",
+      "sha256": "f5b475b9ec1d43cc94054ace2e36ad88865c479b0f6e03c2c5af3b85a77b7ae6"
+    },
+    {
+      "file": "assets/photos/readyroom.jpg",
+      "sha256": "7136808cc3c5af82a3b61ff694d8205c226a14bb72773ee80de39a8c32e7f686"
+    },
+    {
+      "file": "assets/photos/rtb.jpg",
+      "sha256": "535386a29b88bdb65c6937e1c514271fe337f26f16cdebbfb30bc4675cd9fb64"
+    },
+    {
+      "file": "assets/photos/standing-portrait.jpeg",
+      "sha256": "c69835f06a3614f071221f3467bc626fefe35984be76584260b0db33366f5fe1"
+    },
+    {
+      "file": "assets/photos/survival-portrait.jpg",
+      "sha256": "c8e509cae3e6460665548cb6a03949fbac92e787f356eba14701185e43db76eb"
+    },
+    {
+      "file": "assets/photos/tiger-insignia.png",
+      "sha256": "d2e460e1cddffc3758b7631c8ef5fa16fe6b5a8f9b599e3c6bab9eb0ba24be6b"
+    },
+    {
+      "file": "assets/processed/aviator.webp",
+      "sha256": "293f96bc10318d7018a723a5ee0205adf05f2658b44b1e5ac142f074892081af"
+    },
+    {
+      "file": "assets/processed/cow.webp",
+      "sha256": "843c5d2730e259a99ab535a600b03b9936b0ce4f04a2768ba30bfd360f401009"
+    },
+    {
+      "file": "assets/processed/farmer.webp",
+      "sha256": "3b6d08c8f623268ce3da4bc22a34c994b3c60c5ebe97e59399d25f175dffaad6"
+    },
+    {
+      "file": "assets/processed/female_vc.webp",
+      "sha256": "73fe90a4a19e7ebc3b75b34f926ff0dcb0c92f4581840000095fb858d4baff72"
+    },
+    {
+      "file": "assets/processed/militia.webp",
+      "sha256": "0789efa0a976130c4e00ad5b2c7624e941f0d5fe8015420585107cd6ff2901b5"
+    },
+    {
+      "file": "assets/processed/nva.webp",
+      "sha256": "34e357ae569cc38efc21179d229a2ccca5c87df948d85dd8d657dd71a83f624a"
+    },
+    {
+      "file": "assets/processed/vegetation.webp",
+      "sha256": "6ad6f94a57db013e03dbf80a4d4667b27f4b058627ce945dde9360529915497d"
+    },
+    {
+      "file": "assets/history/manifest.json",
+      "sha256": "93218bd49d70261c6093621d985328128111fb9c7075b69810622d9c3fb6e436"
+    },
+    {
+      "file": "assets/history/pow_roll_call_1960s.webp",
+      "sha256": "359af75ddbaade3c9d6b2824b67b1f98833e8f06dc183785371d8eef744fd52a"
+    },
+    {
+      "file": "assets/history/ltjg_coker_may_1966_colorized.webp",
+      "sha256": "47cac3835b64bdb0771576be85ced04e88d92c578be9a5293ef7d41943d2a6fc"
+    },
+    {
+      "file": "assets/history/hanoi_hilton_aerial_colorized.webp",
+      "sha256": "6e651995f93af3f3491a1227ef14a93dc54743bcf0300d33fd123e00068e6ded"
+    },
+    {
+      "file": "assets/history/pow_prison_courtyard.webp",
+      "sha256": "dfa9d0f47bb3321cedda6af139fe80f24cb4531f26a36cbf971af425c9a5345f"
+    },
+    {
+      "file": "assets/history/pow_interrogation_scene.webp",
+      "sha256": "6c9d81918dc361b1746bf8117aa671ce139bca8785775f34a615005b11357ea6"
+    },
+    {
+      "file": "assets/history/pow_group_repatriation.webp",
+      "sha256": "e5bda2053391579b6077903d23a61dcb09b40c323cc6db2f72bc5bc953bfbf01"
+    },
+    {
+      "file": "assets/history/denton_blinking_torture_color.png",
+      "sha256": "ada2562d09d476f758770545948aa7ab73f823019b002f62c1df935795821891"
+    },
+    {
+      "file": "assets/history/stockdale_pow_color.png",
+      "sha256": "7227be4a8cde22f3310212791a269b81ffe36edc23c4d1d12e3d5814be798487"
+    },
+    {
+      "file": "assets/pow/core.js",
+      "sha256": "1faab2c3d562a4965f02258c64c96acb28fa4ce8846d5826b3495e82a46d9c63"
+    },
+    {
+      "file": "assets/pow/core.css",
+      "sha256": "e582af011837efbde6d8cdddb2ed1b700db3c4117ceae10114e950ed6a4f5c62"
+    },
+    {
+      "file": "assets/pow/ai.js",
+      "sha256": "16392aa7a97703b6e674af11494a9895bce091a27a4d95f6daa3c41088a3ed56"
+    },
+    {
+      "file": "assets/pow/river.js",
+      "sha256": "0efb0a02ba785d7842cce0ee914143aacb7742d3988969e9b794fc63e3af0f68"
+    },
+    {
+      "file": "assets/pow/captivity.js",
+      "sha256": "dcbb7b17f2c9755bb2083a75f6f56f579173d4f8fd76b310e435e91846881e44"
+    },
+    {
+      "file": "assets/pow/solidarity.js",
+      "sha256": "52aac5e8e3e96e552a585cce9b2aacf24709ab72e41d72e8b11b06e2d4d08fae"
+    },
+    {
+      "file": "assets/pow/denton-flashback.js",
+      "sha256": "3a434ee002427440ed01e6ea537f0b47c61ae7147bd3ab8c0222777a20eb0a04"
+    },
+    {
+      "file": "assets/pow/mindscape.js",
+      "sha256": "6244998f4ebb3c5eb7ce8258f854159ed9a9cb8c0cf0986c75058a9b8d41b151"
+    },
+    {
+      "file": "assets/pow/regular-confinement.js",
+      "sha256": "a08e3a5fe34056e0b9a1c442df5ede80bf49233950ba8ca62fa1884c5f6ed12e"
+    },
+    {
+      "file": "assets/pow/history.js",
+      "sha256": "47a10f0365dedc2e1e28647e53ae1f9f339f22bf5fbf000c14872f6ff04a7543"
+    },
+    {
+      "file": "assets/aviator.webp",
+      "sha256": "eecd1410d06586a24c4b9984ac1d69e028f726ce4c501eac1520d4f1d5d0e942"
+    },
+    {
+      "file": "assets/cow.webp",
+      "sha256": "0d20fbe09b8952e67f8a1645a17a62cdb3da9debd72e7e460ea4879a7a5ff45b"
+    },
+    {
+      "file": "assets/farmer.webp",
+      "sha256": "4ff99a6b923a5bc425944f1076c20d1727c2b699834a749e33c3ff117176f86b"
+    },
+    {
+      "file": "assets/female_vc.webp",
+      "sha256": "cc6db921be7ca46ecee44f8048e28fb09f2c404f55c4e76fc84b2aad4bbf975f"
+    },
+    {
+      "file": "assets/militia.webp",
+      "sha256": "c64f1b1c8c277ebcd6d240b320009df0aa57c5aca06571089f025fd9d8e32211"
+    },
+    {
+      "file": "assets/nva.webp",
+      "sha256": "1f26ecf757d3b49ca6e05a3ff6b2f70acae4a663999e0caf16b2923e39a769fa"
+    },
+    {
+      "file": "assets/vegetation.webp",
+      "sha256": "a3aef36cd9fb5a8d62a8f5773b9b47dbacabb04cd14028b1b777c10ff80070d1"
+    },
+    {
+      "file": "_headers",
+      "sha256": "4a1c2e865e97b38df125a2ee055d84c8e0a33072955a41596dc42dbd5487ca98"
+    }
+  ]
+}
