@@ -15,7 +15,8 @@
     "test:ground": "node tests/run-browser.cjs --suite=ground",
     "test:renderer": "node tests/run-browser.cjs --suite=renderer",
     "test:build": "node tests/build-browser.cjs",
-    "test:pow": "node tests/pow-core.cjs && node tests/pow-ai.cjs && node tests/pow-river.cjs && node tests/pow-captivity.cjs && node tests/pow-ground-awareness-browser.cjs && node tests/run-browser.cjs --suite=pow"
+    "test:pow": "node tests/pow-core.cjs && node tests/pow-ai.cjs && node tests/pow-river.cjs && node tests/pow-captivity.cjs && node tests/pow-ground-awareness-browser.cjs && node tests/run-browser.cjs --suite=pow",
+    "test:m21": "node tests/pow-solidarity.cjs && node tests/pow-denton-morse.cjs && node tests/pow-mindscape.cjs && node tests/pow-regular-confinement.cjs && node tests/run-browser.cjs --suite=m21 && node tests/run-browser.cjs --suite=m21-recapture"
   },
   "devDependencies": {
     "playwright": "1.62.1"

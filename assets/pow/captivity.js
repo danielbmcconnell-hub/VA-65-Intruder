@@ -92,6 +92,8 @@
     };
     const c = s.captivity;
     c.daily = c.daily || {}; c.rewards = c.rewards || {}; c.events = c.events || []; c.logs = c.logs || [];
+    if(P.Solidarity && !c.solidarity)c.solidarity=P.Solidarity.initial();
+    if(P.DentonFlashback && !c.flashback)c.flashback=P.DentonFlashback.initial();
     return c;
   }
   function captureYear(game) {
@@ -122,6 +124,7 @@
     }
     c.rewards[activity] = stamp; c.daily[activity] = stamp;
     for (const [key, delta] of Object.entries(gains || {})) stat(game, key, delta);
+    if(P.Solidarity)P.Solidarity.afterActivity(game,activity);
     log(game, message); notify(game, message); save(game); return true;
   }
   function available(game, activity, duration) {
@@ -212,13 +215,26 @@
     box(game, 'vent', 'powMetal', -w + 0.012, 1.9, -0.7, 0.012, 0.16, 0.22, false);
     box(game, 'bulb-wire', 'powMetal', 0, 2.32, -0.35, 0.008, 0.08, 0.008, false);
     box(game, 'permanent-bulb', 'powPale', 0, 2.22, -0.35, 0.045, 0.055, 0.045, false, [1, 0.9, 0.68, 4]);
-    box(game, 'corridor-floor', 'powStone', 0, -0.05, -2.6, 2.3, 0.05, 1.1, false);
+    box(game, 'corridor-floor', 'powStone', 0, -0.05, -2.6, 7.1, 0.05, 1.1, false);
+    // Separated schematic cells, never an asserted survey or named-cell order.
+    for(const side of [-1,1])for(let i=1;i<=5;i++){
+      const x=side*i*1.22,prefix='isolated-'+side+'-'+i;
+      box(game,prefix+'-left','powStone',x-w-.09,1.2,0,.09,1.2,l+.18,true);
+      box(game,prefix+'-right','powStone',x+w+.09,1.2,0,.09,1.2,l+.18,true);
+      box(game,prefix+'-back','powStone',x,1.2,l+.09,w,1.2,.09,true);
+      box(game,prefix+'-door','powMetal',x,1.08,-l-.05,w,1.08,.05,true);
+      box(game,prefix+'-roof','powStone',x,2.46,0,w+.18,.06,l+.18,false);
+    }
     s.cellDoor = [s.base[0], s.base[1], s.base[2] - l - 0.7];
     s.lights = [{ p: [s.base[0], s.base[1] + 2.21, s.base[2] - 0.35], color: [1, 0.88, 0.65], radius: 5, power: 1.25, permanent: true }];
     object(game, 'cell-notebook', 'Mental notebook: build and remember', -0.18, 0.28, -0.16, g => open(g, 'notebook'), { radius: 1.6, view: false });
     object(game, 'cell-wall', 'Listen and use the tap code', -w, 1.1, -0.45, g => open(g, 'tap'), { radius: 1.6, view: false });
     object(game, 'cell-bed', 'Rest, sleep and daily routine', 0, 0.28, 0.62, g => open(g, 'rest'), { radius: 1.7, view: false });
-    object(game, 'cell-door', 'Observe the corridor / interview', 0, 1.2, -l, g => inspectDoor(g), { radius: 1.25 });
+    object(game, 'cell-door', 'Observe the corridor / interview', 0, 1.2, -l, g => inspectDoor(g), { radius: 1.25,enabled:g=>!P.RegularConfinement || !P.RegularConfinement.eligible(g) });
+    if(P.RegularConfinement)object(game,'transfer-regular','Return to regular imprisonment',0,1.2,-l,g=>{
+      if(!P.RegularConfinement.eligible(g))return;
+      close(g);P.begin(g,'regular');
+    },{radius:1.25,hold:2.5,view:true,enabled:g=>P.RegularConfinement.eligible(g)});
     object(game, 'cell-tray', 'Inspect the daily meal', 0.21, 0.12, -1.15, g => meal(g), { radius: 1.1, view: false });
     object(game, 'cell-vent', 'Inspect the vent fastener', -w, 1.9, -0.7, g => inspectVent(g), { radius: 1.25, enabled: g => state(g).vent.noticed, hold: 5 });
     object(game, 'cell-exercise', 'Seated exercise and personal anchor', 0, 0.8, -0.08, g => open(g, 'exercise'), { radius: 1.2, view: false });
@@ -266,6 +282,7 @@
       for (const key of ['targets', 'hiddenAt', 'observations', 'pendingEvent', 'releaseAvailable', 'noiseCount', 'flashUntil']) if (source[key] !== undefined) target[key] = JSON.parse(JSON.stringify(source[key]));
     }
     merge(defaults, snapshot);
+    for(const key of ['solidarity','flashback','mindscape'])if(snapshot[key] && typeof snapshot[key]==='object')defaults[key]=JSON.parse(JSON.stringify(snapshot[key]));
     defaults.minute = clamp(finite(defaults.minute, 480), 0, 1439.999);
     defaults.elapsedMinutes = Math.max(0, finite(defaults.elapsedMinutes, 0));
     defaults.open = false; defaults.tab = 'notebook'; defaults.uiTick = 0;
@@ -421,7 +438,7 @@
     if (a && a.audio && (!a.set || a.set.sound)) a.audio.burst('thunk', vol * (game.pow.intensity === 'reduced' ? 0.55 : 1));
   }
   function tapPlay(game) {
-    const c = state(game), a = c.tap, message = RECEIVE[(a.received + Math.floor(game.pow.day / 7)) % RECEIVE.length];
+    const c = state(game), a = c.tap, message = P.Solidarity?P.Solidarity.message(game):RECEIVE[(a.received + Math.floor(game.pow.day / 7)) % RECEIVE.length];
     a.mode = 'receive'; a.decoded = ''; a.pair = { row: 0, col: 0 }; a.group = 'row';
     a.playback = { word: message.word, text: message.text, letters: TapCode.encode(message.word), index: 0, group: 'row', count: 0, timer: 0.7, done: false };
     a.signal = ''; notify(game, 'Listen and count: row taps, pause, column taps. A longer pause separates letters.'); save(game);
@@ -455,9 +472,11 @@
     if (a.mode === 'receive' && !a.playback.done) { notify(game, 'The neighbour is still sending. Count the remaining letters before checking.'); return false; }
     if (canonical(a.decoded) !== canonical(expected)) { notify(game, 'That spelling does not match. Replay and count each row and column, or clear your letters.'); return false; }
     if (a.mode === 'send') {
+      if(P.Solidarity)P.Solidarity.sent(game,expected);
       a.sent++; reward(game, 'tapSend', 'Your fictional neighbour answers the correctly transmitted word with a quiet acknowledgement.', { morale: 3, hope: 3 });
       a.sendWord = SEND[a.sent % SEND.length]; a.decoded = ''; a.pair = { row: 0, col: 0 };
     } else {
+      if(P.Solidarity)P.Solidarity.received(game,expected);
       a.received++; reward(game, 'tapReceive', a.playback.text + ' Message: ' + expected + '.', { morale: 3, hope: 3, memory: 1 });
       game.pow.flags.prisonerContact = true; game.pow.flags.wallContact = true; a.playback = null; a.decoded = ''; a.lesson = true;
     }
@@ -562,6 +581,7 @@
     advance(game, game.pow.intensity === 'reduced' ? 35 : 75, 'activity');
     stat(game, 'fatigue', game.pow.intensity === 'reduced' ? 2 : 5);
     c.pendingEvent = null; c.events.push({ day: game.pow.day, kind: 'interview', text: texts[choice] });
+    if(P.Solidarity)P.Solidarity.afterInterview(game,choice);
     log(game, 'Returned from a non-graphic fictional interview.'); notify(game, texts[choice]); open(game, 'notebook'); save(game); return true;
   }
   function inspection(game, reason) {
@@ -650,10 +670,14 @@
     const first = ui && ui.querySelector('button'); if (first) first.focus({ preventScroll: true });
   }
   function close(game) {
+    const active = root.document && root.document.activeElement;
+    if (ui && active && ui.contains(active) && active.blur) active.blur();
     if (game && game.pow && game.pow.captivity) {
       const c = game.pow.captivity; c.open = false;
       if (c.exercise) c.exercise.holding = false;
       if (game.app && game.app.keys) for (const key of Object.keys(game.app.keys)) game.app.keys[key] = false;
+      game.pow.touchInteract = false; game.pow.touchClimb = false;
+      if (game.app && game.app.gctl) for (const key of ['pitch', 'roll', 'run', 'crouch']) game.app.gctl[key] = 0;
     }
     if (ui) ui.style.display = 'none';
   }
@@ -671,6 +695,7 @@
     para(panel, 'Condition ' + Math.round(game.pow.stats.physical) + ' · fatigue ' + Math.round(game.pow.stats.fatigue) + ' · memory ' + Math.round(game.pow.stats.memory) + ' · morale ' + Math.round(game.pow.stats.morale) + ' · hope ' + Math.round(game.pow.stats.hope), 'pow-dim pow-stat');
     const nav = row(panel);
     for (const [id, label] of [['notebook', 'Notebook'], ['car', 'Engine'], ['architecture', 'House'], ['city', 'City'], ['memory', 'Memory'], ['tap', 'Tap code'], ['exercise', 'Exercise / anchor'], ['rest', 'Rest / time'], ['history', 'Context / log']]) btn(nav, label, () => open(game, id), false, c.tab === id ? 'pow-active' : '');
+    if(P.Solidarity)btn(nav,'Prisoner network',()=>open(game,'network'),false,c.tab==='network'?'pow-active':'');
     const feedback = para(panel, c.feedback, 'pow-feedback'); feedback.setAttribute('role', 'status'); feedback.setAttribute('aria-live', 'polite');
     const tab = c.tab;
     if (tab === 'car') renderCar(game, panel);
@@ -682,6 +707,7 @@
     else if (tab === 'rest') renderRest(game, panel);
     else if (tab === 'interview') renderInterview(game, panel);
     else if (tab === 'route') renderRoute(game, panel);
+    else if ((tab === 'network' || tab === 'solidarity') && P.Solidarity)P.Solidarity.render(game,panel);
     else if (tab === 'release') {
       para(panel, 'The accelerated calendar has reached 1973. Release is a historical ending, after prolonged captivity, rather than an escape roll.');
       btn(row(panel), 'Continue to Operation Homecoming', () => release(game));
@@ -690,6 +716,10 @@
       para(panel, 'The locked door and barred transom face the corridor. Recorded observations: ' + (c.observations || 0) + '. Guard noise, inspections and transfers change the routine.');
       if (c.pendingEvent) btn(row(panel), 'Address interview request', () => open(game, 'interview'));
       if (c.vent.route) btn(row(panel), 'Review physical route', () => open(game, 'route'));
+      if(P.RegularConfinement){
+        const transfer=P.RegularConfinement.eligibility(game);
+        para(panel,transfer.ready?'A fictional transfer to regular imprisonment is available. Return to your cell, face the door and hold F or Interact. This is a transfer, not freedom.':transfer.missing.join(' '));
+      }
     } else {
       para(panel, 'The notebook represents imagined projects and remembered patterns, not supplies in the cell. Each completed project requires several real steps. Practice can help once per day; repeating it immediately gives no extra condition gain.');
       para(panel, 'Build an engine, a workable house or a connected neighbourhood; repeat a spatial pattern; communicate by timed taps. Rest when tired. Your progress persists after transfer or recapture.');
@@ -701,6 +731,7 @@
   function renderCar(game, panel) {
     const c = state(game), a = c.car;
     panel.appendChild(dom('h3', 'Mechanical assembly · challenge ' + a.round));
+    if(P.Mindscape)btn(row(panel),'Explore the imagined engine in 3D',()=>P.Mindscape.open(game,'car')).setAttribute('data-mind-open','car');
     para(panel, 'Reconstruct an engine and drivetrain from real components. Bearings precede the crank, lubrication precedes testing, and transmission precedes driven wheels. Steps take six simulated minutes.');
     if (a.phase === 'assemble') {
     const hidden = (a.round > 1 || game.pow.difficulty === 'hard') && c.elapsedMinutes > (a.hiddenAt || 0);
@@ -720,6 +751,7 @@
   function renderArchitecture(game, panel) {
     const a = state(game).architecture, section = ARCH[a.stage];
     panel.appendChild(dom('h3', 'Architectural plan · challenge ' + a.round));
+    if(P.Mindscape)btn(row(panel),'Explore the imagined house in 3D',()=>P.Mindscape.open(game,'architecture')).setAttribute('data-mind-open','architecture');
     para(panel, 'Site: ' + a.site + ' ground, rain, one exit. Material budget: ' + a.budget + '; spent: ' + a.spent + '. Foundation → framing → roof → plumbing → electrical → furniture. Structural load, drainage, hygiene, electrical protection and access must agree.');
     para(panel, Object.entries(a.choices).map(([key, value]) => key + ': ' + value).join(' · ') || 'No stages planned yet.');
     if (section) {
@@ -732,6 +764,7 @@
     const a = state(game).city, hard = game.pow.difficulty === 'hard', needed = a.round > 1 || hard ? 3 : 2;
     const symbols = { empty: '·', road: 'Street', housing: 'Home', water: 'Water', utility: 'Utility', school: 'School', park: 'Park', stop: 'Stop' };
     panel.appendChild(dom('h3', 'City grid · challenge ' + a.round));
+    if(P.Mindscape)btn(row(panel),'Explore the imagined city in 3D',()=>P.Mindscape.open(game,'city')).setAttribute('data-mind-open','city');
     para(panel, 'Place ' + needed + ' homes and one each: water, utility, school, park and street transport stop. All streets connect (maximum ten). Homes touch a street, have water within five blocks, a park within three and a stop within ' + (hard ? 2 : 3) + '. Utility stays two blocks from homes and school. Service buildings touch streets; school is within two blocks of a street.');
     const tools = row(panel); for (const [id, label] of Object.entries(symbols)) btn(tools, id === 'empty' ? 'Erase' : label, () => { a.tool = id; render(game); }, false, a.tool === id ? 'pow-active' : '');
     const grid = dom('div', undefined, 'pow-grid'); panel.appendChild(grid);
@@ -826,6 +859,8 @@
       btn(photographs, 'Jeremiah Denton photograph', () => root.POWPhotos.open('denton'));
       btn(photographs, 'James Stockdale photograph', () => root.POWPhotos.open('stockdale'));
     }
+    if(P.DentonFlashback)btn(row(panel),'Denton Morse flashback · May 1966',()=>P.DentonFlashback.open(game));
+    para(panel,'The Alcatraz communication chapter begins in late October 1967. Identities and messages in this schematic network do not establish exact neighboring cells or reproduce real conversations. Smithsonian material documents individual, windowless cells and constant lighting; the game’s approximate three-by-nine-foot room differs from the four-by-nine-foot cell described for Sam Johnson.');
     panel.appendChild(dom('h3', 'Changing camp events'));
     if (!c.events.length) para(panel, 'Weekly events, transfer notices and interviews will appear as time passes.');
     for (const event of c.events.slice(-8).reverse()) para(panel, 'Day ' + event.day + ': ' + event.text);
@@ -880,6 +915,7 @@
       e.moving = false; e.running = false;
     } else if (e) c.tetherOrigin = [e.p[0], e.p[2]];
     tickPlayback(game, dt);
+    if(P.Solidarity)P.Solidarity.step(game,dt);
     const m = c.memory;
     if (m.phase === 'show') {
       m.timer += dt; const pace = s.intensity === 'reduced' ? 1.25 : 1;
@@ -930,6 +966,7 @@
       if (a.elapsed >= a.target) stopRest(game);
     } else advance(game, dt, 'clock');
     tickPlayback(game, dt);
+    if(P.Solidarity)P.Solidarity.step(game,dt);
     const m = c.memory;
     if (m.phase === 'show') {
       m.timer += dt; const pace = game.pow.intensity === 'reduced' ? 1.25 : 1;

@@ -6,7 +6,7 @@
   const TAU = Math.PI * 2;
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
   const copy = v => JSON.parse(JSON.stringify(v));
-  const stages = {cell:'DIRTY BIRD · CELL',compound:'DIRTY BIRD · COMPOUND',hanoi:'HANOI · NIGHT STREETS',river:'RED RIVER · OCTOBER 1967',solitary:'ALCATRAZ · SOLITARY'};
+  const stages = {cell:'DIRTY BIRD · CELL',compound:'DIRTY BIRD · COMPOUND',hanoi:'HANOI · NIGHT STREETS',river:'RED RIVER · OCTOBER 1967',solitary:'POW · SOLITARY',regular:'POW · REGULAR CONFINEMENT'};
   let installed = false, touchLook = null;
   P.version = 2;
   P.ensureMeshes = function (game) {
@@ -233,6 +233,8 @@
     if(s.flags.outside)visual(game,'escape-rope','powWood',27.7,2.1,-24,.035,2.1,.035,[2,1.7,1.3,0]);
   }
   P.begin = function (game,stage,saved) {
+    if(P.Mindscape && P.Mindscape.active(game))P.Mindscape.close(game,true);
+    if(P.DentonFlashback)P.DentonFlashback.close();
     stage=stage || 'cell';const old=game.pow, prior=game.evade;
     const origin=saved && saved.base || old && old.base || (game.campOrigin ? [game.campOrigin[0],0,game.campOrigin[1]] : [game.ac && Number.isFinite(game.ac.p[0])?game.ac.p[0]:1400,0,game.ac && Number.isFinite(game.ac.p[2])?game.ac.p[2]:1400]);
     let ground=origin[1];
@@ -245,6 +247,7 @@
     const s=game.pow={stage,time:saved && saved.time || old && old.time || 0,day:saved && saved.day || old && old.day || 1,difficulty:saved && saved.difficulty || old && old.difficulty || prefs.difficulty || 'normal',intensity:saved && saved.intensity || old && old.intensity || prefs.intensity || 'standard',inventory:saved && saved.inventory || old && copy(old.inventory) || {},flags:saved && saved.flags || old && copy(old.flags) || {},stats:saved && saved.stats || old && old.stats || {physical:100,fatigue:0,resilience:70,morale:65,memory:70,hope:65},solids:[],surfaces:[],objects:[],base:[origin[0],ground,origin[2]],checkpoint:stage,message:'',messageUntil:0,noise:0,input:{},light:.16,_hydrating:true};
     if(!saved && old){for(const key of ['doorOpen','outside','roofCrossed','bunkSearched','wallContact','capturePending'])delete s.flags[key];delete s.inventory.bracket;delete s.inventory.rope;}
     if(saved && saved.captivity)s.captivity=copy(saved.captivity);else if(old && old.captivity)s.captivity=old.captivity;
+    if(saved && saved.regular)s.regular=copy(saved.regular);else if(old && old.regular)s.regular=copy(old.regular);
     if(s.captivity)s.captivity.open=false;
     const p=[origin[0]+.3,ground,origin[2]+.5];
     game.evade={camp:true,p,hdg:0,look:0,pitchCmd:0,t:0,radio:-1,rounds:0,hasPistol:false,hasKnife:false,drawn:0,weaponMode:'fists',fitting:s.inventory.bracket?1:0,alive:true,radius:.32,lastShot:-99,kills:0,noise:0,chute:[origin[0],origin[2]],searchers:[],locals:[],spawn:1e9,found:0,exposure:0,expose:0,sus:0,alarm:0,prep:0,pickup:[origin[0]+26,origin[2]-24],goal:[origin[0]+26,origin[2]-24],origin:[origin[0],origin[2]],A:27,B:36,held:0,frozen:0};
@@ -256,6 +259,7 @@
     if(game.app && game.app.hud)game.app.hud.scope=false;
     P.ensureMeshes(game);buildPrison(game);
     if(stage==='solitary' && P.Captivity){P.Captivity.enter(game);if(saved && saved.captivity && P.Captivity.restore)P.Captivity.restore(game,saved.captivity);}
+    else if(stage==='regular' && P.RegularConfinement)P.RegularConfinement.enter(game,{restore:!!(saved && saved.regular)});
     else if(stage==='river' && P.River){if(saved && saved.module)s.river=copy(saved.module);if(saved && saved.p)game.evade.p.splice(0,3,...saved.p);P.River.enter(game);}
     else if(stage==='compound'){game.evade.p[2]=origin[2]-5.6;s.flags.doorOpen=true;buildPrison(game);}
     else if(stage==='hanoi'){s.flags.doorOpen=true;s.flags.outside=true;game.evade.p[0]=origin[0]+29.1;game.evade.p[2]=origin[2]-24;buildPrison(game);}
@@ -269,10 +273,12 @@
     return s;
   };
   P.transition = function (game,stage) {
+    if(P.Mindscape && P.Mindscape.active(game))P.Mindscape.close(game,true);
     const s=game.pow;if(!s || s.complete || s.stage===stage)return;
     s.stage=stage;s.stageTime=0;s.holding=null;s.checkpoint=stage;
     if(stage==='river' && P.River)P.River.enter(game);
     if(stage==='solitary' && P.Captivity)P.Captivity.enter(game);
+    if(stage==='regular' && P.RegularConfinement)P.RegularConfinement.enter(game);
     if(P.AI && P.AI.enter)P.AI.enter(game,stage);
     s.p=game.evade.p;s.actors=game.evade.searchers;P.save(game);P.updateUI(game);
     P.notify(game,stage==='compound'?'Checkpoint: corridor. Turn right, walk up the stairs and cross the roof.':stage==='hanoi'?'Checkpoint: outside the wall. Head east along the lane and watch the patrols.':stage==='river'?'Checkpoint: riverbank. Water and reeds offer cover; daylight will change it.':'Checkpoint: solitary confinement.');
@@ -296,6 +302,7 @@
     return best;
   }
   P.interact = function (game,action) {
+    if(P.Mindscape && P.Mindscape.active(game))return P.Mindscape.interact(game,action);
     if(!game || !game.pow || !game.evade || game.paused || game.pow.complete || inputBlocked(game))return false;
     const obj=nearestObject(game,action);
     if(!obj)return false;
@@ -308,13 +315,16 @@
     const snap={version:2,stage:s.stage,time:s.time,day:s.day,difficulty:s.difficulty,intensity:s.intensity,base:s.base.slice(),p:e.p.slice(),hdg:e.hdg,look:e.look,inventory:copy(s.inventory),flags:copy(s.flags),stats:copy(s.stats),complete:!!s.complete,savedAt:Date.now()};
     if(s.river)snap.module=copy(s.river);
     if(s.captivity)snap.captivity=copy(s.captivity);
+    if(s.regular)snap.regular=copy(s.regular);
     if(s.outcome)snap.outcome=copy(s.outcome);
     if(P.AI && P.AI.snapshot)snap.ai=P.AI.snapshot(game);
+    if(P.Mindscape && P.Mindscape.active(game))P.Mindscape.physicalSnapshot(game,snap);
     if(s._hydrating)return snap;
     if(P.ctx && P.ctx.Store)P.ctx.Store.set('pow_checkpoint',snap);
     s.savedAt=snap.savedAt;s.checkpoint=s.stage;return snap;
   };
   P.finish = function (game,result) {
+    if(P.Mindscape && P.Mindscape.active(game))P.Mindscape.close(game,true);
     if(!game || !game.pow || game.pow.complete)return;
     const s=game.pow;s.complete=true;game.paused=true;
     result=typeof result==='string'?{text:result}:result || {};s.outcome=copy(result);P.save(game);
@@ -340,8 +350,10 @@
   }
   P.tick = function (game,dt) {
     const s=game.pow,e=game.evade;if(!s || !e || game.paused || s.complete)return;
+    if(P.Mindscape && P.Mindscape.active(game)){dt=clamp(dt,0,.10);readInput(game,dt);P.Mindscape.tick(game,dt);return;}
     dt=clamp(dt,0,.10);s.time+=dt;s.stageTime=(s.stageTime || 0)+dt;e.t+=dt;s.noise=Math.max(0,(s.noise || 0)-dt*.35);e.noise=s.noise;
     readInput(game,dt);
+    if(s.stage==='regular' && P.RegularConfinement)P.RegularConfinement.prepare(game);
     const input=s.input,was=[e.p[0],e.p[2]];
     if(s.traversal) {
       const t=s.traversal;t.t+=dt;const f=clamp(t.t/t.duration,0,1);
@@ -360,6 +372,8 @@
     if(s.stage==='river' && P.River && P.River.step)P.River.step(game,dt);
     if(s.stage==='solitary' && P.Captivity && P.Captivity.step)P.Captivity.step(game,dt);
     if(s.stage==='cell' && P.Captivity && P.Captivity.stepCell)P.Captivity.stepCell(game,dt);
+    if(s.stage==='regular' && P.RegularConfinement)P.RegularConfinement.step(game,dt);
+    if(game.pow!==s || s.complete)return;
     if(P.AI && P.AI.step)P.AI.step(game,dt);
     if(game.pow!==s || s.complete)return;
     if(!s.traversal) {
@@ -411,7 +425,7 @@
   };
   P.updateUI = function (game) {
     P.mountUI();if(!P.ui || !game || !game.pow)return;
-    const s=game.pow,e=game.evade,u=P.ui;u.stage.textContent=(stages[s.stage] || s.stage)+' · DAY '+s.day;
+    const s=game.pow,e=game.evade,u=P.ui,stageLabel=s.stage==='solitary' && P.Solidarity && P.Solidarity.available(game)?'ALCATRAZ · SCHEMATIC SOLITARY':stages[s.stage] || s.stage;u.stage.textContent=stageLabel+' · DAY '+s.day;
     u.objective.textContent=s.objective || (s.stage==='cell'?s.inventory.bracket?'Work the door fitting quietly':'Search the bunk for a concealed bracket':s.stage==='compound'?s.inventory.rope?'Secure the rope at the east parapet':'Walk upstairs · find the rope on the roof':s.stage==='hanoi'?'Follow the lane east to the river · stay out of patrol light':s.stage==='river'?'Stay low in water and reeds · follow the river':'Protect strength, memory and contact');
     u.stats.textContent='BODY '+Math.round(s.stats.physical)+' · FATIGUE '+Math.round(s.stats.fatigue)+' · RESOLVE '+Math.round(s.stats.resilience)+' · MORALE '+Math.round(s.stats.morale)+' · MEMORY '+Math.round(s.stats.memory)+' · HOPE '+Math.round(s.stats.hope);
     if(u.river){u.river.hidden=!s.river;if(s.river){const r=s.river,h=((r.hour || 0)%24+24)%24,clock=String(Math.floor(h)).padStart(2,'0')+':'+String(Math.floor((h%1)*60)).padStart(2,'0');u.river.textContent=Number(r.distanceKm || 0).toFixed(1)+' ROUTE KM (100:1) · '+clock+' · '+String(r.weather || 'mist').toUpperCase()+' · '+String(r.mode || 'swim').toUpperCase()+' · AIR '+Math.round(r.breath || 0);}}

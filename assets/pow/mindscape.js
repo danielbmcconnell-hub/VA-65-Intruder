@@ -38,7 +38,7 @@
     solid(game, 'south', 'powStone', 0, 1.7, hz, hx, 1.7, .12, [.7, .84, .98, 0]);
     if (roof) visual(game, 'ceiling', 'powPale', 0, 3.5, 0, hx, .08, hz, [.65, .8, .94, 0]);
     const b = game.pow.base;
-    game.pow.lights = [[-5, 2.7, 1], [5, 2.7, -5], [0, 2.8, 6]].map(q => ({ p: [b[0] + q[0], b[1] + q[1], b[2] + q[2]], power: 2.4, radius: 20, color: [.79, .9, 1] }));
+    game.pow.lights = [[-5, 2.7, 1], [5, 2.7, -5], [0, 2.8, 6]].map(q => ({ p: [b[0] + q[0], b[1] + q[1], b[2] + q[2]], power: .70, radius: 12, color: [.79, .9, 1] }));
     game.pow.nav = { minX: b[0] - hx, maxX: b[0] + hx, minZ: b[2] - hz, maxZ: b[2] + hz, cell: 1 };
   }
   function ring(game, id, x, y, z, radius, width, color, plane) {
@@ -343,16 +343,19 @@
   function ensureUI() {
     if (!root.document || ui) return ui;
     const d = root.document, style = d.createElement('style');
-    style.textContent = '#powMindscapeHUD{position:fixed;z-index:65;left:14px;top:106px;max-width:430px;box-sizing:border-box;padding:10px 12px;background:rgba(9,26,40,.94);border:1px solid #8eafc5;color:#e7f1f8;font:13px/1.4 system-ui;pointer-events:none}#powMindscapeHUD[hidden]{display:none}#powMindscapeHUD h3{margin:0 0 6px;font-size:15px}#powMindscapeHUD p{margin:5px 0}#powMindscapeHUD button,#powMindscapeHUD select{pointer-events:auto;min-height:36px;border:1px solid #94aec0;background:#213d52;color:#fff;padding:6px 10px;border-radius:4px}#powMindscapeHUD label{display:block;margin-top:5px}#powMindscapeHUD select{margin-left:8px}#powMindscapeHUD [data-mind-feedback]{color:#b8d1e3;font-size:12px}@media(max-width:950px){#powMindscapeHUD{top:87px;left:8px;max-width:calc(100vw - 224px);max-height:calc(100vh - 160px);overflow:auto;font-size:11px;padding:7px 9px}#powMindscapeHUD h3{font-size:12px}#powMindscapeHUD button,#powMindscapeHUD select{min-height:32px;font-size:11px}#powMindscapeHUD [data-mind-feedback]{font-size:10px}}';
+    style.textContent = '#powMindscapeHUD{position:fixed;z-index:65;left:14px;top:106px;max-width:430px;box-sizing:border-box;padding:10px 12px;background:rgba(9,26,40,.94);border:1px solid #8eafc5;color:#e7f1f8;font:13px/1.4 system-ui;pointer-events:none}#powMindscapeHUD[hidden],#powMindscapeHUD [hidden]{display:none!important}#powMindscapeHUD h3{margin:0 0 6px;font-size:15px}#powMindscapeHUD p{margin:5px 0}#powMindscapeHUD button,#powMindscapeHUD select{pointer-events:auto;min-height:36px;border:1px solid #94aec0;background:#213d52;color:#fff;padding:6px 10px;border-radius:4px}#powMindscapeHUD label{display:block;margin-top:5px}#powMindscapeHUD summary{pointer-events:auto;cursor:pointer;padding:7px 0;color:#b8d1e3}#powMindscapeHUD .mind-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}#powMindscapeHUD .mind-row h3{flex:1;margin:0}#powMindscapeHUD select{margin-left:8px}#powMindscapeHUD [data-mind-feedback]{color:#b8d1e3;font-size:12px}@media(max-width:950px){#powMindscapeHUD{top:87px;left:8px;max-width:min(360px,calc(100vw - 224px));max-height:calc(100vh - 160px);overflow:auto;font-size:11px;padding:7px 9px}#powMindscapeHUD h3{font-size:12px}#powMindscapeHUD button,#powMindscapeHUD select{min-height:40px;font-size:11px}#powMindscapeHUD [data-mind-feedback]{font-size:10px}}';
     d.head.appendChild(style); ui = d.createElement('aside'); ui.id = 'powMindscapeHUD'; ui.hidden = true; ui.setAttribute('aria-label', 'Imagined project');
-    const title = d.createElement('h3'); title.dataset.mindTitle = ''; ui.appendChild(title);
-    const back = d.createElement('button'); back.dataset.mindReturn = ''; back.textContent = 'Return to the cell'; back.addEventListener('click', () => close(currentGame)); ui.appendChild(back);
-    const detail = d.createElement('p'); detail.dataset.mindDetail = ''; ui.appendChild(detail);
-    const controls = d.createElement('p'); controls.textContent = 'W / stick: walk · mouse / right drag: look · F / Interact: use nearby object'; ui.appendChild(controls);
+    const header = d.createElement('div'); header.className = 'mind-row'; ui.appendChild(header);
+    const title = d.createElement('h3'); title.dataset.mindTitle = ''; header.appendChild(title);
+    const back = d.createElement('button'); back.dataset.mindReturn = ''; back.textContent = 'Return to the cell'; back.addEventListener('click', () => close(currentGame)); header.appendChild(back);
+    const instructions = d.createElement('details'); instructions.dataset.mindInstructions = '';
+    const summary = d.createElement('summary'); summary.textContent = 'Project instructions · W / stick · F / Interact'; instructions.appendChild(summary); ui.appendChild(instructions);
+    const detail = d.createElement('p'); detail.dataset.mindDetail = ''; instructions.appendChild(detail);
+    const controls = d.createElement('p'); controls.textContent = 'W / stick: walk · mouse / right drag: look · F / Interact: use nearby object'; instructions.appendChild(controls);
     const label = d.createElement('label'); label.dataset.mindToolLabel = ''; label.textContent = 'Land use'; const select = d.createElement('select'); select.dataset.mindTool = ''; select.setAttribute('aria-label', 'Imagined city land use');
     for (const kind of TOOLS) { const option = d.createElement('option'); option.value = kind; option.textContent = kind === 'empty' ? 'Erase' : kind; select.appendChild(option); }
     select.addEventListener('change', () => { if (!active(currentGame)) return; const c = P.Captivity.state(currentGame); c.city.tool = select.value; clearInput(currentGame); rebuild(currentGame); updateUI(currentGame); if (P.save) P.save(currentGame); select.blur(); }); label.appendChild(select); ui.appendChild(label);
-    const feedback = d.createElement('p'); feedback.dataset.mindFeedback = ''; ui.appendChild(feedback); d.body.appendChild(ui); return ui;
+    const feedback = d.createElement('p'); feedback.dataset.mindFeedback = ''; instructions.appendChild(feedback); d.body.appendChild(ui); return ui;
   }
   function updateUI(game) {
     if (!active(game)) return;

@@ -116,7 +116,9 @@ test('imagined house is generated from constrained decisions, includes an access
   assert.ok(f.game.campGeo.some(q => q.id === 'mind:house-mattress')); assert.ok(f.game.campGeo.some(q => q.id === 'mind:conduit'));
   const b = f.s.base; walk(f, [b[0] + 2, b[2] + 1]); walk(f, [b[0], b[2] + 1]); walk(f, [b[0], b[2] - 3]);
   assert.ok(Math.abs(f.game.evade.p[1] - (b[1] + .16)) < 1e-7, 'the remembered foundation is the actual walked floor');
-  const x = f.game.evade.p[0]; f.P.move(f.game, f.game.evade, -10, 0, .25); assert.ok(f.game.evade.p[0] > b[0] - 3.7); assert.ok(f.game.evade.p[0] < x);
+  walk(f, [b[0] - 2.1, b[2] - 5]);
+  f.P.move(f.game, f.game.evade, -10, 0, .25);
+  assert.ok(f.game.evade.p[0] > b[0] - 3.75 && f.game.evade.p[0] < b[0] - 3.2, 'a clear aisle reaches the side wall rather than stopping at the sink');
 });
 test('city land uses render real collision and require street/service validation before progression', () => {
   const f = fixture(); f.M.open(f.game, 'city'); use(f, 'mind-city-survey'); assert.equal(f.c.city.round, 1);

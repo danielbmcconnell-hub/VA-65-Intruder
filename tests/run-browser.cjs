@@ -14,8 +14,8 @@ const suite = option('suite', 'all');
 const evidenceDir = path.resolve(option('evidence', path.join(__dirname, '..', 'test-results')));
 
 async function main() {
-  const modules = { renderer: './renderer-browser.cjs', missions: './mission-browser.cjs', progression: './progression-browser.cjs', ground: './ground-browser.cjs', photos: './pow-photos-browser.cjs', prison: './pow-prison-browser.cjs', river: './pow-river-browser.cjs', captivity: './pow-captivity-browser.cjs', controls: './pow-controls-browser.cjs', awareness: './pow-ground-awareness-browser.cjs' };
-  const suites = suite === 'all' ? ['renderer', 'missions', 'progression', 'ground', 'photos', 'prison', 'river', 'captivity', 'controls', 'awareness'] : suite === 'regressions' ? ['renderer', 'ground'] : suite === 'pow' ? ['photos', 'prison', 'river', 'captivity', 'controls', 'awareness'] : [suite];
+  const modules = { renderer: './renderer-browser.cjs', missions: './mission-browser.cjs', progression: './progression-browser.cjs', ground: './ground-browser.cjs', photos: './pow-photos-browser.cjs', prison: './pow-prison-browser.cjs', river: './pow-river-browser.cjs', captivity: './pow-captivity-browser.cjs', controls: './pow-controls-browser.cjs', awareness: './pow-ground-awareness-browser.cjs', m21: './pow-m21-browser.cjs', 'm21-recapture': './pow-m21-recapture-browser.cjs' };
+  const suites = suite === 'all' ? ['renderer', 'missions', 'progression', 'ground', 'photos', 'prison', 'river', 'captivity', 'controls', 'awareness', 'm21', 'm21-recapture'] : suite === 'regressions' ? ['renderer', 'ground'] : suite === 'pow' ? ['photos', 'prison', 'river', 'captivity', 'controls', 'awareness'] : [suite];
   if (suites.some(name => !modules[name])) throw new Error('Unknown browser suite: ' + suite);
   let server, browser;
   let target = requestedTarget;

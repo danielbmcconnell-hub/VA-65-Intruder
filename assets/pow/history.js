@@ -24,7 +24,7 @@
       pausedGame.pow.touchInteract = false; pausedGame.pow.touchClimb = false; pausedGame.pow.holding = null;
     }
     if (document.pointerLockElement && document.exitPointerLock) document.exitPointerLock();
-    dialog = document.createElement('dialog'); dialog.id = 'powHistory';
+    dialog = document.createElement('dialog'); dialog.id = 'powHistory'; dialog.setAttribute('aria-label','POW history photographs'); dialog.setAttribute('role','dialog'); dialog.setAttribute('aria-modal','true');
     dialog.style.cssText = 'max-width:850px;width:calc(100% - 24px);max-height:94dvh;padding:18px;background:#101a23;color:#e8ecef;border:1px solid #617887;overflow:auto;z-index:250';
     const header = document.createElement('div'); header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:10px';
     const h = document.createElement('h2'); h.textContent = 'POW history and supplied photographs'; header.append(h);
@@ -41,6 +41,7 @@
     const choose = name => { const item = historicalPhotoAssets[name] || historicalPhotoAssets.coker; photo.src = item.src; photo.alt = item.title; photo.dataset.asset = name; caption.textContent = item.title + '. ' + item.caption; };
     for (const [name, item] of Object.entries(historicalPhotoAssets)) { const button = document.createElement('button'); button.type = 'button'; button.style.minHeight = '44px'; button.textContent = item.title.split(' — ')[0]; button.onclick = () => choose(name); controls.append(button); }
     exit.style.minHeight = '44px';
+    if(window.POW?.DentonFlashback){const flashback=document.createElement('button');flashback.type='button';flashback.style.minHeight='44px';flashback.textContent='Denton Morse flashback · May 1966';flashback.onclick=()=>{const game=pausedGame;close();window.POW.DentonFlashback.open(game);};controls.append(flashback);}
     const credits = document.createElement('p'); credits.textContent = 'The six supplied enhanced WebPs and the Denton/Stockdale PNGs are unchanged. Reference originals and PNG masters are preserved. Color treatments are labeled; archival monochrome versions were not supplied and are not manufactured. Upload does not establish reproduction rights. Authoritative-source retrieval is documented separately.'; dialog.append(credits);
     dialog.addEventListener('keydown', event => { event.stopPropagation(); if (event.code === 'Escape') { event.preventDefault(); close(); } });
     dialog.addEventListener('keyup', event => event.stopPropagation());

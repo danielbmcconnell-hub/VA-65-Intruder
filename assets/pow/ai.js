@@ -204,9 +204,9 @@
     s.aiClock = finite(s.aiClock, 0); s.noises ||= []; s.flags ||= {}; s.stats ||= {};
     const b = s.base || [0, 0, 0], at = (x, z) => [b[0] + x, b[1], b[2] + z];
     e.searchers ||= [];
-    if (stage === 'river' && s.river) {
+    if (stage === 'river' && s.river || stage === 'regular' && s.regular) {
       // The river module places observers on its raised banks and preserves pursuit.
-      s.aiRoster = 'river'; s.aiStage = stage; s.actors = e.searchers;
+      s.aiRoster = stage; s.aiStage = stage; s.actors = e.searchers;
       delete s.flags.capturePending;
       for (let i = 0; i < e.searchers.length; i++) initActor(e.searchers[i], i, s);
       return;
@@ -288,6 +288,9 @@
   function observe(game, a, elapsed) {
     const s = game.pow, e = game.evade, clock = time(s), visible = view(game, a, e.p, false);
     a.visible = visible > 0; a.visibility = visible;
+    if(s.stage==='regular' && P.RegularConfinement && !P.RegularConfinement.isSuspicious(game)){
+      a.seen=0;a.grab=0;a.sus=Math.max(0,a.sus-elapsed*.15);hear(game,a);return;
+    }
     if (visible > 0) {
       a.observedPlayer = point(e.p);
       a.sus = clamp(a.sus + visible * (s.difficulty === 'hard' ? 1.1 : .88) * elapsed, 0, 1.35);
@@ -485,6 +488,7 @@
   }
   function grab(game, a, dt) {
     const s = game.pow, e = game.evade;
+    if(s.stage==='regular' && P.RegularConfinement && !P.RegularConfinement.isSuspicious(game)){a.grab=0;return false;}
     const close = !confined(s) && !civilian(a) && a.state === 'pursuit' && a.visible
       && dist(a.p, e.p) < 1.1 && Math.abs(a.p[1] - e.p[1]) < 1.4
       && los(game, [a.p[0], a.p[1] + 1.3, a.p[2]], [e.p[0], e.p[1] + .8, e.p[2]]);
