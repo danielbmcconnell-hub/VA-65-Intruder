@@ -12,7 +12,7 @@
   P.ensureMeshes = function (game) {
     const r = game && game.rend, MB = P.ctx && P.ctx.MB;
     if (!r || !MB) return;
-    const colors = {powStone:[.45,.40,.33],powWood:[.27,.20,.13],powMetal:[.16,.19,.18],powMud:[.24,.21,.16],powWater:[.08,.16,.19],powPale:[.70,.65,.53],powDark:[.07,.085,.078],powBrick:[.40,.22,.16]};
+    const colors = {powStone:[.45,.40,.33],powWood:[.27,.20,.13],powMetal:[.16,.19,.18],powMud:[.24,.21,.16],powWater:[.08,.16,.19],powPale:[.70,.65,.53],powDark:[.07,.085,.078],powBrick:[.40,.22,.16],powRope:[.78,.63,.39],powSignal:[.98,.83,.36]};
     for (const [id,col] of Object.entries(colors)) if (!r.meshes || !r.meshes[id]) {
       const b = new MB(); b.box(0,0,0,.5,.5,.5,col); r.meshFromBuilder(id,b);
     }
@@ -177,8 +177,25 @@
     solid(game,'roof-parapet-s-a','powStone',10.3,3.8,-15.6,2.1,.4,.16);
     solid(game,'roof-parapet-s-b','powStone',21.1,3.8,-15.6,5.6,.4,.16);
     solid(game,'roof-vent','powMetal',18,3.85,-28,.7,.45,.7);
-    visual(game,'roof-rope','powWood',21,.18+3.4,-22,.25,.12,.45,[1.7,1.45,1.12,0]);
+    // Critical escape equipment must be visible against a dark roof, not a tiny brown block.
+    // All pieces share the "roof-rope:" prefix so collection removes the whole marker.
+    visual(game,'roof-rope','powDark',21,3.43,-22,.91,.035,.77);
+    for(let i=0;i<3;i++){
+      const x=20.48+i*.52;
+      visual(game,'roof-rope:loop-l:'+i,'powRope',x-.18,3.56,-22,.072,.095,.43,[1.3,1.2,.95,0]);
+      visual(game,'roof-rope:loop-r:'+i,'powRope',x+.18,3.56,-22,.072,.095,.43,[1.3,1.2,.95,0]);
+      visual(game,'roof-rope:loop-n:'+i,'powRope',x,3.56,-22-.43,.25,.095,.067,[1.3,1.2,.95,0]);
+      visual(game,'roof-rope:loop-s:'+i,'powRope',x,3.56,-22+.43,.25,.095,.067,[1.3,1.2,.95,0]);
+    }
+    visual(game,'roof-rope:loose-end','powRope',21.75,3.50,-21.75,.30,.050,.072,[1.25,1.15,.95,0]);
+    // High-contrast hovering wayfinding marker: navigation aid, not a physical object.
+    visual(game,'roof-rope:marker-stem','powSignal',21,4.56,-22,.065,.47,.065,[1.75,1.6,1.0,.65]);
+    visual(game,'roof-rope:marker-bar','powSignal',21,4.98,-22,.48,.070,.085,[1.75,1.6,1.0,.65]);
     visual(game,'roof-hook','powMetal',26.5,4.1,-24,.06,.07,.09);
+    function showHookGuide(){
+      visual(game,'roof-hook:guide-stem','powSignal',26.10,4.55,-24,.055,.34,.055,[1.65,1.50,1.0,.45]);
+      visual(game,'roof-hook:guide-bar','powSignal',26.10,4.84,-24,.39,.060,.080,[1.65,1.50,1.0,.45]);
+    }
     // Dense street fronts provide cover and force an actual walk to the bank.
     const blocks=[[38,-39,6,9,6],[55,-38,7,9,7],[75,-42,8,13,7],[97,-44,9,13,6],[39,0,7,16,6],[59,4,8,20,5],[80,2,7,18,7],[103,8,8,21,5]];
     for(let i=0;i<blocks.length;i++) {
@@ -215,9 +232,13 @@
       visual(game,'door-open','powWood',-1,1.24,-4.48,.095,1.24,.88);
       P.notify(game,'The bolt drops clear. The door is open. Walk into the corridor and turn right toward the stairs.');noise(game,.45,'door');P.save(game);
     },{hold:7,radius:1.65,enabled:()=>!s.flags.doorOpen,canHold:()=>!!s.inventory.bracket,noise:.25});
-    P.object(game,'roof-rope','Take the bundled rope',21,3.8,-22,()=>{
-      s.inventory.rope=true;remove(game,'roof-rope');P.notify(game,'A discarded rope is long enough to reach the far side. The east parapet has an iron hook.');P.save(game);
-    },{hold:1.3,enabled:()=>!s.inventory.rope,view:false});
+    P.object(game,'roof-rope','Take the highlighted coiled rope',21,3.65,-22,()=>{
+      s.inventory.rope=true;
+      remove(game,'roof-rope');
+      showHookGuide();
+      P.notify(game,'Rope collected! Follow the yellow marker to the east parapet hook, then hold F to descend.');
+      P.save(game);
+    },{hold:.75,radius:2.5,enabled:()=>!s.inventory.rope,view:false});
     P.object(game,'roof-descent','Secure the rope and descend the outside wall',26,4,-24,()=>{
       if(!s.inventory.rope)return P.notify(game,'Find the bundled rope on this roof before descending.');
       if(game.evade.p[1]<b[1]+3.1)return;
@@ -229,7 +250,7 @@
       s.stats.fatigue=Math.max(0,s.stats.fatigue-12);s.stats.physical=Math.min(100,s.stats.physical+2);P.notify(game,'Breathing slows. Watch the street before moving again.');
     },{hold:5,enabled:()=>s.stage==='hanoi',view:false});
     if(s.flags.doorOpen){remove(game,'cell-door');remove(game,'door-hatch');remove(game,'door-bars');remove(game,'door-bolt');remove(game,'fitting');visual(game,'door-open','powWood',-1,1.24,-4.48,.095,1.24,.88);}
-    if(s.inventory.rope)remove(game,'roof-rope');
+    if(s.inventory.rope){remove(game,'roof-rope');showHookGuide();}
     if(s.flags.outside)visual(game,'escape-rope','powWood',27.7,2.1,-24,.035,2.1,.035,[2,1.7,1.3,0]);
   }
   P.begin = function (game,stage,saved) {
@@ -392,6 +413,10 @@
     }
     if(s.stage==='cell' && s.flags.doorOpen && e.p[2]<s.base[2]-4.3)P.transition(game,'compound');
     if(s.stage==='hanoi' && s.flags.outside && e.p[0]>=s.base[0]+91 && e.p[2]>s.base[2]-31 && e.p[2]<s.base[2]-13)P.transition(game,'river');
+    if(s.stage==='compound' && e.p[1]>s.base[1]+2.8 && !s.inventory.rope && !s.flags.roofHintShown){
+      s.flags.roofHintShown=true;
+      P.notify(game,'The coiled rope is on this rooftop beneath a glowing yellow marker. Follow the HUD distance/direction, then hold F nearby.');
+    }
     s.uiTimer=(s.uiTimer || 0)+dt;if(s.uiTimer>.10){s.uiTimer=0;P.updateUI(game);}
   };
   P.activate = function (on) { if(typeof document!=='undefined')document.body.classList.toggle('pow-active',!!on);if(P.ui)P.ui.root.hidden=!on; };
@@ -426,7 +451,23 @@
   P.updateUI = function (game) {
     P.mountUI();if(!P.ui || !game || !game.pow)return;
     const s=game.pow,e=game.evade,u=P.ui,stageLabel=s.stage==='solitary' && P.Solidarity && P.Solidarity.available(game)?'ALCATRAZ · SCHEMATIC SOLITARY':stages[s.stage] || s.stage;u.stage.textContent=stageLabel+' · DAY '+s.day;
-    u.objective.textContent=s.objective || (s.stage==='cell'?s.inventory.bracket?'Work the door fitting quietly':'Search the bunk for a concealed bracket':s.stage==='compound'?s.inventory.rope?'Secure the rope at the east parapet':'Walk upstairs · find the rope on the roof':s.stage==='hanoi'?'Follow the lane east to the river · stay out of patrol light':s.stage==='river'?'Stay low in water and reeds · follow the river':'Protect strength, memory and contact');
+    if(s.stage==='compound'){
+      if(e.p[1]>=s.base[1]+2.6){
+        const tx=s.inventory.rope?26:21,tz=s.inventory.rope?-24:-22;
+        const dx=s.base[0]+tx-e.p[0],dz=s.base[2]+tz-e.p[2];
+        const bearing=Math.atan2(dx,-dz)-e.hdg;
+        const angle=Math.atan2(Math.sin(bearing),Math.cos(bearing));
+        const direction=Math.abs(angle)<.42?'AHEAD':Math.abs(angle)>2.65?'BEHIND':angle>0?'RIGHT':'LEFT';
+        const distance=Math.ceil(Math.hypot(dx,dz));
+        u.objective.textContent=s.inventory.rope
+          ?'ROPE COLLECTED · EAST WALL HOOK '+distance+'m '+direction+' · hold F to descend'
+          :'FIND ROPE '+distance+'m '+direction+' · FOLLOW YELLOW MARKER · hold F to collect';
+      }else{
+        u.objective.textContent='ESCAPE THE COMPOUND · turn right through the corridor, take stairs to rooftop';
+      }
+    }else{
+      u.objective.textContent=s.objective || (s.stage==='cell'?s.inventory.bracket?'Work the door fitting quietly':'Search the bunk for a concealed bracket':s.stage==='hanoi'?'Follow the lane east to the river · stay out of patrol light':s.stage==='river'?'Stay low in water and reeds · follow the river':'Protect strength, memory and contact');
+    }
     u.stats.textContent='BODY '+Math.round(s.stats.physical)+' · FATIGUE '+Math.round(s.stats.fatigue)+' · RESOLVE '+Math.round(s.stats.resilience)+' · MORALE '+Math.round(s.stats.morale)+' · MEMORY '+Math.round(s.stats.memory)+' · HOPE '+Math.round(s.stats.hope);
     if(u.river){u.river.hidden=!s.river;if(s.river){const r=s.river,h=((r.hour || 0)%24+24)%24,clock=String(Math.floor(h)).padStart(2,'0')+':'+String(Math.floor((h%1)*60)).padStart(2,'0');u.river.textContent=Number(r.distanceKm || 0).toFixed(1)+' ROUTE KM (100:1) · '+clock+' · '+String(r.weather || 'mist').toUpperCase()+' · '+String(r.mode || 'swim').toUpperCase()+' · AIR '+Math.round(r.breath || 0);}}
     const seen=e.searchers.some(a=>a.alive!==false && a.seen);u.alert.textContent=seen?'GUARD HAS SIGHT OF YOU':e.sus>.45?'PATROL INVESTIGATING':s.noise>.5?'YOUR MOVEMENT IS LOUD':'KEEP QUIET · WATCH THE PATROLS';u.alert.dataset.danger=seen?'yes':'no';
