@@ -1,0 +1,105 @@
+name: Build and verify Milestone 2.1 rooftop-rope fix
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [milestone2-1]
+    paths:
+      - "assets/pow/core.js"
+      - "tests/pow-prison-browser.cjs"
+      - ".github/workflows/milestone2-1-roof-fix.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: m21-roof-fix
+  cancel-in-progress: false
+
+jobs:
+  verify-package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    steps:
+      - name: Checkout full source including preservation baseline
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Python image verification dependencies
+        run: |
+          python3 -m pip install --break-system-packages Pillow numpy
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: Install Chromium and Linux graphics dependencies
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify preserved assets, original photos and A-6A source
+        run: npm run test:assets
+
+      - name: POW simulation and browser suites
+        run: npm run test:pow
+
+      - name: All original and Milestone 2.1 browser suites (including new rope checks)
+        run: npm test
+
+      - name: Milestone 2.1 pure logic and extended browser checks
+        run: npm run test:m21
+
+      - name: Build exact runtime-only Netlify folder and ZIP
+        run: npm run build
+
+      - name: Verify packaged assets, flight and POW WebGL startup
+        run: npm run test:build
+
+      - name: Name and verify corrected ZIP and its contents
+        shell: bash
+        run: |
+          set -euo pipefail
+          src="dist/Intruder_Yankee_Station_Milestone2_1.zip"
+          target="releases/Intruder_Yankee_Station_Milestone2_1_Roof_Fix.zip"
+          test -s "$src"
+          cp "$src" "$target"
+          python3 - <<'PY'
+          from pathlib import Path
+          import zipfile, hashlib
+          p=Path('releases/Intruder_Yankee_Station_Milestone2_1_Roof_Fix.zip')
+          with zipfile.ZipFile(p) as z:
+              assert z.testzip() is None, 'Corrupt ZIP entry'
+              names=set(z.namelist())
+              for f in ('index.html','assets/pow/core.js','_headers'):
+                  assert f in names, 'Missing runtime file: '+f
+              js=z.read('assets/pow/core.js').decode('utf-8')
+              for t in ('roof-rope:marker-bar','FIND ROPE ','ROPE COLLECTED','roof-hook:guide-bar'):
+                  assert t in js, 'Rooftop fix missing: '+t
+              assert not any(n.startswith(('node_modules/','tests/','reference_media/','.git/')) for n in names)
+              print('Validated playable ZIP:',len(names),'runtime files,',p.stat().st_size,'bytes')
+              print('SHA256',hashlib.sha256(p.read_bytes()).hexdigest())
+          PY
+
+      - name: Publish tested direct-download ZIP in repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add releases/Intruder_Yankee_Station_Milestone2_1_Roof_Fix.zip
+          git commit -m "Release tested Milestone 2.1 ZIP with visible rooftop rope" || exit 0
+          git push origin HEAD:milestone2-1
+
+      - name: Upload backup downloadable build artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Intruder_Yankee_Station_Milestone2_1_Roof_Fix
+          path: dist/Intruder_Yankee_Station_Milestone2_1.zip
+          if-no-files-found: ignore
+          retention-days: 30
