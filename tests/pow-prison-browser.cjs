@@ -86,7 +86,24 @@ module.exports=async function main(browser,target,evidenceDir) {
     await walk(14,-22.4,'walk-up-stairs-onto-roof');
     record('roof-feet-and-render-camera-have-real-elevation',await page.evaluate(()=>{const g=App.game;g.render(1/60);const feet=g.evade.p[1],eye=g.rend.eye[1],base=g.pow.base[1];return {passed:feet>base+3.35 && eye>feet+1 && eye<feet+1.3,base,feet,eye};}));
     await screenshot('03-rooftop');
+    record('roof-rope-visible-and-live-objective-points-to-it',await page.evaluate(()=>{
+      const g=App.game,geo=g.campGeo;
+      POW.updateUI(g);
+      const coilPieces=geo.filter(q=>q.id.startsWith('roof-rope:loop-')).length;
+      const signal=geo.find(q=>q.id==='roof-rope:marker-bar');
+      const objective=POW.ui.objective.textContent;
+      const interactable=g.pow.objects.find(o=>o.id==='roof-rope');
+      return {passed:coilPieces>=12 && !!signal && signal.p[1]>g.pow.base[1]+4.7 && objective.includes('FIND ROPE') && objective.includes('m') && !!interactable && interactable.radius>=2.5 && interactable.hold<=1,coilPieces,signal:signal?.p,objective,reach:interactable?.radius};
+    }));
     await walk(21,-22,'walk-to-rope-bundle');const rope=await hold(1.6);record('held-f-collects-rope',{passed:!!rope.inventory.rope,...rope});
+    record('rope-pickup-clears-marker-and-guides-to-descent',await page.evaluate(()=>{
+      const g=App.game,geo=g.campGeo;
+      POW.updateUI(g);
+      const ropeMeshes=geo.filter(q=>q.id==='roof-rope' || q.id.startsWith('roof-rope:')).length;
+      const hookMarker=geo.find(q=>q.id==='roof-hook:guide-bar');
+      const objective=POW.ui.objective.textContent;
+      return {passed:g.pow.inventory.rope && ropeMeshes===0 && !!hookMarker && objective.includes('ROPE COLLECTED') && objective.includes('HOOK'),ropeMeshes,hookMarker:hookMarker?.p,objective};
+    }));
     record('checkpoint-restores-position-height-and-patrol-memory',await page.evaluate(()=>{const g=App.game,snapshot=POW.save(g),before=JSON.stringify(snapshot.ai);g.evade.look=.8;g.evade.p[0]+=.12;POW.begin(g,snapshot.stage,snapshot);const same=JSON.stringify(POW.AI.snapshot(g))===before;g.pow.aiFixtureStage=g.pow.stage;return {passed:same && Math.hypot(g.evade.p[0]-snapshot.p[0],g.evade.p[2]-snapshot.p[2])<.001 && Math.abs(g.evade.p[1]-snapshot.p[1])<.001,stage:g.pow.stage,feet:g.evade.p.slice(),patrolRestored:same};}));
     // Resume releases controls; reinstate genuine held crouch and walk to parapet.
     await page.keyboard.up('c');await page.keyboard.down('c');
