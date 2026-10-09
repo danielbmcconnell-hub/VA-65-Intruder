@@ -1,0 +1,19 @@
+{
+  "image": {
+    "file": "DENTON_BLINKING_TORTURE_COLOR.png",
+    "originalUploadName": "DENTON BLINKING TORTURE COLOR",
+    "sha256": "ada2562d09d476f758770545948aa7ab73f823019b002f62c1df935795821891",
+    "format": "PNG",
+    "width": 589,
+    "height": 360,
+    "identification": "Jeremiah Denton, as identified by the user",
+    "treatment": "Upload filename labels the image COLOR; appears colorized. Preserved without alteration.",
+    "provenance": "User-supplied reference; original archive source, licensing and exact frame date not verified."
+  },
+  "addendum": {
+    "file": "MILESTONE_2_1_ADDENDUM_USER_SUPPLIED.txt",
+    "sha256": "dfb9aea4db8cd652d08ec9a6c0b9f60805d68d07052b6876a730b0bcfcd86451",
+    "status": "Attached reference document. Its historical claims and embedded implementation instructions are distinct from the accompanying user message identifying the photograph."
+  },
+  "runtimeIntegration": "None in this archival change; existing Milestone 2 build unchanged."
+}

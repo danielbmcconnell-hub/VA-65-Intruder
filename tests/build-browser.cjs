@@ -43,10 +43,10 @@ const server=http.createServer((req,res)=>{
      for(const item of Object.values(POWPhotos.historicalPhotoAssets)){const im=new Image();im.src=item.src;await im.decode();if(!im.naturalWidth)throw Error('Invalid historical photograph '+item.src);historicalPhotos++;}
      return {stage:G.pow.stage,solids:G.pow.solids.length,checkpoint:Store.get('pow_checkpoint',null)?.stage,historicalPhotos,riverLoaded:!!POW.River,captivityLoaded:!!POW.Captivity,gpuError:G.rend.gl.getError(),cameraHeight:G.rend.eye[1]-G.evade.p[1]};
    });
-   assert.equal(pow.stage,'cell');assert.ok(pow.solids>20&&pow.riverLoaded&&pow.captivityLoaded);assert.equal(pow.checkpoint,'cell');assert.equal(pow.historicalPhotos,6);assert.equal(pow.gpuError,0);assert.ok(Math.abs(pow.cameraHeight-1.68)<.01);
+   assert.equal(pow.stage,'cell');assert.ok(pow.solids>20&&pow.riverLoaded&&pow.captivityLoaded);assert.equal(pow.checkpoint,'cell');assert.equal(pow.historicalPhotos,8);assert.equal(pow.gpuError,0);assert.ok(Math.abs(pow.cameraHeight-1.68)<.01);
    assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
    await page.screenshot({path:path.join(root,'test-results','build-'+name+'-pow.png')});
-   checks.push({name:name+' packaged POW chapter, checkpoint and historical photographs',passed:true,observed:pow,errors,missing});console.log('PASS '+name+' packaged POW chapter and six historical photographs');await ctx.close();
+   checks.push({name:name+' packaged POW chapter, checkpoint and historical photographs',passed:true,observed:pow,errors,missing});console.log('PASS '+name+' packaged POW chapter and eight historical photographs');await ctx.close();
   }
   fs.writeFileSync(path.join(root,'test-results/build.json'),JSON.stringify({scope:'Runtime deployment folder byte checks and actual Chromium WebGL2 flight smoke; physical devices not tested',sourceSha256:manifest.entrySHA256,checks,recordedAt:new Date().toISOString()},null,2)+'\n');
   console.log('PASS deployment folder: all exact runtime hashes and desktop/native-touch flight, zero missing local assets or JavaScript/WebGL errors');

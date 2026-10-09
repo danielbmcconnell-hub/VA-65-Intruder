@@ -58,5 +58,29 @@
       2680
     ],
     "interpretiveColorization": false
+  },
+  {
+    "file": "denton_blinking_torture_color.png",
+    "sha256": "ada2562d09d476f758770545948aa7ab73f823019b002f62c1df935795821891",
+    "master": "reference_media/denton/DENTON_BLINKING_TORTURE_COLOR.png",
+    "source": "reference_media/denton/DENTON_BLINKING_TORTURE_COLOR.png",
+    "dimensions": [
+      589,
+      360
+    ],
+    "interpretiveColorization": true,
+    "provenance": "User-identified supplied color photograph; original archive, date and reproduction rights unverified."
+  },
+  {
+    "file": "stockdale_pow_color.png",
+    "sha256": "7227be4a8cde22f3310212791a269b81ffe36edc23c4d1d12e3d5814be798487",
+    "master": "reference_media/stockdale/STOCKDALE_POW_COLOR.png",
+    "source": "reference_media/stockdale/STOCKDALE_POW_COLOR.png",
+    "dimensions": [
+      589,
+      585
+    ],
+    "interpretiveColorization": true,
+    "provenance": "User-identified supplied color photograph; original archive, date and reproduction rights unverified."
   }
 ]

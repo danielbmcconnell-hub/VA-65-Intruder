@@ -7,7 +7,11 @@ fs.mkdirSync(site,{recursive:true});
 // test screenshots, Git history, node_modules or development tooling.
 const allow=['index.html','assets/atlas-metadata.js','assets/figures-original.png'];
 for(const directory of ['photos','processed'])for(const name of fs.readdirSync(path.join(root,'assets',directory)))if(/\.(jpg|jpeg|png|webp)$/.test(name))allow.push('assets/'+directory+'/'+name);
-for(const name of fs.readdirSync(path.join(root,'assets/history')))if(/\.(webp|json)$/.test(name))allow.push('assets/history/'+name);
+allow.push('assets/history/manifest.json');
+for(const asset of JSON.parse(fs.readFileSync(path.join(root,'assets/history/manifest.json')))){
+ if(!/^[a-z0-9_-]+\.(webp|png)$/.test(asset.file))throw new Error('Invalid historical runtime filename');
+ allow.push('assets/history/'+asset.file);
+}
 for(const name of ['core.js','core.css','ai.js','river.js','captivity.js','history.js'])allow.push('assets/pow/'+name);
 for(const name of ['aviator','cow','farmer','female_vc','militia','nva','vegetation'])allow.push('assets/'+name+'.webp');
 for(const item of allow){const dst=path.join(site,item);fs.mkdirSync(path.dirname(dst),{recursive:true});fs.copyFileSync(path.join(root,item),dst);}

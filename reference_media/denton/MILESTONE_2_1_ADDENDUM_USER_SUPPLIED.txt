@@ -1,0 +1,119 @@
+MILESTONE 2.1 ADDENDUM — DENTON, STOCKDALE, AND THE ALCATRAZ ELEVEN
+
+Expand the POW captivity experience in Intruder: Yankee Station to incorporate the historically documented experiences of Jeremiah Denton, James Stockdale, George Coker, George McKnight, and the other members of the Alcatraz Eleven.
+
+Preserve the existing Milestone 2 gameplay, flight missions, photography, and historical materials.
+
+1. HISTORICAL CHARACTERS
+
+Introduce historically accurate representations of Jeremiah Denton and James Stockdale within the POW storyline.
+
+Denton was an A-6A Intruder pilot and commanding officer of VA-75 when he was shot down in July 1965.
+
+Stockdale was a naval aviator shot down in September 1965 who subsequently became a senior leader of the American POW resistance.
+
+Both were confined at Alcatraz along with George Coker and other American prisoners.
+
+Use verified historical photographs when available.
+
+Do not invent quotations and present them as authentic statements.
+
+Clearly distinguish reconstructed dialogue from documented historical accounts.
+
+2. THE ALCATRAZ ELEVEN
+
+Develop an expanded Alcatraz prison chapter beginning in October 1967.
+
+Reconstruct the arrangement of individual cells and the restrictive conditions described by former prisoners.
+
+The player should gradually discover the identities of neighboring POWs through covert communication.
+
+Historical prisoners should remain physically separated where appropriate.
+
+Avoid presenting Alcatraz as an ordinary prison where inmates freely socialize.
+
+3. JEREMIAH DENTON AND THE TAP CODE
+
+Expand the existing POW tap-code system.
+
+The player should learn how to communicate through a five-by-five alphabetic grid.
+
+Introduce progressively more complicated messages, communication challenges, and meaningful exchanges with neighboring prisoners.
+
+Allow messages to provide emotional support, historical context, information about prison conditions, and clues that may eventually contribute to another escape attempt.
+
+Denton should be represented as an important figure in the prisoners' communication network, consistent with documented accounts.
+
+4. DENTON'S MORSE-CODE INTERVIEW
+
+Introduce an optional historical flashback depicting Denton's May 2, 1966, televised interview.
+
+Allow the player to observe and decode the Morse-code message T-O-R-T-U-R-E.
+
+Explain the significance of the message reaching American intelligence.
+
+Use authentic archival footage or historically researched visual reconstruction where licensing permits.
+
+This must be identified as a historical flashback, not an event the player personally witnesses during the 1967 escape.
+
+5. JAMES STOCKDALE AND BACK US
+
+Introduce Stockdale's documented BACK US guidance.
+
+Incorporate its principles into prisoner communication, interrogation decisions, and the preservation of solidarity.
+
+Create interactive experiences emphasizing leadership, moral dilemmas, communication, and the importance of maintaining the prisoners' chain of command.
+
+Include references to Stockdale's Stoic philosophy and mental discipline.
+
+Do not turn resistance to torture into an unrealistic test of reflexes or imply that suffering or forced compliance constitutes personal failure.
+
+6. MENTAL AND PHYSICAL SURVIVAL
+
+Integrate the guidance received from fellow prisoners with the existing mental-survival systems.
+
+Continue the imaginary automobile, house, and city-building activities.
+
+Add historical POW communication exercises, optional prayer, recollection of family memories, and the Boy Scout Oath and Law.
+
+Visualize imagined environments as discussed in the main Milestone 2.1 requirements.
+
+Make the completed exercises contribute meaningfully to progression through captivity.
+
+7. RELEASE FROM SOLITARY AND FURTHER ESCAPE
+
+After surviving appropriate periods of confinement, maintaining health and morale, and completing meaningful objectives, the player should have opportunities to return to regular imprisonment.
+
+Returning to regular confinement should unlock another fully playable escape opportunity.
+
+Information obtained through the prisoner communication network may provide clues about the environment or changes in guard routines.
+
+Do not create an automatic escape or arbitrary success button.
+
+Make subsequent attempts progressively understandable and achievable through actual gameplay.
+
+Include optional guidance and checkpoints.
+
+8. HISTORICAL ACCURACY
+
+Research Denton, Stockdale, Coker, and McKnight using authoritative sources, including the Naval History and Heritage Command, National Archives, Department of Defense POW histories, and documented firsthand testimony.
+
+Preserve historical chronology.
+
+Do not place prisoners together in circumstances contradicted by the historical record.
+
+Keep the documented history separate from fictional alternate endings.
+
+Include a historical reference section allowing the player to learn more about these individuals.
+
+9. TESTING
+
+Verify that the player can learn and use the tap code, receive guidance, progress through solitary confinement, return to regular imprisonment, and attempt another escape.
+
+Include automated tests that complete these sequences through genuine gameplay.
+
+Test on Windows and simulated iPhone layouts.
+
+Deliver an updated playable Netlify ZIP, screenshots, and test report.
+
+Implement these changes within the ongoing Milestone 2.1 development effort.

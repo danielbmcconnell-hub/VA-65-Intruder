@@ -820,7 +820,12 @@
     panel.appendChild(dom('h3', 'Historical context and simulation record'));
     para(panel, 'American prisoners in North Vietnam used a five-by-five tap code with C/K sharing a square, mental projects, remembered routines and mutual support. This chapter’s events, messages, condition numbers and accelerated intervals are fictional. A supplied secondary summary inspired some activities; it is not treated as a verified transcript.');
     para(panel, 'Operation Homecoming began on 12 February 1973. The operation returned 591 Americans held in Southeast Asia. Release in this chapter is dated 1973, after prolonged captivity. Physical escape and rescue outcomes in the game are alternate fictional possibilities.');
-    if (root.POWPhotos && root.POWPhotos.open) btn(row(panel), 'View historical reference photographs', () => root.POWPhotos.open());
+    if (root.POWPhotos && root.POWPhotos.open) {
+      const photographs = row(panel);
+      btn(photographs, 'View historical reference photographs', () => root.POWPhotos.open());
+      btn(photographs, 'Jeremiah Denton photograph', () => root.POWPhotos.open('denton'));
+      btn(photographs, 'James Stockdale photograph', () => root.POWPhotos.open('stockdale'));
+    }
     panel.appendChild(dom('h3', 'Changing camp events'));
     if (!c.events.length) para(panel, 'Weekly events, transfer notices and interviews will appear as time passes.');
     for (const event of c.events.slice(-8).reverse()) para(panel, 'Day ' + event.day + ': ' + event.text);
