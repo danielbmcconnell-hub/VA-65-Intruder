@@ -63,7 +63,7 @@ module.exports = async function milestone21(browser, target, evidenceDir) {
       if (heading !== undefined) await page.evaluate(h => { App.game.evade.hdg = h; }, heading);
       if (touchSession) {
         await tick(1);
-        const center = await page.locator('#powHUD .pow-context-controls button:first-child').evaluate(node => { const r = node.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; });
+        const center = await page.locator('#powHUD .pow-context-controls button:nth-child(3)').evaluate(node => { const r = node.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; });
         await touch('touchStart', [{ ...center, id: 8 }]);
         try { await tick(Math.ceil(seconds * 10)); }
         finally { await touch('touchEnd'); await tick(1); }
