@@ -21,7 +21,7 @@ module.exports=async function main(browser,target,evidenceDir) {
     const center=async selector=>page.locator(selector).evaluate(n=>{const r=n.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2,width:r.width,height:r.height};});
     const step=async seconds=>page.evaluate(seconds=>{for(let i=0;i<Math.ceil(seconds*20);i++)App.game.stepEvade(.05);},seconds);
     const render=async name=>{await page.evaluate(()=>{App.game.render(1/60);App.game.syncControls();});await page.screenshot({path:path.join(out,name+'.png')});};
-    record('touch-only-survival-controls-hide-radio-and-weapons',await page.evaluate(()=>({passed:matchMedia('(pointer:coarse)').matches && getComputedStyle(document.getElementById('btnCrouch')).display!=='none' && ['weaponViewport','btnRadio','btnPistol','btnKnife','btnPunch','btnFire'].every(id=>getComputedStyle(document.getElementById(id)).display==='none'),dpr:devicePixelRatio,touch:matchMedia('(pointer:coarse)').matches})));
+    record('touch-only-survival-controls-hide-radio-and-weapons',await page.evaluate(()=>({passed:matchMedia('(pointer:coarse)').matches && getComputedStyle(POW.ui.crouch).display!=='none' && getComputedStyle(document.getElementById('fcol')).display==='none' && ['weaponViewport','btnRadio','btnPistol','btnKnife','btnPunch','btnFire'].every(id=>getComputedStyle(document.getElementById(id)).display==='none'),dpr:devicePixelRatio,touch:matchMedia('(pointer:coarse)').matches})));
     const stick=await center('#stick'),start=await page.evaluate(()=>App.game.evade.p.slice());
     await touch('touchStart',[{x:stick.x,y:stick.y,id:1}]);await touch('touchMove',[{x:stick.x,y:stick.y-(stick.width/2-10)*.68,id:1}]);await step(1.5);
     record('real-touch-left-stick-translates-player',await page.evaluate(start=>({passed:Math.hypot(App.game.evade.p[0]-start[0],App.game.evade.p[2]-start[2])>.8 && App.gctl.pitch>.6,feet:App.game.evade.p.slice(),stick:{pitch:App.gctl.pitch,roll:App.gctl.roll},distance:Math.hypot(App.game.evade.p[0]-start[0],App.game.evade.p[2]-start[2])}),start));
@@ -29,12 +29,19 @@ module.exports=async function main(browser,target,evidenceDir) {
     const beforeLook=await page.evaluate(()=>({heading:App.game.evade.hdg,look:App.game.evade.look}));
     await touch('touchStart',[{x:490,y:165,id:2}]);await touch('touchMove',[{x:550,y:125,id:2}]);await touch('touchEnd');await step(.1);
     record('real-touch-right-drag-turns-and-looks-up',await page.evaluate(before=>({passed:Math.abs(App.game.evade.hdg-before.heading)>.2 && App.game.evade.look-before.look>.15,heading:App.game.evade.hdg,look:App.game.evade.look}),beforeLook));
-    const crouch=await center('#btnCrouch');await touch('touchStart',[{x:crouch.x,y:crouch.y,id:3}]);await step(.2);
+    const crouch=await center('#powHUD .pow-motion-btn:nth-child(2)');await touch('touchStart',[{x:crouch.x,y:crouch.y,id:3}]);await step(.2);
     record('real-touch-crouch-lowers-rendered-camera',await page.evaluate(()=>{const g=App.game;g.render(1/60);return {passed:g.evade.crouch && g.rend.eye[1]-g.evade.p[1]>1 && g.rend.eye[1]-g.evade.p[1]<1.3,crouch:g.evade.crouch,eyeHeight:g.rend.eye[1]-g.evade.p[1]};}));
-    await touch('touchEnd');await step(.1);await render('01-touch-cell');
+    await touch('touchEnd');await step(.1);
+    record('crouch-release-clears-touch',await page.evaluate(()=>({passed:!App.game.pow.touchCrouch && !App.game.evade.crouch,flag:App.game.pow.touchCrouch})));
+    const run=await center('#powHUD .pow-motion-btn:first-child');
+    await touch('touchStart',[{x:run.x,y:run.y,id:5}]);await step(.2);
+    record('real-touch-run-available-without-keyboard',await page.evaluate(()=>({passed:App.game.pow.touchRun && App.game.pow.input.run===true && !App.game.pow.input.crouch,run:App.game.pow.touchRun})));
+    await touch('touchEnd');await step(.1);
+    record('run-release-clears-touch',await page.evaluate(()=>({passed:!App.game.pow.touchRun && !App.game.pow.input.run})));
+    await render('01-touch-cell');
     // Move through real solids to the bunk rather than assigning an objective flag.
     await page.evaluate(()=>{const g=App.game,b=g.pow.base;POW.move(g,g.evade,b[0]-.8-g.evade.p[0],b[2]+.9-g.evade.p[2],.32);g.evade.hdg=0;g.stepEvade(.1);POW.updateUI(g);});
-    const interact=await center('#powHUD .pow-context-controls button:first-child');
+    const interact=await center('#powHUD .pow-context-controls button:nth-child(3)');
     await touch('touchStart',[{x:interact.x,y:interact.y,id:4}]);await step(.7);
     record('real-touch-interaction-shows-partial-hold',await page.evaluate(()=>({passed:!!App.game.pow.holding && App.game.pow.holding.t>.5 && !App.game.pow.inventory.bracket && POW.ui.progress.value>0,hold:App.game.pow.holding,progress:POW.ui.progress.value})));
     await step(1);await touch('touchEnd');await step(.1);
