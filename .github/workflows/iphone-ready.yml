@@ -8,6 +8,7 @@ on:
       - 'assets/pow/**'
       - 'tests/iphone-webkit-browser.cjs'
       - 'tests/pow-controls-browser.cjs'
+      - 'tests/pow-m21-browser.cjs'
       - '.github/workflows/iphone-ready.yml'
   workflow_dispatch:
 
