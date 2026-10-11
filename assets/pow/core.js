@@ -439,7 +439,7 @@
     run.className='pow-motion-btn';crouch.className='pow-motion-btn';
     const interact=button('Interact · hold',()=>{},controls),climb=button('Climb · hold',()=>{},controls);
     function hold(node,key) {
-      node.addEventListener('pointerdown',event=>{const g=current();if(!g || !g.pow)return;event.preventDefault();g.pow[key]=true;node.setPointerCapture && node.setPointerCapture(event.pointerId);});
+      node.addEventListener('pointerdown',event=>{const g=current();if(!g || !g.pow)return;event.preventDefault();g.pow[key]=true;try { if(node.setPointerCapture)node.setPointerCapture(event.pointerId); } catch (_) { /* safari may release the pointer during rotation */ }});
       const release=()=>{const g=current();if(g && g.pow)g.pow[key]=false;};
       node.addEventListener('pointerup',release);node.addEventListener('pointercancel',release);node.addEventListener('lostpointercapture',release);
     }
