@@ -1,5 +1,8 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Intruder: Yankee Station">
+<meta name="theme-color" content="#05070a">
 <style>html,body{height:100%;margin:0;background:#05070a}
 /* The on-foot controls are a compact two-column panel in phone landscape.
    Seven actions must fit above FIRE without clipping off the top. */
@@ -11204,10 +11207,12 @@ const App = {
       g.roll = clamp(dx / R, -1, 1) * this.set.sens;
       g.pitch = clamp(-dy / R, -1, 1) * this.set.sens * (this.set.invert ? -1 : 1);
     };
-    stick.addEventListener('pointerdown', e => { sid = e.pointerId; stick.setPointerCapture(sid); const r = stick.getBoundingClientRect(); setStick(e.clientX - r.left - r.width / 2, e.clientY - r.top - r.height / 2); document.body.classList.remove('kbd'); });
+    stick.addEventListener('pointerdown', e => { sid = e.pointerId; try { stick.setPointerCapture(sid); } catch (_) { /* Safari may cancel capture during rotation */ } e.preventDefault(); const r = stick.getBoundingClientRect(); setStick(e.clientX - r.left - r.width / 2, e.clientY - r.top - r.height / 2); document.body.classList.remove('kbd'); });
     stick.addEventListener('pointermove', e => { if (e.pointerId !== sid) return; const r = stick.getBoundingClientRect(); setStick(e.clientX - r.left - r.width / 2, e.clientY - r.top - r.height / 2); });
     const relStick = e => { if (sid === null) return; sid = null; knob.style.transform = ''; g.roll = 0; g.pitch = 0; };
-    stick.addEventListener('pointerup', relStick); stick.addEventListener('pointercancel', relStick);
+    stick.addEventListener('pointerup', relStick); stick.addEventListener('pointercancel', relStick); stick.addEventListener('lostpointercapture', relStick);
+    document.addEventListener('visibilitychange', () => { if (document.hidden) relStick(); });
+    window.addEventListener('pagehide', () => relStick());
 
     const hold = (id, prop) => {
       const b = $(id);
