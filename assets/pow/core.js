@@ -361,12 +361,12 @@
   }
   function readInput(game,dt) {
     const s=game.pow,e=game.evade,a=game.app || {},k=a.keys || {},g=a.gctl || {},locked=document.pointerLockElement===document.getElementById('stack');
-    if(inputBlocked(game)){for(const key of Object.keys(k))k[key]=0;for(const key of ['pitch','roll','run','crouch'])g[key]=0;s.touchInteract=false;s.touchClimb=false;s.input={forward:0,strafe:0,run:false,crouch:false,interact:false,climb:false};e.moving=false;e.running=false;return;}
+    if(inputBlocked(game)){for(const key of Object.keys(k))k[key]=0;for(const key of ['pitch','roll','run','crouch'])g[key]=0;s.touchInteract=false;s.touchClimb=false;s.touchRun=false;s.touchCrouch=false;s.input={forward:0,strafe:0,run:false,crouch:false,interact:false,climb:false};e.moving=false;e.running=false;return;}
     const right=(k.KeyD?1:0)-(k.KeyA?1:0),turn=(k.ArrowRight?1:0)-(k.ArrowLeft?1:0)+(locked?0:right)+clamp(g.roll || 0,-1,1);
     e.hdg=(e.hdg+turn*dt*1.65)%TAU;
     e.pitchCmd=clamp((e.pitchCmd || 0)+((k.KeyQ?1:0)-(k.KeyE?1:0))*dt*.9,-.85,1.2);
     e.look=e.pitchCmd;
-    s.input={forward:clamp((k.KeyW || k.ArrowUp?1:0)-(k.KeyS || k.ArrowDown?1:0)+(g.pitch || 0),-1,1),strafe:locked?right:0,run:!!(k.ShiftLeft || k.ShiftRight || g.run),crouch:!!(k.KeyC || g.crouch),interact:!!(k.KeyF || s.touchInteract),climb:!!(k.Space || s.touchClimb)};
+    s.input={forward:clamp((k.KeyW || k.ArrowUp?1:0)-(k.KeyS || k.ArrowDown?1:0)+(g.pitch || 0),-1,1),strafe:locked?right:0,run:!!(k.ShiftLeft || k.ShiftRight || g.run || s.touchRun),crouch:!!(k.KeyC || g.crouch || s.touchCrouch),interact:!!(k.KeyF || s.touchInteract),climb:!!(k.Space || s.touchClimb)};
     e.crouch=s.input.crouch;e.weaponWant=null;e.attackWant=0;
   }
   P.tick = function (game,dt) {
@@ -435,18 +435,21 @@
     const notice=document.createElement('p');notice.className='pow-notice';notice.setAttribute('role','status');notice.setAttribute('aria-live','polite');root.appendChild(notice);
     const prompt=document.createElement('div');prompt.className='pow-prompt';prompt.innerHTML='<span data-prompt></span><progress max="1" value="0" aria-label="Interaction progress"></progress>';root.appendChild(prompt);
     const controls=document.createElement('div');controls.className='pow-context-controls';root.appendChild(controls);
-    const interact=button('Interact · hold F',()=>{},controls),climb=button('Climb · Space',()=>{},controls);
+    const run=button('Run',()=>{},controls),crouch=button('Crouch',()=>{},controls);
+    run.className='pow-motion-btn';crouch.className='pow-motion-btn';
+    const interact=button('Interact · hold',()=>{},controls),climb=button('Climb · hold',()=>{},controls);
     function hold(node,key) {
       node.addEventListener('pointerdown',event=>{const g=current();if(!g || !g.pow)return;event.preventDefault();g.pow[key]=true;node.setPointerCapture && node.setPointerCapture(event.pointerId);});
       const release=()=>{const g=current();if(g && g.pow)g.pow[key]=false;};
       node.addEventListener('pointerup',release);node.addEventListener('pointercancel',release);node.addEventListener('lostpointercapture',release);
     }
+    hold(run,'touchRun');hold(crouch,'touchCrouch');
     hold(interact,'touchInteract');hold(climb,'touchClimb');
     const end=document.createElement('div');end.className='pow-end';end.hidden=true;end.innerHTML='<article><h2></h2><p data-result></p><p data-record></p><div data-buttons></div></article>';root.appendChild(end);
     button('Historical photos',()=>{if(global.POWPhotos && global.POWPhotos.open)global.POWPhotos.open(current());},end.querySelector('[data-buttons]'));
     button('Ready room',()=>{const a=P.ctx.App;a.game=null;a.show('ready');P.activate(false);end.hidden=true;},end.querySelector('[data-buttons]'));
     document.body.appendChild(root);
-    P.ui={root,header,stage:header.querySelector('[data-stage]'),objective:header.querySelector('[data-objective]'),stats:header.querySelector('[data-stats]'),river:header.querySelector('[data-river]'),alert:header.querySelector('[data-alert]'),settings,notice,prompt:prompt.querySelector('[data-prompt]'),progress:prompt.querySelector('progress'),interact,climb,end};
+    P.ui={root,header,stage:header.querySelector('[data-stage]'),objective:header.querySelector('[data-objective]'),stats:header.querySelector('[data-stats]'),river:header.querySelector('[data-river]'),alert:header.querySelector('[data-alert]'),settings,notice,prompt:prompt.querySelector('[data-prompt]'),progress:prompt.querySelector('progress'),run,crouch,interact,climb,end};
   };
   P.updateUI = function (game) {
     P.mountUI();if(!P.ui || !game || !game.pow)return;
@@ -472,7 +475,7 @@
     if(u.river){u.river.hidden=!s.river;if(s.river){const r=s.river,h=((r.hour || 0)%24+24)%24,clock=String(Math.floor(h)).padStart(2,'0')+':'+String(Math.floor((h%1)*60)).padStart(2,'0');u.river.textContent=Number(r.distanceKm || 0).toFixed(1)+' ROUTE KM (100:1) · '+clock+' · '+String(r.weather || 'mist').toUpperCase()+' · '+String(r.mode || 'swim').toUpperCase()+' · AIR '+Math.round(r.breath || 0);}}
     const seen=e.searchers.some(a=>a.alive!==false && a.seen);u.alert.textContent=seen?'GUARD HAS SIGHT OF YOU':e.sus>.45?'PATROL INVESTIGATING':s.noise>.5?'YOUR MOVEMENT IS LOUD':'KEEP QUIET · WATCH THE PATROLS';u.alert.dataset.danger=seen?'yes':'no';
     const f=s.focus || nearestObject(game);u.prompt.textContent=f?(f.hold?'Hold F · ':'F · ')+f.name:'Look toward an object within reach';u.progress.value=s.holding && f?clamp(s.holding.t/(f.hold || .15),0,1):0;
-    u.interact.disabled=!f;u.climb.hidden=!(f && f.climb) && s.stage!=='river';u.climb.textContent=s.stage==='river'?'Dive · hold Space':'Climb · Space';u.notice.hidden=s.time>s.messageUntil;if(!u.notice.hidden)u.notice.textContent=s.message;
+    u.interact.disabled=!f;u.climb.hidden=!(f && f.climb) && s.stage!=='river';u.climb.textContent=s.stage==='river'?'Dive · hold':'Climb · hold';u.notice.hidden=s.time>s.messageUntil;if(!u.notice.hidden)u.notice.textContent=s.message;
     u.settings.querySelector('[data-difficulty]').value=s.difficulty;u.settings.querySelector('[data-intensity]').value=s.intensity;
     document.body.classList.toggle('pow-reduced',s.intensity==='reduced');
   };
@@ -490,7 +493,18 @@
       }
     },true);
     window.addEventListener('keyup',event=>{const g=current();if(g && g.pow && A.keys)A.keys[event.code]=0;},true);
-    window.addEventListener('blur',()=>{const g=current();if(g && g.pow){g.pow.touchInteract=false;g.pow.touchClimb=false;g.pow.holding=null;}touchLook=null;});
+    const resetTouch=()=>{
+      const g=current();
+      if(g && g.pow){
+        for(const key of ['touchInteract','touchClimb','touchRun','touchCrouch'])g.pow[key]=false;
+        g.pow.holding=null;g.pow.interactLatched=false;
+        if(g.app && g.app.gctl){for(const key of ['pitch','roll','run','crouch'])g.app.gctl[key]=0;}
+      }
+      touchLook=null;
+    };
+    window.addEventListener('blur',resetTouch);
+    window.addEventListener('pagehide',resetTouch);
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)resetTouch();});
     document.addEventListener('mousemove',event=>{
       const g=current();if(!g || !g.pow || g.paused || inputBlocked(g) || document.pointerLockElement!==document.getElementById('stack'))return;
       event.stopImmediatePropagation();const e=g.evade,factor=.0025*(A.set.sens || 1);e.hdg+=event.movementX*factor;e.pitchCmd=clamp((e.pitchCmd || 0)-event.movementY*factor,-.85,1.2);e.look=e.pitchCmd;
@@ -499,7 +513,7 @@
     const canvas=document.getElementById('gl');
     if(canvas)canvas.addEventListener('webglcontextlost',()=>{
       const g=current();touchLook=null;
-      if(g && g.pow){g.pow.touchInteract=false;g.pow.touchClimb=false;g.pow.holding=null;g.pow.interactLatched=false;}
+      if(g && g.pow){for(const key of ['touchInteract','touchClimb','touchRun','touchCrouch'])g.pow[key]=false;g.pow.holding=null;g.pow.interactLatched=false;}
     });
     if(stack) {
       stack.addEventListener('pointerdown',event=>{const g=current();if(!g || !g.pow || g.paused || inputBlocked(g) || event.pointerType==='mouse' || event.target.closest('button,.tc,#stick') || event.clientX<innerWidth*.43)return;touchLook={id:event.pointerId,x:event.clientX,y:event.clientY};stack.setPointerCapture && stack.setPointerCapture(event.pointerId);event.preventDefault();});
