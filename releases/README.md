@@ -1,3 +1,20 @@
+# Milestone 2.3 — polished playable escape
+
+The existing prison → rooftop → Hanoi → river escape gains warm local lighting and shadows, worn scenery, moving river reflections, intact photographic character motion, visible hands/tool/rope/swim work, finite physical stone distractions, lamp switches, concealed fitting evidence and richer earned imagined projects. Reliable touch Save/Continue and bounded nonverbal ambience are included. The original engine, A-6A, eleven missions, photographs and prior chapters remain.
+
+- [Download the playable Netlify ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/milestone2-3/releases/Intruder_Yankee_Station_Milestone2_3.zip) — 23.3 MB.
+- [Download screenshots and test evidence](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/milestone2-3/releases/Intruder_Yankee_Station_Milestone2_3_Evidence.zip) — 70.6 MB, 68 actual captures with fixture scopes identified.
+- [Browse twelve sample screenshots](milestone2_3-screenshots/).
+- [Play guide](../docs/MILESTONE2_3_PLAY_GUIDE.md), [test/deployment report](../docs/MILESTONE2_3_REPORT.md), [delivery summary](milestone2_3-summary.json) and [all runtime hashes](milestone2_3-build-manifest.json).
+
+**476 source-browser, 312 Node/VM and seven packaged checks passed.** Normal guard schedules remain active through the complete episode. Physical Windows/iPhone Safari, FPS and human difficulty need your device trial.
+
+Sign into this private repository, download the playable ZIP, choose **Extract All** on Windows and upload the folder containing `index.html`, `assets/` and `_headers` to the existing Netlify project's **Deploys** page. The [existing game address](https://steady-croquembouche-46c1a0.netlify.app/) has not been redeployed by this delivery. A Git-connected deployment may use branch `milestone2-3`, `npm run build` and `dist/site`.
+
+After deployment choose **Ready Room → Enter the prison**. Start iPhone in landscape with Medium or Low graphics. Saves remain local to the same origin/browser/device. Historical accounts and hypothetical outcomes remain distinguished. Previous commits, branches and release files are preserved.
+
+Tested source: `8d6c076dffa13e99c6d3086ec9e660fd9895a1ae`. ZIP SHA-256: `174abd3143531a17abb984932b30c475ba8cdd8bfe211da6b6e14807d8626574`.
+
 # Milestone 2.2 — playable gameplay improvements
 
 This release adds direct playable chapter starts, a controls tutorial, two physical subsequent-escape approaches, observable guard feedback, varied river sections and covered rest, earned captivity pacing, clearer interactions, separate saves and optional A-6A/BN coaching. The original engine, physics, eleven missions, photographs and rooftop-rope fixes are preserved.
