@@ -1,4 +1,4 @@
-/* Milestone 2.1: regular imprisonment is still imprisonment. This schematic
+/* Milestone 2.2: regular imprisonment is still imprisonment. This schematic
    compound and every subsequent escape attempt are fictional gameplay, not a
    claim about the layout of Alcatraz or the adjacency of named prisoners. */
 (function (global) {
@@ -8,13 +8,13 @@
   const clamp = (n,a,b) => Math.max(a,Math.min(b,n));
   const finite = (n,d) => Number.isFinite(n)?n:d;
   const copy = value => JSON.parse(JSON.stringify(value));
-  const ROUTE = Object.freeze({cell:[0,.5],door:[0,-3],trough:[-5,-18],workshopDoor:[10,-15],hatch:[20,-20],gate:[20,-31],exit:[20,-32.3]});
-  const SUSPECT_ACTIONS = new Set(['regular-trough-tool','regular-workshop-lock','regular-hatch','regular-exit-gate']);
+  const ROUTE = Object.freeze({cell:[0,.5],door:[0,-3],trough:[-5,-18],workshopDoor:[10,-15],hatch:[20,-20],gate:[20,-31],exit:[20,-32.3],cloth:[1.8,-.8],washScreen:[-6.8,-23],drain:[-2,-24],drainGate:[-2,-34.2],quietExit:[-2,-35.2],forceHatch:[19,-19.8]});
+  const SUSPECT_ACTIONS = new Set(['regular-trough-tool','regular-workshop-lock','regular-hatch','regular-hatch-force','regular-exit-gate','regular-drain-panel','regular-drain-gate']);
 
   function initial() {
-    return {version:1,minute:970,elapsedMinutes:0,visits:0,attempts:0,observations:0,
-      flags:{cellOpen:false,observed:false,workshopOpen:false,hatchOpen:false,gateOpen:false},
-      inventory:{tool:false},hatchFasteners:0,suspiciousUntil:0,wantedUntil:0,sleeping:null,
+    return {version:2,minute:970,elapsedMinutes:0,visits:0,attempts:0,observations:0,
+      flags:{cellOpen:false,observed:false,workshopOpen:false,hatchOpen:false,gateOpen:false,drainOpen:false,drainGateOpen:false,hatchForced:false},
+      inventory:{tool:false,cloth:false},hatchFasteners:0,drainFasteners:0,suspiciousUntil:0,wantedUntil:0,sleeping:null,
       guidance:true,clueSeen:false,escaped:false,lastMealDay:0,lastRestDay:0,
       checkpoint:'regular-cell',history:'Fictional regular confinement and subsequent escape; named historical POWs remain separate.'};
   }
@@ -25,7 +25,8 @@
     for(const key of Object.keys(defaults))if(r[key]===undefined)r[key]=copy(defaults[key]);
     for(const [key,value] of Object.entries(defaults.flags))if(r.flags[key]===undefined)r.flags[key]=value;
     r.inventory ||= {tool:false};
-    r.minute=clamp(finite(r.minute,970),0,1439.999);r.hatchFasteners=clamp(Math.floor(finite(r.hatchFasteners,0)),0,3);
+    if(r.inventory.cloth===undefined)r.inventory.cloth=false;
+    r.minute=clamp(finite(r.minute,970),0,1439.999);r.hatchFasteners=clamp(Math.floor(finite(r.hatchFasteners,0)),0,3);r.drainFasteners=clamp(Math.floor(finite(r.drainFasteners,0)),0,4);
     return r;
   }
   function eligibility(game) {
@@ -92,7 +93,7 @@
   }
   function observe(game) {
     const r=state(game);r.observations++;r.flags.observed=true;
-    let clue='The yard round runs past the water trough and turns toward the corridor. The workshop is restricted, and its patrol pauses by the far bench.';
+    let clue='The yard round passes the water trough, then turns at the crate. A solid washing screen hides a covered drain passage behind the north wall: slow work with a cloth-wrapped tool is quiet. The east workshop is a shorter exposed route; forcing its hatch is loud and attracts investigation. Watch the actual guards before either attempt.';
     if(P.Solidarity && P.Solidarity.escapeClue){const value=P.Solidarity.escapeClue(game);if(value){r.clueSeen=true;clue+= ' '+(typeof value==='string'?value:value.text || value.message || 'Your received message suggests watching the change of patrol.');}}
     notify(game,'Observation '+r.observations+': '+clue+' These are fictional gameplay routines, not a documented plan of a historical escape.');save(game);return true;
   }
@@ -105,7 +106,7 @@
   function workshop(game) {
     const r=state(game);
     if(!r.inventory.tool){notify(game,'The workshop door is locked. Search the permitted yard for a usable piece of metal.');return false;}
-    if(!attempt(game,.32))return false;
+    if(!attempt(game,.12))return false;
     r.flags.workshopOpen=true;remove(game,'workshop-door');notify(game,'The workshop latch is free. Physically enter only when the patrol is looking elsewhere. The rear service hatch still has three fasteners.');save(game);return true;
   }
   function hatch(game) {
@@ -116,6 +117,39 @@
     if(r.hatchFasteners===3){r.flags.hatchOpen=true;remove(game,'service-hatch');notify(game,'The third fastener is free. Walk through the rear opening into the narrow service passage. Its outer gate is still locked.');}
     else notify(game,'Service hatch fastener '+r.hatchFasteners+'/3. Release the interaction, listen and check the patrol before the next fastener.');
     save(game);return true;
+  }
+  function takeCloth(game) {
+    const r=state(game);
+    if(r.inventory.cloth)return false;
+    r.inventory.cloth=true;remove(game,'cloth');
+    notify(game,'A worn cloth can wrap the metal strip to muffle work on the drain-panel fasteners. It takes longer than forcing the workshop hatch. Carrying it does not open an escape route.');save(game);return true;
+  }
+  function drainPanel(game) {
+    const r=state(game);
+    if(!r.flags.observed || !r.inventory.tool || !r.inventory.cloth){notify(game,'Observe the yard, find the metal strip, and take the worn cloth from the cell to work this panel quietly.');return false;}
+    if(!attempt(game,.035,'Wait behind the washing screen until the nearby guard has turned away.'))return false;
+    r.drainFasteners=Math.min(4,r.drainFasteners+1);
+    if(r.drainFasteners===4){r.flags.drainOpen=true;remove(game,'drain-panel');notify(game,'Four cloth-muffled fasteners are clear. Physically enter the covered washing passage. Its distant outside grate is still locked.');}
+    else notify(game,'Quiet drain fastener '+r.drainFasteners+'/4. Release F between fasteners. The washing screen blocks sight, but footsteps at the screen’s ends still matter.');
+    save(game);return true;
+  }
+  function drainGate(game) {
+    const r=state(game);
+    if(!r.flags.drainOpen || !r.inventory.tool || !r.inventory.cloth){notify(game,'The covered washing passage and a cloth-wrapped tool are needed.');return false;}
+    if(!attempt(game,.04,'An outside patrol is too near the grate. Stay behind the covered passage wall and wait.'))return false;
+    r.flags.drainGateOpen=true;remove(game,'drain-gate');notify(game,'The outside grate is unbolted quietly. Move through it and beyond the compound boundary. This is still an escape attempt, not freedom.');save(game);return true;
+  }
+  function forceHatch(game) {
+    const s=game.pow,r=state(game);
+    if(!r.inventory.tool || !r.flags.workshopOpen){notify(game,'The workshop must be physically accessible and a usable metal strip is required.');return false;}
+    // A fast physical alternative trades time for an audible disturbance. Its
+    // guards still navigate normally to the remembered sound; no capture roll.
+    r.suspiciousUntil=finite(s.time,0)+25;
+    if(P.AI && P.AI.noise)P.AI.noise(game,game.evade.p,2.2,'forced service-hatch hinge');
+    if(guardNearby(game,2.0)){notify(game,'A guard is within reach. The attempted leverage makes a loud metallic sound; stop and evade the approaching patrol.');save(game);return false;}
+    r.hatchFasteners=3;r.flags.hatchOpen=true;r.flags.hatchForced=true;remove(game,'service-hatch');
+    for(let i=0;i<3;i++)remove(game,'hatch-fastener:'+i);
+    notify(game,'The hinge gives with a loud crack. Guards investigate the sound. Move through the real passage, observe the outside patrol, and work the gate before the search closes in.');save(game);return true;
   }
   function gate(game) {
     const r=state(game);
@@ -138,7 +172,7 @@
   function addGuards(game) {
     const s=game.pow,r=state(game),attempts=finite(s.flags.recaptures,0),seed=[
       {id:'regular-corridor',route:[[-5,-5.7],[5,-5.7],[5,-8.7],[-5,-8.7]],dwell:4,lamp:true},
-      {id:'regular-yard',route:[[-7,-11],[6,-11],[6,-22],[-7,-22]],dwell:3},
+      {id:'regular-yard',route:[[-7,-11],[6,-11],[6,-19.2],[-7,-19.2]],dwell:3},
       {id:'regular-workshop',route:[[13,-14],[20,-14],[20,-18.5],[13,-18.5]],dwell:5},
       {id:'regular-outside',route:[[25,-34],[20,-36],[15,-34],[20,-36]],dwell:3}
     ];
@@ -158,7 +192,8 @@
     box(game,'west-wall','powStone',-9,1.8,-8,.22,1.8,16,true);
     box(game,'east-wall','powStone',23,1.8,-8,.22,1.8,16,true);
     box(game,'south-wall','powStone',7,1.8,8,16.2,1.8,.22,true);
-    box(game,'north-wall-a','powStone',4.5,1.8,-24,13.5,1.8,.22,true);
+    box(game,'north-wall-a-left','powStone',-6.15,1.8,-24,2.85,1.8,.22,true);
+    box(game,'north-wall-a-right','powStone',8.65,1.8,-24,9.35,1.8,.22,true);
     box(game,'north-wall-b','powStone',22.5,1.8,-24,.5,1.8,.22,true);
     box(game,'cell-west','powStone',-2.7,1.4,0,.18,1.4,3.2,true);
     box(game,'cell-east','powStone',2.7,1.4,0,.18,1.4,3.2,true);
@@ -173,6 +208,7 @@
     box(game,'bed','powWood',-1.7,.18,.7,.52,.18,1.2,true);
     box(game,'mat','powMud',-1.7,.38,.7,.50,.015,1.18,false,[1.4,1.25,1,0]);
     box(game,'tray','powMetal',1.85,.08,1.8,.22,.045,.20,false);
+    box(game,'cloth','powPale',1.8,.32,-.8,.15,.018,.23,false,[.78,.74,.65,0]);
     box(game,'bulb-wire','powMetal',0,2.6,.4,.015,.23,.015,false);
     box(game,'bulb','powPale',0,2.38,.4,.055,.055,.055,false,[1,.85,.6,1]);
     box(game,'corridor-floor','powStone',0,-.015,-5.5,8.4,.025,2.0,false);
@@ -184,6 +220,7 @@
     box(game,'water','powWater',-5.3,.97,-18,.49,.015,.52,false);
     box(game,'loose-strip','powMetal',-5.85,.92,-17.5,.018,.012,.15,false);
     box(game,'yard-crate','powWood',4,.60,-20.5,.7,.6,.7,true);
+    box(game,'workshop-privacy-stack','powWood',8,1.05,-14.6,.25,1.05,2.8,true);
     box(game,'workshop-west-a','powStone',10,1.5,-11.9,.18,1.5,2.1,true);
     box(game,'workshop-west-b','powStone',10,1.5,-18,.18,1.5,2,true);
     box(game,'workshop-door','powWood',10,1.1,-15,.075,1.1,1.0,true);
@@ -201,6 +238,17 @@
     box(game,'passage-floor','powStone',20,-.005,-25.6,1.8,.015,5.6,false);
     box(game,'exit-gate','powWood',20,1.25,-31.2,1.82,1.25,.07,true);
     box(game,'outside-cart','powWood',25,.6,-32.0,1,.6,.65,true);
+    // The quiet route has a separate locked entry and outside grate. The screen
+    // and continuous passage walls provide actual LOS cover, not a hide toggle.
+    box(game,'washing-screen','powWood',-2.6,1.35,-21.5,3.6,1.35,.12,true);
+    for(let i=0;i<6;i++)box(game,'washing-cloth:'+i,'powPale',-5.5+i*1.0,2.10,-21.34,.39,.5,.025,false,[.60,.57,.52,0]);
+    box(game,'drain-panel','powWood',-2,1.25,-24,1.28,1.25,.09,true);
+    for(let i=0;i<4;i++)box(game,'drain-fastener:'+i,'powMetal',-3.0+i*.67,1.12,-23.85,.028,.04,.025,false);
+    box(game,'drain-left','powStone',-3.4,1.30,-29.1,.16,1.30,5.1,true);
+    box(game,'drain-right','powStone',-.6,1.30,-29.1,.16,1.30,5.1,true);
+    box(game,'drain-roof','powStone',-2,2.35,-29.1,1.56,.12,5.1,true);
+    box(game,'drain-floor','powStone',-2,.005,-29.1,1.22,.015,5.1,false);
+    box(game,'drain-gate','powMetal',-2,1.25,-34.2,1.22,1.25,.065,true);
     // Exterior bounds prevent walking around the perimeter rather than escaping.
     box(game,'bound-west','powDark',-11,4,-15,.22,4,24,true);
     box(game,'bound-east','powDark',29,4,-15,.22,4,24,true);
@@ -212,19 +260,33 @@
     object(game,'observe','Observe the guard routine through the door slot',.62,1.6,-2.99,()=>observe(game),{radius:1.35,hold:2.2});
     object(game,'rest','Rest on the assigned sleeping mat',-1.7,.5,.7,()=>restStart(game),{radius:1.35,hold:1.5});
     object(game,'meal','Eat the limited daily ration',1.8,.18,1.8,()=>meal(game),{radius:1.25,hold:2});
+    object(game,'cloth','Take the worn cloth for muffled work',1.8,.5,-.8,()=>takeCloth(game),{radius:1.20,hold:8,view:true,enabled:()=>!r.inventory.cloth});
     object(game,'trough-tool','Work the loose metal strip quietly',-5.85,.9,-17.5,()=>tool(game),{radius:1.25,hold:4,noise:.13,view:true,enabled:()=>!r.inventory.tool});
     object(game,'workshop-lock','Work the restricted workshop latch',9.82,1,-15,()=>workshop(game),{radius:1.55,hold:6,noise:.20,view:true,enabled:()=>!r.flags.workshopOpen,canHold:()=>r.inventory.tool});
     object(game,'hatch','Loosen one service-hatch fastener · '+r.hatchFasteners+'/3',20,1,-19.8,()=>hatch(game),{radius:1.7,hold:5,noise:.20,view:true,enabled:()=>!r.flags.hatchOpen,canHold:()=>r.inventory.tool});
+    object(game,'hatch-force','Force the service-hatch hinge · FAST / LOUD',19,1,-19.8,()=>forceHatch(game),{radius:1.25,hold:2.5,view:true,enabled:()=>!r.flags.hatchOpen,canHold:()=>r.inventory.tool});
     object(game,'exit-gate','Work the outside gate bolt',20,1.1,-31.05,()=>gate(game),{radius:1.6,hold:7,noise:.22,view:true,enabled:()=>!r.flags.gateOpen,canHold:()=>r.inventory.tool});
-    object(game,'listen','Listen at the workshop wall',9.75,1,-12,()=>notify(game,'Footsteps inside are separate from the yard round. Wait, listen and inspect their direction; no clue opens a door for you.'),{radius:1.3,hold:1.2});
+    object(game,'listen','Listen at the workshop wall',9.75,1,-12,()=>{
+      const guard=(game.evade.searchers || []).find(a=>a.id==='regular-workshop');
+      const p=guard && guard.p,b=s.base;
+      const cue=!guard?'No clear footsteps right now.':guard.state==='pursuit' || guard.state==='investigate'?'Hurried footsteps approach the latch.':p[0]-b[0]>18.5 && p[2]-b[2]>-15.5?'Footsteps have reached the far front bench; the next round goes toward the rear.':guard.onPost?'The front post is occupied. Wait behind the stack and observe before entering.':'Footsteps continue around the work area. Listen for the far front bench, then watch the direction through the doorway.';
+      notify(game,cue+' The wood stack west of the door is real cover. A quiet latch takes six seconds; forced hardware is fast and loud. No clue opens a lock for you.');
+    },{radius:1.3,hold:1.2});
+    object(game,'drain-panel','Work one cloth-muffled drain fastener · '+r.drainFasteners+'/4',-2,1.05,-23.80,()=>drainPanel(game),{radius:1.40,hold:8,noise:.025,view:true,enabled:()=>!r.flags.drainOpen,canHold:()=>r.inventory.tool && r.inventory.cloth});
+    object(game,'drain-gate','Unbolt the outside grate · SLOW / QUIET',-2,1.05,-34.05,()=>drainGate(game),{radius:1.45,hold:12,noise:.025,view:true,enabled:()=>!r.flags.drainGateOpen,canHold:()=>r.inventory.tool && r.inventory.cloth});
+    object(game,'wash-observe','Observe the covered washing passage and yard patrol',-6.9,1.4,-22.0,()=>notify(game,'The solid washing screen hides the drain-panel face. The yard guard turns at the crate, south of the screen. Four separate muffled fasteners are slower than forcing the east hatch; crouched footsteps are quieter. Wait until the actual patrol passes before moving around the screen.'),{radius:1.25,hold:1.5});
     if(r.flags.cellOpen)remove(game,'cell-door');
     if(r.inventory.tool)remove(game,'loose-strip');
+    if(r.inventory.cloth)remove(game,'cloth');
     if(r.flags.workshopOpen)remove(game,'workshop-door');
     if(r.flags.hatchOpen)remove(game,'service-hatch');
     if(r.flags.gateOpen)remove(game,'exit-gate');
+    if(r.flags.drainOpen)remove(game,'drain-panel');
+    if(r.flags.drainGateOpen)remove(game,'drain-gate');
     for(let i=0;i<r.hatchFasteners;i++)remove(game,'hatch-fastener:'+i);
+    for(let i=0;i<r.drainFasteners;i++)remove(game,'drain-fastener:'+i);
     s.motion={radius:.32,speed:1.8};s.movementScale=1;s.customMovement=false;s.light=.20;s.cover=0;
-    s.objective='Regular imprisonment · observe the yard, preserve strength and discover a physical route through the restricted workshop. Fictional schematic.';
+    s.objective='Regular imprisonment · observe the guards: slow covered washing passage or faster exposed workshop. Fictional schematic.';
     s.checkpoint=r.checkpoint;
   }
   function enter(game,options) {
@@ -268,17 +330,24 @@
       s.stats.fatigue=clamp(finite(s.stats.fatigue,0)-elapsed*2,0,100);
       s.stats.physical=clamp(finite(s.stats.physical,50)+elapsed*.12,0,100);
       if(a.elapsed>=a.duration){r.sleeping=null;r.lastRestDay=s.day;notify(game,'Rested through eight fictional hours. The supervised yard opens again at 16:00; observe and wait safely in the cell.');save(game);}
-    }else advance(game,dt*3);
+    }else advance(game,dt);
     if(!yardTime(game) && r.flags.cellOpen && insideCell(game)){
       r.flags.cellOpen=false;box(game,'cell-door','powWood',0,1.10,-3.2,1.1,1.10,.065,true);save(game);
     }
     const x=e.p[0]-s.base[0],z=e.p[2]-s.base[2];
     const hatchObject=s.objects.find(o=>o.id==='regular-hatch');
     if(hatchObject)hatchObject.name='Loosen one service-hatch fastener · '+r.hatchFasteners+'/3';
+    const drainObject=s.objects.find(o=>o.id==='regular-drain-panel');
+    if(drainObject)drainObject.name='Work one cloth-muffled drain fastener · '+r.drainFasteners+'/4';
     if(r.hatchFasteners)for(let i=0;i<r.hatchFasteners;i++)removeFastenerVisual(game,i);
+    if(r.drainFasteners)for(let i=0;i<r.drainFasteners;i++)removeVisual(game,'drain-fastener:'+i);
     if(r.flags.hatchOpen && z<-20.7 && r.checkpoint!=='regular-passage'){r.checkpoint='regular-passage';save(game);notify(game,'Checkpoint: narrow service passage. Observe the outside patrol and work the gate; continue moving to leave the compound.');}
-    if(r.flags.gateOpen && r.flags.hatchOpen && r.flags.workshopOpen && x>18.35 && x<21.65 && z<-32.0 && !r.escaped){
+    if(r.flags.drainOpen && z<-24.7 && x>-3.05 && x<-.95 && r.checkpoint!=='regular-washing-passage'){r.checkpoint='regular-washing-passage';save(game);notify(game,'Checkpoint: covered washing passage. The outside grate is a separate physical barrier. Crouch, listen, and work it quietly.');}
+    const fastExit=r.flags.gateOpen && r.flags.hatchOpen && r.flags.workshopOpen && x>18.35 && x<21.65 && z<-32.0;
+    const quietExit=r.flags.drainOpen && r.flags.drainGateOpen && x>-3.0 && x<-1.0 && z<-35.0;
+    if((fastExit || quietExit) && !r.escaped){
       r.escaped=true;s.flags.regularEscape=true;s.flags.outside=true;
+      r.escapeRoute=quietExit?'covered-washing-passage':r.flags.hatchForced?'forced-workshop-hatch':'workshop-fasteners';
       const snap=P.save?P.save(game):null;
       notify(game,'You physically crossed the outer boundary. This alternate escape continues on the Hanoi street; freedom and the river are still ahead.');
       if(P.begin && snap){delete snap.p;snap.stage='hanoi';snap.complete=false;P.begin(game,'hanoi',snap);}
@@ -287,11 +356,14 @@
     }
     r.uiTick=finite(r.uiTick,0)+dt;
     if(r.uiTick>.3){
-      r.uiTick=0;s.objective=(r.sleeping?'Resting on the mat':yardTime(game)?'Yard period 16:00–18:00 · calm movement allowed':'Outside the cell is restricted until 16:00')+' · '+String(Math.floor(r.minute/60)).padStart(2,'0')+':'+String(Math.floor(r.minute%60)).padStart(2,'0')+' · '+(r.flags.gateOpen?'Gate open: move through the boundary':r.flags.hatchOpen?'Enter the passage and work the outside bolt':r.flags.workshopOpen?'Work three hatch fasteners, checking the patrol between each':r.inventory.tool?'Observe the restricted workshop patrol before working its latch':'Observe the slot, then search the yard trough quietly');
+      r.uiTick=0;s.objective=(r.sleeping?'Resting on the mat':yardTime(game)?'Yard period 16:00–18:00 · calm movement allowed':'Outside the cell is restricted until 16:00')+' · '+String(Math.floor(r.minute/60)).padStart(2,'0')+':'+String(Math.floor(r.minute%60)).padStart(2,'0')+' · '+(r.flags.drainGateOpen?'Grate open: move beyond the boundary':r.flags.drainOpen?'Covered passage: quietly work the outside grate':r.flags.gateOpen?'Gate open: move through the boundary':r.flags.hatchOpen?'Enter the passage and work the outside bolt':r.flags.workshopOpen?'Three slow fasteners or quick loud hinge leverage: watch the patrol':r.inventory.tool?'Covered washing passage (cloth needed) or exposed east workshop':'Observe the slot, take the cloth, then search the yard trough quietly');
     }
   }
   function removeFastenerVisual(game,i) {
-    const id='regular:hatch-fastener:'+i;
+    removeVisual(game,'hatch-fastener:'+i);
+  }
+  function removeVisual(game,name) {
+    const id='regular:'+name;
     if(game.campGeo.some(q=>q.id===id))game.campGeo=game.campGeo.filter(q=>q.id!==id);
   }
   function snapshot(game) { return game && game.pow && game.pow.regular?copy(game.pow.regular):null; }
@@ -300,5 +372,5 @@
     game.pow.regular=Object.assign(initial(),copy(data));state(game);
     game.pow.regular.sleeping=null;build(game);return true;
   }
-  P.RegularConfinement={initial,state,eligibility,eligible,enter,build,prepare,step,snapshot,restore,isSuspicious,guardNearby,yardTime,insideCell,openCell,observe,tool,workshop,hatch,gate,restStart,meal,route:ROUTE};
+  P.RegularConfinement={initial,state,eligibility,eligible,enter,build,prepare,step,snapshot,restore,isSuspicious,guardNearby,yardTime,insideCell,openCell,observe,tool,workshop,hatch,forceHatch,takeCloth,drainPanel,drainGate,gate,restStart,meal,route:ROUTE};
 })(typeof window!=='undefined'?window:globalThis);

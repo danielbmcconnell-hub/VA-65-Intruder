@@ -269,6 +269,9 @@
     if(!saved && old){for(const key of ['doorOpen','outside','roofCrossed','bunkSearched','wallContact','capturePending'])delete s.flags[key];delete s.inventory.bracket;delete s.inventory.rope;}
     if(saved && saved.captivity)s.captivity=copy(saved.captivity);else if(old && old.captivity)s.captivity=old.captivity;
     if(saved && saved.regular)s.regular=copy(saved.regular);else if(old && old.regular)s.regular=copy(old.regular);
+    s.practice=saved ? saved.practice || null : old && old.practice || null;
+    const feedbackPrefs=P.ctx && P.ctx.Store?P.ctx.Store.get('pow_feedback_preferences',{}) || {}:{};
+    s.feedbackHints=saved && saved.feedbackHints!==undefined?saved.feedbackHints:feedbackPrefs.hints!==undefined?feedbackPrefs.hints!==false:prefs.feedbackHints!==false;
     if(s.captivity)s.captivity.open=false;
     const p=[origin[0]+.3,ground,origin[2]+.5];
     game.evade={camp:true,p,hdg:0,look:0,pitchCmd:0,t:0,radio:-1,rounds:0,hasPistol:false,hasKnife:false,drawn:0,weaponMode:'fists',fitting:s.inventory.bracket?1:0,alive:true,radius:.32,lastShot:-99,kills:0,noise:0,chute:[origin[0],origin[2]],searchers:[],locals:[],spawn:1e9,found:0,exposure:0,expose:0,sus:0,alarm:0,prep:0,pickup:[origin[0]+26,origin[2]-24],goal:[origin[0]+26,origin[2]-24],origin:[origin[0],origin[2]],A:27,B:36,held:0,frozen:0};
@@ -287,6 +290,8 @@
     if(saved && saved.p && !saved.complete){game.evade.p.splice(0,3,...saved.p);game.evade.hdg=saved.hdg || 0;game.evade.look=saved.look || 0;game.evade.pitchCmd=game.evade.look;}
     if(P.AI && P.AI.enter)P.AI.enter(game,stage);
     if(saved && saved.ai && P.AI && P.AI.restore)P.AI.restore(game,saved.ai);
+    if(P.Feedback && P.Feedback.restore)P.Feedback.restore(game,saved && saved.feedback);
+    if(P.Guidance)P.Guidance.enter(game,saved && saved.guidance,old && old.guidance);
         s.p=game.evade.p;s.actors=game.evade.searchers;
     P.activate(true);P.mountUI();if(P.ui)P.ui.end.hidden=true;P.updateUI(game);
     P.notify(game,stage==='cell'?'Search the bunk, contact the man through the wall, and work the door fitting when the guard moves away.':stage==='hanoi'?'Stay in the shadows. Follow the dark lane east to the riverbank.':stage==='compound'?'Move through the corridor to the stairs. The roof leads across the east wall.':'Your body is here. Move and interact with the objects around you.');
@@ -306,6 +311,7 @@
   };
   function nearestObject(game,action) {
     const s=game.pow,e=game.evade,eye=[e.p[0],e.p[1]+(e.crouch?1.12:1.65),e.p[2]];let best=null,bestD=1e9;
+    const directed=action && action!==true && !['interact','climb'].includes(action);
     for(const obj of s.objects) {
       if(obj.active===false || typeof obj.enabled==='function' && !obj.enabled(game,obj))continue;
       if(action && action!==true && action!=='interact' && action!=='climb' && obj.id!==action)continue;
@@ -314,11 +320,16 @@
       if(horizontal>(obj.radius || 1.7) || vertical>2.2)continue;
       const angle=Math.atan2(dx,-dz)-e.hdg, facing=Math.abs(Math.atan2(Math.sin(angle),Math.cos(angle)));
       if(obj.view!==false && horizontal>.50 && facing>1.10)continue;
+      if(!directed && horizontal>.50 && facing>2.10)continue;
       // Interactions may touch a wall's front surface; only test to a shortened endpoint.
       const fraction=horizontal>.15?Math.max(0,(horizontal-.14)/horizontal):0;
       const target=[eye[0]+(obj.p[0]-eye[0])*fraction,eye[1]+(obj.p[1]-eye[1])*fraction,eye[2]+(obj.p[2]-eye[2])*fraction];
       if(obj.view!==false && !P.los(game,eye,target))continue;
-      if(horizontal<bestD){best=obj;bestD=horizontal;}
+      // Aim takes precedence over a slightly closer tray or vent beside the
+      // player. Floor objects remain reachable without precise vertical aim.
+      const verticalAim=Math.atan2(obj.p[1]-eye[1],Math.max(.10,horizontal));
+      const score=directed?horizontal:horizontal+facing*.85+Math.abs(verticalAim-(e.look || 0))*.08;
+      if(score<bestD){best=obj;bestD=score;}
     }
     return best;
   }
@@ -327,7 +338,7 @@
     if(!game || !game.pow || !game.evade || game.paused || game.pow.complete || inputBlocked(game))return false;
     const obj=nearestObject(game,action);
     if(!obj)return false;
-    if(typeof obj.action==='function'){obj.action(game,obj);return true;}
+    if(typeof obj.action==='function'){obj.action(game,obj);if(P.Guidance && game.pow)P.Guidance.interaction(game,obj);return true;}
     if(P.Captivity && game.pow.stage==='solitary' && P.Captivity.interact)return P.Captivity.interact(game,obj.action || obj.id);
     return false;
   };
@@ -337,11 +348,24 @@
     if(s.river)snap.module=copy(s.river);
     if(s.captivity)snap.captivity=copy(s.captivity);
     if(s.regular)snap.regular=copy(s.regular);
+    if(s.guidance)snap.guidance=copy(s.guidance);
+    if(s.practice)snap.practice=s.practice;
+    snap.feedbackHints=s.feedbackHints!==false;
+    if(P.Feedback && P.Feedback.snapshot)snap.feedback=P.Feedback.snapshot(game);
     if(s.outcome)snap.outcome=copy(s.outcome);
     if(P.AI && P.AI.snapshot)snap.ai=P.AI.snapshot(game);
     if(P.Mindscape && P.Mindscape.active(game))P.Mindscape.physicalSnapshot(game,snap);
     if(s._hydrating)return snap;
-    if(P.ctx && P.ctx.Store)P.ctx.Store.set('pow_checkpoint',snap);
+    if(P.ctx && P.ctx.Store){
+      // Older builds stored only the latest checkpoint. Archive it before a
+      // new practice chapter replaces that entry, preserving campaign progress.
+      const previous=typeof P.ctx.Store.get==='function' ? P.ctx.Store.get('pow_checkpoint',null) : null;
+      if(previous && previous.stage){
+        const previousKey='pow_checkpoint:'+(previous.practice || 'campaign');
+        if(!P.ctx.Store.get(previousKey,null))P.ctx.Store.set(previousKey,previous);
+      }
+      P.ctx.Store.set('pow_checkpoint',snap);P.ctx.Store.set('pow_checkpoint:'+(s.practice || 'campaign'),snap);
+    }
     s.savedAt=snap.savedAt;s.checkpoint=s.stage;return snap;
   };
   P.finish = function (game,result) {
@@ -397,6 +421,7 @@
     if(game.pow!==s || s.complete)return;
     if(P.AI && P.AI.step)P.AI.step(game,dt);
     if(game.pow!==s || s.complete)return;
+    if(P.Feedback && P.Feedback.step)P.Feedback.step(game,dt);
     if(!s.traversal) {
       const obj=nearestObject(game,input.climb?'climb':undefined);s.focus=obj || null;
       const down=input.interact || input.climb && obj && obj.climb;
@@ -417,6 +442,7 @@
       s.flags.roofHintShown=true;
       P.notify(game,'The coiled rope is on this rooftop beneath a glowing yellow marker. Follow the HUD distance/direction, then hold F nearby.');
     }
+    if(P.Guidance)P.Guidance.step(game,dt);
     s.uiTimer=(s.uiTimer || 0)+dt;if(s.uiTimer>.10){s.uiTimer=0;P.updateUI(game);}
   };
   P.activate = function (on) { if(typeof document!=='undefined')document.body.classList.toggle('pow-active',!!on);if(P.ui)P.ui.root.hidden=!on; };
@@ -425,13 +451,20 @@
   P.mountUI = function () {
     if(P.ui || typeof document==='undefined' || !document.body)return;
     const root=document.createElement('section');root.id='powHUD';root.setAttribute('aria-label','Prisoner survival controls');
-    const header=document.createElement('div');header.className='pow-status';header.innerHTML='<strong data-stage></strong><span data-objective></span><span data-stats></span><span data-river></span><span data-alert></span>';root.appendChild(header);
+    const header=document.createElement('div');header.className='pow-status';header.innerHTML='<strong data-stage></strong><span data-objective></span><details class="pow-condition"><summary>Condition</summary><span data-stats></span></details><span data-river></span><span data-alert></span><span data-feedback></span><div class="pow-guide" data-guide hidden><span data-guide-text></span><button type="button" data-guide-skip>Skip tutorial</button></div>';root.appendChild(header);
+    header.querySelector('[data-guide-skip]').addEventListener('click',()=>{const g=current();if(g && P.Guidance)P.Guidance.skip(g);});
+    const reticle=document.createElement('div');reticle.className='pow-reticle';reticle.hidden=true;reticle.setAttribute('aria-hidden','true');root.appendChild(reticle);
+    const hands=document.createElement('div');hands.className='pow-work-hands';hands.hidden=true;hands.setAttribute('aria-hidden','true');hands.innerHTML='<img alt="">';root.appendChild(hands);
     const tools=document.createElement('div');tools.className='pow-tools';root.appendChild(tools);
     button('Save',()=>{const g=current();if(g && g.pow){P.save(g);P.notify(g,'Checkpoint saved on this device.');}},tools);
     button('Continue',()=>{const g=current(),saved=P.ctx.Store.get('pow_checkpoint',null);if(g && saved && !saved.complete)P.begin(g,saved.stage,saved);else if(g)P.notify(g,'No unfinished checkpoint is available on this device.');},tools);
     button('History & photos',()=>{const g=current();if(global.POWPhotos && global.POWPhotos.open)global.POWPhotos.open(g);else if(P.Photos && P.Photos.open)P.Photos.open(g);},tools);
     const settings=document.createElement('details');settings.className='pow-settings';settings.innerHTML='<summary>Settings & controls</summary><label>Difficulty <select data-difficulty><option value="normal">Normal</option><option value="hard">Hard</option></select></label><label>Intensity <select data-intensity><option value="standard">Standard</option><option value="reduced">Reduced</option></select></label><p>W/S or left stick: move · A/D: turn · Shift: run · C: crouch · Q/E: look up/down · F: hold interaction · Space: climb · Y: mouse look. Drag the right side to look on touch.</p><p class="pow-layout-note">The compound and street layout is fictional. Photographs and historical records are presented separately.</p>';tools.appendChild(settings);
-    for(const name of ['difficulty','intensity'])settings.querySelector('[data-'+name+']').addEventListener('change',event=>{const g=current();if(!g || !g.pow)return;g.pow[name]=event.target.value;P.ctx.Store.set('pow_preferences',{difficulty:g.pow.difficulty,intensity:g.pow.intensity});P.save(g);P.updateUI(g);});
+    const tutorialLabel=document.createElement('label');tutorialLabel.innerHTML='Controls tutorial <input type="checkbox" data-guidance>';settings.appendChild(tutorialLabel);
+    const feedbackLabel=document.createElement('label');feedbackLabel.innerHTML='Guard sound / sight cues <input type="checkbox" data-feedback-hints>';settings.appendChild(feedbackLabel);
+    for(const name of ['difficulty','intensity'])settings.querySelector('[data-'+name+']').addEventListener('change',event=>{const g=current();if(!g || !g.pow)return;g.pow[name]=event.target.value;P.ctx.Store.set('pow_preferences',Object.assign({},P.ctx.Store.get('pow_preferences',{}) || {},{difficulty:g.pow.difficulty,intensity:g.pow.intensity}));event.target.blur();P.save(g);P.updateUI(g);});
+    settings.querySelector('[data-guidance]').addEventListener('change',event=>{const g=current();if(g && P.Guidance)P.Guidance.setEnabled(g,event.target.checked);event.target.blur();});
+    settings.querySelector('[data-feedback-hints]').addEventListener('change',event=>{const g=current();if(!g)return;if(P.Feedback && P.Feedback.setHints)P.Feedback.setHints(g,event.target.checked);else g.pow.feedbackHints=event.target.checked;event.target.blur();P.save(g);P.updateUI(g);});
     const notice=document.createElement('p');notice.className='pow-notice';notice.setAttribute('role','status');notice.setAttribute('aria-live','polite');root.appendChild(notice);
     const prompt=document.createElement('div');prompt.className='pow-prompt';prompt.innerHTML='<span data-prompt></span><progress max="1" value="0" aria-label="Interaction progress"></progress>';root.appendChild(prompt);
     const controls=document.createElement('div');controls.className='pow-context-controls';root.appendChild(controls);
@@ -446,7 +479,7 @@
     button('Historical photos',()=>{if(global.POWPhotos && global.POWPhotos.open)global.POWPhotos.open(current());},end.querySelector('[data-buttons]'));
     button('Ready room',()=>{const a=P.ctx.App;a.game=null;a.show('ready');P.activate(false);end.hidden=true;},end.querySelector('[data-buttons]'));
     document.body.appendChild(root);
-    P.ui={root,header,stage:header.querySelector('[data-stage]'),objective:header.querySelector('[data-objective]'),stats:header.querySelector('[data-stats]'),river:header.querySelector('[data-river]'),alert:header.querySelector('[data-alert]'),settings,notice,prompt:prompt.querySelector('[data-prompt]'),progress:prompt.querySelector('progress'),interact,climb,end};
+    P.ui={root,header,stage:header.querySelector('[data-stage]'),objective:header.querySelector('[data-objective]'),stats:header.querySelector('[data-stats]'),river:header.querySelector('[data-river]'),alert:header.querySelector('[data-alert]'),feedback:header.querySelector('[data-feedback]'),guide:header.querySelector('[data-guide]'),guidanceSetting:settings.querySelector('[data-guidance]'),reticle,hands,settings,notice,prompt:prompt.querySelector('[data-prompt]'),progress:prompt.querySelector('progress'),interact,climb,end};
   };
   P.updateUI = function (game) {
     P.mountUI();if(!P.ui || !game || !game.pow)return;
@@ -471,15 +504,18 @@
     u.stats.textContent='BODY '+Math.round(s.stats.physical)+' · FATIGUE '+Math.round(s.stats.fatigue)+' · RESOLVE '+Math.round(s.stats.resilience)+' · MORALE '+Math.round(s.stats.morale)+' · MEMORY '+Math.round(s.stats.memory)+' · HOPE '+Math.round(s.stats.hope);
     if(u.river){u.river.hidden=!s.river;if(s.river){const r=s.river,h=((r.hour || 0)%24+24)%24,clock=String(Math.floor(h)).padStart(2,'0')+':'+String(Math.floor((h%1)*60)).padStart(2,'0');u.river.textContent=Number(r.distanceKm || 0).toFixed(1)+' ROUTE KM (100:1) · '+clock+' · '+String(r.weather || 'mist').toUpperCase()+' · '+String(r.mode || 'swim').toUpperCase()+' · AIR '+Math.round(r.breath || 0);}}
     const seen=e.searchers.some(a=>a.alive!==false && a.seen);u.alert.textContent=seen?'GUARD HAS SIGHT OF YOU':e.sus>.45?'PATROL INVESTIGATING':s.noise>.5?'YOUR MOVEMENT IS LOUD':'KEEP QUIET · WATCH THE PATROLS';u.alert.dataset.danger=seen?'yes':'no';
+    if(P.Feedback && P.Feedback.view){const cue=P.Feedback.view(game);u.alert.textContent=cue.alert || 'Watch and listen';u.alert.dataset.danger=cue.danger?'yes':'no';u.feedback.hidden=!(cue.caption || cue.detail);u.feedback.textContent=cue.caption || cue.detail || '';}
     const f=s.focus || nearestObject(game);u.prompt.textContent=f?(f.hold?'Hold F · ':'F · ')+f.name:'Look toward an object within reach';u.progress.value=s.holding && f?clamp(s.holding.t/(f.hold || .15),0,1):0;
     u.interact.disabled=!f;u.climb.hidden=!(f && f.climb) && s.stage!=='river';u.climb.textContent=s.stage==='river'?'Dive · hold Space':'Climb · Space';u.notice.hidden=s.time>s.messageUntil;if(!u.notice.hidden)u.notice.textContent=s.message;
     u.settings.querySelector('[data-difficulty]').value=s.difficulty;u.settings.querySelector('[data-intensity]').value=s.intensity;
+    u.settings.querySelector('[data-feedback-hints]').checked=s.feedbackHints!==false;
+    if(P.Guidance)P.Guidance.render(game);
     document.body.classList.toggle('pow-reduced',s.intensity==='reduced');
   };
   P.install = function () {
     if(installed || !P.ctx)return;installed=true;const A=P.ctx.App,G=P.ctx.Game;
     const init=A.init;A.init=function(){const result=init.apply(this,arguments);P.mountUI();P.activate(!!(this.game && this.game.pow));return result;};
-    const show=A.show;A.show=function(){const result=show.apply(this,arguments);P.activate(this.screen==='game' && !!(this.game && this.game.pow));return result;};
+    const show=A.show;A.show=function(){const result=show.apply(this,arguments);P.activate(this.screen==='game' && !!(this.game && this.game.pow));if(this.screen==='ready' && this.renderReady)this.renderReady();return result;};
     const sync=G.prototype.syncControls;G.prototype.syncControls=function(){const result=sync.apply(this,arguments);P.activate(!!this.pow);return result;};
     // Capture only POW input so aeroplane key and pointer behavior is preserved.
     window.addEventListener('keydown',event=>{

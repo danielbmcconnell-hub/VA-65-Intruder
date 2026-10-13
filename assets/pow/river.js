@@ -10,6 +10,32 @@
   const P = root.POW = root.POW || {};
   const SCALE = 100, DELTA = 72000, GULF = 96000, BENCHMARK = 24140;
   const HALF_WIDTH = 14.5, SEGMENT = 112;
+  // Original river movement remains continuous. These are invented, readable
+  // route sections, not a surveyed 1967 map. Landmarks have persistent global
+  // positions, so a tile recentre cannot move a landing ahead of the swimmer.
+  const SECTIONS = Object.freeze([
+    { id: 'bridge', name: 'Hanoi bridge embankment', from: 0, to: 6500,
+      current: .80, bankCurrent: .48, eddy: .07, exposure: 1, reedCover: 0, side: -1,
+      hint: 'Pass below the bridge. Its bank abutments and a covered landing break sight lines.' },
+    { id: 'reeds', name: 'Reed islands', from: 6500, to: 14500,
+      current: .98, bankCurrent: .42, eddy: .14, exposure: .82, reedCover: .25, side: 1,
+      hint: 'A quick central current; slower reeds. Watch bank patrols and approach the covered landing quietly.' },
+    { id: 'ferry', name: 'Ferry landing', from: 14500, to: BENCHMARK,
+      current: .91, bankCurrent: .40, eddy: .10, exposure: 1.12, reedCover: .08, side: -1,
+      hint: 'Watch the right-bank landing patrol. The opposite bank has a quiet covered recess.' },
+    { id: 'floodplain', name: 'Open floodplain', from: BENCHMARK, to: 46000,
+      current: .88, bankCurrent: .43, eddy: .10, exposure: 1.22, reedCover: 0, side: 1,
+      hint: 'Daylight exposes the open banks. A sluice wall shelters a resting place; resting advances the clock.' },
+    { id: 'delta-reeds', name: 'Delta reed channels', from: 46000, to: DELTA,
+      current: .79, bankCurrent: .40, eddy: .15, exposure: .88, reedCover: .20, side: -1,
+      hint: 'Reeds and old mooring posts mark the shallows. Rest on a bank or keep drifting toward the delta.' },
+    { id: 'delta', name: 'Working-skiff moorings', from: DELTA, to: GULF,
+      current: .80, bankCurrent: .42, eddy: .08, exposure: 1, reedCover: .10, side: 1,
+      hint: 'Reach the unoccupied skiff physically. Mooring posts and logs remain solid.' }
+  ].map(section => Object.freeze(section)));
+  const OFFSHORE = Object.freeze({ id: 'gulf', name: 'Gulf offshore contact', current: .1,
+    bankCurrent: .1, eddy: .02, exposure: 1, reedCover: 0,
+    hint: 'Fictional continuation: approach and signal the visible naval contact. No rescue was arranged.' });
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
   const finite = (n, fallback) => Number.isFinite(n) ? n : fallback;
   const distance = (a, b) => Math.hypot(a[0] - b[0], a[2] - b[2]);
@@ -29,6 +55,122 @@
     stats[key] = clamp(finite(stats[key], key === 'fatigue' ? 35 : 65) + amount,
       key === 'physical' ? 6 : 0, 100);
   };
+
+  function sectionFor(r) {
+    if (r.phase === 'gulf') return OFFSHORE;
+    return SECTIONS.find(section => r.logicalDistance < section.to) || SECTIONS[SECTIONS.length - 1];
+  }
+  function sectionState(game, announce) {
+    const r = state(game).river, section = sectionFor(r), changed = r.sectionId !== section.id;
+    r.sectionsVisited = Array.isArray(r.sectionsVisited) ? r.sectionsVisited : [];
+    r.encounters = r.encounters && typeof r.encounters === 'object' ? r.encounters : {};
+    r.sectionId = section.id; r.sectionName = section.name; r.sectionHint = section.hint;
+    r.sectionExposure = section.exposure;
+    if (!r.sectionsVisited.includes(section.id)) {
+      r.sectionsVisited.push(section.id);
+      if (announce) notify(game, section.name + ': ' + section.hint, 'warn');
+    }
+    return changed;
+  }
+  function landmarkZ(game, section) {
+    const r = state(game).river;
+    return r.routeOriginZ + section.from / SCALE + 32 - r.streamOffset;
+  }
+
+  function landmarks(game) {
+    const s = state(game), r = s.river, x = centre(game), y = r.waterY;
+    r.landings = [];
+    for (const section of SECTIONS) {
+      const z = landmarkZ(game, section), id = 'river-landmark-' + section.id;
+      if (z < s.nav.zmin - 10 || z > s.nav.zmax - 15) continue;
+      if (section.id === 'bridge') {
+        box(game, id + '-deck', 'powStone', x, y + 5.1, z, 35, .28, 2.6, { solid: true });
+        for (const side of [-1, 1]) {
+          box(game, id + '-abutment-' + side, 'powStone', x + side * 20, y + 2.25, z,
+            2.1, 2.2, 3, { solid: true });
+          box(game, id + '-rail-' + side, 'powMetal', x, y + 5.75, z + side * 2.2, 35, .09, .08);
+        }
+      } else if (section.id === 'reeds') {
+        for (const side of [-1, 1]) {
+          const island = box(game, id + '-island-' + side, 'powMud', x + side * 10.7, y - 1.05, z + side * 7,
+            1.5, 1.45, 5.2, { solid: true, tint: [.72, .83, .64, 0] });
+          if (!island) continue;
+          for (let n = 0; n < 5; n++) prop(game, id + '-tuft-' + side + '-' + n, 'bamboo',
+            [x + side * 10.7, y + .4, z + side * 7 - 3.5 + n * 1.7], [.14, .25, .14]);
+        }
+      } else if (section.id === 'ferry') {
+        // The dock stops at the bank edge, leaving the central channel open.
+        box(game, id + '-dock', 'powWood', x + 17.2, y + .5, z, 2.2, .13, 5.2,
+          { solid: true });
+        for (const dz of [-4, 4]) box(game, id + '-post-' + dz, 'powWood', x + 16, y + .65, z + dz,
+          .13, .9, .13, { solid: true });
+        box(game, id + '-hut-back', 'powWood', x + 27, y + 1.55, z, .16, 1.2, 3.3, { solid: true });
+        box(game, id + '-hut-side', 'powWood', x + 24.5, y + 1.55, z - 3.3, 2.7, 1.2, .16, { solid: true });
+        box(game, id + '-hut-roof', 'powWood', x + 24.5, y + 2.92, z, 2.9, .12, 3.6, { solid: true });
+        box(game, id + '-lantern', 'powPale', x + 22, y + 2.25, z - 2.9, .11, .15, .11,
+          { tint: [1.7, 1.35, .65, .45] });
+      } else if (section.id === 'floodplain') {
+        box(game, id + '-sluice', 'powStone', x + 28, y + 1.6, z, 1.4, 1.25, 5.5, { solid: true });
+        for (const dz of [-4, 0, 4]) box(game, id + '-gate-' + dz, 'powMetal', x + 26.5, y + 1.2,
+          z + dz, .08, .85, .1);
+        box(game, id + '-wheel', 'powWood', x + 26.2, y + 1.9, z, .08, .42, .42);
+      } else {
+        for (let n = 0; n < 5; n++) {
+          const side = n % 2 ? -1 : 1;
+          box(game, id + '-mooring-' + n, 'powWood', x + side * 16.2, y + .65, z - 12 + n * 6,
+            .11, .9, .11, { solid: true });
+          prop(game, id + '-reed-' + n, 'bamboo', [x + side * 20.5, y + .35, z - 12 + n * 6], [.24, .5, .24]);
+        }
+      }
+      // A roofed recess is reached by real bank movement. The water-facing
+      // side remains open; walls and roof provide physical occlusion rather
+      // than an invulnerable menu-triggered hiding state.
+      const px = x + section.side * 23, pz = z - 18;
+      box(game, id + '-shelter-back', 'powWood', px + section.side * 1.9, y + 1.25, pz,
+        .12, .9, 2.5, { solid: true });
+      box(game, id + '-shelter-end', 'powWood', px, y + 1.25, pz - 2.5,
+        2, .9, .12, { solid: true });
+      box(game, id + '-shelter-other-end', 'powWood', px, y + 1.25, pz + 2.5,
+        2, .9, .12, { solid: true });
+      box(game, id + '-shelter-roof', 'powWood', px, y + 2.36, pz, 2.1, .1, 2.7, { solid: true });
+      box(game, id + '-landing-mat', 'powMud', px, y + .39, pz, 1.25, .045, 1.4,
+        { tint: [1.15, 1.02, .78, 0] });
+      const landing = object(game, 'river-landing-' + section.id, section.name + ' · conceal and rest in the bank recess',
+        [px, y + .35, pz], 'hide', 2.3, { hold: 1.6, cover: .9, sectionId: section.id, view: false });
+      r.landings.push({ id: landing.id, sectionId: section.id, p: landing.p.slice() });
+    }
+  }
+
+  function seedEncounter(game) {
+    const s = state(game), r = s.river;
+    if (r.phase === 'gulf') return;
+    const ferry = SECTIONS.find(section => section.id === 'ferry'), z = landmarkZ(game, ferry);
+    if (z < s.nav.zmin + 20 || z > s.nav.zmax - 25) return;
+    const record = r.encounters.ferry || (r.encounters.ferry = {});
+    const actors = game.evade.searchers;
+    // A legacy AI restore can replace the initial actor list after scene
+    // entry. Require the actual saved/spawned actor, not merely its old flag.
+    if (record.peopleSeeded && actors.some(a => a.id === 'river-ferry-patrol')) return;
+    const x = centre(game), y = r.waterY + .35;
+    const options = [
+      { id: 'river-ferry-patrol', kind: 'nva', lamp: true, p: [x + 24, y, z + 17], face: Math.PI,
+        route: [[x + 24, y, z + 17], [x + 24, y, z + 6], [x + 31, y, z + 6], [x + 31, y, z - 12]],
+        schedule: { cycle: 86, rounds: 57, offset: 12 }, dwell: 7 },
+      { id: 'river-ferry-worker', kind: 'farmer', p: [x + 31, y, z - 15], face: Math.PI,
+        route: [[x + 31, y, z - 15], [x + 31, y, z + 10]], dwell: 15 }
+    ];
+    // Never materialize an encounter around the player's saved position.
+    if (options.some(o => distance(o.p, game.evade.p) < 18)) return;
+    for (const o of options) {
+      if (actors.some(a => a.id === o.id)) continue;
+      if (P.blocked && P.blocked(game, o.p[0], o.p[2], .35, y)) continue;
+      const a = P.AI && P.AI.makeActor ? P.AI.makeActor(o) : Object.assign({ alive: true, armed: o.kind !== 'farmer',
+        seen: 0, sus: 0, wp: 0, ph: 0, spd: 0, speed: .6, goal: o.p.slice(), home: o.p.slice() }, o);
+      a.riverNPC = true; a.riverEncounter = 'ferry'; actors.push(a);
+    }
+    record.peopleSeeded = actors.some(a => a.id === 'river-ferry-patrol');
+    s.actors = actors;
+  }
 
   function meshes(game) {
     if (P.ensureMeshes) P.ensureMeshes(game);
@@ -66,6 +208,21 @@
 
   function box(game, id, mesh, x, y, z, hx, hy, hz, options) {
     const s = state(game), base = s.base;
+    if (options && options.solid && id.startsWith('river-landmark-')) {
+      // An older checkpoint may occupy space that was empty before these
+      // landmarks existed. Keep its position/progress and omit that one new
+      // obstacle permanently, rather than trapping or relocating its player.
+      const r = s.river;
+      r.landmarkClearances = r.landmarkClearances || {};
+      for (const actor of [game.evade].concat(game.evade.searchers || [])) {
+        if (!actor.p || actor.alive === false) continue;
+        const p = actor.p, radius = actor === game.evade ? r.boatOwned ? .82 : .34 : .31;
+        const dx = Math.max(Math.abs(p[0] - x) - hx, 0), dz = Math.max(Math.abs(p[2] - z) - hz, 0);
+        const vertical = p[1] < y + hy - .035 && p[1] + 1.48 > y - hy + .025;
+        if (vertical && dx * dx + dz * dz < radius * radius - 1e-8) r.landmarkClearances[id] = true;
+      }
+      if (r.landmarkClearances[id]) return null;
+    }
     if (P.addBox) return P.addBox(game, id, mesh, x - base[0], y - base[1], z - base[2], hx, hy, hz, options || {});
     const g = { id, m: mesh, p: [x, y, z], y: options && options.yaw || 0,
       s: 1, scale: [hx * 2, hy * 2, hz * 2], t: options && options.tint || [1, 1, 1, 0] };
@@ -87,6 +244,7 @@
   }
   function rebuild(game) {
     const s = state(game), r = s.river, e = game.evade, x = centre(game), z0 = s.base[2], y = r.waterY;
+    sectionState(game, false);
     game.campGeo = []; s.solids = []; s.surfaces = []; s.objects = [];
     game.campY = y + .35;
     game._collisionCache = null;
@@ -141,6 +299,7 @@
           [px, y + .35, z], 'hide', 3.2, { hold: 2, cover: .87, view: false });
       }
     }
+    landmarks(game);
     // A repeatable, staggered obstacle course. The open central lane means a
     // tired swimmer can still float; swimming around logs is a useful choice.
     for (let i = 0; i < 6; i++) {
@@ -156,6 +315,7 @@
       object(game, 'river-board', 'Climb into the unoccupied working skiff', r.boat.p.slice(), 'board', 3.8, { hold: 1.4, view: false });
     } else if (r.boatOwned) prop(game, 'river-skiff', 'powRiverSkiff', e.p.slice(), [1, 1, 1], e.hdg);
     r.control = object(game, 'river-float', 'Float / swim · hold Space or DIVE to submerge', e.p.slice(), 'float', 1.6, { view: false });
+    seedEncounter(game);
   }
 
   function seedPeople(game) {
@@ -189,7 +349,7 @@
       // A pursuing man remains pursuing. An unalerted observer who is now
       // behind the repeating scene rejoins a beat downstream, without seeing
       // the player solely because a segment was rebuilt.
-      if (a.riverNPC && !a.seen && a.p[2] < s.base[2] - 90) {
+      if (a.riverNPC && !a.riverEncounter && !a.seen && a.p[2] < s.base[2] - 90) {
         const dz = 220;
         for (const p of [a.p, a.goal, a.home].concat(a.route || [])) if (p) p[2] += dz;
       }
@@ -204,6 +364,7 @@
   function enter(game) {
     const s = state(game), e = game.evade;
     if (!s || !e) return false;
+    const restoring = !!s.river;
     s.customMovement = true; s.stage = 'river';
     s.flags = s.flags || {}; s.flags.riverEntered = true;
     if (!s.river) {
@@ -230,13 +391,18 @@
     const r = s.river;
     r.breath = clamp(finite(r.breath, 100), 0, 100);
     r.streamOffset = finite(r.streamOffset, 0); r.segment = finite(r.segment, 0);
+    r.routeOriginZ = finite(r.routeOriginZ, e.p[2] + r.streamOffset - r.logicalDistance / SCALE);
     r.checkpoints = r.checkpoints || []; r.finished = false;
+    // Core restores saved AI after scene entry. Audit once on its first real
+    // tick so an old NPC save is not enclosed by a newly introduced structure.
+    r.layoutAuditPending = restoring;
+    sectionState(game, false);
     r.eyeHeight = r.mode === 'boat' ? 1.05 : r.mode === 'bank' || r.mode === 'hidden' ? 1.58 : .48;
     e.camp = true; e.river = true; e.frozen = false; e.inCell = false; e.hasRadio = false; e.radio = -1;
     e.locals = []; e.cattle = []; e.spawn = e.localRefill = 1e9;
     s.p = e.p;
     meshes(game); rebuild(game);
-    if (r.phase !== 'gulf') seedPeople(game);
+    if (r.phase !== 'gulf') { seedPeople(game); seedEncounter(game); }
     else { e.searchers = []; s.actors = e.searchers; }
     objective(game); checkpoint(game);
     notify(game, 'The water carries you downstream. Steer toward reeds to reach a bank; F switches float/swim. Hold Space or DIVE briefly to submerge. No survival radio is available.', 'warn');
@@ -252,7 +418,7 @@
     else if (r.phase === 'delta') s.objective = r.boatOwned
       ? 'Steer the skiff downstream toward the Gulf. Forward/back controls paddle and brake; banks and logs remain solid.'
       : 'The delta widens ahead. Physically reach the unoccupied skiff near the bank and hold F to board, or continue swimming.';
-    else s.objective = 'Float downstream, swim across the current, or reach a mud bank to hide and recover. Dawn increases exposure; it does not end the journey.';
+    else s.objective = r.sectionName + ': ' + r.sectionHint;
     r.distanceKm = r.logicalDistance / 1000;
     r.progress = clamp(r.logicalDistance / GULF, 0, 1);
     r.benchmarkPassed = r.logicalDistance >= BENCHMARK;
@@ -290,6 +456,11 @@
       if (r.resting) {
         e.p[0] = obj.p[0]; e.p[2] = obj.p[2]; e.p[1] = r.waterY + .35;
         r.mode = 'hidden'; modify(s, 'fatigue', 6); modify(s, 'hope', 2);
+        if (obj.sectionId) {
+          const record = r.encounters[obj.sectionId] || (r.encounters[obj.sectionId] = {});
+          record.landingReached = true; record.rests = finite(record.rests, 0) + 1;
+          record.arrivalDistance = Math.round(r.logicalDistance); record.arrivalHour = r.hour;
+        }
         r.checkpoints.push({ mode: 'bank', distance: Math.round(r.logicalDistance), day: s.day });
         if (P.AI && P.AI.noise) P.AI.noise(game, e.p, .42, 'mud-dig');
         notify(game, 'You work into the muddy bank under the reeds. Rest here recovers strength and advances hours; move to leave. Concealment can fail if someone comes close.', 'warn');
@@ -325,6 +496,7 @@
   }
   function simulationStep(game, dt) {
     const s = state(game), r = s.river, e = game.evade, i = input(game), stats = s.stats || {};
+    const section = sectionFor(r);
     const x = centre(game), old = e.p.slice();
     const steer = Math.abs(i.forward) + Math.abs(i.strafe) > .06;
     const onBank = r.phase !== 'gulf' ? Math.abs(e.p[0] - x) >= HALF_WIDTH
@@ -396,8 +568,13 @@
       if (r.submerged) { r.floatBeforeDive = r.mode === 'float'; r.mode = 'dive'; }
       const floating = r.mode === 'float' || r.submerged && r.floatBeforeDive;
       const swimSpeed = (floating ? .54 : r.submerged ? .9 : i.run ? 1.9 : 1.45) * speedScale;
-      r.currentWorldMps = r.phase === 'gulf' ? .10 : .80 + r.rain * .16;
-      const eddy = r.phase === 'gulf' ? .02 : Math.sin((e.p[2] + r.streamOffset) * .027) * .10;
+      // Faster open-channel drift and a slower bank eddy are both physical
+      // choices. Reaching a bank still requires steering; neither current
+      // variation nor dawn triggers a capture or removes recovery controls.
+      const bankEddy = clamp((Math.abs(e.p[0] - x) - 9.5) / 5, 0, 1);
+      r.currentWorldMps = r.phase === 'gulf' ? .10
+        : section.current + (section.bankCurrent - section.current) * bankEddy + r.rain * .16;
+      const eddy = r.phase === 'gulf' ? .02 : Math.sin((e.p[2] + r.streamOffset) * .027) * section.eddy;
       move(game, ((Math.sin(e.hdg) * i.forward + Math.cos(e.hdg) * i.strafe) * swimSpeed + eddy) * dt,
         ((-Math.cos(e.hdg) * i.forward + Math.sin(e.hdg) * i.strafe) * swimSpeed + r.currentWorldMps) * dt);
       // The core's standing collision body is 1.48m tall: this depth gives it
@@ -422,11 +599,17 @@
     if (!onBank && r.phase !== 'gulf') r.logicalDistance = Math.max(0,
       r.logicalDistance + (e.p[2] - old[2]) * SCALE);
     const sheltered = onBank && r.hideAt && distance(e.p, r.hideAt) < 2.6 && (i.crouch || r.resting);
-    r.cover = r.submerged ? .985 : sheltered ? .86 : onBank && i.crouch ? .60 : 0;
+    const reedEdge = !onBank && Math.abs(e.p[0] - x) > 11 && section.reedCover > 0;
+    r.cover = r.submerged ? .985 : sheltered ? .86 : onBank && i.crouch ? .60 : reedEdge ? section.reedCover : 0;
     r.visibility = (r.submerged ? .025 : sheltered ? .14 : onBank && i.crouch ? .42 : 1)
-      * (.36 + r.daylight * 1.12) * (1 - r.rain * .37);
-    r.noise = r.submerged ? .02 : r.boatOwned ? steer ? .9 : .16 : onBank ? i.run ? 1.1 : steer ? .26 : .015 : r.mode === 'float' ? .08 : steer ? .72 : .18;
-    e.submerged = r.submerged; e.hidden = !!sheltered; e.crouch = !!(i.crouch || r.resting);
+      * (.36 + r.daylight * 1.12) * (1 - r.rain * .37) * (reedEdge ? .72 : 1) * section.exposure;
+    // Quiet posture must affect the underlying sound events, not just the
+    // visual pose. Previously crouching on a bank emitted full-volume steps,
+    // attracting a guard for longer because the player moved more slowly.
+    r.noise = r.submerged ? .02 : r.boatOwned ? steer ? .9 : .16
+      : onBank ? i.run && !i.crouch ? 1.1 : steer ? i.crouch ? .065 : .26 : .015
+      : r.mode === 'float' ? .08 : steer ? i.crouch ? .22 : .72 : .18;
+    e.submerged = r.submerged; e.hidden = !!sheltered; e.crouch = !!(i.crouch || r.resting); e.cover = r.cover;
     e.moving = actual > dt * .015; e.running = !!(i.run && onBank && steer);
     e.noise = r.noise; s.p = e.p;
     s.noise = Math.max(finite(s.noise, 0), r.noise);
@@ -438,6 +621,9 @@
     if (previousMode !== r.mode && ['bank', 'boat', 'float', 'hidden'].includes(r.mode)) {
       r.checkpoints.push({ mode: r.mode, distance: Math.round(r.logicalDistance), day: s.day });
       if (r.checkpoints.length > 24) r.checkpoints.shift(); checkpoint(game);
+    }
+    if (r.phase !== 'gulf' && sectionState(game, true)) {
+      rebuild(game); checkpoint(game);
     }
     if (r.logicalDistance >= DELTA && r.phase === 'stream') {
       r.phase = 'delta'; s.flags.deltaReached = true;
@@ -493,6 +679,7 @@
   function step(game, dt) {
     const s = state(game), r = s && s.river;
     if (!r || r.finished || !game.evade || !Number.isFinite(dt) || dt <= 0) return false;
+    if (r.layoutAuditPending) { r.layoutAuditPending = false; rebuild(game); checkpoint(game); }
     // Frame stalls cannot tunnel through logs or consume a full breath bar.
     let remaining = Math.min(dt, .25);
     while (remaining > .000001 && !r.finished) {
@@ -502,6 +689,7 @@
     return true;
   }
   const River = P.River = { enter, step, interact, rebuild, objective, ensureMeshes: meshes,
+    sections: SECTIONS,
     constants: Object.freeze({ distanceScale: SCALE, deltaDistance: DELTA, gulfDistance: GULF,
       historicalBenchmark: BENCHMARK, channelHalfWidth: HALF_WIDTH, segmentLength: SEGMENT }) };
 })(typeof window !== 'undefined' ? window : globalThis);

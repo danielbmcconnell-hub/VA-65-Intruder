@@ -34,19 +34,34 @@ const server=http.createServer((req,res)=>{
    assert.ok(observed.alive&&observed.finite&&!observed.onDeck);assert.equal(observed.gpuError,0);assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
    observed.photosDecoded=await page.evaluate(async()=>{const sources=[IMG_HERO,IMG_PHOTO,IMG_BN_STAND,IMG_BN_CROUCH,IMG_TIGER,FIG_SRC,...Object.values(PHOTOS).map(p=>p.s)];for(const src of sources){const im=new Image();im.src=src;await im.decode();if(!(im.naturalWidth>0&&im.naturalHeight>0))throw Error('Invalid photograph '+src)}return sources.length});assert.equal(observed.photosDecoded,18);
    assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
-   await page.locator('#teach').dispatchEvent('click');await page.screenshot({path:path.join(root,'test-results','build-'+name+'-flight.png')});
+   await page.locator('#teach').dispatchEvent('click');
+   await page.evaluate(()=>{App.screen='game';App.game.paused=false;FlightCoach.tick(App.game,0)});
+   const toggle=page.locator('[data-flight-coach-toggle]');await toggle.waitFor({state:'visible'});
+   assert.equal(await toggle.getAttribute('aria-pressed'),'false');const before=await toggle.boundingBox();
+   if(opts.hasTouch)await toggle.tap();else await toggle.click();
+   await page.waitForFunction(()=>FlightCoach.enabled(App.game)&&!document.getElementById('flightCoachCue').hidden,null,{timeout:30000});
+   const after=await toggle.boundingBox();assert.ok(before&&after);assert.ok(Math.abs(before.x-after.x)<.5&&Math.abs(before.width-after.width)<.5,'Visible cue must not shift the native toggle');
+   if(opts.hasTouch)await toggle.tap();else await toggle.click();
+   assert.equal(await toggle.getAttribute('aria-pressed'),'false');assert.equal(await page.evaluate(()=>FlightCoach.enabled(App.game)),false);
+   await page.evaluate(()=>{App.game.paused=true;App.screen='build-test';App.game.render(1/60)});
+   checks.push({name:name+' packaged flight guidance toggles through native input without moving its target',passed:true,observed:{before,after},errors,missing});
+   console.log('PASS '+name+' exact packaged native guidance toggle and stable target');
+   await page.locator('#teach').dispatchEvent('click');await page.screenshot({path:path.join(root,'test-results','build-'+name+'-flight.png'),timeout:90000});
    checks.push({name:name+' packaged flight launches and renders with fresh default settings',passed:true,observed,errors,missing});console.log('PASS '+name+' packaged flight: default quality '+observed.quality+', '+observed.photosDecoded+' images decoded');
+   await page.evaluate(()=>App.show('ready'));
+   await page.locator('#powChapter [data-pow-chapter="escape"]').click();
+   await page.waitForFunction(()=>App.game?.pow?.stage==='cell'&&document.getElementById('loader').style.display==='none',null,{timeout:90000});
    const pow=await page.evaluate(async()=>{
-     const G=App.game;POW.begin(G,'cell');G.paused=true;G.render(1/60);
+     const G=App.game;G.paused=true;G.render(1/60);
      const snapshot=POW.save(G);POW.begin(G,'cell',snapshot);G.paused=true;G.render(1/60);
      let historicalPhotos=0;
      for(const item of Object.values(POWPhotos.historicalPhotoAssets)){const im=new Image();im.src=item.src;await im.decode();if(!im.naturalWidth)throw Error('Invalid historical photograph '+item.src);historicalPhotos++;}
-     return {stage:G.pow.stage,solids:G.pow.solids.length,checkpoint:Store.get('pow_checkpoint',null)?.stage,historicalPhotos,riverLoaded:!!POW.River,captivityLoaded:!!POW.Captivity,m21Loaded:['Solidarity','DentonFlashback','Mindscape','RegularConfinement'].every(name=>!!POW[name]),gpuError:G.rend.gl.getError(),cameraHeight:G.rend.eye[1]-G.evade.p[1]};
+     return {stage:G.pow.stage,solids:G.pow.solids.length,checkpoint:Store.get('pow_checkpoint',null)?.stage,historicalPhotos,riverLoaded:!!POW.River,captivityLoaded:!!POW.Captivity,m21Loaded:['Solidarity','DentonFlashback','Mindscape','RegularConfinement'].every(name=>!!POW[name]),m22Loaded:!!POW.Guidance&&!!POW.Feedback&&!!window.FlightCoach,guidanceChapter:POW.Guidance.state(G).chapter,gpuError:G.rend.gl.getError(),cameraHeight:G.rend.eye[1]-G.evade.p[1]};
    });
-   assert.equal(pow.stage,'cell');assert.ok(pow.solids>20&&pow.riverLoaded&&pow.captivityLoaded&&pow.m21Loaded);assert.equal(pow.checkpoint,'cell');assert.equal(pow.historicalPhotos,8);assert.equal(pow.gpuError,0);assert.ok(Math.abs(pow.cameraHeight-1.68)<.01);
+   assert.equal(pow.stage,'cell');assert.ok(pow.solids>20&&pow.riverLoaded&&pow.captivityLoaded&&pow.m21Loaded&&pow.m22Loaded);assert.equal(pow.guidanceChapter,'escape');assert.equal(pow.checkpoint,'cell');assert.equal(pow.historicalPhotos,8);assert.equal(pow.gpuError,0);assert.ok(Math.abs(pow.cameraHeight-1.68)<.01);
    assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
-   await page.screenshot({path:path.join(root,'test-results','build-'+name+'-pow.png')});
-   checks.push({name:name+' packaged POW chapter, checkpoint and historical photographs',passed:true,observed:pow,errors,missing});console.log('PASS '+name+' packaged POW chapter and eight historical photographs');await ctx.close();
+   await page.screenshot({path:path.join(root,'test-results','build-'+name+'-pow.png'),timeout:90000});
+   checks.push({name:name+' packaged Ready Room prison entry, tutorial, checkpoint and historical photographs',passed:true,observed:pow,errors,missing});console.log('PASS '+name+' packaged POW chapter, new guidance modules and eight historical photographs');await ctx.close();
   }
   fs.writeFileSync(path.join(root,'test-results/build.json'),JSON.stringify({scope:'Runtime deployment folder byte checks and actual Chromium WebGL2 flight smoke; physical devices not tested',sourceSha256:manifest.entrySHA256,checks,recordedAt:new Date().toISOString()},null,2)+'\n');
   console.log('PASS deployment folder: all exact runtime hashes and desktop/native-touch flight, zero missing local assets or JavaScript/WebGL errors');

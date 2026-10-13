@@ -87,11 +87,18 @@
       memory: { round: 1, sequence: [], phase: 'ready', entered: [], timer: 0, cursor: 0 },
       tap: { lesson: false, mode: 'receive', pair: { row: 0, col: 0 }, group: 'row', decoded: '', sendWord: 'HOPE', received: 0, sent: 0, playback: null, signal: '', lastTap: -100 },
       vent: { noticed: false, work: 0, lastDay: 0, route: false },
-      code: { intention: '', reflections: 0 }, routine: { active: false, elapsed: 0, eligible: false },
+      code: { intention: '', reflections: 0 }, routine: { active: false, elapsed: 0, eligible: false, mode: 'monthly', target: 30, days: 30 },
+      pacing: { version: 1, unlocked: false, restMinutes: 0, meal: false, totalDays: 0, periods: 0, notices: [], handled: [], pause: null, era: null },
       feedback: 'Inspect the door, wall, bed or notebook. The light remains on.'
     };
     const c = s.captivity;
     c.daily = c.daily || {}; c.rewards = c.rewards || {}; c.events = c.events || []; c.logs = c.logs || [];
+    if (!c.pacing || typeof c.pacing !== 'object') c.pacing = {};
+    for (const [key, value] of Object.entries({ version: 1, unlocked: false, restMinutes: 0, meal: false, totalDays: 0, periods: 0, notices: [], handled: [], pause: null, era: null })) if (c.pacing[key] === undefined) c.pacing[key] = value;
+    for (const key of ['notices', 'handled']) if (!Array.isArray(c.pacing[key])) c.pacing[key] = [];
+    c.pacing.restMinutes = Math.max(0, finite(c.pacing.restMinutes, 0));
+    c.pacing.totalDays = Math.max(0, finite(c.pacing.totalDays, 0));
+    if (!c.routine || typeof c.routine !== 'object') c.routine = { active: false, elapsed: 0, eligible: false, mode: 'monthly', target: 30, days: 30 };
     if(P.Solidarity && !c.solidarity)c.solidarity=P.Solidarity.initial();
     if(P.DentonFlashback && !c.flashback)c.flashback=P.DentonFlashback.initial();
     return c;
@@ -154,8 +161,10 @@
     stat(game, 'hope', contact ? 0.55 : -0.22);
     c.daily = {};
     if (s.day % 7 === 0) {
-      c.events.push({ day: s.day, kind: 'week', text: 'Another fictional week: food and guard routines shift; projects and contact remain available.' });
+      c.events.push({ day: s.day, kind: 'week', text: 'The fictional corridor duty changes: the patrol takes a different interval before the far-door stop. Observe the new pattern before relying on an old clue.' });
+      s.flags.guardCycle = (s.flags.guardCycle || 0) + 1;
       log(game, 'Weekly routine changed.');
+      pacingNotice(game, 'guard', 'The corridor duty changed. Observe the far-door stop again; the simulation changes the guards’ actual schedule.', { observed: (c.observations || 0) + 1 });
     }
     if (s.day % 11 === 0 && !c.pendingEvent) c.pendingEvent = { kind: 'interview', day: s.day };
     if (s.day % 35 === 0) {
@@ -164,9 +173,18 @@
       s.flags.guardCycle = (s.flags.guardCycle || 0) + 1;
       log(game, 'Transferred within the fictional camp system.');
     }
-    if (s.day >= 28 && !c.vent.noticed) { c.vent.noticed = true; notify(game, 'Weeks of observation reveal a loose vent fastener. Inspect it in the cell; it does not lead directly to freedom.'); }
+    if (s.day >= 28 && !c.vent.noticed) {
+      c.vent.noticed = true; notify(game, 'Weeks of observation reveal a loose vent fastener. Inspect it in the cell; it does not lead directly to freedom.');
+      pacingNotice(game, 'discovery', 'A loose vent fastener is now visible. Inspect it through the cell interaction, or keep the opportunity for later.', { work: c.vent.work + 1 });
+    }
+    if ((s.day - c.captureDay) % 7 === 4) pacingNotice(game, 'message', 'A quiet wall exchange is available. Listen and decode it, or preserve quiet and return to the conversation later.', { received: (c.tap.received || 0) + 1 });
+    if (P.Solidarity && P.Solidarity.available) {
+      const era = !!P.Solidarity.available(game);
+      if (c.pacing.era === false && era) pacingNotice(game, 'message', 'The accelerated calendar has reached the later Alcatraz chapter. Named identities can now emerge through actual decoded messages, not an earlier-date conversation.', { received: (c.tap.received || 0) + 1, id: 'alcatraz-era' });
+      c.pacing.era = era;
+    }
     if (s.day % 30 === 0) log(game, 'A month has passed in this accelerated fictional simulation.');
-    if (reason !== 'routine' && c.pendingEvent && !c.sleeping) notify(game, 'An interview request is waiting at the door. You can address it when ready.');
+    if (reason !== 'routine' && reason !== 'pacing' && c.pendingEvent && !c.sleeping) notify(game, 'An interview request is waiting at the door. You can address it when ready.');
     if (s.day >= releaseDay(c)) c.releaseAvailable = true;
     if (c.events.length > 30) c.events.shift();
   }
@@ -229,7 +247,10 @@
     s.lights = [{ p: [s.base[0], s.base[1] + 2.21, s.base[2] - 0.35], color: [1, 0.88, 0.65], radius: 5, power: 1.25, permanent: true }];
     object(game, 'cell-notebook', 'Mental notebook: build and remember', -0.18, 0.28, -0.16, g => open(g, 'notebook'), { radius: 1.6, view: false });
     object(game, 'cell-wall', 'Listen and use the tap code', -w, 1.1, -0.45, g => open(g, 'tap'), { radius: 1.6, view: false });
-    object(game, 'cell-bed', 'Rest, sleep and daily routine', 0, 0.28, 0.62, g => open(g, 'rest'), { radius: 1.7, view: false });
+    // Aim at the reachable front-right bunk edge. Its center lies behind the
+    // notebook/exercise cues and the bed's collision solid, making rest lose
+    // the interaction prompt even when the player looks toward the mattress.
+    object(game, 'cell-bed', 'Rest, sleep or continue an earned routine', 0.22, 0.28, -0.18, g => open(g, 'rest'), { radius: 1.7, view: false });
     object(game, 'cell-door', 'Observe the corridor / interview', 0, 1.2, -l, g => inspectDoor(g), { radius: 1.25,enabled:g=>!P.RegularConfinement || !P.RegularConfinement.eligible(g) });
     if(P.RegularConfinement)object(game,'transfer-regular','Return to regular imprisonment',0,1.2,-l,g=>{
       if(!P.RegularConfinement.eligible(g))return;
@@ -239,7 +260,7 @@
     object(game, 'cell-vent', 'Inspect the vent fastener', -w, 1.9, -0.7, g => inspectVent(g), { radius: 1.25, enabled: g => state(g).vent.noticed, hold: 5 });
     object(game, 'cell-exercise', 'Seated exercise and personal anchor', 0, 0.8, -0.08, g => open(g, 'exercise'), { radius: 1.2, view: false });
     s.motion = { radius: 0.19, speed: 0.72 };
-    s.objective = 'Inspect the wall, notebook, door and bed. Keep contact, practice and rest. Time passes through days, weeks and months.';
+    s.objective = 'Inspect the wall, notebook, door and bed. Complete two different activities, exchange counted messages, eat, rest and observe; the bed then lets you skip uneventful days, pausing for new information. Escape still requires preparation and movement.';
     s.customMovement = false;
     if (game.evade) {
       if (game.evade.p) game.evade.p.splice(0, 3, s.base[0], s.base[1], s.base[2] - 0.66);
@@ -256,6 +277,10 @@
     if (!game || !game.pow) return;
     const c = state(game), s = game.pow;
     c.visits++;
+    // A transfer, recapture or restored chapter never resumes time compression
+    // without the player’s input. Retain the unfinished earned interval.
+    if (c.routine) c.routine.active = false;
+    if (c.sleeping) c.sleeping = null;
     if (!s.base) s.base = game.evade && game.evade.p ? game.evade.p.slice() : [0, 4, 0];
     c.car.cycle = c.car.cycle.length ? c.car.cycle : CAR.map(part => part.id);
     buildCell(game);
@@ -532,6 +557,7 @@
       stat(game, 'physical', Math.min(1.8, a.minutes / 240) * quality);
       if (disturbance) stat(game, 'fatigue', 3);
     }
+    c.pacing.restMinutes += a.minutes;
     log(game, a.type + ' interval of ' + Math.round(a.minutes) + ' simulated minutes.');
     notify(game, 'You ' + (a.type === 'sleep' ? 'wake' : 'finish resting') + ' after ' + Math.round(a.minutes) + ' simulated minutes. Light and confinement continue.'); save(game);
   }
@@ -546,14 +572,134 @@
     const c = state(game), a = c.routine;
     if (!a.active) return;
     a.active = false;
-    notify(game, 'The longer routine ends. Projects and contact need attention again; review the event log and door.');
+    notify(game, a.mode === 'earned' ? 'You pause the established routine. The elapsed days and remaining interval are saved; you can resume when ready.' : 'The longer routine ends. Projects and contact need attention again; review the event log and door.');
     log(game, 'Lived through ' + Math.floor(a.elapsed) + ' days of an established accelerated routine.'); save(game);
+  }
+
+  function pacingNotice(game, kind, text, extra) {
+    const c = state(game), p = c.pacing;
+    if (!p.unlocked) return;
+    const notice = Object.assign({ kind, text, day: game.pow.day, id: kind + '-' + game.pow.day }, extra || {});
+    if (p.handled.includes(notice.id) || p.notices.some(value => value.id === notice.id)) return;
+    p.notices.push(notice);
+    if (p.notices.length > 12) p.notices.shift();
+  }
+  function pacingResolved(game, notice) {
+    const c = state(game);
+    if (!notice) return true;
+    if (notice.kind === 'interview') return !c.pendingEvent;
+    if (notice.kind === 'message') return c.tap.received >= notice.received;
+    if (notice.kind === 'guard') return (c.observations || 0) >= notice.observed;
+    if (notice.kind === 'discovery') return c.vent.work >= notice.work;
+    return false;
+  }
+  function pacingClear(game) {
+    const c = state(game), p = c.pacing;
+    for (const notice of p.notices) if (pacingResolved(game, notice) && !p.handled.includes(notice.id)) p.handled.push(notice.id);
+    p.notices = p.notices.filter(notice => !p.handled.includes(notice.id));
+    if (p.pause && (p.handled.includes(p.pause.id) || pacingResolved(game, p.pause))) p.pause = null;
+    if (p.handled.length > 60) p.handled.splice(0, p.handled.length - 60);
+  }
+  function pacingStatus(game) {
+    const c = state(game), p = c.pacing, s = game.pow, missing = [];
+    pacingClear(game);
+    const projects = ['car', 'architecture', 'city', 'memory', 'exercise'].filter(id => finite(c.rewards[id], 0) > 0);
+    if (!p.unlocked) {
+      if (projects.length < 2) missing.push('Complete two different remembered projects, memory sequences or gentle exercise sets (' + projects.length + '/2).');
+      if (!(c.tap.received >= 1 && c.tap.sent >= 1)) missing.push('Receive and transmit a correctly counted tap-code message.');
+      if (!(p.restMinutes >= 120)) missing.push('Complete a rest or sleep interval totaling two simulated hours (' + Math.round(p.restMinutes) + '/120 minutes).');
+      if (!(p.meal || c.daily.meal > 0)) missing.push('Take the cell’s meal.');
+      if (!(c.observations >= 1)) missing.push('Observe the corridor through the cell-door interaction.');
+    }
+    if (c.pendingEvent) missing.push('Address the pending interview request; choosing a pause is a valid response.');
+    if (c.sleeping) missing.push('Finish or stop the current rest interval first.');
+    if (c.inspectionUntil > c.elapsedMinutes) missing.push('The guard is checking the door. Wait quietly for the short inspection to end.');
+    if (p.pause && p.pause.kind !== 'interview') missing.push(p.pause.text);
+    const a = c.routine, resumable = a.mode === 'earned' && a.elapsed < a.target;
+    return { ready: missing.length === 0, unlocked: p.unlocked, missing, projects: projects.length, restedMinutes: p.restMinutes,
+      active: !!(a.active && a.mode === 'earned'), resumable, remainingDays: resumable ? Math.max(0, a.target - a.elapsed) : 7,
+      elapsedDays: Math.max(0, s.day - c.captureDay), totalSkippedDays: p.totalDays, pause: p.pause ? JSON.parse(JSON.stringify(p.pause)) : null };
+  }
+  function pacingStart(game) {
+    const c = state(game), status = pacingStatus(game);
+    if (c.routine.active) return false;
+    if (!status.ready) { notify(game, status.missing.join(' ')); return false; }
+    c.pacing.unlocked = true;
+    if (P.Solidarity && P.Solidarity.available) c.pacing.era = !!P.Solidarity.available(game);
+    if (c.routine.mode !== 'earned' || c.routine.elapsed >= c.routine.target) {
+      c.routine = { active: true, elapsed: 0, target: 7, days: 7, eligible: true, mode: 'earned' };
+      c.pacing.periods++;
+    } else c.routine.active = true;
+    if (game.evade) game.evade.moving = false;
+    notify(game, 'Established routine: one real second represents one uneventful day of meals, rest and previously practiced activities. It pauses for new information, changed patrols, discoveries and interview decisions. Stop or resume whenever you choose. No puzzle answers, contacts or escape successes are granted.');
+    save(game); return true;
+  }
+  function pacingReview(game) {
+    const c = state(game), notice = pacingStatus(game).pause;
+    if (!notice) return false;
+    if (notice.kind === 'interview') open(game, 'interview');
+    else if (notice.kind === 'message') open(game, 'tap');
+    else if (notice.kind === 'guard') { notify(game, 'Return to the cell, face the barred door and use F or Interact to observe the changed corridor duty. Reading this panel does not record an observation.'); open(game, 'door'); }
+    else if (notice.kind === 'discovery') { notify(game, 'Return to the cell and inspect the visible vent fastener with a held F or Interact action. The opportunity can also be kept for later.'); open(game, 'door'); }
+    else open(game, 'rest');
+    return true;
+  }
+  function pacingDefer(game) {
+    const c = state(game), p = c.pacing, notice = pacingStatus(game).pause;
+    if (!notice || notice.kind === 'interview') return false;
+    p.handled.push(notice.id); p.pause = null;
+    pacingClear(game);
+    notify(game, 'You keep this opportunity for later. Existing clues, projects and condition remain; no observation, decoded message, vent work or transfer is credited. Resume the routine when you choose.');
+    save(game); return true;
+  }
+  function pacingPause(game, notice) {
+    const c = state(game); c.routine.active = false; c.pacing.pause = Object.assign({}, notice);
+    if (!c.events.some(event => event.kind === 'routine-pause' && event.day === game.pow.day && event.notice === notice.id)) c.events.push({ day: game.pow.day, kind: 'routine-pause', notice: notice.id, text: notice.text });
+    log(game, 'Established routine paused: ' + notice.kind + '.');
+    notify(game, notice.text + ' The routine is paused. Address the opportunity or keep it for later; resuming always requires your input.');
+    save(game);
+  }
+  function pacingNext(game) {
+    const c = state(game);
+    pacingClear(game);
+    if (c.pendingEvent) return { kind: 'interview', day: c.pendingEvent.day || game.pow.day, id: 'interview-' + (c.pendingEvent.day || game.pow.day), text: 'An interview request is waiting at the door. Consider a response, recover and reconnect; none of the choices is graded as courage.' };
+    if (P.RegularConfinement && P.RegularConfinement.eligibility) {
+      const transfer = P.RegularConfinement.eligibility(game);
+      if (transfer.ready) pacingNotice(game, 'transfer', 'A return to regular imprisonment is available. The transfer is a physical door interaction, not freedom or an automatic escape.', { id: 'regular-transfer-opportunity' });
+    }
+    const priority = { message: 1, discovery: 2, transfer: 3, guard: 4 };
+    return c.pacing.notices.slice().sort((a, b) => (priority[a.kind] || 9) - (priority[b.kind] || 9) || a.day - b.day)[0] || null;
+  }
+  function pacingTick(game, dt) {
+    const c = state(game), a = c.routine;
+    let minutesLeft = Math.min(dt, Math.max(0, a.target - a.elapsed)) * 1440;
+    let guard = 0;
+    while (a.active && minutesLeft > 0.000001 && guard++ < 8) {
+      const notice = pacingNext(game);
+      // New events stop at the morning interval, where observation and vent
+      // work are usable. A fractional browser frame cannot overshoot the stop.
+      if (notice && c.minute >= 480) { pacingPause(game, notice); break; }
+      const untilBoundary = notice ? 480 - c.minute : 1440 - c.minute;
+      const amount = Math.min(minutesLeft, Math.max(0.000001, untilBoundary));
+      advance(game, amount, 'pacing');
+      const days = amount / 1440;
+      a.elapsed += days; c.pacing.totalDays += days; minutesLeft -= amount;
+      // This established interval contains sleep and limited rations. It
+      // preserves ordinary condition drift but never completes fresh puzzles.
+      stat(game, 'fatigue', -days * 4.6); stat(game, 'physical', days * 0.12);
+    }
+    if (a.active && a.elapsed >= a.target - 0.000001) {
+      a.elapsed = a.target; a.active = false;
+      notify(game, 'This established interval ends after seven simulated days. Review condition, messages and the corridor before choosing another interval. Your calendar and completed activities are preserved.');
+      save(game);
+    }
   }
 
   function meal(game) {
     const c = state(game), q = c.foodQuality;
     if (c.daily.meal === game.pow.day) { notify(game, 'The day’s meal is finished. The tray holds no additional food.'); return false; }
     c.daily.meal = game.pow.day;
+    c.pacing.meal = true;
     stat(game, 'physical', q * 1.2); stat(game, 'fatigue', -q * 3);
     advance(game, 12, 'activity');
     notify(game, 'A small fictional ration: ' + (q > 0.65 ? 'somewhat better today' : q < 0.4 ? 'poor quality today' : 'plain and limited') + '. Food quality affects condition over time.'); save(game); return true;
@@ -723,6 +869,8 @@
     } else {
       para(panel, 'The notebook represents imagined projects and remembered patterns, not supplies in the cell. Each completed project requires several real steps. Practice can help once per day; repeating it immediately gives no extra condition gain.');
       para(panel, 'Build an engine, a workable house or a connected neighbourhood; repeat a spatial pattern; communicate by timed taps. Rest when tired. Your progress persists after transfer or recapture.');
+      const pacing = pacingStatus(game);
+      para(panel, pacing.unlocked || pacing.ready ? 'Your established routine can compress uneventful days. Use the bed or Rest / time; changed patrols, messages and decisions pause the interval. Remaining physical transfer and escape requirements still apply.' : 'To unlock earlier time compression: ' + pacing.missing.join(' '), 'pow-dim');
       para(panel, 'These activities draw on a supplied, paraphrased secondary summary of mental coping. They are fictional interaction design, not verified dialogue or a reconstruction of one person’s captivity.', 'pow-dim');
     }
     if (focus) { const match = Array.from(panel.querySelectorAll('button')).find(b => b.textContent === focus); if (match) match.focus({ preventScroll: true }); }
@@ -820,13 +968,27 @@
     para(panel, 'Inspired by a supplied secondary summary, paraphrased here. No line is presented as verified prisoner dialogue. Recovery after coercion is part of coping.', 'pow-dim');
   }
   function renderRest(game, panel) {
-    const c = state(game);
+    const c = state(game), pacing = pacingStatus(game);
     panel.appendChild(dom('h3', 'Rest, sleep and the longer calendar'));
-    para(panel, 'Ordinary play: one real second is one simulated minute. Rest: fifteen minutes per second for up to two hours. Sleep: thirty minutes per second for up to eight hours. A monthly routine needs three different recent activities and four weeks of confinement. Acceleration is a fictional design aid.');
+    para(panel, 'Ordinary play: one real second is one simulated minute. Rest: fifteen minutes per second for up to two hours. Sleep: thirty minutes per second for up to eight hours. After two different completed activities, counted contact and reply, food, two hours of rest and a corridor observation, an established routine compresses uneventful days at one day per second. Intervals pause for opportunities and decisions. Acceleration and changing events are fictional design aids.');
+    const progress = para(panel, 'Elapsed confinement: ' + pacing.elapsedDays + ' days · completed activity types: ' + pacing.projects + ' · earned compression: ' + (pacing.unlocked ? 'unlocked' : pacing.ready ? 'ready to begin' : 'complete the listed steps') + ' · skipped interval time: ' + pacing.totalSkippedDays.toFixed(1) + ' days.', 'pow-dim'); progress.dataset.pacingProgress = '1';
+    if (!pacing.unlocked && pacing.missing.length) para(panel, pacing.missing.join(' '), 'pow-dim');
     const controls = row(panel);
     if (c.sleeping) { para(panel, c.sleeping.type + ': ' + Math.round(c.sleeping.minutes) + ' simulated minutes accrued.'); btn(controls, 'Wake / stop resting', () => stopRest(game)); }
-    else if (c.routine.active) { para(panel, 'Monthly routine: ' + Math.floor(c.routine.elapsed) + ' of thirty simulated days. Conditions and events accrue.'); btn(controls, 'End longer routine early', () => routineStop(game)); }
-    else { btn(controls, 'Rest up to two hours', () => restStart(game, 'rest')); btn(controls, 'Sleep up to eight hours', () => restStart(game, 'sleep')); btn(controls, 'Live an established monthly routine', () => routineStart(game)); }
+    else if (c.routine.active) {
+      para(panel, (c.routine.mode === 'earned' ? 'Established interval: ' : 'Monthly routine: ') + c.routine.elapsed.toFixed(1) + ' of ' + c.routine.target + ' simulated days. Conditions, calendar and events accrue; new puzzle answers are never granted.');
+      btn(controls, 'Pause the routine', () => routineStop(game)).dataset.pacingStop = '1';
+    } else {
+      btn(controls, 'Rest up to two hours', () => restStart(game, 'rest'));
+      btn(controls, 'Sleep up to eight hours', () => restStart(game, 'sleep'));
+      btn(controls, pacing.resumable ? 'Resume established routine' : 'Continue established routine', () => pacingStart(game), !pacing.ready).dataset.pacingStart = '1';
+    }
+    if (pacing.pause) {
+      para(panel, 'Routine paused: ' + pacing.pause.text, 'pow-feedback').dataset.pacingNotice = pacing.pause.kind;
+      const actions = row(panel);
+      btn(actions, 'Review this opportunity', () => pacingReview(game)).dataset.pacingReview = '1';
+      if (pacing.pause.kind !== 'interview') btn(actions, 'Keep the opportunity for later', () => pacingDefer(game)).dataset.pacingDefer = '1';
+    }
     if (c.releaseAvailable) btn(row(panel), 'Read 1973 release notice', () => open(game, 'release'));
     para(panel, 'The light remains on during rest and sleep. Night shackling limits reach and movement. Poor rations and missed rest affect condition; this simulation does not diagnose or rank anyone.');
   }
@@ -891,7 +1053,8 @@
     if (!game || !game.pow || !confined(game)) { if (ui) ui.style.display = 'none'; return; }
     const c = state(game), s = game.pow, e = game.evade;
     dt = clamp(finite(dt, 0), 0, 1);
-    if (c.routine.active) {
+    if (c.routine.active && c.routine.mode === 'earned') pacingTick(game, dt);
+    else if (c.routine.active) {
       const a = c.routine, remaining = Math.min(dt, a.target - a.elapsed); a.elapsed += remaining;
       // Established routine includes meals, sleep and practice. No extra puzzle
       // rewards are issued; only condition drift and historical calendar progress.
@@ -987,6 +1150,7 @@
     cityPlace, cityValidate, cityErrors, memoryStart, memoryInput,
     tapPlay, tapHit, tapLetter, tapValidate, exerciseStart, exercisePress,
     personalAnchor, restStart, stopRest, routineStart, routineStop,
+    pacingStatus, pacingStart, pacingReview, pacingDefer,
     meal, inspectDoor, interviewChoose, inspectVent, leaveCell, release,
     releaseDay, data: { car: CAR, architecture: ARCH }
   };

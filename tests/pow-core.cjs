@@ -100,3 +100,15 @@ test('module initialization cannot overwrite a checkpoint before complete restor
   const restored=storage.get('pow_checkpoint');assert.equal(JSON.stringify(restored.captivity),JSON.stringify(snapshot.captivity));assert.equal(restored.day,63);assert.equal(restored.look,.6);
   P.Captivity.enter=()=>{throw new Error('Fixture hydration failure');};assert.throws(()=>P.begin(game,'solitary',snapshot),/Fixture hydration failure/);assert.equal(JSON.stringify(storage.get('pow_checkpoint').captivity),JSON.stringify(snapshot.captivity),'failed restore must not destroy the prior checkpoint');
 });
+
+test('new practice archives a legacy campaign checkpoint without replacing existing chapter saves',()=>{
+  const {P,game,storage}=fixture();game.pow.inventory.bracket=true;game.evade.look=.6;
+  const legacy=P.save(game);storage.delete('pow_checkpoint:campaign');
+  const regular={version:2,stage:'regular',practice:'regular',day:29};storage.set('pow_checkpoint:regular',regular);
+  game.pow.practice='river';P.save(game);
+  assert.equal(JSON.stringify(storage.get('pow_checkpoint:campaign')),JSON.stringify(legacy));
+  assert.deepEqual(storage.get('pow_checkpoint:regular'),regular);
+  assert.equal(storage.get('pow_checkpoint').practice,'river');
+  P.begin(game,legacy.stage,legacy);assert(game.pow.inventory.bracket);assert.equal(game.evade.look,.6);
+  assert.equal(storage.get('pow_checkpoint:campaign').practice,undefined);
+});

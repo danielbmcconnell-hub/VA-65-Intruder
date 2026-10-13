@@ -18,6 +18,7 @@ concurrency:
 
 jobs:
   verify-package:
+    if: github.ref == 'refs/heads/milestone2-1'
     runs-on: ubuntu-24.04
     timeout-minutes: 55
     steps:

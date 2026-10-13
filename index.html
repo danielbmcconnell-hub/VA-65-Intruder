@@ -10,7 +10,7 @@
 }
 </style>
 </head><body>
-<title>Intruder: Yankee Station — Milestone 2.1</title>
+<title>Intruder: Yankee Station — Milestone 2.2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Share+Tech+Mono&display=swap">
@@ -822,6 +822,7 @@ body.desktop #hudbar{display:flex}
 <script src="assets/atlas-metadata.js"></script>
 <script src="assets/pow/core.js"></script>
 <script src="assets/pow/ai.js"></script>
+<script src="assets/pow/feedback.js"></script>
 <script src="assets/pow/river.js"></script>
 <script src="assets/pow/captivity.js"></script>
 <script src="assets/pow/solidarity.js"></script>
@@ -829,6 +830,8 @@ body.desktop #hudbar{display:flex}
 <script src="assets/pow/mindscape.js"></script>
 <script src="assets/pow/regular-confinement.js"></script>
 <script src="assets/pow/history.js"></script>
+<script src="assets/pow/onboarding.js"></script>
+<script src="assets/flight/coach.js"></script>
 <script>
 /* ===== src/00-assets.js ===== */
 /* ===================================================================
@@ -10919,6 +10922,7 @@ class Audio2 {
     } else if (kind === 'thunk') {
       f.frequency.value = 400;
       g.gain.setValueAtTime(vol || 0.5, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+      src.onended = () => {src.disconnect();f.disconnect();g.disconnect();if(dest!==this.master)dest.disconnect();};
       src.connect(f); f.connect(g); src.start(t); src.stop(t + 0.4);
     } else if (kind === 'rack') {
       // a bomb leaving the rack: a hard mechanical clack, close by
@@ -17397,7 +17401,7 @@ class Game {
       if (!isFinite(sc.ph)) sc.ph = 0;
       if (!isFinite(sc.spd)) sc.spd = 0;
       const moving = sc.spd > 0.25;
-      const gait = moving ? clamp(sc.spd / 2.2, 0.45, 1.5) : 0;
+      const gait = moving ? clamp(sc.spd / 2.2, 0.45, 1.5) * (Number.isFinite(sc.motionBlend)?sc.motionBlend:1) : 0;
       let bob = moving ? Math.abs(Math.sin(sc.ph)) * 0.052 * gait : 0;
       let lean = moving ? Math.sin(sc.ph) * 0.030 * gait : 0;   // sway over the planted foot
       let wob = moving ? 1 + Math.cos(sc.ph * 2) * 0.035 * gait : 1;
@@ -17451,7 +17455,7 @@ class Game {
                        Math.abs(angleToCam)>2*PI/3 ? (['farmer','villager'].includes(sc.kind)?2:3) : 1;
       if (cell >= 0 && this.rend.textures && this.rend.textures.people) {
         sprites.push({ p: [sc.p[0] + swx, gy, sc.p[2] + swz],
-                       h: 1.76, w: 0.96,
+                       h: 1.76 + bob * .60, w: 0.96 * wob,
                        cell: cell, cols: SPR.cols, rows: SPR.rows,
                        useCleanFigure: (this.evade.camp && !this.pow) || sc.kind==='nva',
                        photoName: this.evade.camp && !this.pow ? 'nva'
@@ -17961,8 +17965,9 @@ App.frame = function(now) {
 };
 
 /* Milestone 2: additive first-person POW chapters using the existing renderer. */
-POW.ctx = { Game, App, MB, terrainH, Store, clamp, PI, TAU };
+POW.ctx = { Game, App, MB, terrainH, Store, clamp, PI, TAU, firstPersonArt:FIRSTPERSON_ART };
 POW.install();
+FlightCoach.install({Game,App,Store});
 const _originalStepEvade = Game.prototype.stepEvade;
 Game.prototype.stepEvade = function(dt) {
   return this.pow ? POW.tick(this,dt) : _originalStepEvade.call(this,dt);
@@ -17977,16 +17982,17 @@ Game.prototype.captured = function() {
   this.pow.stats.recaptures=(this.pow.stats.recaptures || 0)+1;
   return POW.begin(this,'solitary');
 };
-App.startPOW = function(saved) {
+App.startPOW = function(saved,chapter) {
   this.start(MISSIONS.find(m => m.escape));
-  this._powLaunch = {saved: saved || null, token:this._missionStart};
+  this._powLaunch = {saved: saved || null, chapter:chapter || null, token:this._missionStart};
 };
 const _powFrame = App.frame;
 App.frame = function(now) {
   if (this._powLaunch && this._powLaunch.token!==this._missionStart) this._powLaunch=null;
   if (this._powLaunch && this.game && this.screen==='game' && !this.graphicsContextLost && document.getElementById('loader').style.display==='none') {
     const launch=this._powLaunch;this._powLaunch=null;
-    POW.begin(this.game,launch.saved ? launch.saved.stage : 'cell',launch.saved);
+    if(launch.chapter)POW.Guidance.startChapter(this.game,launch.chapter);
+    else POW.begin(this.game,launch.saved ? launch.saved.stage : 'cell',launch.saved);
     document.getElementById('teach').classList.remove('on');
     document.getElementById('teachPeek').classList.remove('on');
   }
@@ -17997,14 +18003,28 @@ App.renderReady = function() {
   _powReady.call(this);
   if (this.tab!=='ops' && this.tab!=='hist') return;
   const card=document.createElement('article');card.className='card';card.id='powChapter';
-  card.innerHTML='<div class="body"><h2>Dirty Bird · The October escape</h2><p>First-person prison, rooftops and the route toward the Red River. Inspired by Navy Lieutenant George Coker and U.S. Air Force Captain George G. McKnight’s escape on October 12, 1967. Their actual attempt ended in recapture. The playable layout and alternate outcomes are fictional.</p><div class="btnrow"></div></div>';
+  card.innerHTML='<div class="body"><h2>POW chapters · choose where to begin</h2><p>Start the October escape, explore solitary survival, attempt a fictional second escape, or begin at the Red River. Each chapter teaches controls through play. Standalone practice chapters have separate checkpoints; they do not award campaign qualifications.</p><p class="dim">Inspired by Navy Lieutenant George Coker and U.S. Air Force Captain George G. McKnight’s escape on October 12, 1967. Their actual attempt ended in recapture. The playable layouts, subsequent escapes, dialogue and alternate outcomes are fictional.</p><div class="btnrow"></div></div>';
   const buttons=card.querySelector('.btnrow');
-  const add=(label,fn)=>{const button=document.createElement('button');button.className='btn';button.textContent=label;button.onclick=fn;buttons.appendChild(button);};
-  add('Enter the prison',()=>this.startPOW());
+  const add=(label,fn,key)=>{const button=document.createElement('button');button.className='btn';button.textContent=label;button.onclick=fn;if(key)button.dataset.powChapter=key;buttons.appendChild(button);return button;};
+  add('Enter the prison',()=>this.startPOW(null,'escape'),'escape');
+  add('Solitary survival',()=>this.startPOW(null,'solitary'),'solitary');
+  add('Second escape',()=>this.startPOW(null,'regular'),'regular');
+  add('Red River journey',()=>this.startPOW(null,'river'),'river');
   const saved=Store.get('pow_checkpoint',null);
   if(saved && saved.version===2 && !saved.complete)add('Continue POW checkpoint',()=>this.startPOW(saved));
+  const saves=document.createElement('details'),saveLabel=document.createElement('summary');saveLabel.textContent='Saved chapters';saves.appendChild(saveLabel);
+  for(const [key,label] of [['campaign','October escape'],['solitary','Solitary survival'],['regular','Second escape'],['river','Red River journey']]){
+    const snap=Store.get('pow_checkpoint:'+key,null);
+    if(snap && snap.version===2 && !snap.complete){const b=document.createElement('button');b.className='btn';b.textContent='Resume '+label;b.onclick=()=>this.startPOW(snap);saves.appendChild(b);}
+  }
+  if(saves.children.length>1)card.querySelector('.body').appendChild(saves);
   add('Historical photographs',()=>POWPhotos.open('coker'));
   document.getElementById('readyBody').prepend(card);
+  if(this.tab==='ops'){
+    const flight=document.createElement('article');flight.className='card';flight.id='flightPractice';flight.innerHTML='<div class="body"><h2>A-6A practice with guidance</h2><p>Optional authored navigator and carrier-approach coaching. Original controls and physics apply. DIANE practice retains the mission’s light AAA.</p><div class="btnrow"></div></div>';
+    for(const [id,label] of [['m1','Carrier practice with guidance'],['m2','DIANE practice with guidance']]){const b=document.createElement('button');b.className='btn';b.textContent=label;b.dataset.flightPractice=id;b.onclick=()=>this.start(Object.assign({},MISSIONS.find(m=>m.id===id),{coachPractice:true}));flight.querySelector('.btnrow').appendChild(b);}
+    document.getElementById('readyBody').appendChild(flight);
+  }
 };
 const _powFinish = POW.finish;
 POW.finish = function(game,result) {
@@ -18012,13 +18032,13 @@ POW.finish = function(game,result) {
   _powFinish.call(this,game,result);
   const outcome=typeof result==='string'?{text:result}:result || {};
   game.pow.result=outcome;POW.save(game);
-  if (game.mis.escape) {
+  if (game.mis.escape && !game.pow.practice) {
     App.prog.done[game.mis.id]=1;
     App.prog.grade[game.mis.id]=outcome.historical===true?'CAPTIVITY COMPLETE':'FICTIONAL ESCAPE';
     Store.set('prog',App.prog);
   }
   const log=Store.get('pow_log',[]);
-  log.push({at:Date.now(),title:outcome.title || 'Captivity',text:outcome.text || '',day:game.pow.day,stage:game.pow.stage,fictional:outcome.historical!==true});
+  log.push({at:Date.now(),title:outcome.title || 'Captivity',text:outcome.text || '',day:game.pow.day,stage:game.pow.stage,fictional:outcome.historical!==true,practice:game.pow.practice || null});
   Store.set('pow_log',log.slice(-50));
 };
 const _powLog = App.renderLog;
@@ -18028,9 +18048,9 @@ App.renderLog = function(body) {
   const heading=document.createElement('h2');heading.textContent='POW chapters · player record';body.appendChild(heading);
   for(const entry of log.slice().reverse()) {
     const card=document.createElement('article');card.className='card';
-    const h=document.createElement('h3');h.textContent=entry.title+' · day '+entry.day;
+    const h=document.createElement('h3');h.textContent=(entry.practice?'Practice · ':'')+entry.title+' · day '+entry.day;
     const p=document.createElement('p');p.textContent=entry.text;
-    const small=document.createElement('p');small.className='dim';small.textContent=entry.fictional?'Fictional gameplay outcome · separate from the historical record':'Historical ending · separate from the flight record';
+    const small=document.createElement('p');small.className='dim';small.textContent=(entry.practice?'Standalone practice · ':'')+(entry.fictional?'Fictional gameplay outcome · separate from the historical record':'Historical ending · separate from the flight record');
     card.append(h,p,small);body.appendChild(card);
   }
 };

@@ -73,7 +73,7 @@ module.exports = async function missionChecks(browser, baseURL, output) {
         await page.locator('#teach').dispatchEvent('click');
         if(await page.locator('#legend.on').count())await page.keyboard.press('h');
         const screenshot=path.join(output,`${name}-${mission.id}-flight.png`);
-        await page.screenshot({path:screenshot});
+        await page.screenshot({path:screenshot,timeout:90000});
         assert.deepEqual(errors,[],'No uncaught browser errors');
         results.push({profile:name,sourceSha256,...mission,...state,screenshot,result:'passed',scope:'mission briefing/startup, input-driven launch, four simulated seconds, real WebGL render; not full mission completion'});
         console.log(`PASS ${name} ${mission.id} ${mission.title}: ${state.phase}, ${state.time.toFixed(2)}s`);

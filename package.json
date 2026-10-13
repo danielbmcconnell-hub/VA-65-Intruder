@@ -16,7 +16,8 @@
     "test:renderer": "node tests/run-browser.cjs --suite=renderer",
     "test:build": "node tests/build-browser.cjs",
     "test:pow": "node tests/pow-core.cjs && node tests/pow-ai.cjs && node tests/pow-river.cjs && node tests/pow-captivity.cjs && node tests/pow-ground-awareness-browser.cjs && node tests/run-browser.cjs --suite=pow",
-    "test:m21": "node tests/pow-solidarity.cjs && node tests/pow-denton-morse.cjs && node tests/pow-mindscape.cjs && node tests/pow-regular-confinement.cjs && node tests/run-browser.cjs --suite=m21 && node tests/run-browser.cjs --suite=m21-recapture"
+    "test:m21": "node tests/pow-solidarity.cjs && node tests/pow-denton-morse.cjs && node tests/pow-mindscape.cjs && node tests/pow-regular-confinement.cjs && node tests/run-browser.cjs --suite=m21 && node tests/run-browser.cjs --suite=m21-recapture",
+    "test:polish": "node tests/pow-m22-feedback.cjs && node tests/pow-m22-pacing.cjs && node tests/pow-m22-river.cjs && node tests/pow-m22-escape.cjs && node tests/flight-coach.cjs && node tests/run-browser.cjs --suite=m22-onboarding && node tests/run-browser.cjs --suite=m22-escape && node tests/run-browser.cjs --suite=m22-river && node tests/run-browser.cjs --suite=m22-pacing && node tests/run-browser.cjs --suite=m22-flight"
   },
   "devDependencies": {
     "playwright": "1.62.1"

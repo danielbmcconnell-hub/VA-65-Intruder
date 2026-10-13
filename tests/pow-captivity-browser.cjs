@@ -52,6 +52,22 @@ module.exports = async function captivityBrowser(browser, target, evidenceDir) {
     for (const label of targets) await click(label);
     return page.evaluate(() => ({ round: App.game.pow.captivity.car.round, memory: App.game.pow.stats.memory }));
   }
+  async function heldCellInteraction(id) {
+    if (await panel.isVisible()) await click('Return to cell');
+    await page.evaluate(id => {
+      const g = App.game, object = g.pow.objects.find(value => value.id === id);
+      if (!object) throw new Error('Missing cell interaction ' + id);
+      const dx = object.p[0] - g.evade.p[0], dz = object.p[2] - g.evade.p[2];
+      g.evade.hdg = Math.atan2(dx, -dz); g.evade.look = Math.atan2(object.p[1] - g.evade.p[1] - 1.65, Math.max(.1, Math.hypot(dx, dz)));
+    }, id);
+    await tick(1);
+    const prompt = await page.evaluate(() => ({ id: App.game.pow.focus?.id, hold: App.game.pow.focus?.hold || .15, text: POW.ui.prompt.textContent }));
+    assert.equal(prompt.id, id, 'A genuine aimed F prompt selects the cell object');
+    await page.keyboard.down('f');
+    try { await tick(Math.ceil((prompt.hold + .25) * 10)); }
+    finally { await page.keyboard.up('f'); await tick(1); }
+    return prompt;
+  }
   try {
     await page.goto(target, { waitUntil: 'domcontentloaded', timeout: 30000 });
     await page.waitForFunction(() => window.App && window.POW && POW.Captivity, null, { timeout: 30000 });
@@ -186,11 +202,42 @@ module.exports = async function captivityBrowser(browser, target, evidenceDir) {
     assert.equal(await page.evaluate(() => App.game.pow.captivity.pendingEvent), null);
     record('Non-graphic interview uses a neutral coping choice and preserves personal worth statistics', { resilience });
 
-    await click('Rest / time'); await click('Live an established monthly routine');
-    assert.equal(await page.evaluate(() => App.game.pow.captivity.routine.active), true); await tick(105);
+    // The completed projects, real received/sent taps and elapsed sleep above
+    // already earn those prerequisites. Food and observation must still be
+    // performed through the live contextual controls; no eligibility is seeded.
+    const mealPrompt = await heldCellInteraction('cell-tray');
+    assert.equal(await page.evaluate(() => App.game.pow.captivity.pacing.meal), true);
+    const doorPrompt = await heldCellInteraction('cell-door');
+    if (await panel.getByRole('button', { name: 'Ask for water and a pause', exact: true }).isVisible()) {
+      await click('Ask for water and a pause'); await heldCellInteraction('cell-door');
+    }
+    assert.ok(await page.evaluate(() => App.game.pow.captivity.observations >= 1));
+    await click('Rest / time');
+    assert.equal(await panel.locator('[data-pacing-start]').isEnabled(), true);
+    await panel.locator('[data-pacing-start]').click();
+    assert.equal(await page.evaluate(() => App.game.pow.captivity.routine.active), true);
+    const interruptions = [];
+    for (let attempt = 0; attempt < 100; attempt++) {
+      const status = await page.evaluate(() => ({ day: App.game.pow.day, active: App.game.pow.captivity.routine.active, pause: POW.Captivity.pacingStatus(App.game).pause, inspection: App.game.pow.captivity.inspectionUntil - App.game.pow.captivity.elapsedMinutes }));
+      if (status.day >= 38 && status.active) break;
+      if (status.active) { await tick(10); continue; }
+      if (status.pause) {
+        interruptions.push({ kind: status.pause.kind, day: status.pause.day });
+        if (status.pause.kind === 'interview') {
+          await panel.locator('[data-pacing-review]').click(); await click('Ask for water and a pause'); await click('Rest / time');
+        } else await panel.locator('[data-pacing-defer]').click();
+      } else if (status.inspection > 0) await tick(Math.ceil(status.inspection * 10) + 5);
+      else {
+        assert.equal(await panel.locator('[data-pacing-start]').isEnabled(), true, 'Earned interval is explicitly resumed through the visible action');
+        await panel.locator('[data-pacing-start]').click();
+      }
+    }
     const calendar = await page.evaluate(() => ({ day: App.game.pow.day, transfers: App.game.pow.flags.campTransfers, events: App.game.pow.captivity.events.map(e => e.kind), routine: App.game.pow.captivity.routine.active }));
     assert.ok(calendar.day >= 38); assert.ok(calendar.transfers >= 1); assert.ok(calendar.events.includes('week')); assert.equal(calendar.routine, true);
-    await click('End longer routine early'); record('Established monthly routine accrues real days, weekly events and a transfer and stops on request', calendar);
+    assert.ok(interruptions.some(value => value.kind === 'interview')); assert.ok(interruptions.some(value => ['message', 'guard'].includes(value.kind)));
+    await panel.locator('[data-pacing-stop]').click();
+    assert.equal(await page.evaluate(() => App.game.pow.captivity.routine.active), false);
+    record('Earned routine uses actual food and observation, pauses for decisions, accrues weeks and transfers, and stops on request', { ...calendar, mealPrompt, doorPrompt, interruptions });
 
     const releaseFixture = await page.evaluate(() => {
       const g = App.game, C = POW.Captivity; const early = C.release(g);

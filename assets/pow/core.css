@@ -3,6 +3,15 @@ body.pow-active #btnRadio,body.pow-active #btnSmoke,body.pow-active #btnPistol,b
 #powHUD[hidden],#powHUD [hidden]{display:none!important}
 .pow-status{position:absolute;left:max(56px,calc(env(safe-area-inset-left) + 44px));top:max(10px,env(safe-area-inset-top));padding:10px 12px;background:rgba(9,12,12,.88);border:1px solid #767364;border-radius:3px;width:min(450px,54vw);display:flex;flex-direction:column;gap:4px}
 .pow-status strong{font-size:13px;letter-spacing:.08em;color:#e7c98d}.pow-status [data-objective]{font-size:14px}.pow-status [data-stats]{color:#bfbdb2;font-size:11px}.pow-status [data-alert]{font-size:11px;color:#bcc7b1}.pow-status [data-danger=yes]{color:#efb18a}
+.pow-status{box-sizing:border-box;width:min(430px,42vw);pointer-events:auto;touch-action:pan-y}
+#powHUD .pow-condition summary{background:none;border:0;min-height:24px;padding:2px 0;font-size:11px;color:#bfbdb2;list-style:none;text-align:left}
+.pow-condition[open] [data-stats]{display:block;margin:3px 0;line-height:1.5}
+.pow-status [data-feedback]{font-size:12px;color:#dfd3b6;max-height:3em;overflow:hidden}
+.pow-guide{margin-top:4px;border-top:1px solid #5f6255;padding-top:5px;font-size:12px;line-height:1.4}
+#powHUD .pow-guide button{padding:3px 8px;min-height:30px;font-size:11px;margin-top:5px}
+.pow-reticle{position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-3px;border:1px solid #eadbb9;border-radius:50%;box-shadow:0 0 2px #000;pointer-events:none}
+.pow-work-hands{position:absolute;left:50%;bottom:0;width:min(360px,38vw);opacity:.90;pointer-events:none;will-change:transform}
+.pow-work-hands img{display:block;width:100%;max-height:34vh;object-fit:contain;filter:drop-shadow(1px 2px 2px #000)}
 .pow-tools{position:absolute;right:max(10px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;max-width:40vw;pointer-events:auto}
 #powHUD button,#powHUD summary{font:inherit;cursor:pointer;touch-action:none;color:#e9e1cf;background:rgba(12,16,15,.92);border:1px solid #777565;border-radius:4px;padding:9px 11px;min-height:42px;text-shadow:none}#powHUD button:disabled{opacity:.45;cursor:default}#powHUD button:focus-visible,#powHUD summary:focus-visible{outline:2px solid #e7c98d;outline-offset:2px}
 .pow-settings{width:100%;max-width:360px;background:rgba(9,12,12,.95);border-radius:4px}.pow-settings summary{text-align:center;list-style:none}.pow-settings label{display:flex;justify-content:space-between;gap:10px;margin:10px}.pow-settings select{color:#eee7d7;background:#222a24;border:1px solid #8a8774;padding:5px}.pow-settings p{padding:0 12px;font-size:12px;text-shadow:none}.pow-layout-note{color:#b8b5a8}
@@ -13,3 +22,6 @@ body.pow-active #btnRadio,body.pow-active #btnSmoke,body.pow-active #btnPistol,b
 body.pow-active #hud{pointer-events:none}body.pow-active #weaponView{display:none!important}body.pow-reduced #powHUD [data-danger=yes]{color:#d8c9a6}
 @media(max-height:520px){.pow-status{padding:7px 10px;gap:2px}.pow-status [data-objective]{font-size:12px}.pow-tools{gap:4px}.pow-tools button,.pow-tools summary{font-size:11px!important;padding:5px 8px!important;min-height:34px!important}.pow-notice{font-size:12px;bottom:26%;padding:7px 10px}.pow-context-controls{bottom:36%}.pow-prompt{bottom:11%;font-size:12px}.pow-settings[open]{max-height:68vh;overflow:auto}}
 @media(max-width:680px){.pow-tools{max-width:43vw}.pow-status{width:51vw;font-size:11px}.pow-status [data-stats]{font-size:10px}.pow-notice{width:65vw;left:45%}.pow-prompt{left:43%;max-width:55vw}.pow-context-controls button{min-width:108px!important;font-size:12px!important}}
+@media(max-height:520px){.pow-status{width:min(340px,40vw)}.pow-guide{font-size:11px}.pow-status [data-feedback]{font-size:11px}.pow-notice{max-height:3.8em;overflow:auto}.pow-work-hands{width:30vw}}
+@media(pointer:coarse){#powHUD .pow-tools button,#powHUD .pow-tools summary,#powHUD .pow-guide button{min-height:44px!important}#powHUD .pow-condition summary{min-height:32px}}
+@media(orientation:portrait) and (max-width:680px){.pow-tools{max-width:calc(100vw - 70px);top:max(8px,env(safe-area-inset-top))}.pow-status{left:12px;top:118px;width:calc(100vw - 24px);max-height:25vh;overflow:auto}.pow-context-controls{bottom:29%}.pow-notice{bottom:34%;max-height:4.5em}.pow-prompt{bottom:23%}.pow-work-hands{width:50vw}}

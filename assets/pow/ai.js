@@ -28,12 +28,23 @@
   }
   function say(game, a, key) {
     const s = game.pow, clock = time(s), call = CALLS[key];
-    if (!call || clock < finite(a.chatterUntil, 0) || clock < finite(s.aiChatterUntil, 0)) return;
+    const urgent = key === 'spotted' && a.lastCall !== 'spotted' && clock - finite(a.lastCallAt, -1000) >= .9;
+    if (!call || !urgent && (clock < finite(a.chatterUntil, 0) || clock < finite(s.aiChatterUntil, 0))) return;
+    a.lastCall = key; a.lastCallAt = clock;
     a.chatter = {vi: call[0], en: call[1], until: clock + 3};
     a.chatterUntil = clock + 8;
+    if (P.Feedback && P.Feedback.say) {
+      // An inaudible patrol elsewhere in the map cannot occupy the player's
+      // subtitle channel and suppress a nearby guard's response.
+      if (P.Feedback.say(game, a, key, call)) s.aiChatterUntil = clock + 1.8;
+      return;
+    }
     s.aiChatterUntil = clock + 1.8;
     if (P.notify) P.notify(game, call[0] + ' — ' + call[1]);
     if (game.app && typeof game.app.radio === 'function') game.app.radio(civilian(a) ? 'FARMER' : 'GUARD', call[0] + ' — ' + call[1], 'warn', 'vi-VN', call[0]);
+  }
+  function attention(game, a, reason, kind, muffled) {
+    a.attention = { reason, kind: kind || '', at: time(game.pow), muffled: !!muffled };
   }
   function makeActor(options) {
     const o = options || {}, p = point(o.p), kind = o.kind || 'nva';
@@ -64,6 +75,8 @@
     if (!Array.isArray(a.path)) a.path = [];
     a.face = finite(a.face, Math.atan2(a.goal[0] - a.p[0], -(a.goal[2] - a.p[2])));
     a.spd = finite(a.spd, 0); a.ph = finite(a.ph, 0); a.sus = finite(a.sus, 0);
+    a.motionBlend = finite(a.motionBlend, 0);
+    if (!a.attention) a.attention = {reason: 'routine', at: time(s), kind: '', muffled: false};
     a.lastSight = finite(a.lastSight, -1000);
     a.wp = clamp(Math.floor(finite(a.wp, 0)), 0, a.route.length - 1);
     if (a.kind === 'farmer' || a.kind === 'villager') a.armed = false;
@@ -296,16 +309,20 @@
       a.sus = clamp(a.sus + visible * (s.difficulty === 'hard' ? 1.1 : .88) * elapsed, 0, 1.35);
       if (a.sus > .34 && a.state === 'patrol') {
         a.state = civilian(a) ? 'observe' : 'suspicious';
+        attention(game, a, 'sight', 'movement');
         a.goal = point(e.p); say(game, a, 'investigate');
       }
       if (a.sus >= 1 || a.state === 'pursuit') {
         a.lastSight = clock; a.lastKnown = point(e.p);
         if (confined(s)) {
+          attention(game, a, 'sight', 'cell-activity');
           a.state = 'investigate'; a.goal = outsideDoor(s); a.seen = 0;
         } else if (civilian(a)) {
+          if (a.state !== 'flee') attention(game, a, 'sight', 'unfamiliar-movement');
           if (a.state !== 'flee') { a.reportAt = clock + 3; a.reported = false; }
           a.state = 'flee'; a.flee = 1; a.seen = 1; a.fleeUntil = clock + 12;
         } else {
+          if (a.state !== 'pursuit') attention(game, a, 'sight', 'recognition');
           if (a.state !== 'pursuit') say(game, a, 'spotted');
           a.state = 'pursuit'; a.seen = 1; a.goal = point(a.lastKnown);
         }
@@ -314,12 +331,14 @@
       a.sus = Math.max(0, a.sus - elapsed * (a.state === 'patrol' ? .13 : .065));
       if ((a.state === 'suspicious' || a.state === 'observe') && a.sus < .23) {
         a.state = 'patrol'; a.goal = point(a.home);
+        attention(game, a, 'routine', 'no-further-observation');
       }
     }
     if (a.state === 'pursuit' && !a.visible) {
       a.goal = point(a.lastKnown || a.home); // Do not track the hidden player's current position.
       if (clock - a.lastSight > 2.2) {
         a.state = 'search'; a.seen = 0; a.searchUntil = clock + 16;
+        attention(game, a, 'last-seen', 'lost-sight');
         a.searchOrigin = point(a.lastKnown || a.p); a.searchIndex = 0; say(game, a, 'search');
       }
     }
@@ -332,6 +351,10 @@
       if (!n || n.id <= finite(a.heardSequence, 0)) continue;
       a.heardSequence = n.id;
       if (n.source === a.id || n.expires < clock || !n.p) continue;
+      // Ordinary walking by a prisoner allowed in the yard is expected, unlike
+      // running, illicit work or sounds made after leaving the permitted area.
+      if (s.stage === 'regular' && P.RegularConfinement && !P.RegularConfinement.isSuspicious(game)
+          && n.source === 'player' && n.kind === 'footsteps' && n.loudness < .6) continue;
       const radius = clamp(finite(n.loudness, .3) * 24, 2, 96), d = dist(a.p, n.p);
       if (d >= radius) continue;
       const muffled = !los(game, [a.p[0], a.p[1] + 1.2, a.p[2]], [n.p[0], n.p[1] + .8, n.p[2]]);
@@ -339,6 +362,7 @@
       if (strength < .14 || a.state === 'pursuit' && a.visible) continue;
       a.sus = Math.max(a.sus, clamp(.3 + strength * .65, 0, .95));
       a.lastNoise = point(n.p);
+      attention(game, a, 'sound', n.kind, muffled);
       if (!civilian(a)) {
         a.goal = confined(s) ? outsideDoor(s) : point(n.p);
         a.investigateOrigin = point(a.goal); a.state = 'investigate';
@@ -361,6 +385,7 @@
       a.noticedBodies.push(body.id); if (a.noticedBodies.length > 16) a.noticedBodies.shift();
       a.goal = point(body.p); a.investigateOrigin = point(body.p); a.state = 'investigate';
       a.investigateUntil = time(s) + 12; a.sus = Math.max(a.sus, .72);
+      attention(game, a, 'sight', 'fallen-person');
       s.flags.bodyAlarm = true; say(game, a, 'investigate');
       noise(game, a.p, .8, 'body', a.id);
       break;
@@ -389,6 +414,7 @@
     } else if (a.state === 'search') {
       if (clock >= a.searchUntil) {
         a.state = 'patrol'; a.seen = 0; a.sus = Math.min(a.sus, .25); a.grab = 0;
+        attention(game, a, 'routine', 'search-ended');
         a.path = []; a.nextPlan = clock; say(game, a, 'clear'); patrolGoal(game, a);
       } else {
         const origin = a.searchOrigin || a.lastKnown || a.home;
@@ -402,6 +428,7 @@
     } else if (a.state === 'investigate') {
       if (clock >= finite(a.investigateUntil, clock + 1)) {
         a.state = 'search'; a.searchOrigin = point(a.investigateOrigin || a.goal);
+        attention(game, a, 'remembered-sound', 'investigation-ended');
         a.searchUntil = clock + 8; a.searchIndex = 0;
       }
     } else if (a.state === 'flee') {
@@ -414,6 +441,7 @@
       if (a.reportAt && !a.reported && clock >= a.reportAt) report(game, a);
       if (clock >= finite(a.fleeUntil, clock + 1) && !a.visible) {
         a.state = 'patrol'; a.flee = 0; a.seen = 0; a.sus = .2; a.fleeGoal = null; patrolGoal(game, a);
+        attention(game, a, 'routine', 'alarm-ended');
       }
     }
     if (s.river && s.river.phase !== 'gulf') {
@@ -434,6 +462,7 @@
     nearest.goal = point(a.observedPlayer || a.lastKnown || a.p);
     nearest.investigateOrigin = point(nearest.goal); nearest.investigateUntil = time(game.pow) + 12;
     nearest.sus = Math.max(nearest.sus, .7);
+    attention(game, nearest, 'report', 'civilian-observation');
     if (!(nearest.state === 'pursuit' && nearest.visible)) { nearest.state = 'investigate'; nearest.seen = 0; }
     a.reports = finite(a.reports, 0) + 1; say(game, a, 'report');
   }
@@ -446,6 +475,7 @@
   function moveActor(game, a, dt, budget) {
     const s = game.pow, clock = time(s);
     if (a.state === 'suspicious' || a.state === 'observe' || clock < finite(a.dwellUntil, 0) && a.state === 'patrol') {
+      if (a.state === 'patrol') idleLook(game, a, dt);
       a.spd = 0; return;
     }
     if (a.state === 'search' && dist(a.p, a.goal) < .6) { a.face = angle(a.face + dt * .7); a.spd = 0; return; }
@@ -458,7 +488,8 @@
     }
     while (a.pathIndex < a.path.length && dist(a.p, a.path[a.pathIndex]) < .13) a.pathIndex++;
     const target = a.path[a.pathIndex];
-    if (!target) { a.spd = 0; return; }
+    if (!target) { if (a.state === 'patrol' && (a.onPost || dist(a.p, a.goal) < .7)) idleLook(game, a, dt); a.spd = 0; return; }
+    a.scanAnchor = null;
     faceToward(a, target, dt);
     const dx = target[0] - a.p[0], dz = target[2] - a.p[2], d = Math.hypot(dx, dz);
     const desired = a.state === 'pursuit' ? 2.6 : a.state === 'flee' ? 2.8 : a.state === 'search' ? 1.25 : a.state === 'investigate' ? 1.55 : civilian(a) ? .85 : 1.15;
@@ -485,6 +516,14 @@
       a.stuck = finite(a.stuck, 0) + dt;
       if (a.stuck > .45) { a.path = []; a.stuck = 0; }
     } else a.stuck = 0;
+  }
+  function idleLook(game, a, dt) {
+    // A restrained real head/body turn at a post. The renderer and vision cone
+    // share a.face, so visual direction never conceals a different detection ray.
+    if (!Number.isFinite(a.scanAnchor)) a.scanAnchor = a.face;
+    const seed = Array.from(String(a.id || '')).reduce((sum, char) => sum + char.charCodeAt(0), 0) * .13;
+    const desired = a.scanAnchor + Math.sin(time(game.pow) * .43 + seed) * .23;
+    a.face = angle(a.face + clamp(angle(desired - a.face), -dt * .55, dt * .55));
   }
   function grab(game, a, dt) {
     const s = game.pow, e = game.evade;
@@ -522,15 +561,16 @@
     let peak = 0;
     for (let i = 0; i < Math.min(list.length, cap); i++) {
       const a = list[i];
-      if (!a.alive) { a.spd = 0; a.seen = 0; a.grab = 0; continue; }
+      if (!a.alive) { a.spd = 0; a.motionBlend = Math.max(0, a.motionBlend - dt * 5); a.seen = 0; a.grab = 0; continue; }
       const stunned = finite(a.stunUntil, -1) > finite(game.t, time(s)) || a.stunned;
-      if (stunned) { a.spd = 0; a.grab = 0; a.visible = false; continue; }
+      if (stunned) { a.spd = 0; a.motionBlend = Math.max(0, a.motionBlend - dt * 5); a.grab = 0; a.visible = false; continue; }
       if (time(s) >= finite(a.senseAt, 0)) {
         const elapsed = clamp(time(s) - finite(a.lastSense, time(s) - .2), .05, .35);
         a.lastSense = time(s); a.senseAt = time(s) + .18;
         observe(game, a, elapsed);
       }
       chooseGoal(game, a, dt); moveActor(game, a, dt, budget);
+      a.motionBlend += (clamp(a.spd / 2.6, 0, 1) - a.motionBlend) * Math.min(1, dt * 6);
       peak = Math.max(peak, a.sus);
       if (!e.frozen && grab(game, a, dt)) return;
     }
