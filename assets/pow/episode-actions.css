@@ -1,0 +1,16 @@
+/* Additive, original interaction illustrations. Historical photographs and the
+   existing first-person artwork are never altered or re-encoded. */
+#powEpisodeActions{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;contain:layout style}
+#powEpisodeActions[hidden],#powEpisodeActions [hidden]{display:none!important}
+.episode-action-view{position:absolute;bottom:-72px;left:50%;width:min(410px,52vw);aspect-ratio:600/520;transform:translateX(-50%);pointer-events:none}
+.episode-action-hand{position:absolute;inset:0;transform-origin:50% 95%;will-change:transform}
+.episode-action-hand img{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom;user-select:none;-webkit-user-drag:none}
+.episode-action-left{clip-path:polygon(0 0,50% 0,50% 100%,0 100%)}
+.episode-action-right{clip-path:polygon(50% 0,100% 0,100% 100%,50% 100%)}
+.episode-action-tool{position:absolute;left:50%;top:28%;width:31%;height:44%;object-fit:contain;transform-origin:50% 88%;filter:drop-shadow(1px 3px 3px rgba(0,0,0,.5));will-change:transform}
+.episode-action-view[data-tool=rope] .episode-action-tool{top:35%;width:43%;height:40%}
+.episode-action-view[data-tool=cloth] .episode-action-tool{top:36%;width:39%;height:39%}
+.episode-action-view[data-tool=pebble] .episode-action-tool{left:69%;top:38%;width:20%;height:25%}
+.episode-action-ripple{position:absolute;left:50%;top:54%;width:77%;height:16%;border:3px solid rgba(155,187,191,.7);border-radius:50%;box-shadow:0 0 0 12px rgba(96,153,160,.16),0 0 0 23px rgba(142,184,191,.1)}
+@media(max-height:520px){.episode-action-view{width:min(340px,43vw);bottom:-83px}}
+@media(prefers-reduced-motion:reduce){.episode-action-hand,.episode-action-tool{will-change:auto}.episode-action-ripple{box-shadow:none}}
