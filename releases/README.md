@@ -1,3 +1,23 @@
+# Milestone 2.2 — playable gameplay improvements
+
+This release adds direct playable chapter starts, a controls tutorial, two physical subsequent-escape approaches, observable guard feedback, varied river sections and covered rest, earned captivity pacing, clearer interactions, separate saves and optional A-6A/BN coaching. The original engine, physics, eleven missions, photographs and rooftop-rope fixes are preserved.
+
+- [Download the playable Netlify ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/milestone2-2/releases/Intruder_Yankee_Station_Milestone2_2.zip) — 23.3 MB.
+- [Download screenshots and test evidence](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/milestone2-2/releases/Intruder_Yankee_Station_Milestone2_2_Evidence.zip) — 75.0 MB, 73 actual browser screenshots.
+- [Browse nine sample screenshots](milestone2_2-screenshots/).
+- [Play guide](../docs/MILESTONE_2_2_PLAY_GUIDE.md), [test report](../docs/MILESTONE_2_2_TEST_REPORT.md), [changes](../docs/MILESTONE_2_2_CHANGES.md) and [Netlify instructions](../docs/MILESTONE_2_2_NETLIFY_DEPLOY.md).
+- [Historical boundaries](../docs/MILESTONE_2_2_HISTORICAL_NOTES.md) and [existing source audit](../docs/MILESTONE_2_1_HISTORICAL_SOURCES.md).
+
+**357 source-browser checks, 209 Node/VM checks and seven packaged checks passed.** Tests exercise actual Chromium WebGL2 and native touch inputs; the report distinguishes fixtures and staged flight checks. Final packaged geometry is verified on both layouts. Physical Windows/iPhone Safari, hardware FPS and human difficulty balance still require your trial.
+
+Sign into this private repository, save the playable ZIP, choose **Extract All** on Windows, then upload the runtime folder to the existing Netlify project's **Deploys** page. The root contains `index.html`, `assets/` and `_headers`. The existing [game address](https://steady-croquembouche-46c1a0.netlify.app/) has not been redeployed by this delivery. Git-connected deployment can use branch `milestone2-2`, build command `npm run build` and publish directory `dist/site`.
+
+Choose a chapter in the Ready Room. **Enter the prison** starts a campaign; **Solitary survival**, **Second escape** and **Red River journey** are labeled practice. **Saved chapters** resumes earlier campaign/practice saves separately; older saves migrate automatically. Practice does not award mission completion. Use landscape on iPhone and Medium or Low graphics as needed.
+
+Tested source: `3db8c0145eb393b66c9a8e0763290492de02d9da`. ZIP SHA-256: `efd593db7fbf613ac3d58ba2f9746c9fc0938fc7a32cdc0ebd8075c5d7f00da6`. The manifest records all 57 runtime hashes. Full ancestry, including `5e32916` and `15b0392`, and all previous release files are preserved; older branches are not overwritten.
+
+## Preserved Milestone 2.1 delivery
+
 # Milestone 2.1 — playable game downloads
 
 This build adds explorable 3D memory projects, progressive counted POW communication, Denton and Stockdale photographs, an optional Morse lesson and a guarded subsequent escape from regular imprisonment. It preserves the custom WebGL engine, A-6A flight simulation, eleven missions and original tribute photographs.

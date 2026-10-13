@@ -1,0 +1,184 @@
+{
+  "sourceCommit": "3db8c0145eb393b66c9a8e0763290492de02d9da",
+  "entrySHA256": "80f2697e7ddf49aa38b339c20ca35e17e1af6a08027dd83a5991e75184cc7aa1",
+  "runtimeFiles": 57,
+  "zip": "Intruder_Yankee_Station_Milestone2_2.zip",
+  "zipBytes": 23283191,
+  "zipSHA256": "efd593db7fbf613ac3d58ba2f9746c9fc0938fc7a32cdc0ebd8075c5d7f00da6",
+  "browserChecks": 357,
+  "domainChecks": 209,
+  "packagedChecks": 7,
+  "evidenceScreenshots": 73,
+  "browserSuites": [
+    {
+      "suite": "renderer",
+      "count": 6,
+      "report": "test-results/m22-regression/renderer.json",
+      "recordedAt": "2026-10-13T16:21:10.990Z"
+    },
+    {
+      "suite": "missions",
+      "count": 22,
+      "report": "test-results/m22-regression/missions.json",
+      "recordedAt": "2026-10-13T16:34:10.219Z"
+    },
+    {
+      "suite": "progression",
+      "count": 26,
+      "report": "test-results/m22-regression/progression.json",
+      "recordedAt": "2026-10-13T16:24:09.781Z"
+    },
+    {
+      "suite": "ground",
+      "count": 11,
+      "report": "test-results/m22-regression/ground.json",
+      "recordedAt": "2026-10-13T16:24:37.440Z"
+    },
+    {
+      "suite": "photos",
+      "count": 33,
+      "report": "test-results/m22-regression/photos.json",
+      "recordedAt": "2026-10-13T16:27:27.403Z"
+    },
+    {
+      "suite": "prison",
+      "count": 21,
+      "report": "test-results/m22-regression/prison.json",
+      "recordedAt": "2026-10-13T16:28:42.180Z"
+    },
+    {
+      "suite": "river",
+      "count": 14,
+      "report": "test-results/m22-regression/river.json",
+      "recordedAt": "2026-10-13T16:29:19.045Z"
+    },
+    {
+      "suite": "captivity",
+      "count": 15,
+      "report": "test-results/captivity.json",
+      "recordedAt": "2026-10-13T16:36:14.303Z"
+    },
+    {
+      "suite": "controls",
+      "count": 14,
+      "report": "test-results/m22-regression/controls.json",
+      "recordedAt": "2026-10-13T16:34:42.617Z"
+    },
+    {
+      "suite": "awareness",
+      "count": 6,
+      "report": "test-results/m22-regression/awareness.json",
+      "recordedAt": "2026-10-13T16:35:02.900Z"
+    },
+    {
+      "suite": "m21",
+      "count": 57,
+      "report": "test-results/m21.json",
+      "recordedAt": "2026-10-13T16:37:56.719Z"
+    },
+    {
+      "suite": "recapture",
+      "count": 8,
+      "report": "test-results/m21-recapture.json",
+      "recordedAt": "2026-10-13T16:38:12.885Z"
+    },
+    {
+      "suite": "onboarding",
+      "count": 46,
+      "report": "test-results/m22-migration-final/m22-onboarding.json",
+      "recordedAt": "2026-10-13T16:40:53.987Z"
+    },
+    {
+      "suite": "escape",
+      "count": 12,
+      "report": "test-results/m22-current/m22-escape.json",
+      "recordedAt": "2026-10-13T16:03:08.445Z"
+    },
+    {
+      "suite": "river-polish",
+      "count": 22,
+      "report": "test-results/m22-river-final/m22-river.json",
+      "recordedAt": "2026-10-13T16:19:53.679Z"
+    },
+    {
+      "suite": "pacing",
+      "count": 22,
+      "report": "test-results/m22-pacing.json",
+      "recordedAt": "2026-10-13T16:17:55.536Z"
+    },
+    {
+      "suite": "flight",
+      "count": 22,
+      "report": "test-results/m22-flight-final.json",
+      "recordedAt": "2026-10-13T16:39:35.221Z"
+    }
+  ],
+  "domainSuites": [
+    {
+      "suite": "core",
+      "count": 9
+    },
+    {
+      "suite": "ai",
+      "count": 15
+    },
+    {
+      "suite": "river",
+      "count": 15
+    },
+    {
+      "suite": "captivity",
+      "count": 23
+    },
+    {
+      "suite": "countryside",
+      "count": 6
+    },
+    {
+      "suite": "solidarity",
+      "count": 23
+    },
+    {
+      "suite": "morse",
+      "count": 15
+    },
+    {
+      "suite": "mindscape",
+      "count": 10
+    },
+    {
+      "suite": "regular",
+      "count": 18
+    },
+    {
+      "suite": "feedback",
+      "count": 16
+    },
+    {
+      "suite": "pacing",
+      "count": 14
+    },
+    {
+      "suite": "new-river",
+      "count": 15
+    },
+    {
+      "suite": "escape",
+      "count": 6
+    },
+    {
+      "suite": "coach",
+      "count": 24
+    }
+  ],
+  "deviceLimits": [
+    "No physical Windows or iPhone Safari test",
+    "No hardware FPS or sustained performance measurement",
+    "No human completion of every historical flight mission",
+    "Existing photographic artwork and schematic prison/river models"
+  ],
+  "netlifyDeployed": false,
+  "recordedAt": "2026-10-13T16:51:50.165047+00:00",
+  "evidenceZIPBytes": 75049530,
+  "evidenceZIPSHA256": "06672e5c80ba4ebf22567888e5501ea3e2bc1b1c16afbb634f2ab8ba587d499d"
+}
