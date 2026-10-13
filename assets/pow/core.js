@@ -231,7 +231,7 @@
       s.flags.doorOpen=true;remove(game,'cell-door');remove(game,'door-hatch');remove(game,'door-bars');remove(game,'door-bolt');remove(game,'fitting');
       visual(game,'door-open','powWood',-1,1.24,-4.48,.095,1.24,.88);
       P.notify(game,'The bolt drops clear. The door is open. Walk into the corridor and turn right toward the stairs.');noise(game,.45,'door');P.save(game);
-    },{hold:7,radius:1.65,enabled:()=>!s.flags.doorOpen,canHold:()=>!!s.inventory.bracket,noise:.25});
+    },{hold:4.5,radius:1.65,enabled:()=>!s.flags.doorOpen,canHold:()=>!!s.inventory.bracket,noise:.25});
     P.object(game,'roof-rope','Take the highlighted coiled rope',21,3.65,-22,()=>{
       s.inventory.rope=true;
       remove(game,'roof-rope');
@@ -245,7 +245,7 @@
       s.traversal={kind:'descent',t:0,duration:4,from:game.evade.p.slice(),to:[b[0]+29.1,b[1],b[2]-24]};
       visual(game,'escape-rope','powWood',27.7,2.1,-24,.035,2.1,.035,[2,1.7,1.3,0]);noise(game,.30,'rope');
       P.notify(game,'Hold steady. Descending the far side of the wall.');
-    },{hold:2.2,radius:2.1,enabled:()=>!s.flags.outside,climb:true,view:false});
+    },{hold:1.4,radius:2.1,enabled:()=>!s.flags.outside,climb:true,view:false});
     P.object(game,'alley-rest','Rest briefly behind the handcart',49,.8,-19,()=>{
       s.stats.fatigue=Math.max(0,s.stats.fatigue-12);s.stats.physical=Math.min(100,s.stats.physical+2);P.notify(game,'Breathing slows. Watch the street before moving again.');
     },{hold:5,enabled:()=>s.stage==='hanoi',view:false});
@@ -292,6 +292,10 @@
     if(saved && saved.ai && P.AI && P.AI.restore)P.AI.restore(game,saved.ai);
     if(P.Feedback && P.Feedback.restore)P.Feedback.restore(game,saved && saved.feedback);
     if(P.Guidance)P.Guidance.enter(game,saved && saved.guidance,old && old.guidance);
+    if(P.EpisodeScene){if(saved && saved.episodeScene)P.EpisodeScene.restore(game,saved.episodeScene);P.EpisodeScene.enter(game);}
+    if(P.EpisodeStealth)P.EpisodeStealth.enter(game,saved && saved.episodeStealth);
+    if(P.EpisodeActions){P.EpisodeActions.enter(game);if(saved && saved.episodeActions && P.EpisodeActions.restore)P.EpisodeActions.restore(game,saved.episodeActions);}
+    if(P.FigureMotion)P.FigureMotion.reset(game);
         s.p=game.evade.p;s.actors=game.evade.searchers;
     P.activate(true);P.mountUI();if(P.ui)P.ui.end.hidden=true;P.updateUI(game);
     P.notify(game,stage==='cell'?'Search the bunk, contact the man through the wall, and work the door fitting when the guard moves away.':stage==='hanoi'?'Stay in the shadows. Follow the dark lane east to the riverbank.':stage==='compound'?'Move through the corridor to the stairs. The roof leads across the east wall.':'Your body is here. Move and interact with the objects around you.');
@@ -306,6 +310,8 @@
     if(stage==='solitary' && P.Captivity)P.Captivity.enter(game);
     if(stage==='regular' && P.RegularConfinement)P.RegularConfinement.enter(game);
     if(P.AI && P.AI.enter)P.AI.enter(game,stage);
+    if(P.EpisodeScene)P.EpisodeScene.enter(game,s.episodeScene);
+    if(P.EpisodeStealth)P.EpisodeStealth.decorate(game);
     s.p=game.evade.p;s.actors=game.evade.searchers;P.save(game);P.updateUI(game);
     P.notify(game,stage==='compound'?'Checkpoint: corridor. Turn right, walk up the stairs and cross the roof.':stage==='hanoi'?'Checkpoint: outside the wall. Head east along the lane and watch the patrols.':stage==='river'?'Checkpoint: riverbank. Water and reeds offer cover; daylight will change it.':'Checkpoint: solitary confinement.');
   };
@@ -349,6 +355,9 @@
     if(s.captivity)snap.captivity=copy(s.captivity);
     if(s.regular)snap.regular=copy(s.regular);
     if(s.guidance)snap.guidance=copy(s.guidance);
+    if(P.EpisodeScene && P.EpisodeScene.snapshot)snap.episodeScene=P.EpisodeScene.snapshot(game);
+    if(P.EpisodeStealth && P.EpisodeStealth.snapshot)snap.episodeStealth=P.EpisodeStealth.snapshot(game);
+    if(P.EpisodeActions && P.EpisodeActions.snapshot)snap.episodeActions=P.EpisodeActions.snapshot(game);
     if(s.practice)snap.practice=s.practice;
     snap.feedbackHints=s.feedbackHints!==false;
     if(P.Feedback && P.Feedback.snapshot)snap.feedback=P.Feedback.snapshot(game);
@@ -395,9 +404,13 @@
   }
   P.tick = function (game,dt) {
     const s=game.pow,e=game.evade;if(!s || !e || game.paused || s.complete)return;
-    if(P.Mindscape && P.Mindscape.active(game)){dt=clamp(dt,0,.10);readInput(game,dt);P.Mindscape.tick(game,dt);return;}
+    if(P.Mindscape && P.Mindscape.active(game)){
+      dt=clamp(dt,0,.10);readInput(game,dt);P.Mindscape.tick(game,dt);
+      if(P.MemoryDetail)P.MemoryDetail.decorate(game);return;
+    }
     dt=clamp(dt,0,.10);s.time+=dt;s.stageTime=(s.stageTime || 0)+dt;e.t+=dt;s.noise=Math.max(0,(s.noise || 0)-dt*.35);e.noise=s.noise;
     readInput(game,dt);
+    if(P.EpisodeScene)P.EpisodeScene.step(game,dt);
     if(s.stage==='regular' && P.RegularConfinement)P.RegularConfinement.prepare(game);
     const input=s.input,was=[e.p[0],e.p[2]];
     if(s.traversal) {
@@ -421,6 +434,8 @@
     if(game.pow!==s || s.complete)return;
     if(P.AI && P.AI.step)P.AI.step(game,dt);
     if(game.pow!==s || s.complete)return;
+    if(P.FigureMotion)P.FigureMotion.step(game,dt);
+    if(P.EpisodeStealth)P.EpisodeStealth.step(game,dt);
     if(P.Feedback && P.Feedback.step)P.Feedback.step(game,dt);
     if(!s.traversal) {
       const obj=nearestObject(game,input.climb?'climb':undefined);s.focus=obj || null;
@@ -438,6 +453,8 @@
     }
     if(s.stage==='cell' && s.flags.doorOpen && e.p[2]<s.base[2]-4.3)P.transition(game,'compound');
     if(s.stage==='hanoi' && s.flags.outside && e.p[0]>=s.base[0]+91 && e.p[2]>s.base[2]-31 && e.p[2]<s.base[2]-13)P.transition(game,'river');
+    if(P.EpisodeActions)P.EpisodeActions.step(game,dt);
+    if(P.EpisodeAudio)P.EpisodeAudio.step(game,dt);
     if(s.stage==='compound' && e.p[1]>s.base[1]+2.8 && !s.inventory.rope && !s.flags.roofHintShown){
       s.flags.roofHintShown=true;
       P.notify(game,'The coiled rope is on this rooftop beneath a glowing yellow marker. Follow the HUD distance/direction, then hold F nearby.');
@@ -445,8 +462,37 @@
     if(P.Guidance)P.Guidance.step(game,dt);
     s.uiTimer=(s.uiTimer || 0)+dt;if(s.uiTimer>.10){s.uiTimer=0;P.updateUI(game);}
   };
-  P.activate = function (on) { if(typeof document!=='undefined')document.body.classList.toggle('pow-active',!!on);if(P.ui)P.ui.root.hidden=!on; };
-  function button(label,fn,parent) {const n=document.createElement('button');n.type='button';n.textContent=label;n.addEventListener('click',fn);parent.appendChild(n);return n;}
+  P.activate = function (on) { if(typeof document!=='undefined')document.body.classList.toggle('pow-active',!!on);if(P.ui)P.ui.root.hidden=!on;if(!on && P.EpisodeAudio)P.EpisodeAudio.stop(); };
+  function button(label,fn,parent) {
+    const n=document.createElement('button');n.type='button';n.textContent=label;
+    let press=null,touchClickUntil=0;
+    n.addEventListener('pointerdown',event=>{
+      if(event.pointerType!=='touch' || n.disabled)return;
+      if(press && press.id!==event.pointerId){press.moved=true;return;}
+      press={id:event.pointerId,x:event.clientX,y:event.clientY,moved:false};
+    });
+    n.addEventListener('pointermove',event=>{
+      if(press && press.id===event.pointerId && Math.hypot(event.clientX-press.x,event.clientY-press.y)>12)press.moved=true;
+    });
+    n.addEventListener('pointercancel',()=>{if(press)touchClickUntil=Date.now()+700;press=null;});
+    n.addEventListener('pointerup',event=>{
+      const p=press;if(!p)return;
+      touchClickUntil=Date.now()+700;
+      if(p.id!==event.pointerId){p.moved=true;return;}
+      press=null;if(n.disabled)return;
+      const r=n.getBoundingClientRect();
+      if(p.moved || event.clientX<r.left || event.clientX>r.right || event.clientY<r.top || event.clientY>r.bottom)return;
+      // Custom touch navigation can suppress the browser's compatibility click.
+      // Activate a real released tap once; a later generated click is redundant.
+      fn.call(n,event);
+    });
+    n.addEventListener('click',event=>{
+      const touchClick=event.pointerType==='touch' || event.sourceCapabilities?.firesTouchEvents || !event.pointerType && !event.sourceCapabilities;
+      if(n.disabled || event.detail>0 && touchClick && Date.now()<touchClickUntil)return;
+      fn.call(n,event);
+    });
+    parent.appendChild(n);return n;
+  }
   function current() { return P.ctx && P.ctx.App && P.ctx.App.game; }
   P.mountUI = function () {
     if(P.ui || typeof document==='undefined' || !document.body)return;
@@ -469,6 +515,8 @@
     const prompt=document.createElement('div');prompt.className='pow-prompt';prompt.innerHTML='<span data-prompt></span><progress max="1" value="0" aria-label="Interaction progress"></progress>';root.appendChild(prompt);
     const controls=document.createElement('div');controls.className='pow-context-controls';root.appendChild(controls);
     const interact=button('Interact · hold F',()=>{},controls),climb=button('Climb · Space',()=>{},controls);
+    const throwStone=button('Throw stone · R',()=>{const g=current();if(g && P.EpisodeStealth)P.EpisodeStealth.throwStone(g);},controls);
+    throwStone.setAttribute('data-episode-throw','');throwStone.hidden=true;
     function hold(node,key) {
       node.addEventListener('pointerdown',event=>{const g=current();if(!g || !g.pow)return;event.preventDefault();g.pow[key]=true;node.setPointerCapture && node.setPointerCapture(event.pointerId);});
       const release=()=>{const g=current();if(g && g.pow)g.pow[key]=false;};
@@ -479,7 +527,7 @@
     button('Historical photos',()=>{if(global.POWPhotos && global.POWPhotos.open)global.POWPhotos.open(current());},end.querySelector('[data-buttons]'));
     button('Ready room',()=>{const a=P.ctx.App;a.game=null;a.show('ready');P.activate(false);end.hidden=true;},end.querySelector('[data-buttons]'));
     document.body.appendChild(root);
-    P.ui={root,header,stage:header.querySelector('[data-stage]'),objective:header.querySelector('[data-objective]'),stats:header.querySelector('[data-stats]'),river:header.querySelector('[data-river]'),alert:header.querySelector('[data-alert]'),feedback:header.querySelector('[data-feedback]'),guide:header.querySelector('[data-guide]'),guidanceSetting:settings.querySelector('[data-guidance]'),reticle,hands,settings,notice,prompt:prompt.querySelector('[data-prompt]'),progress:prompt.querySelector('progress'),interact,climb,end};
+    P.ui={root,header,stage:header.querySelector('[data-stage]'),objective:header.querySelector('[data-objective]'),stats:header.querySelector('[data-stats]'),river:header.querySelector('[data-river]'),alert:header.querySelector('[data-alert]'),feedback:header.querySelector('[data-feedback]'),guide:header.querySelector('[data-guide]'),guidanceSetting:settings.querySelector('[data-guidance]'),reticle,hands,settings,notice,prompt:prompt.querySelector('[data-prompt]'),progress:prompt.querySelector('progress'),interact,climb,throwStone,end};
   };
   P.updateUI = function (game) {
     P.mountUI();if(!P.ui || !game || !game.pow)return;
@@ -510,6 +558,13 @@
     u.settings.querySelector('[data-difficulty]').value=s.difficulty;u.settings.querySelector('[data-intensity]').value=s.intensity;
     u.settings.querySelector('[data-feedback-hints]').checked=s.feedbackHints!==false;
     if(P.Guidance)P.Guidance.render(game);
+    if(u.throwStone){
+      const stones=s.episodeStealth && s.episodeStealth.stones || 0;
+      u.throwStone.hidden=!P.EpisodeStealth || !['cell','compound','hanoi'].includes(s.stage);
+      u.throwStone.disabled=game.paused || !stones || !!s.modalOpen || !!(s.captivity && s.captivity.open);
+      u.throwStone.textContent='Throw stone · R · '+stones;
+    }
+    if(P.EpisodeActions)P.EpisodeActions.render(game);
     document.body.classList.toggle('pow-reduced',s.intensity==='reduced');
   };
   P.install = function () {
@@ -523,10 +578,12 @@
       if(['KeyF','Space','KeyV','KeyX','KeyR','KeyM','KeyJ','Tab'].includes(event.code)) {
         event.preventDefault();event.stopImmediatePropagation();
         if(event.code==='KeyF' || event.code==='Space')A.keys[event.code]=1;
+        if(event.code==='KeyR' && !event.repeat && P.EpisodeStealth)P.EpisodeStealth.throwStone(g);
       }
     },true);
     window.addEventListener('keyup',event=>{const g=current();if(g && g.pow && A.keys)A.keys[event.code]=0;},true);
     window.addEventListener('blur',()=>{const g=current();if(g && g.pow){g.pow.touchInteract=false;g.pow.touchClimb=false;g.pow.holding=null;}touchLook=null;});
+    document.addEventListener('visibilitychange',()=>{if(document.hidden && P.EpisodeAudio)P.EpisodeAudio.stop();});
     document.addEventListener('mousemove',event=>{
       const g=current();if(!g || !g.pow || g.paused || inputBlocked(g) || document.pointerLockElement!==document.getElementById('stack'))return;
       event.stopImmediatePropagation();const e=g.evade,factor=.0025*(A.set.sens || 1);e.hdg+=event.movementX*factor;e.pitchCmd=clamp((e.pitchCmd || 0)-event.movementY*factor,-.85,1.2);e.look=e.pitchCmd;
@@ -535,6 +592,7 @@
     const canvas=document.getElementById('gl');
     if(canvas)canvas.addEventListener('webglcontextlost',()=>{
       const g=current();touchLook=null;
+      if(P.EpisodeAudio)P.EpisodeAudio.stop(g);
       if(g && g.pow){g.pow.touchInteract=false;g.pow.touchClimb=false;g.pow.holding=null;g.pow.interactLatched=false;}
     });
     if(stack) {

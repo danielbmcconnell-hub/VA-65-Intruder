@@ -95,7 +95,8 @@
     if (u.reticle) u.reticle.hidden = !visible;
     if (u.hands) {
       const h = game.pow.holding, f = game.pow.focus;
-      u.hands.hidden = !(visible && h && f && f.hold >= 1 && !f.climb);
+      const episodeHands=P.EpisodeActions && P.EpisodeActions.view && P.EpisodeActions.view(game).active;
+      u.hands.hidden = !(visible && h && f && f.hold >= 1 && !f.climb) || !!episodeHands;
       if (!u.hands.hidden) {
         const t = h.t || 0;
         u.hands.style.transform = 'translateX(-50%) translateY(' + (4 + Math.sin(t * 9) * 3) + 'px) rotate(' + (Math.sin(t * 5) * 2) + 'deg)';

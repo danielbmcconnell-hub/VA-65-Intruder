@@ -196,7 +196,7 @@ async function verifyTutorial({ page, click, tick, heldKey, heldAction, touchMov
   assert.equal(await page.evaluate(() => App.game.pow.focus?.id), 'bunk-bracket');
   let partial;
   await heldAction(.55, async () => {
-    partial = await page.evaluate(() => ({ holding: App.game.pow.holding && { ...App.game.pow.holding }, bracket: !!App.game.pow.inventory.bracket, guidance: { ...POW.Guidance.state(App.game) }, progress: POW.ui.progress.value, handsVisible: !!POW.ui.hands && !POW.ui.hands.hidden }));
+    partial = await page.evaluate(() => ({ holding: App.game.pow.holding && { ...App.game.pow.holding }, bracket: !!App.game.pow.inventory.bracket, guidance: { ...POW.Guidance.state(App.game) }, progress: POW.ui.progress.value, handsVisible: !!POW.ui.hands && !POW.ui.hands.hidden || !!document.querySelector('#powEpisodeActions') && !document.querySelector('#powEpisodeActions').hidden }));
     assert.equal(partial.holding.id, 'bunk-bracket'); assert.ok(partial.holding.t >= .5); assert.equal(partial.bracket, false); assert.equal(partial.guidance.step, 2); assert.ok(partial.progress > 0 && partial.progress < 1); assert.equal(partial.handsVisible, true);
     await screenshot('held-action-feedback');
   });

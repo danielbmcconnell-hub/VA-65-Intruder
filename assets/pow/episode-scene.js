@@ -267,9 +267,10 @@
     if (!active(game) || !LAMP_IDS.includes(id)) return false;
     return setLamp(game, id, !state(game).lamps[id]);
   }
-  function snapshot(game) { return active(game) ? copy(state(game)) : null; }
+  // Imagined activities change the render scene, not the prison's saved lamps.
+  function snapshot(game) { return game && game.pow && game.pow.episodeScene ? copy(state(game)) : null; }
   function restore(game, saved) {
-    if (!active(game)) return false;
+    if (!game || !game.pow) return false;
     const e = state(game);
     if (!saved || typeof saved !== 'object' || Array.isArray(saved) || saved.version !== 1) return false;
     e.clock = clamp(finite(saved.clock, e.clock), 0, 1e7);

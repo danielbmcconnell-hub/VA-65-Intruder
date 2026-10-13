@@ -12,6 +12,8 @@ body.pow-active #btnRadio,body.pow-active #btnSmoke,body.pow-active #btnPistol,b
 .pow-reticle{position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-3px;border:1px solid #eadbb9;border-radius:50%;box-shadow:0 0 2px #000;pointer-events:none}
 .pow-work-hands{position:absolute;left:50%;bottom:0;width:min(360px,38vw);opacity:.90;pointer-events:none;will-change:transform}
 .pow-work-hands img{display:block;width:100%;max-height:34vh;object-fit:contain;filter:drop-shadow(1px 2px 2px #000)}
+#powHUD [data-episode-throw]{position:absolute;right:143px;bottom:0;white-space:nowrap;font-size:12px;min-width:135px}
+@media(orientation:portrait) and (max-width:680px){#powHUD [data-episode-throw]{position:fixed;right:10px;bottom:12%;min-width:108px}}
 .pow-tools{position:absolute;right:max(10px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;max-width:40vw;pointer-events:auto}
 #powHUD button,#powHUD summary{font:inherit;cursor:pointer;touch-action:none;color:#e9e1cf;background:rgba(12,16,15,.92);border:1px solid #777565;border-radius:4px;padding:9px 11px;min-height:42px;text-shadow:none}#powHUD button:disabled{opacity:.45;cursor:default}#powHUD button:focus-visible,#powHUD summary:focus-visible{outline:2px solid #e7c98d;outline-offset:2px}
 .pow-settings{width:100%;max-width:360px;background:rgba(9,12,12,.95);border-radius:4px}.pow-settings summary{text-align:center;list-style:none}.pow-settings label{display:flex;justify-content:space-between;gap:10px;margin:10px}.pow-settings select{color:#eee7d7;background:#222a24;border:1px solid #8a8774;padding:5px}.pow-settings p{padding:0 12px;font-size:12px;text-shadow:none}.pow-layout-note{color:#b8b5a8}

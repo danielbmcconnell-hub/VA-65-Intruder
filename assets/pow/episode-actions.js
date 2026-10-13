@@ -71,8 +71,12 @@
   }
   function animateBolt(game, r, target, dt) {
     const scene = game.campGeo || [];
-    if (r.scene !== scene) {
-      r.scene = scene; r.bolt = scene.find(q => q.id === 'door-bolt') || null; r.boltOrigin = r.bolt ? r.bolt.p.slice() : null;
+    const bolt = scene.find(q => q.id === 'door-bolt') || null;
+    r.scene = scene;
+    // Removing a settled stone or rebuilding decoration replaces the array
+    // while retaining this same animated mesh. Only a new bolt has a new origin.
+    if (r.bolt !== bolt) {
+      r.bolt = bolt; r.boltOrigin = bolt ? bolt.p.slice() : null;
       r.boltProgress = 0;
     }
     if (!r.bolt || !r.boltOrigin || game.pow.flags && game.pow.flags.doorOpen) return;

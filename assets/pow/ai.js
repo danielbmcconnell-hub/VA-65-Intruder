@@ -276,7 +276,10 @@
   }
   function view(game, a, target, body) {
     const s = game.pow, e = game.evade, d = dist(a.p, target);
-    const light = clamp(finite(s.river && s.river.daylight, finite(s.light, finite(e.light, .65))), 0, 1);
+    let light = clamp(finite(s.river && s.river.daylight, finite(s.light, finite(e.light, .65))), 0, 1);
+    if(P.EpisodeScene && P.EpisodeScene.lightAt && ['cell','compound','hanoi'].includes(s.stage)){
+      light=clamp(light*.72+P.EpisodeScene.lightAt(game,[target[0],target[1]+1.1,target[2]],{requireLOS:true})*.75,0,1);
+    }
     const reach = body ? 10 : (a.lamp ? 25 : 16 + light * 23) * (s.difficulty === 'hard' ? 1.12 : 1);
     if (d > reach || Math.abs(target[1] - a.p[1]) > 7) return 0;
     const heading = Math.atan2(target[0] - a.p[0], -(target[2] - a.p[2]));
@@ -364,13 +367,17 @@
       a.lastNoise = point(n.p);
       attention(game, a, 'sound', n.kind, muffled);
       if (!civilian(a)) {
-        a.goal = confined(s) ? outsideDoor(s) : point(n.p);
+        const stoneOutside=s.stage==='cell' && n.kind==='stone-impact' &&
+          (Math.abs(n.p[0]-s.base[0])>2.6 || n.p[2]<s.base[2]-3.7 || n.p[2]>s.base[2]+3.4);
+        a.goal = confined(s) && !stoneOutside ? outsideDoor(s) : point(n.p);
         a.investigateOrigin = point(a.goal); a.state = 'investigate';
         a.investigateUntil = clock + 9; a.seen = 0; say(game, a, 'investigate');
       } else if (n.loudness > 1 || n.kind === 'gunshot' || n.kind === 'body') {
         a.state = 'flee'; a.flee = 1; a.fleeUntil = clock + 10; a.observedPlayer = point(n.p);
       }
-      if (confined(s) && !civilian(a) && a.sus >= .55 && clock >= finite(s.nextInspection, 0)) {
+      const remoteStone=s.stage==='cell' && n.kind==='stone-impact' &&
+        (Math.abs(n.p[0]-s.base[0])>2.6 || n.p[2]<s.base[2]-3.7 || n.p[2]>s.base[2]+3.4);
+      if (confined(s) && !remoteStone && !civilian(a) && a.sus >= .55 && clock >= finite(s.nextInspection, 0)) {
         s.nextInspection = clock + 24;
         if (P.Captivity && P.Captivity.inspection) P.Captivity.inspection(game, 'A corridor guard investigates the noise near your door.');
         else { s.flags.inspection = true; s.stats.stress = finite(s.stats.stress, 0) + .035; }

@@ -153,6 +153,31 @@ test('checkpoint scene data are bounded plain JSON and restore clock and lamp ch
   snapshot.lamps['cell-bulb'] = true; assert.equal(g.S.snapshot(g.game).lamps['cell-bulb'], false, 'restored switches do not alias caller-owned JSON');
 });
 
+test('saving inside an imagined activity retains physical lamp choices and scene time', () => {
+  const f = fixture(); f.S.setLamp(f.game, 'cell-bulb', false); f.S.step(f.game, .1);
+  const physical = { p: f.game.evade.p.slice(), base: f.game.pow.base.slice() };
+  const before = clone(f.S.snapshot(f.game));
+  f.P.Mindscape = { active: () => true, physicalSnapshot: (game, saved) => Object.assign(saved, clone(physical)) };
+  f.game.evade.p = [999, 999, 999];
+  assert.equal(f.S.renderState(f.game), null);
+  const saved = clone(f.P.save(f.game));
+  assert.deepEqual(saved.episodeScene, before); assert.deepEqual(saved.p, clone(physical.p));
+  const restored = fixture(); restored.P.begin(restored.game, 'cell', saved);
+  assert.deepEqual(clone(restored.S.snapshot(restored.game)), before);
+  assert.equal(restored.S.renderState(restored.game).lights.find(q => q.id === 'cell-bulb').on, false);
+});
+
+test('captivity checkpoints retain earlier scene choices without decorating solitary confinement', () => {
+  const f = fixture(); f.S.setLamp(f.game, 'yard-east', false); f.S.step(f.game, .1);
+  const saved = clone(f.S.snapshot(f.game)), g = fixture(); g.game.pow.stage = 'solitary';
+  const geometry = JSON.stringify(g.game.campGeo);
+  assert.equal(g.S.restore(g.game, saved), true);
+  assert.equal(JSON.stringify(g.game.campGeo), geometry); assert.equal(g.S.renderState(g.game), null);
+  assert.deepEqual(clone(g.S.snapshot(g.game)), saved);
+  g.game.pow.stage = 'compound';
+  assert.equal(g.S.renderState(g.game).lights.find(q => q.id === 'yard-east').on, false);
+});
+
 test('unknown lamps and malformed checkpoint data cannot inject lights, non-finite values or unbounded state', () => {
   const f = fixture(); f.S.enter(f.game);
   assert.equal(f.S.setLamp(f.game, 'untrusted-light', true), false); assert.equal(f.S.switchLamp(f.game, 'untrusted-light'), false);

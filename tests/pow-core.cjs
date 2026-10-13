@@ -50,8 +50,8 @@ test('keyboard interaction requires the full hold duration and release between o
   const {P,game}=fixture(),s=game.pow,e=game.evade;
   e.p.splice(0,3,-.8,s.base[1],.9);game.app.keys.KeyF=1;ticks(P,game,1);assert(!s.inventory.bracket);
   ticks(P,game,.6);assert(s.inventory.bracket);game.app.keys.KeyF=0;P.tick(game,.1);
-  e.p.splice(0,3,.35,s.base[1],-2.9);game.app.keys.KeyF=1;ticks(P,game,6);assert(!s.flags.doorOpen);
-  ticks(P,game,1.2);assert(s.flags.doorOpen);
+  e.p.splice(0,3,.35,s.base[1],-2.9);game.app.keys.KeyF=1;ticks(P,game,3.6);assert(!s.flags.doorOpen);
+  ticks(P,game,.95);assert(s.flags.doorOpen);
 });
 
 test('vertical LOS, thin walls, corner sliding and actor bodies use independent solid collision',()=>{

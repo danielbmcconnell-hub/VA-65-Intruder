@@ -48,6 +48,21 @@ test('cancellation releases the working pose, returns the visual bolt and stops 
   f.game.pow.holding = null; for (let i = 0; i < 20; i++) f.step(.1);
   assert.equal(f.A.view(f.game).active, false); assert.equal(f.sounds.length, count); assert.ok(Math.abs(f.bolt.p[0] - .59) < .001);
 });
+test('cancelled work returns the bolt to its original position after unrelated geometry removal and rebuilds', () => {
+  const f = fixture(), origin = f.bolt.p.slice(), solids = clone(f.game.pow.solids); f.game.pow.inventory.bracket = true;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    f.hold('door-fitting', 1.5); assert.ok(f.bolt.p[0] < origin[0] - .05, 'partial work really retracts the mesh');
+    // Actual environmental geometry can expire during work. Its removal makes
+    // a new array while leaving the same partially animated bolt in the scene.
+    f.P.addBox(f.game, 'episode-stone:99', 'powStone', 1, .05, 1, .05, .05, .05, { solid: false });
+    f.game.campGeo = f.game.campGeo.filter(q => q.id !== 'episode-stone:99'); f.step(.1);
+    f.game.pow.holding = null;
+    for (let i = 0; i < 25; i++) { if (i === 5) f.game.campGeo = f.game.campGeo.slice(); f.step(.1); }
+    for (let axis = 0; axis < 3; axis++) assert.ok(Math.abs(f.bolt.p[axis] - origin[axis]) < .001, 'cancel restores source origin without accumulating drift');
+    assert.equal(f.A.view(f.game).active, false); assert.equal(f.game.pow.flags.doorOpen, undefined);
+    assert.deepEqual(clone(f.game.pow.solids), solids, 'visual rebuilding never changes the locked door collision');
+  }
+});
 test('a missing actual bracket cannot produce lock-work hands, sound or bolt progress', () => {
   const f = fixture(); f.hold('door-fitting', 2); assert.equal(f.A.view(f.game).active, false); assert.equal(f.sounds.length, 0); assert.equal(f.bolt.p[0], .59);
 });

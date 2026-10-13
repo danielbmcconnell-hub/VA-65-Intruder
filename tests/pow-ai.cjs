@@ -224,4 +224,16 @@ test('actual core compound waypoints and a full patrol round remain collision-sa
     'several patrols must actually travel their clocked beats');
 });
 
+test('a remote stone impact during cell play draws investigation to the impact without a cell inspection',()=>{
+  const f=fixture({stage:'cell'}),a=f.add({p:[0,0,-6]});
+  f.AI.noise(f.game,[4,0,-6],.75,'stone-impact','episode-stone:1');f.run(.2);
+  assert.deepEqual(toData(a.investigateOrigin),[4,0,-6]);assert.equal(a.state,'investigate');
+  assert.equal(!!f.game.pow.flags.inspection,false);assert.equal(f.captures(),0);
+});
+test('a noise inside the occupied cell retains the existing physical door inspection',()=>{
+  const f=fixture({stage:'cell'}),a=f.add({p:[0,0,-6]});
+  f.AI.noise(f.game,[0,0,1],1,'door-fitting','player');f.run(.2);
+  assert.deepEqual(toData(a.investigateOrigin),[0,0,-4.9]);assert.equal(a.state,'investigate');
+  assert.equal(f.captures(),0);
+});
 process.stdout.write(`${checks} deterministic POW AI simulation tests passed. Browser/GPU/iPhone behavior is not tested here.\n`);
