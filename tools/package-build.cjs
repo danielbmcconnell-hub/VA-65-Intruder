@@ -15,6 +15,8 @@ for(const asset of JSON.parse(fs.readFileSync(path.join(root,'assets/history/man
 for(const name of ['core.js','core.css','ai.js','river.js','captivity.js','solidarity.js','denton-flashback.js','mindscape.js','regular-confinement.js','history.js','feedback.js','onboarding.js'])allow.push('assets/pow/'+name);
 for(const name of ['episode-shaders.js','episode-scene.js','episode-stealth.js','episode-actions.js','episode-actions.css','episode-audio.js','figure-motion.js','memory-detail.js'])allow.push('assets/pow/'+name);
 allow.push('assets/flight/coach.js');
+allow.push('assets/survival/ammunition.js','assets/flight/strike-board.js','assets/flight/strike-board.css','assets/flight/strike-effects.js');
+allow.push('assets/flight/sortie-checkpoint.js');
 for(const name of ['aviator','cow','farmer','female_vc','militia','nva','vegetation'])allow.push('assets/'+name+'.webp');
 for(const item of allow){const dst=path.join(site,item);fs.mkdirSync(path.dirname(dst),{recursive:true});fs.copyFileSync(path.join(root,item),dst);}
 fs.writeFileSync(path.join(site,'_headers'),'/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: same-origin\n  Cache-Control: no-cache\n');
@@ -23,5 +25,5 @@ const files=[...allow,'_headers'].map(file=>({file,sha256:sha(fs.readFileSync(pa
 const metadata={commit:cp.execFileSync('git',['rev-parse','HEAD'],{cwd:root}).toString().trim(),entrySHA256:sha(fs.readFileSync(path.join(site,'index.html'))),files};
 fs.writeFileSync(path.join(root,'dist/build-manifest.json'),JSON.stringify(metadata,null,2)+'\n');
 // Python's standard-library zipper makes packaging portable in this cloud image.
-cp.execFileSync('python3',['-c',"import pathlib,zipfile; p=pathlib.Path('dist/site'); z=zipfile.ZipFile('dist/Intruder_Yankee_Station_Milestone2_3.zip','w',zipfile.ZIP_DEFLATED); [z.write(f,f.relative_to(p)) for f in sorted(p.rglob('*')) if f.is_file()]; z.close()"],{cwd:root});
-console.log('Built runtime-only Netlify folder and ZIP: dist/site, dist/Intruder_Yankee_Station_Milestone2_3.zip ('+allow.length+' game files)');
+cp.execFileSync('python3',['-c',"import pathlib,zipfile; p=pathlib.Path('dist/site'); z=zipfile.ZipFile('dist/Intruder_Yankee_Station_Milestone2_4.zip','w',zipfile.ZIP_DEFLATED); [z.write(f,f.relative_to(p)) for f in sorted(p.rglob('*')) if f.is_file()]; z.close()"],{cwd:root});
+console.log('Built runtime-only Netlify folder and ZIP: dist/site, dist/Intruder_Yankee_Station_Milestone2_4.zip ('+allow.length+' game files)');

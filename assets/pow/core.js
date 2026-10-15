@@ -295,6 +295,11 @@
     if(P.EpisodeScene){if(saved && saved.episodeScene)P.EpisodeScene.restore(game,saved.episodeScene);P.EpisodeScene.enter(game);}
     if(P.EpisodeStealth)P.EpisodeStealth.enter(game,saved && saved.episodeStealth);
     if(P.EpisodeActions){P.EpisodeActions.enter(game);if(saved && saved.episodeActions && P.EpisodeActions.restore)P.EpisodeActions.restore(game,saved.episodeActions);}
+    if(saved && saved.ammunition && global.SurvivalAmmunition)global.SurvivalAmmunition.restore(game,saved.ammunition);
+    if(saved && saved.sortie && global.FlightSortieCheckpoint){
+      global.FlightSortieCheckpoint.restore(game,saved.sortie);
+      if(typeof document!=='undefined')document.body.classList.toggle('rseat',!!game.rightSeat);
+    }
     if(P.FigureMotion)P.FigureMotion.reset(game);
         s.p=game.evade.p;s.actors=game.evade.searchers;
     P.activate(true);P.mountUI();if(P.ui)P.ui.end.hidden=true;P.updateUI(game);
@@ -358,6 +363,8 @@
     if(P.EpisodeScene && P.EpisodeScene.snapshot)snap.episodeScene=P.EpisodeScene.snapshot(game);
     if(P.EpisodeStealth && P.EpisodeStealth.snapshot)snap.episodeStealth=P.EpisodeStealth.snapshot(game);
     if(P.EpisodeActions && P.EpisodeActions.snapshot)snap.episodeActions=P.EpisodeActions.snapshot(game);
+    if(global.SurvivalAmmunition)snap.ammunition=global.SurvivalAmmunition.snapshot(game);
+    const sortie=global.FlightSortieCheckpoint && global.FlightSortieCheckpoint.snapshot(game);if(sortie)snap.sortie=sortie;
     if(s.practice)snap.practice=s.practice;
     snap.feedbackHints=s.feedbackHints!==false;
     if(P.Feedback && P.Feedback.snapshot)snap.feedback=P.Feedback.snapshot(game);

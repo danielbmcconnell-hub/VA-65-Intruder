@@ -10,7 +10,7 @@
 }
 </style>
 </head><body>
-<title>Intruder: Yankee Station — Milestone 2.3</title>
+<title>Intruder: Yankee Station — Milestone 2.4</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Share+Tech+Mono&display=swap">
@@ -820,6 +820,7 @@ body.desktop #hudbar{display:flex}
 
 <link rel="stylesheet" href="assets/pow/core.css">
 <script src="assets/atlas-metadata.js"></script>
+<script src="assets/survival/ammunition.js"></script>
 <script src="assets/pow/core.js"></script>
 <script src="assets/pow/ai.js"></script>
 <script src="assets/pow/feedback.js"></script>
@@ -840,6 +841,10 @@ body.desktop #hudbar{display:flex}
 <script src="assets/pow/memory-detail.js"></script>
 <link rel="stylesheet" href="assets/pow/episode-actions.css">
 <script src="assets/flight/coach.js"></script>
+<script src="assets/flight/strike-board.js"></script>
+<script src="assets/flight/strike-effects.js"></script>
+<script src="assets/flight/sortie-checkpoint.js"></script>
+<link rel="stylesheet" href="assets/flight/strike-board.css">
 <script>
 /* ===== src/00-assets.js ===== */
 /* ===================================================================
@@ -7372,6 +7377,7 @@ class World {
     TER.seed = (this.mis.id.charCodeAt(1) * 7.31) % 100;
     if (this.briefed) this.rend.tgtArea = [this.briefed[0], this.briefed[2], this.briefedR * 0.95];
     this.t = 0; this.fx.clear(); this._cells.clear();
+    if(typeof FlightStrikeEffects!=='undefined')FlightStrikeEffects.clear(this);
     this.bombs.length = 0; this.sams.length = 0; this.fires.length = 0; this.secs.length = 0;
     this.designated = null; this.lock = false; this.oapLocked = false;
     this.samWarn = 0; this.launchWarn = 0;
@@ -7813,6 +7819,7 @@ class World {
       if (this.t < q.at) continue;
       this.secs.splice(i, 1);
       this.fx.explosion(q.p, q.mag, true);
+      if(typeof FlightStrikeEffects!=='undefined')FlightStrikeEffects.secondary(this,q);
       this._say(ac, q.p, 'boom', clamp(0.42 - vdist(q.p, ac.p) / 5200, 0.03, 0.40));
     }
   }
@@ -7905,6 +7912,7 @@ class World {
     this._siteHaze(dt, ac);
     this.stepSecondaries(ac);
     this._fires(dt);
+    if(typeof FlightStrikeEffects!=='undefined')FlightStrikeEffects.step(this,dt,{quality:this.rend && this.rend.quality,eye:ac.p});
     this.fx.step(dt);
   }
 
@@ -8007,6 +8015,7 @@ class World {
     for (const t of this.targets) {
       if (t.alive || !t.burn) continue;
       t.burn = Math.max(0, t.burn - dt * 0.012);
+      if(typeof FlightStrikeEffects!=='undefined' && (t.kind==='bridge' || t.kind==='radar'))continue;
       if (t.burn > 0.02) {
         if (this.fires.length < 8) this.fires.push([t.p[0], t.p[1] + 6, t.p[2], t.burn]);
         if (Math.random() < dt * 22 * t.burn) {
@@ -8208,7 +8217,7 @@ class World {
       this.fx.smoke(a.p, [0.42, 0.42, 0.42], 2.4, 2.2, [0, 0, 0], 0.4);
       this.fx.glow(a.p, [1, 0.7, 0.35], 2.4, 0.16);
       if (d < 22 || a.p[1] < terrainH(a.p[0], a.p[2]) || a.t > 40) {
-        this.detonate(a.p, 1.9, 30, 70); this.arms.splice(i, 1);
+        this.detonate(a.p, 1.9, 30, 70, 'arm'); this.arms.splice(i, 1);
       }
     }
     // SAMs
@@ -8238,8 +8247,13 @@ class World {
     }
   }
 
-  detonate(p, scale, rad, dmg) {
+  detonate(p, scale, rad, dmg, weapon) {
     this.fx.explosion(p, scale, true);
+    if(typeof FlightStrikeEffects!=='undefined'){
+      const ground=terrainH(p[0],p[2]);
+      const surface=p[1]>Math.max(0,ground)+5?'air':ground<0 && p[1]<=1?'water':'land';
+      FlightStrikeEffects.impact(this,p,scale,{weapon:weapon || 'bomb',surface});
+    }
     let anyHit = false, best = 1e9;
     for (const t of this.targets) {
       if (!t.alive) continue;
@@ -8260,6 +8274,8 @@ class World {
              whole site starting to come apart for half a minute
              afterwards. It is also how you knew you had hit something
              worth hitting, which the game never told you. */
+          if(typeof FlightStrikeEffects!=='undefined')FlightStrikeEffects.destroyed(this,t);
+          else {
           const sec = { pol: 7, depot: 4, trucks: 3, rail: 2, bridge: 0, launcher: 3 }[t.kind] || 1;
           for (let q = 0; q < sec; q++) {
             const delay = 0.35 + Math.random() * 7.0;
@@ -8267,6 +8283,7 @@ class World {
             this.secs.push({ p: [t.p[0] + Math.cos(a3) * r3, t.p[1] + 1,
                                  t.p[2] + Math.sin(a3) * r3],
               at: this.t + delay, mag: 0.9 + Math.random() * 1.6 });
+          }
           }
           this.onKill && this.onKill(t);
         }
@@ -8313,6 +8330,7 @@ class World {
   fireArm(ac) {
     if (ac.arms <= 0) return false;
     ac.arms--;
+    this.score.armsReleased=(this.score.armsReleased || 0)+1;
     const ax = bodyAxes(ac.yaw, ac.pitch, ac.roll);
     const aim = this.radar ? this.radar.p.slice() : vadd(ac.p, vmul(ax.fwd, 8000));
     this.arms.push({ p: vadd(ac.p, vmul(ax.right, 2.6)), v: vadd(ac.v, vmul(ax.fwd, 60)), t: 0, aim, mem: null });
@@ -9134,7 +9152,10 @@ class Cockpit {
       if (e.lift > 0.05) rows.push(['COLLAR', Math.round(clamp(e.lift / 3.4, 0, 1) * 100) + '%',
         e.lift > 2.4 ? 0 : 1]);
     }
-    if (!e.river && !e.camp) rows.push(['.38', e.drawn ? (e.rounds + ' ROUNDS') : 'HOLSTERED', e.drawn ? 1 : 0]);
+    if (!e.river && !e.camp) {
+      rows.push(['.38', e.rounds+' LEFT', e.drawn ? 1 : 0]);
+      rows.push(['SPENT', (st.ammunition && st.ammunition.bulletsExpended || 0)+' ROUNDS', 0]);
+    }
     const x = 12, y = 60, w = 132, rh = 16, h = 18 + rows.length * rh + 20;
     g.fillStyle = 'rgba(10,14,18,.92)'; g.fillRect(x, y, w, h);
     g.strokeStyle = '#2b3742'; g.strokeRect(x + .5, y + .5, w - 1, h - 1);
@@ -11160,6 +11181,7 @@ const App = {
       this._graphicsResume = game ? { game,
         paused: pending && pending.game === game ? pending.paused : game.paused } : null;
       if (game) game.paused = true;
+      if(typeof FlightStrikeBoard!=='undefined')FlightStrikeBoard.render(game);
       // Browser key/pointer releases may be lost while the context is suspended.
       // Keyboard handlers retain this object; clear it without replacing it.
       if (this.keys) for (const key of Object.keys(this.keys)) this.keys[key] = 0;
@@ -11908,10 +11930,10 @@ const App = {
             `<p>You stay in the water until his boots are at the edge of it, and
             then it is close work and it is silent, and the rifle goes into the
             paddy with him.</p>
-            <p>You take four rounds off him and nobody in the village has heard
-            anything at all.</p>`,
-            { exposure: -0.22, spawn: 55, rounds: 2, blood: 'militia',
-              radio: 'Nobody heard that. I have his magazine.' });
+            <p>His rifle cartridges will not fit your revolver. Leave them in
+            the paddy and move while nobody in the village has heard you.</p>`,
+            { exposure: -0.22, spawn: 55, blood: 'militia',
+              radio: 'Nobody heard that. Move while it is quiet.' });
           else out('It Goes Wrong',
             `<p>He is faster than you expected and the rifle butt catches you across
             the ribs before you get inside it. You finish it, but you are hurt and
@@ -12377,6 +12399,9 @@ const App = {
     const trucks = log.reduce((p, c) => p + (c.trucks || 0), 0);
     const returned = log.filter(x => x.landed || x.rescued || x.escaped).length;
     const dropped = log.reduce((p, c) => p + (c.dropped || 0), 0);
+    const armsReleased = log.reduce((p, c) => p + (c.armsReleased || 0), 0);
+    const ammunitionRecords=log.filter(x=>Number.isFinite(x.bulletsExpended));
+    const bulletsExpended=ammunitionRecords.reduce((n,x)=>n+x.bulletsExpended,0);
     const killed = log.reduce((p, c) => p + (c.killed || 0), 0);
     const bolters = log.reduce((p, c) => p + (c.bolters || 0), 0);
 
@@ -12401,7 +12426,9 @@ const App = {
     if (traps.length) add('Wires caught',
       wires.map((w, i) => w ? (i + 1) + ': ' + w : null).filter(Boolean).join('   ') +
       (wires[2] ? '   (3 is the target wire)' : ''));
-    add('Ordnance expended', dropped);
+    add('Bombs expended', dropped);
+    if(armsReleased)add('ARM missiles expended',armsReleased);
+    if(ammunitionRecords.length)add('Pistol rounds expended',bulletsExpended);
     add('Targets destroyed', killed);
     /* Trucks are not the brief, so they are counted separately — but
        they are counted, because on the night they were the thing a
@@ -12431,7 +12458,8 @@ const App = {
             : '<span style="color:var(--blood)">' + (x.reason || 'did not return') + '</span>';
       list.appendChild(el('div', 'row',
         '<span class="l"><span class="mono" style="color:var(--haze)">' + x.num + '</span> ' + x.title +
-        '<br><span class="eyebrow">' + stamp + ' · ' + (x.seat || 'BN') + ' · ' + outcome + '</span></span>' +
+        '<br><span class="eyebrow">' + stamp + ' · ' + (x.seat || 'BN') + ' · ' + outcome +
+        (Number.isFinite(x.bulletsExpended)?' · .38 spent '+x.bulletsExpended:' · .38 expenditure not recorded') + '</span></span>' +
         '<span class="v ' + (x.pass ? 'good' : 'bad') + '">' + x.grade + '</span>'));
     }
     b.appendChild(list);
@@ -13075,6 +13103,7 @@ const App = {
   pause(on) {
     if (!this.game) return;
     this.game.paused = on;
+    if(typeof FlightStrikeBoard!=='undefined')FlightStrikeBoard.render(this.game);
     $('#pauseVeil').classList.toggle('on', on);
     if (!on) return;
     const b = $('#pauseBody'); b.innerHTML = '';
@@ -14398,7 +14427,10 @@ class Game {
     }
     if (res.exposure) e.exposure = clamp(e.exposure + res.exposure, 0, 1);
     if (res.spawn !== undefined) e.spawn = res.spawn;
-    if (res.rounds) e.rounds = clamp(e.rounds + res.rounds, 0, 12);
+    if (res.rounds) {
+      const roundsBefore=e.rounds;e.rounds = clamp(e.rounds + res.rounds, 0, 12);
+      if(typeof SurvivalAmmunition!=='undefined')SurvivalAmmunition.narrativeDelta(this,e,roundsBefore);
+    }
     if (res.noise) e.noise = 1;
     if (res.hurt) e.hurt = 1;
     if (res.blood) e.blood = res.blood;
@@ -15876,7 +15908,9 @@ class Game {
         A.audio.burst('thunk', 0.18);
         A.radio('PILOT', 'Empty. Six rounds was all of it.', 'bad');
       } else if (this.t - e.lastShot > 0.85) {
+        const roundsBefore=e.rounds;
         e.lastShot = this.t; e.rounds--; e.attackWant=0;
+        if(typeof SurvivalAmmunition!=='undefined')SurvivalAmmunition.fired(this,e,roundsBefore);
         A.audio.burst('gun', 0.5);
         e.noise = 1; e.muzzle = 0.14; e.actionT=this.t;
         this.shake = Math.max(this.shake || 0, 0.35);
@@ -17040,6 +17074,7 @@ class Game {
   debrief(landed, reason) {
     if (this.result || this.app.game !== this) return;
     const W = this.world, M = this.mis;
+    const ammunition=typeof SurvivalAmmunition!=='undefined'?SurvivalAmmunition.view(this):{bulletsExpended:0,pistolShots:0,narrativeRoundsExpended:0,roundsAcquired:0};
     const st = this.objState();
     const combat = st.filter((s, i) => M.obj[i][1] !== 'trap');
     const combatOK = combat.length ? combat.every(s => s[2]) : true;
@@ -17081,7 +17116,9 @@ class Game {
         ejected: !!this.ejected, crashed: !!(this._outOfAircraft && !this.ejected),
         rescued: !!this.rescuedOK, captured: !!this._capt,
         breakout: !!this.breakoutOK, escaped: !!this.escapedOK, trucks: W.score.trucks || 0,
-        dropped: W.score.dropped, killed: W.score.killed, total: W.score.total,
+        dropped: W.score.dropped, armsReleased:W.score.armsReleased || 0, killed: W.score.killed, total: W.score.total,
+        bulletsExpended:ammunition.bulletsExpended,pistolShots:ammunition.pistolShots,
+        narrativeRoundsExpended:ammunition.narrativeRoundsExpended,roundsAcquired:ammunition.roundsAcquired,
         cep: cep === null ? null : Math.round(cep * M2FT), dmg: +W.score.damage.toFixed(2),
         seat: this.rightSeat ? 'BN' : 'PILOT'
       });
@@ -17113,7 +17150,12 @@ class Game {
     const rows = el('div', 'rows');
     const add = (l, v, cls) => rows.appendChild(el('div', 'row', `<span class="l">${l}</span><span class="v ${cls || ''}">${v}</span>`));
     st.forEach(o => add(o[0], o[1], o[2] ? 'good' : 'bad'));
-    add('Ordnance expended', W.score.dropped + (this.bombsMax ? ' of ' + this.bombsMax : ''));
+    add('Bombs expended', W.score.dropped + (this.bombsMax ? ' of ' + this.bombsMax : ''));
+    if(this.armsMax || W.score.armsReleased)add('ARM missiles expended', W.score.armsReleased || 0);
+    if(typeof SurvivalAmmunition!=='undefined'){
+      add('Pistol rounds expended',ammunition.bulletsExpended);
+      if(ammunition.narrativeRoundsExpended)add('First-contact rounds (included)',ammunition.narrativeRoundsExpended);
+    }
     if (cep !== null) add('Average miss distance', Math.round(cep * M2FT) + ' ft', cep < 30 ? 'good' : cep > 90 ? 'bad' : '');
     if (W.blind && W.navErrAtRelease !== undefined)
       add('Navigation error at release', Math.round(W.navErrAtRelease * 1.0936) + ' yd',
@@ -17168,6 +17210,7 @@ class Game {
   /* ---------------- render ---------------- */
   render(dt) {
     const R = this.rend, ac = this.ac, W = this.world, A = this.app;
+    if(typeof FlightStrikeBoard!=='undefined')FlightStrikeBoard.render(this);
     if(POW.EpisodeAudio)POW.EpisodeAudio.step(this,0);
     R.setAtmos(this.atm);
     const episodeProfile=this.pow && POW.MemoryDetail && POW.Mindscape && POW.Mindscape.active(this)
@@ -17210,7 +17253,7 @@ class Game {
       if (this.cellPos && fl.length < 8)
         fl.push([this.cellPos[0], y0 + 2.5, this.cellPos[2] - 0.4, 0.70, 8.0, LAMP]);
       R.setFires(fl);
-    } else R.setFires(W.fires);
+    } else R.setFires(typeof FlightStrikeEffects!=='undefined'?FlightStrikeEffects.lights(W,ac.p,R.quality):W.fires);
     const ax = bodyAxes(ac.yaw, ac.pitch, ac.roll);
     const asp = R.W / R.H;
     let eye, fwd, up;
@@ -17996,6 +18039,7 @@ class Game {
       route: W.route && W.route.map(c => ({ label: c.label, hint: c.hint, p: c.p, sys: W.sysPos(c.p) })),
       rtIdx: W.rtIdx, navErr: W.navErr ? W.navErr() : 0, crew: ac.crew,
       chute: this.chute, evade: this.evade,
+      ammunition:typeof SurvivalAmmunition!=='undefined'?SurvivalAmmunition.view(this):null,
       nav: navTo(ac, W.carrier), shipScreen: ss, cue: this.nextCue(ac, W),
       task: this.currentTask(ac, W),
       oap: W.oap, oapLocked: !!W.oapLocked, rightSeat: this.rightSeat, steer: this.steer,
@@ -18063,6 +18107,19 @@ POW.ctx = { Game, App, MB, terrainH, Store, clamp, PI, TAU, firstPersonArt:FIRST
 if(POW.FigureMotion)POW.FigureMotion.configure({metadata:PHOTO_ATLAS.people});
 POW.install();
 FlightCoach.install({Game,App,Store});
+FlightStrikeBoard.install({App,Store});
+const _strikeShow=App.show;
+App.show=function(){const result=_strikeShow.apply(this,arguments);FlightStrikeBoard.render(this.game);return result;};
+const _strikeFlightUpdate=Game.prototype.update;
+Game.prototype.update=function(dt){
+  const result=_strikeFlightUpdate.call(this,dt);
+  // World time stops outside the aircraft. Retire short-lived strike flashes
+  // on that transition; original fires and smoke continue through survival.
+  if(typeof FlightStrikeEffects!=='undefined' && (this.phase==='chute' || this.phase==='evade' || this.result))FlightStrikeEffects.clearTransient(this.world);
+  FlightStrikeBoard.tick(this,dt);return result;
+};
+const _strikeDebrief=Game.prototype.debrief;
+Game.prototype.debrief=function(){const before=this.result,result=_strikeDebrief.apply(this,arguments);if(!before && this.result)FlightStrikeBoard.appendDebrief(this);return result;};
 const _originalStepEvade = Game.prototype.stepEvade;
 Game.prototype.stepEvade = function(dt) {
   return this.pow ? POW.tick(this,dt) : _originalStepEvade.call(this,dt);
@@ -18078,7 +18135,9 @@ Game.prototype.captured = function() {
   return POW.begin(this,'solitary');
 };
 App.startPOW = function(saved,chapter) {
-  this.start(MISSIONS.find(m => m.escape));
+  const savedId=FlightSortieCheckpoint.missionId(saved);
+  const mission=savedId==='free'?{...MISSIONS[0],id:'free',title:'Free Flight',free:true}:MISSIONS.find(m=>m.id===savedId)||MISSIONS.find(m=>m.escape);
+  this.start(mission);
   this._powLaunch = {saved: saved || null, chapter:chapter || null, token:this._missionStart};
 };
 const _powFrame = App.frame;

@@ -43,6 +43,17 @@ const server=http.createServer((req,res)=>{
    const after=await toggle.boundingBox();assert.ok(before&&after);assert.ok(Math.abs(before.x-after.x)<.5&&Math.abs(before.width-after.width)<.5,'Visible cue must not shift the native toggle');
    if(opts.hasTouch)await toggle.tap();else await toggle.click();
    assert.equal(await toggle.getAttribute('aria-pressed'),'false');assert.equal(await page.evaluate(()=>FlightCoach.enabled(App.game)),false);
+   const m24=await page.evaluate(()=>({ammunition:!!window.SurvivalAmmunition,board:!!window.FlightStrikeBoard,effects:!!window.FlightStrikeEffects,sortie:!!window.FlightSortieCheckpoint}));
+   assert.ok(Object.values(m24).every(Boolean),'All new production modules must load from the exact package');
+   await page.evaluate(()=>{App.screen='game';App.game.paused=false;FlightStrikeBoard.render(App.game)});
+   const boardToggle=page.locator('#flightStrikeBoardToggle');await boardToggle.waitFor({state:'visible'});
+   if(opts.hasTouch)await boardToggle.tap();else await boardToggle.click();
+   await page.locator('#flightStrikePanel').waitFor({state:'visible'});
+   const panel=await page.locator('#flightStrikePanel').boundingBox();assert.ok(panel);
+   if(opts.hasTouch){for(const id of ['stick','pickle','btnScope','btnGear','pauseBtn']){const control=await page.locator('#'+id).boundingBox();assert.ok(control,'Packaged flight control must be visible: '+id);assert.ok(panel.x+panel.width<=control.x||control.x+control.width<=panel.x||panel.y+panel.height<=control.y||control.y+control.height<=panel.y,'Packaged worksheet must not cover '+id);}}
+   if(opts.hasTouch)await boardToggle.tap();else await boardToggle.click();
+   assert.equal(await page.locator('#flightStrikePanel').isVisible(),false);
+   checks.push({name:name+' packaged B/N worksheet opens through native input and keeps flight controls exposed',passed:true,observed:{modules:m24,panel},errors,missing});
    await page.evaluate(()=>{App.game.paused=true;App.screen='build-test';App.game.render(1/60)});
    checks.push({name:name+' packaged flight guidance toggles through native input without moving its target',passed:true,observed:{before,after},errors,missing});
    console.log('PASS '+name+' exact packaged native guidance toggle and stable target');
@@ -56,9 +67,10 @@ const server=http.createServer((req,res)=>{
      const snapshot=POW.save(G);POW.begin(G,'cell',snapshot);G.paused=true;G.render(1/60);
      let historicalPhotos=0;
      for(const item of Object.values(POWPhotos.historicalPhotoAssets)){const im=new Image();im.src=item.src;await im.decode();if(!im.naturalWidth)throw Error('Invalid historical photograph '+item.src);historicalPhotos++;}
-     return {stage:G.pow.stage,solids:G.pow.solids.length,checkpoint:Store.get('pow_checkpoint',null)?.stage,historicalPhotos,riverLoaded:!!POW.River,captivityLoaded:!!POW.Captivity,m21Loaded:['Solidarity','DentonFlashback','Mindscape','RegularConfinement'].every(name=>!!POW[name]),m22Loaded:!!POW.Guidance&&!!POW.Feedback&&!!window.FlightCoach,m23Loaded:!!window.EpisodeGLSL&&['EpisodeScene','EpisodeStealth','EpisodeActions','EpisodeAudio','FigureMotion','MemoryDetail'].every(name=>!!POW[name]),m23Scene:G.pow.episodeScene?.version,m23Pebbles:G.pow.episodeStealth?.pileRemaining,guidanceChapter:POW.Guidance.state(G).chapter,gpuError:G.rend.gl.getError(),cameraHeight:G.rend.eye[1]-G.evade.p[1]};
+     return {stage:G.pow.stage,solids:G.pow.solids.length,checkpoint:Store.get('pow_checkpoint',null)?.stage,savedSortie:snapshot.sortie?.missionId,restoredSortie:G.mis.id,ammunition:snapshot.ammunition,historicalPhotos,riverLoaded:!!POW.River,captivityLoaded:!!POW.Captivity,m21Loaded:['Solidarity','DentonFlashback','Mindscape','RegularConfinement'].every(name=>!!POW[name]),m22Loaded:!!POW.Guidance&&!!POW.Feedback&&!!window.FlightCoach,m23Loaded:!!window.EpisodeGLSL&&['EpisodeScene','EpisodeStealth','EpisodeActions','EpisodeAudio','FigureMotion','MemoryDetail'].every(name=>!!POW[name]),m23Scene:G.pow.episodeScene?.version,m23Pebbles:G.pow.episodeStealth?.pileRemaining,guidanceChapter:POW.Guidance.state(G).chapter,gpuError:G.rend.gl.getError(),cameraHeight:G.rend.eye[1]-G.evade.p[1]};
    });
    assert.equal(pow.stage,'cell');assert.ok(pow.solids>20&&pow.riverLoaded&&pow.captivityLoaded&&pow.m21Loaded&&pow.m22Loaded&&pow.m23Loaded);assert.equal(pow.m23Scene,1);assert.equal(pow.m23Pebbles,3);assert.equal(pow.guidanceChapter,'escape');assert.equal(pow.checkpoint,'cell');assert.equal(pow.historicalPhotos,8);assert.equal(pow.gpuError,0);assert.ok(Math.abs(pow.cameraHeight-1.68)<.01);
+   assert.equal(pow.savedSortie,'m11');assert.equal(pow.restoredSortie,'m11');assert.equal(pow.ammunition.version,1);assert.equal(pow.ammunition.bulletsExpended,0);
    assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
    await page.screenshot({path:path.join(root,'test-results','build-'+name+'-pow.png'),timeout:90000});
    checks.push({name:name+' packaged Ready Room prison entry, tutorial, checkpoint and historical photographs',passed:true,observed:pow,errors,missing});console.log('PASS '+name+' packaged POW chapter, new guidance modules and eight historical photographs');await ctx.close();
