@@ -1,3 +1,19 @@
+# Milestone 2.4 — B/N target correlation and readable strikes
+
+A new optional **B/N worksheet** helps you compare the briefing with actual radar returns, record a target hypothesis, use the original LOCK and consent through the existing ASQ-61 solution. Real impacts have clearer dust, flash and smoke, with delayed target-specific secondary explosions. The survival HUD, debrief and Cruise Log now track pistol rounds expended; capture/reload preserves the original sortie. A-6A physics, eleven missions and photographs are preserved.
+
+- [Download the playable Netlify ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/milestone2-4/releases/Intruder_Yankee_Station_Milestone2_4.zip) — 23.3 MB.
+- [Download screenshots and test evidence](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/milestone2-4/releases/Intruder_Yankee_Station_Milestone2_4_Evidence.zip) — 54.4 MB, 38 actual browser captures with fixture scopes identified.
+- [Twelve sample screenshots](milestone2_4-screenshots/), [play guide](../docs/MILESTONE2_4_PLAY_GUIDE.md), [test/deployment report](../docs/MILESTONE2_4_REPORT.md), [summary](milestone2_4-summary.json), [70 runtime hashes](milestone2_4-build-manifest.json).
+
+**520 source-browser, 396 Node/VM and nine packaged checks passed.** Native mouse/keyboard and touch cases include real release, ballistic damage, delayed cook-off, misses, bridge dust, A-6B ARM attack, ejection, six finite pistol rounds and capture/save/Continue. Original regressions ran incrementally with affected reruns. Physical Windows/iPhone Safari, FPS, full human sorties and difficulty require your trial.
+
+Sign into the private repository, download the playable ZIP, choose **Extract All** on Windows and upload the extracted folder containing `index.html`, `assets/` and `_headers` to the existing Netlify project's **Deploys** page. The [existing game address](https://steady-croquembouche-46c1a0.netlify.app/) has not been redeployed. A Git-connected deploy can use branch `milestone2-4`, command `npm run build` and publish directory `dist/site`.
+
+After deployment choose **Ready Room → Settings → Right — B/N**, then **DIANE practice with guidance** or a combat mission. Open **B/N worksheet**, compare a fresh return, **NOTE → LOCK**, then hold **COMMIT/Space** through the original solution. Start iPhone in landscape with Medium/Low graphics. The A-6A has no internal gun; bullet expenditure concerns the carried survival revolver.
+
+Tested source `184625b75af636dd79554ac1a9c83532f84ea69c`. ZIP SHA-256 `3301d2ff297e842bfb8d35e27bed2cda525cc4b7eb78a63f927710637f6495e0`. Full original history and prior downloads remain below. Static gameplay does not require a Codex subscription or API calls.
+
 # Milestone 2.3 — polished playable escape
 
 The existing prison → rooftop → Hanoi → river escape gains warm local lighting and shadows, worn scenery, moving river reflections, intact photographic character motion, visible hands/tool/rope/swim work, finite physical stone distractions, lamp switches, concealed fitting evidence and richer earned imagined projects. Reliable touch Save/Continue and bounded nonverbal ambience are included. The original engine, A-6A, eleven missions, photographs and prior chapters remain.
