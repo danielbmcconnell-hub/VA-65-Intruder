@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Willard Egress — MiG-17PF sprite demo</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#071327;color:#e8f0ff;font:15px system-ui, sans-serif}header{padding:12px 16px;background:#10223c}
+h1{margin:0;font-size:18px}p{margin:4px 0 0;color:#9ec4e2}canvas{width:100%;height:min(70vh,750px);display:block;background:#142841;touch-action:none}
+.bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:12px 16px;color:#c8dbe9}.bar b{color:#fff}.btn{background:#254e6a;color:white;border:1px solid #5a829a;padding:9px 12px;border-radius:7px}
+</style></head><body><header><h1>WILLARD EGRESS — MiG-17PF sprite atlas</h1><p>Drag left/right to steer and bank. Keyboard: ← / →, space to pause. Visual demonstration only.</p></header>
+<canvas id="stage"></canvas><div class="bar"><span>Heading: <b id="heading">0°</b></span><span>Bank: <b id="bank">0°</b></span><span>Sprite: <b id="sprite">—</b></span><button id="pause" class="btn">Pause</button></div>
+<script>
+const canvas=document.getElementById('stage'), ctx=canvas.getContext('2d');let meta, atlas,ready=false;
+const S={heading:0,bank:0,steer:0,scroll:0,playing:true};
+function resize(){const d=window.devicePixelRatio||1;canvas.width=Math.round(canvas.clientWidth*d);canvas.height=Math.round(canvas.clientHeight*d)}
+window.addEventListener('resize',resize);resize();
+Promise.all([fetch('MiG17PF_Willard_Egress_ATLAS.json').then(r=>r.json()),new Promise((resolve,reject)=>{let i=new Image();i.onload=()=>resolve(i);i.onerror=reject;i.src='MiG17PF_Willard_Egress_ATLAS.png'})]).then(([j,i])=>{meta=j;atlas=i;ready=true}).catch(e=>{document.querySelector('p').textContent='Could not load local assets. Serve this folder over HTTP or deploy ZIP to Netlify. '+e.message});
+function steer(n){S.steer=Math.max(-1,Math.min(1,n))}
+window.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key.toLowerCase()==='a'){steer(-1);e.preventDefault()}if(e.key==='ArrowRight'||e.key.toLowerCase()==='d'){steer(1);e.preventDefault()}if(e.code==='Space'){S.playing=!S.playing;e.preventDefault()}});
+window.addEventListener('keyup',e=>{if(['ArrowLeft','ArrowRight','a','d','A','D'].includes(e.key))steer(0)});
+let dragging=false,prevX=null;
+canvas.addEventListener('pointerdown',e=>{dragging=true;prevX=e.clientX;canvas.setPointerCapture(e.pointerId)});
+canvas.addEventListener('pointermove',e=>{if(!dragging)return;const dx=e.clientX-prevX;prevX=e.clientX;steer(dx<-1?-1:dx>1?1:0)});
+canvas.addEventListener('pointerup',()=>{dragging=false;prevX=null;steer(0)});
+document.getElementById('pause').onclick=()=>{S.playing=!S.playing;document.getElementById('pause').textContent=S.playing?'Pause':'Resume'};
+let last=performance.now();
+function frame(t){const dt=Math.min(.04,(t-last)/1000);last=t;
+const w=canvas.width,h=canvas.height,d=window.devicePixelRatio||1;
+ctx.clearRect(0,0,w,h);ctx.fillStyle='#172b44';ctx.fillRect(0,0,w,h);
+if(S.playing){S.heading=(S.heading+S.steer*95*dt+360)%360;S.bank+=(S.steer*30-S.bank)*Math.min(1,dt*5);S.scroll+=110*dt}
+ctx.save();ctx.translate(w/2,h/2);ctx.rotate(-S.heading*Math.PI/180);
+ctx.strokeStyle='rgba(120,188,208,.14)';ctx.lineWidth=d;
+const sp=110*d,off=S.scroll*d%sp;
+for(let y=-h;y<h;y+=sp){ctx.beginPath();ctx.moveTo(-w,-h+y+off);ctx.lineTo(w,-h+y+off);ctx.stroke()}
+for(let x=-w;x<w;x+=sp){ctx.beginPath();ctx.moveTo(x,-h);ctx.lineTo(x,h);ctx.stroke()}
+ctx.restore();
+if(ready){let hd=Math.round(S.heading/22.5)%16;let b=S.bank < -15 ? -30 : S.bank>15 ? 30 : 0;
+const key=`flight_h${String(hd).padStart(2,'0')}_b${b>=0?'+':''}${String(b).padStart(2,'0')}`;
+let fr=meta.frames[key];if(!fr){fr=meta.frames[`flight_h${String(hd).padStart(2,'0')}_b+00`]}
+const sz=Math.min(w*.7,h*.8,440*d);ctx.drawImage(atlas,fr.frame.x,fr.frame.y,512,512,w/2-sz/2,h/2-sz/2,sz,sz);
+document.getElementById('sprite').textContent=key;
+}
+ctx.fillStyle='#d2ebfd';ctx.font=`${13*d}px system-ui`;ctx.fillText('VA-65 / WILLARD EGRESS — ART DEMO',14*d,22*d);
+document.getElementById('heading').textContent=S.heading.toFixed(0)+'°';document.getElementById('bank').textContent=S.bank.toFixed(0)+'°';
+requestAnimationFrame(frame)} requestAnimationFrame(frame);
+</script></body></html>

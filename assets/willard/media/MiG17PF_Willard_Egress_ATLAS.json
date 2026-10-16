@@ -1,0 +1,1222 @@
+{
+  "format": "Willard-Egress-SpriteAtlas-v1",
+  "image": "MiG17PF_Willard_Egress_ATLAS.png",
+  "size": {
+    "w": 4096,
+    "h": 3584
+  },
+  "cellSize": {
+    "w": 512,
+    "h": 512
+  },
+  "coordinateSystem": "Screen coordinates: +x right, +y down; heading 0 degrees points UP; heading increments clockwise.",
+  "aircraft": "Mikoyan-Gurevich MiG-17PF Fresco-D (artist impression, fictional serial 5123)",
+  "alpha": "straight RGBA, transparent background",
+  "limitations": [
+    "AI-rendered visual asset, not an aerodynamically exact CAD model",
+    "roll bank frames are 2D foreshortening approximations",
+    "historical identification of the Willard Egress pursuer is unconfirmed; specific serial and markings are fictional",
+    "no prebuilt landing gear, cannon, missile or damage animations"
+  ],
+  "frames": {
+    "left_side": {
+      "filename": "sprites/left_side.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "orthographic/reference",
+      "meta": {},
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "right_side": {
+      "filename": "sprites/right_side.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "orthographic/reference",
+      "meta": {},
+      "frame": {
+        "x": 512,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "front": {
+      "filename": "sprites/front.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "orthographic/reference",
+      "meta": {},
+      "frame": {
+        "x": 1024,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "rear": {
+      "filename": "sprites/rear.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "orthographic/reference",
+      "meta": {},
+      "frame": {
+        "x": 1536,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "top": {
+      "filename": "sprites/top.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "orthographic/reference",
+      "meta": {},
+      "frame": {
+        "x": 2048,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "bottom": {
+      "filename": "sprites/bottom.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "orthographic/reference",
+      "meta": {},
+      "frame": {
+        "x": 2560,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h00_b-30": {
+      "filename": "sprites/flight_h00_b-30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 0.0,
+        "bankDegrees": -30
+      },
+      "frame": {
+        "x": 3072,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h01_b-30": {
+      "filename": "sprites/flight_h01_b-30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 22.5,
+        "bankDegrees": -30
+      },
+      "frame": {
+        "x": 3584,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h02_b-30": {
+      "filename": "sprites/flight_h02_b-30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 45.0,
+        "bankDegrees": -30
+      },
+      "frame": {
+        "x": 0,
+        "y": 512,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h03_b-30": {
+      "filename": "sprites/flight_h03_b-30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 67.5,
+        "bankDegrees": -30
+      },
+      "frame": {
+        "x": 512,
+        "y": 512,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h04_b-30": {
+      "filename": "sprites/flight_h04_b-30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 90.0,
+        "bankDegrees": -30
+      },
+      "frame": {
+        "x": 1024,
+        "y": 512,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h05_b-30": {
+      "filename": "sprites/flight_h05_b-30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 112.5,
+        "bankDegrees": -30
+      },
+      "frame": {
+        "x": 1536,
+        "y": 512,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h06_b-30": {
+      "filename": "sprites/flight_h06_b-30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 135.0,
+        "bankDegrees": -30
+      },
+      "frame": {
+        "x": 2048,
+        "y": 512,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h07_b-30": {
+      "filename": "sprites/flight_h07_b-30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 157.5,
+        "bankDegrees": -30
+      },
+      "frame": {
+        "x": 2560,
+        "y": 512,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h08_b-30": {
+      "filename": "sprites/flight_h08_b-30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 180.0,
+        "bankDegrees": -30
+      },
+      "frame": {
+        "x": 3072,
+        "y": 512,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h09_b-30": {
+      "filename": "sprites/flight_h09_b-30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 202.5,
+        "bankDegrees": -30
+      },
+      "frame": {
+        "x": 3584,
+        "y": 512,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h10_b-30": {
+      "filename": "sprites/flight_h10_b-30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 225.0,
+        "bankDegrees": -30
+      },
+      "frame": {
+        "x": 0,
+        "y": 1024,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h11_b-30": {
+      "filename": "sprites/flight_h11_b-30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 247.5,
+        "bankDegrees": -30
+      },
+      "frame": {
+        "x": 512,
+        "y": 1024,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h12_b-30": {
+      "filename": "sprites/flight_h12_b-30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 270.0,
+        "bankDegrees": -30
+      },
+      "frame": {
+        "x": 1024,
+        "y": 1024,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h13_b-30": {
+      "filename": "sprites/flight_h13_b-30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 292.5,
+        "bankDegrees": -30
+      },
+      "frame": {
+        "x": 1536,
+        "y": 1024,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h14_b-30": {
+      "filename": "sprites/flight_h14_b-30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 315.0,
+        "bankDegrees": -30
+      },
+      "frame": {
+        "x": 2048,
+        "y": 1024,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h15_b-30": {
+      "filename": "sprites/flight_h15_b-30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 337.5,
+        "bankDegrees": -30
+      },
+      "frame": {
+        "x": 2560,
+        "y": 1024,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h00_b+00": {
+      "filename": "sprites/flight_h00_b+00.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 0.0,
+        "bankDegrees": 0
+      },
+      "frame": {
+        "x": 3072,
+        "y": 1024,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h01_b+00": {
+      "filename": "sprites/flight_h01_b+00.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 22.5,
+        "bankDegrees": 0
+      },
+      "frame": {
+        "x": 3584,
+        "y": 1024,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h02_b+00": {
+      "filename": "sprites/flight_h02_b+00.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 45.0,
+        "bankDegrees": 0
+      },
+      "frame": {
+        "x": 0,
+        "y": 1536,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h03_b+00": {
+      "filename": "sprites/flight_h03_b+00.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 67.5,
+        "bankDegrees": 0
+      },
+      "frame": {
+        "x": 512,
+        "y": 1536,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h04_b+00": {
+      "filename": "sprites/flight_h04_b+00.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 90.0,
+        "bankDegrees": 0
+      },
+      "frame": {
+        "x": 1024,
+        "y": 1536,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h05_b+00": {
+      "filename": "sprites/flight_h05_b+00.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 112.5,
+        "bankDegrees": 0
+      },
+      "frame": {
+        "x": 1536,
+        "y": 1536,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h06_b+00": {
+      "filename": "sprites/flight_h06_b+00.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 135.0,
+        "bankDegrees": 0
+      },
+      "frame": {
+        "x": 2048,
+        "y": 1536,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h07_b+00": {
+      "filename": "sprites/flight_h07_b+00.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 157.5,
+        "bankDegrees": 0
+      },
+      "frame": {
+        "x": 2560,
+        "y": 1536,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h08_b+00": {
+      "filename": "sprites/flight_h08_b+00.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 180.0,
+        "bankDegrees": 0
+      },
+      "frame": {
+        "x": 3072,
+        "y": 1536,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h09_b+00": {
+      "filename": "sprites/flight_h09_b+00.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 202.5,
+        "bankDegrees": 0
+      },
+      "frame": {
+        "x": 3584,
+        "y": 1536,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h10_b+00": {
+      "filename": "sprites/flight_h10_b+00.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 225.0,
+        "bankDegrees": 0
+      },
+      "frame": {
+        "x": 0,
+        "y": 2048,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h11_b+00": {
+      "filename": "sprites/flight_h11_b+00.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 247.5,
+        "bankDegrees": 0
+      },
+      "frame": {
+        "x": 512,
+        "y": 2048,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h12_b+00": {
+      "filename": "sprites/flight_h12_b+00.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 270.0,
+        "bankDegrees": 0
+      },
+      "frame": {
+        "x": 1024,
+        "y": 2048,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h13_b+00": {
+      "filename": "sprites/flight_h13_b+00.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 292.5,
+        "bankDegrees": 0
+      },
+      "frame": {
+        "x": 1536,
+        "y": 2048,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h14_b+00": {
+      "filename": "sprites/flight_h14_b+00.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 315.0,
+        "bankDegrees": 0
+      },
+      "frame": {
+        "x": 2048,
+        "y": 2048,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h15_b+00": {
+      "filename": "sprites/flight_h15_b+00.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 337.5,
+        "bankDegrees": 0
+      },
+      "frame": {
+        "x": 2560,
+        "y": 2048,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h00_b+30": {
+      "filename": "sprites/flight_h00_b+30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 0.0,
+        "bankDegrees": 30
+      },
+      "frame": {
+        "x": 3072,
+        "y": 2048,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h01_b+30": {
+      "filename": "sprites/flight_h01_b+30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 22.5,
+        "bankDegrees": 30
+      },
+      "frame": {
+        "x": 3584,
+        "y": 2048,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h02_b+30": {
+      "filename": "sprites/flight_h02_b+30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 45.0,
+        "bankDegrees": 30
+      },
+      "frame": {
+        "x": 0,
+        "y": 2560,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h03_b+30": {
+      "filename": "sprites/flight_h03_b+30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 67.5,
+        "bankDegrees": 30
+      },
+      "frame": {
+        "x": 512,
+        "y": 2560,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h04_b+30": {
+      "filename": "sprites/flight_h04_b+30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 90.0,
+        "bankDegrees": 30
+      },
+      "frame": {
+        "x": 1024,
+        "y": 2560,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h05_b+30": {
+      "filename": "sprites/flight_h05_b+30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 112.5,
+        "bankDegrees": 30
+      },
+      "frame": {
+        "x": 1536,
+        "y": 2560,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h06_b+30": {
+      "filename": "sprites/flight_h06_b+30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 135.0,
+        "bankDegrees": 30
+      },
+      "frame": {
+        "x": 2048,
+        "y": 2560,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h07_b+30": {
+      "filename": "sprites/flight_h07_b+30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 157.5,
+        "bankDegrees": 30
+      },
+      "frame": {
+        "x": 2560,
+        "y": 2560,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h08_b+30": {
+      "filename": "sprites/flight_h08_b+30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 180.0,
+        "bankDegrees": 30
+      },
+      "frame": {
+        "x": 3072,
+        "y": 2560,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h09_b+30": {
+      "filename": "sprites/flight_h09_b+30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 202.5,
+        "bankDegrees": 30
+      },
+      "frame": {
+        "x": 3584,
+        "y": 2560,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h10_b+30": {
+      "filename": "sprites/flight_h10_b+30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 225.0,
+        "bankDegrees": 30
+      },
+      "frame": {
+        "x": 0,
+        "y": 3072,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h11_b+30": {
+      "filename": "sprites/flight_h11_b+30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 247.5,
+        "bankDegrees": 30
+      },
+      "frame": {
+        "x": 512,
+        "y": 3072,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h12_b+30": {
+      "filename": "sprites/flight_h12_b+30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 270.0,
+        "bankDegrees": 30
+      },
+      "frame": {
+        "x": 1024,
+        "y": 3072,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h13_b+30": {
+      "filename": "sprites/flight_h13_b+30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 292.5,
+        "bankDegrees": 30
+      },
+      "frame": {
+        "x": 1536,
+        "y": 3072,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h14_b+30": {
+      "filename": "sprites/flight_h14_b+30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 315.0,
+        "bankDegrees": 30
+      },
+      "frame": {
+        "x": 2048,
+        "y": 3072,
+        "w": 512,
+        "h": 512
+      }
+    },
+    "flight_h15_b+30": {
+      "filename": "sprites/flight_h15_b+30.png",
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "usage": "topdown/game",
+      "meta": {
+        "headingDegrees": 337.5,
+        "bankDegrees": 30
+      },
+      "frame": {
+        "x": 2560,
+        "y": 3072,
+        "w": 512,
+        "h": 512
+      }
+    }
+  },
+  "animations": {
+    "turn_around_360": [
+      "flight_h00_b+00",
+      "flight_h01_b+00",
+      "flight_h02_b+00",
+      "flight_h03_b+00",
+      "flight_h04_b+00",
+      "flight_h05_b+00",
+      "flight_h06_b+00",
+      "flight_h07_b+00",
+      "flight_h08_b+00",
+      "flight_h09_b+00",
+      "flight_h10_b+00",
+      "flight_h11_b+00",
+      "flight_h12_b+00",
+      "flight_h13_b+00",
+      "flight_h14_b+00",
+      "flight_h15_b+00"
+    ],
+    "bank_left": [
+      "flight_h00_b+00",
+      "flight_h00_b-30"
+    ],
+    "bank_right": [
+      "flight_h00_b+00",
+      "flight_h00_b+30"
+    ]
+  },
+  "credits": "Visual artwork generated for Intruder Yankee Station; atlas derived and aligned for game use."
+}
