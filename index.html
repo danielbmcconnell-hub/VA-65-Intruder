@@ -10,7 +10,7 @@
 }
 </style>
 </head><body>
-<title>Intruder: Yankee Station — Milestone 2.4</title>
+<title>Intruder: Yankee Station — Willard Egress</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Share+Tech+Mono&display=swap">
@@ -844,6 +844,12 @@ body.desktop #hudbar{display:flex}
 <script src="assets/flight/strike-board.js"></script>
 <script src="assets/flight/strike-effects.js"></script>
 <script src="assets/flight/sortie-checkpoint.js"></script>
+<script src="assets/willard/interceptor.js"></script>
+<script src="assets/willard/flak.js"></script>
+<script src="assets/willard/sprites.js"></script>
+<script src="assets/willard/presentation.js"></script>
+<script src="assets/willard/mission.js"></script>
+<link rel="stylesheet" href="assets/willard/presentation.css">
 <link rel="stylesheet" href="assets/flight/strike-board.css">
 <script>
 /* ===== src/00-assets.js ===== */
@@ -6399,7 +6405,7 @@ const CODEX = [
 
  { id:'sources', cat:'REFERENCE', t:'Sources &amp; a note on accuracy', html:`
   <p>Squadron dates, deployments, tail codes, carriers, awards and the events listed in the timeline are drawn from the Naval History and Heritage Command's <em>Dictionary of American Naval Aviation Squadrons</em> (via its published VA-65 entry), the Intruder Association squadron history, and Osprey's <em>A-6 Intruder Units of the Vietnam War</em>. Aircraft and DIANE component designations are as documented for the A-6A.</p>
-  <p>Where this game departs from history, it departs deliberately and in one direction: the flying is easier than it was. Terrain is generated rather than mapped; the radar is a friendly caricature of a difficult instrument; nobody in this game is hurt. Missions are built around documented events but the individual sorties are invented, and no aircrew here other than the dedication represents a specific real person.</p>
+  <p>Where this game departs from history, it departs deliberately and in one direction: the flying is easier than it was. Terrain is generated rather than mapped; the radar is a friendly caricature of a difficult instrument; nobody in this game is hurt. Missions are built around documented events but the individual sorties are invented, and the original sorties use invented crew pairings apart from the dedication. Willard Egress separately identifies the user-supplied historical crew account and labels its dramatized reconstruction.</p>
   <p>The Forrestal fire is included because it happened to this squadron and leaving it out would be a lie of omission. It is not playable.</p>`}
 ];
 
@@ -10221,7 +10227,7 @@ class Cockpit {
       g.textBaseline = 'middle'; g.textAlign = 'center';
       g.font = (tiny ? 8 : 8.5) + 'px "Share Tech Mono", monospace';
       g.fillStyle = '#9aa4ab';
-      g.fillText('LTJG W. S. McCONNELL', nx + nw / 2, ny + (tiny ? 9 : 10));
+      g.fillText(st.willard ? 'LT J. E. DISELROD' : 'LTJG W. S. McCONNELL', nx + nw / 2, ny + (tiny ? 9 : 10));
       g.fillStyle = AMB;
       g.fillText('BOMBARDIER / NAVIGATOR', nx + nw / 2, ny + (tiny ? 17 : 20));
       g.restore();
@@ -11202,7 +11208,7 @@ const App = {
         if (saved && this._graphicsResume === saved) {
           const game = saved.game;
           game.rend = this.rend; game.world.rend = this.rend;
-          const m = game.mis, tail = m.brief && m.brief.tail;
+          const m = game.mis, tail = m.visualTail || m.brief && m.brief.tail;
           if (tail) {
             this._tailOn = tail;
             this.rend.meshFromBuilder('intruder', buildIntruder(tail, m.brief.buno,
@@ -11456,7 +11462,7 @@ const App = {
       if (e.code === 'KeyM' && this.game && !onFoot) this.toggleKnee();
       if (e.code === 'Escape') this.pause(!$('#pauseVeil').classList.contains('on'));
       if (e.code === 'KeyF' && !onFoot) this.toggleFull();
-      if (e.code === 'KeyH') this.toggleLegend();
+      if (e.code === 'KeyH' && !this.game?.willard) this.toggleLegend();
       if (e.code === 'KeyY') this.toggleMouseFly();
       if (e.code === 'KeyC' && !onFoot) this.steerTo();
       if (e.code === 'Comma') this.steerNudge(-5);
@@ -12326,7 +12332,7 @@ const App = {
     else if (this.tab === 'plane') this.renderPlane(b);
     else this.renderSettings(b);
     b.appendChild(el('div', 'foot',
-      `A tribute project. VA-65 squadron history, deployment dates and aircraft systems are drawn from the Naval History and Heritage Command's <em>Dictionary of American Naval Aviation Squadrons</em>, the Intruder Association, and Osprey's <em>A-6 Intruder Units of the Vietnam War</em>. Terrain, individual sorties and all aircrew other than the dedication are invented.`));
+      `A tribute project. VA-65 squadron history, deployment dates and aircraft systems are drawn from the Naval History and Heritage Command's <em>Dictionary of American Naval Aviation Squadrons</em>, the Intruder Association, and Osprey's <em>A-6 Intruder Units of the Vietnam War</em>. Terrain and individual sorties are invented. Willard Egress separately labels its user-supplied historical crew attribution and dramatized reconstruction.`));
   },
 
   renderOps(b) {
@@ -12350,7 +12356,7 @@ const App = {
     const grid = el('div', 'missions');
     MISSIONS.forEach((m, i) => {
       const done = this.prog.done[m.id];
-      const locked = i > 0 && !this.prog.done[MISSIONS[i - 1].id] && !Store.get('unlockall', 0);
+      const locked = !m.willard && i > 0 && !this.prog.done[MISSIONS[i - 1].id] && !Store.get('unlockall', 0);
       const c = el('button', 'mcard' + (done ? ' done' : '') + (locked ? ' lock' : ''));
       c.innerHTML = `<div class="num">${done ? '✓' : m.num}</div>
         <div><div class="yr">${m.year} · ${m.code}</div>
@@ -12358,6 +12364,7 @@ const App = {
         <div class="de">${m.blurb}</div>
         <div class="meta">${m.chips.map(x => `<span class="chip${/NIGHT|SAM|AAA|ZERO/.test(x) ? ' hot' : ''}">${x}</span>`).join('')}
         ${done ? `<span class="chip ok">${this.prog.grade[m.id] || 'FLOWN'}</span>` : ''}</div></div>`;
+      c.dataset.mission=m.id;
       c.onclick = () => this.brief(m);
       grid.appendChild(c);
     });
@@ -12687,7 +12694,7 @@ const App = {
     $('#briefCode').textContent = m.year + ' · ' + m.code;
     const b = $('#briefBody'); b.innerHTML = '';
     b.appendChild(el('div', 'secthead', `<h2>${m.title}</h2><span class="eyebrow">Mission ${m.num}</span>`));
-    this.phead(m.escape ? 'kitty' : m.airStart ? 'rtb' : (m.num % 2 ? 'launch1' : 'overdeck'), b);
+    if(!m.willard)this.phead(m.escape ? 'kitty' : m.airStart ? 'rtb' : (m.num % 2 ? 'launch1' : 'overdeck'), b);
     const c = el('div', 'card');
     const k = m.brief;
     c.innerHTML = `<div class="banner">Ready Room Brief · Attack Squadron Sixty-Five</div>
@@ -13057,7 +13064,7 @@ const App = {
        the code she flew under — NL 502 off Constellation in 1966, NH 502
        off Kitty Hawk in 1969 — and an aeroplane wearing the wrong air
        wing is the sort of thing the man this is for would notice first. */
-    const tail = m.brief && m.brief.tail;
+    const tail = m.visualTail || m.brief && m.brief.tail;
     if (tail && tail !== this._tailOn) {
       this._tailOn = tail;
       const ship = (m.brief.origin || '').split('(')[0];
@@ -13170,6 +13177,7 @@ class Game {
     this._closeUpShip();
     if (mis.airStart) this.setupAirborne(); else this.setupDeck();
     this.atm = this.makeAtmos(mis.env);
+    if(mis.willard)WillardMission.start(this);
     this.teach(this.rightSeat ? 'rightseat' : 'start');
   }
 
@@ -13192,7 +13200,7 @@ class Game {
     const M = this.mis;
     ac.bombs = M.brief && /(\d+) \u00d7/.test(M.brief.ord) ? parseInt(M.brief.ord.match(/(\d+) \u00d7/)[1]) : 12;
     this.bombsMax = ac.bombs; ac.arms = 0;
-    this._samAt = 52 + Math.random() * 18;        // the missile, on its own clock
+    if(M.escape)this._samAt = 52 + Math.random() * 18; // Coker chapter only
   }
 
   /* ---------------- how far out the ship is ----------------
@@ -16602,7 +16610,7 @@ class Game {
     if (this.paused) return;
     const A = this.app, ac = this.ac, W = this.world, K = A.keys, g = A.gctl;
     this.t += dt;
-    const assist = A.set.assist;
+    const assist = this.willard && this.willard.difficulty==='rookie' ? 0 : A.set.assist;
 
     /* Out of the aeroplane. Everything from here happens on the end of a
        parachute and then on foot, and none of the flight model applies. */
@@ -17215,7 +17223,7 @@ class Game {
     R.setAtmos(this.atm);
     const episodeProfile=this.pow && POW.MemoryDetail && POW.Mindscape && POW.Mindscape.active(this)
       ? POW.MemoryDetail.renderState(this)
-      : this.pow && POW.EpisodeScene ? POW.EpisodeScene.renderState(this) : null;
+      : this.pow && POW.EpisodeScene ? POW.EpisodeScene.renderState(this) : this.willard && !this.evade && !this.chute ? WillardMission.lighting(this) : null;
     if(episodeProfile && episodeProfile.atmosphere)R.setAtmos(episodeProfile.atmosphere);
     R.setEpisode(episodeProfile,this.pow);
     /* ---- the lamps in the yard ----
@@ -17302,6 +17310,9 @@ class Game {
       fwd = vnorm([Math.sin(e2.hdg) * Math.cos(lk), -0.04 + Math.sin(lk),
                    -Math.cos(e2.hdg) * Math.cos(lk)]);
       up = [0, 1, 0];
+    } else if (this.willard && this.willard.rear && !this.result) {
+      eye=vadd(vadd(ac.p,vmul(ax.fwd,-3.6)),vmul(ax.up,1.6));
+      fwd=vmul(ax.fwd,-1);up=ax.up;this.camSm=null;
     } else if (this.extView) {
       const want = vadd(vadd(ac.p, vmul(ax.fwd, -32)), vmul(ax.up, 9));
       this.camSm = this.camSm ? vlerp(this.camSm, want, clamp(dt * 3.4, 0, 1)) : want;
@@ -17318,7 +17329,7 @@ class Game {
       eye = vadd(eye, [rnd(-s, s) * 0.2, rnd(-s, s) * 0.2, rnd(-s, s) * 0.2]);
       fwd = vnorm(vadd(fwd, [rnd(-s, s) * 0.004, rnd(-s, s) * 0.004, rnd(-s, s) * 0.004]));
     }
-    R.setCamera(eye, fwd, up, this.extView ? 55 : 62, this.evade ? .12 : this.chute ? .35 : 1.2, 60000, asp);
+    R.setCamera(eye, fwd, up, this.willard && this.willard.rear ? 54 : this.extView ? 55 : 62, this.evade ? .12 : this.chute ? .35 : 1.2, 60000, asp);
 
     /* ---- instanced meshes & photographic world inhabitants ----
        Version 4: previously ONLY evade.searchers used photographs.
@@ -17751,6 +17762,7 @@ class Game {
       }
       this._blobsN = blobs.length;
     }
+    if(this.willard && !this.evade && !this.chute)for(const gun of this.willard.flak.guns)push('aaa',gun.p,[gun.yaw || 0,0,0],[1.4,1.4,1.4],[1,1,1,0]);
     for (const g of W.threats) if (g.alive) push(g.type === 'aaaH' ? 'aaa' : 'aaa', g.p, [g.yaw, 0, 0], g.type === 'aaaH' ? [1.4, 1.4, 1.4] : [1, 1, 1], [1, 1, 1, 0]);
     for (const b of W.bombs) push('bombLive', b.p, [Math.atan2(b.v[0], -b.v[2]), Math.asin(clamp(b.v[1] / Math.max(vlen(b.v), 1), -1, 1)), 0], [1, 1, 1], [1, 1, 1, 0]);
     for (const s of W.sams) push('samFly', s.p, [Math.atan2(s.v[0], -s.v[2]), Math.asin(clamp(s.v[1] / Math.max(vlen(s.v), 1), -1, 1)), 0], [1, 1, 1], [1, 1, 1, 0.2]);
@@ -17831,6 +17843,7 @@ class Game {
       if (fallback.length) R.drawSprites('people', fallback);
       for (const [name, list] of Object.entries(groups)) R.drawSprites('photo_'+name, list);
     }
+    if(this.willard && !this.evade && !this.chute && this.willard.enemy)WillardSprites.draw(R,this.willard.enemy,{dt,light:.78});
     /* The see-through pass: canopy perspex, and the rotor discs, which
        are the same problem — a surface you look through that still
        catches the light. */
@@ -17867,6 +17880,7 @@ class Game {
     else this.hud.draw(this.st);
     this.syncControls();
     this._updateWeaponView();
+    if(this.willard)WillardPresentation.render(this);
   }
 
   /* Which touch controls are on screen, every frame.
@@ -18108,6 +18122,9 @@ if(POW.FigureMotion)POW.FigureMotion.configure({metadata:PHOTO_ATLAS.people});
 POW.install();
 FlightCoach.install({Game,App,Store});
 FlightStrikeBoard.install({App,Store});
+MISSIONS.push(WillardMission.definition);
+WillardMission.install({App,Game,Store,terrainH,coastAt});
+WillardPresentation.install({App,Game,Store,retry:game=>WillardMission.retry(game),pause:on=>App.pause(on),toggleCamera:game=>{game.extView=!game.extView;game.camSm=null;}});
 const _strikeShow=App.show;
 App.show=function(){const result=_strikeShow.apply(this,arguments);FlightStrikeBoard.render(this.game);return result;};
 const _strikeFlightUpdate=Game.prototype.update;
@@ -18124,8 +18141,8 @@ const _originalStepEvade = Game.prototype.stepEvade;
 Game.prototype.stepEvade = function(dt) {
   return this.pow ? POW.tick(this,dt) : _originalStepEvade.call(this,dt);
 };
-App.cokerCamp = function(game) { return POW.begin(game,'cell'); };
-App.captivity = function(game) { return POW.begin(game,'solitary'); };
+App.cokerCamp = function(game) { if (this.game !== game) return; return POW.begin(game,'cell'); };
+App.captivity = function(game) { if (this.game !== game) return; return POW.begin(game,'solitary'); };
 const _originalCaptured = Game.prototype.captured;
 Game.prototype.captured = function() {
   if (!this.pow) return _originalCaptured.call(this);

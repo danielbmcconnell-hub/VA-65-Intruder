@@ -11,7 +11,7 @@
   const integer = value => Number.isSafeInteger(value) && value >= 0 && value <= MAX_COUNT;
   const finite = (value, min, max) => Number.isFinite(value) && value >= min && value <= max;
   const text = value => typeof value === 'string' && value.length > 0 && value.length <= 80;
-  const id = value => typeof value === 'string' && /^(?:m(?:[1-9]|10|11)|free)$/.test(value);
+  const id = value => typeof value === 'string' && /^(?:m(?:[1-9]|10|11)|free|willard)$/.test(value);
   const originalTargets = game => game && game.world && Array.isArray(game.world.targets)
     ? game.world.targets.filter(target => target && !target.bonus) : null;
 

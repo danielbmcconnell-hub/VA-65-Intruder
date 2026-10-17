@@ -27,7 +27,7 @@ module.exports = async function missionChecks(browser, baseURL, output) {
       await page.click('#bootGo');
       await page.click('#tabs [data-tab="set"]');
       await page.getByRole('button',{name:'Unlock all missions',exact:true}).click();
-      assert.equal(await page.locator('#readyBody .mcard').count(),11);
+      assert.equal(await page.locator('#readyBody .mcard').count(),12);
       const cdp=profile.hasTouch ? await context.newCDPSession(page) : null;
       for(let i=0;i<11;i++) {
         await page.locator('#readyBody .mcard').nth(i).click();

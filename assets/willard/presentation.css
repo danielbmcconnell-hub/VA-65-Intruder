@@ -1,0 +1,19 @@
+#willardHUD{position:absolute;inset:0;z-index:28;pointer-events:none;color:#f1e6c8;font:11px/1.35 system-ui,sans-serif;text-shadow:0 1px 3px #000}
+#willardHUD[hidden]{display:none}
+.willard-status{position:absolute;left:calc(150px + env(safe-area-inset-left,0px));right:calc(112px + env(safe-area-inset-right,0px));top:calc(8px + env(safe-area-inset-top,0px));max-width:680px;margin-inline:auto;padding:6px 12px;background:linear-gradient(90deg,rgba(8,14,19,.94),rgba(8,14,19,.66));border-left:3px solid #bda875;border-radius:3px}
+#willardPhase{display:block;color:#e4cf94;font-size:11px;letter-spacing:.09em}
+.willard-status p{margin:2px 0}
+#willardObjective{font-weight:650;color:#f5eee0}
+#willardContact{color:#c3d4dd;font-size:10px}
+#willardNavigation{color:#a4c1bf;font-size:10px}
+#willardHUD[data-phase=contact] #willardContact,#willardHUD[data-phase=defend] #willardContact,#willardHUD[data-phase=flak] #willardContact{color:#ffd096}
+#willardControls{position:absolute;bottom:calc(12px + env(safe-area-inset-bottom,0px));left:calc(145px + env(safe-area-inset-left,0px));right:calc(110px + env(safe-area-inset-right,0px));display:flex;gap:6px;justify-content:center;pointer-events:none}
+#willardControls button{pointer-events:auto;touch-action:manipulation;min-height:46px;min-width:56px;padding:8px 12px;max-width:160px;border:1px solid #879792;border-radius:4px;background:rgba(12,24,29,.95);color:#ece5ce;font:650 10px/1.15 system-ui,sans-serif;letter-spacing:.03em}
+#willardControls button[aria-pressed=true]{border-color:#f1be6b;background:rgba(75,49,21,.96);color:#ffe4ac}
+#willardControls button:disabled{opacity:.45}
+#willardControls button:focus-visible{outline:3px solid #f7d78c;outline-offset:2px}
+body.willard-flight #flightStrikeBoard{top:calc(108px + env(safe-area-inset-top,0px))}
+@media(max-height:470px){.willard-status{left:calc(132px + env(safe-area-inset-left,0px));right:calc(84px + env(safe-area-inset-right,0px));top:calc(4px + env(safe-area-inset-top,0px));padding:4px 8px;max-width:570px;font-size:10px}#willardPhase{font-size:10px;letter-spacing:.04em}#willardContact,#willardNavigation{font-size:9px}#willardControls{bottom:calc(9px + env(safe-area-inset-bottom,0px));left:calc(132px + env(safe-area-inset-left,0px));right:calc(88px + env(safe-area-inset-right,0px));gap:4px}#willardControls button{padding:7px 9px;min-height:44px;min-width:52px;font-size:9px}body.willard-flight #flightStrikeBoard{top:calc(96px + env(safe-area-inset-top,0px))}}
+@media(max-width:600px){.willard-status{left:calc(65px + env(safe-area-inset-left,0px));right:calc(72px + env(safe-area-inset-right,0px))}#willardControls{left:calc(126px + env(safe-area-inset-left,0px));right:calc(86px + env(safe-area-inset-right,0px));gap:3px;flex-wrap:wrap}#willardControls button{min-width:48px;padding:6px;font-size:8px}}
+
+#willardBrief{padding:16px}#willardBrief label{display:inline-flex;align-items:center;gap:8px;min-height:44px}#willardBrief select{min-height:44px;font:inherit;padding:8px;background:#14212a;color:#f4ecd4;border:1px solid #84938a}#willardBrief .btn{min-height:44px;margin:5px}

@@ -70,7 +70,7 @@ module.exports = async function flightCoachBrowser(browser, target, evidenceDir)
       const response = await page.goto(target, { waitUntil: 'domcontentloaded' }); assert.equal(response.status(), 200);
       const sourceSha256 = crypto.createHash('sha256').update(await response.text()).digest('hex');
       await page.waitForFunction(() => window.App && App.screen === 'boot'); await page.click('#bootGo');
-      assert.equal(await page.locator('#readyBody .mcard').count(), 11);
+      assert.equal(await page.locator('#readyBody .mcard').count(), 12);
       await page.locator('#readyBody .mcard').first().click(); await page.getByRole('button', { name: 'Man Aircraft', exact: true }).click(); await loaded('m1');
       const initial = await page.evaluate(() => ({ enabled: FlightCoach.enabled(App.game), pressed: document.getElementById('flightCoachToggle').getAttribute('aria-pressed'),
         version: App.rend.gl.getParameter(App.rend.gl.VERSION), panelHidden: document.getElementById('flightCoachCue').hidden, quality: App.rend.quality }));
