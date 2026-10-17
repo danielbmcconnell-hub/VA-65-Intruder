@@ -1,3 +1,21 @@
+# Willard Egress — playable night interception
+
+The complete game now includes **12 · WILLARD EGRESS**: a nighttime VA-65 A-6A escape with the supplied MiG-17PF artwork, finite cannon fire, hostile flak, B/N navigation, earned pursuit break-off, safe egress, checkpoints and optional original carrier recovery. All previous missions, POW chapters, rooftop rope fix and photographs remain.
+
+- **[Download the complete Netlify ZIP — 34.7 MB](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/willard-egress/releases/Intruder_Yankee_Station_Willard_Egress.zip)**
+- [Download screenshots and test evidence — 59.8 MB](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/willard-egress/releases/Intruder_Yankee_Station_Willard_Egress_Evidence.zip) — 65 actual browser captures, with gameplay and rendering fixtures distinguished.
+- [Twelve selected screenshots](willard-egress-screenshots/), [play guide](../docs/WILLARD_EGRESS_PLAY_GUIDE.md), [implementation/test/deployment report](../docs/WILLARD_EGRESS_REPORT.md), [historical audit](../docs/WILLARD_EGRESS_HISTORY.md), [summary](willard-egress-summary.json) and [132 runtime hashes](willard-egress-build-manifest.json).
+
+Sign into the private GitHub repository before downloading. On Windows choose **Extract All**, then upload the extracted folder containing `index.html`, `assets/` and `_headers` to the existing Netlify project's **Deploys** page. The [existing site](https://steady-croquembouche-46c1a0.netlify.app/) has not been redeployed by this delivery. A Git-connected deployment can use branch `willard-egress`, build command `npm run build` and publish directory `dist/site`.
+
+After deployment: **Ready Room → 12 · WILLARD EGRESS → PLAY MISSION**. Start with Rookie if learning the controls. This sortie uses the pilot's seat with B/N guidance; other missions retain your normal seat preference. Use WASD/flight stick, Shift/Ctrl or THR +/−, and **H / LOOK AFT**. The optional bombing pass uses the original SCOPE/LOCK/COMMIT attack computer. Automatic strike/gun-belt checkpoints permit rapid retries and saved Continue.
+
+**574 source-browser checks, 528 domain checks and 11 packaged checks passed.** Two deterministic automated standard sorties completed through original A-6A physics and real damage in 8:13 and 8:30. Additional trusted mouse/keyboard/touch tests cover flight controls, pause, cumulative retry, reload, real destruction, optional ballistic impact, ejection, capture and the repaired stale-capture callback. Earlier regressions ran incrementally; final-source checks and fixtures are identified in the report. Physical Windows/iPhone Safari, hardware FPS, human difficulty and subjective sound remain untested.
+
+Historical reconstruction: the supplied 1966 encounter and crew details await independent archival corroboration; the pursuer's identification as MiG-17PF is unconfirmed. Its supplied two-dimensional AI game artwork is not a historical photograph or exact 3D model. Dialogue and combat are dramatized. The original McConnell tribute remains separate.
+
+Source commit `0265c3ff796f0db2a1e965a13600ae4cca8546df`. Playable ZIP SHA-256 `7f75f42cb025f1de583432782398f1688ee3d538e559f091a881359574f1417f`. Earlier history, branches and downloads are preserved below.
+
 # Milestone 2.4 — B/N target correlation and readable strikes
 
 A new optional **B/N worksheet** helps you compare the briefing with actual radar returns, record a target hypothesis, use the original LOCK and consent through the existing ASQ-61 solution. Real impacts have clearer dust, flash and smoke, with delayed target-specific secondary explosions. The survival HUD, debrief and Cruise Log now track pistol rounds expended; capture/reload preserves the original sortie. A-6A physics, eleven missions and photographs are preserved.
