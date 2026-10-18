@@ -10,7 +10,7 @@
 }
 </style>
 </head><body>
-<title>Intruder: Yankee Station — Willard Egress</title>
+<title>Intruder: Yankee Station — B/N Immersion</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Share+Tech+Mono&display=swap">
@@ -844,6 +844,8 @@ body.desktop #hudbar{display:flex}
 <script src="assets/flight/strike-board.js"></script>
 <script src="assets/flight/strike-effects.js"></script>
 <script src="assets/flight/sortie-checkpoint.js"></script>
+<script src="assets/flight/route-scene.js"></script>
+<script src="assets/flight/immersion.js"></script>
 <script src="assets/willard/interceptor.js"></script>
 <script src="assets/willard/flak.js"></script>
 <script src="assets/willard/sprites.js"></script>
@@ -851,6 +853,7 @@ body.desktop #hudbar{display:flex}
 <script src="assets/willard/mission.js"></script>
 <link rel="stylesheet" href="assets/willard/presentation.css">
 <link rel="stylesheet" href="assets/flight/strike-board.css">
+<link rel="stylesheet" href="assets/flight/immersion.css">
 <script>
 /* ===== src/00-assets.js ===== */
 /* ===================================================================
@@ -2081,7 +2084,7 @@ float sunVis(vec3 wp, vec3 n, float ndl){
 `;
 const GLSL_ATMOS = `
 uniform vec3 uHorizon, uZenith, uSunDir, uSunCol, uAmb, uGround;
-uniform float uFogDens, uFogHeight, uTurb;
+uniform float uFogDens, uFogHeight, uTurb, uNightContrast;
 uniform vec4 uTgt;    // target area: x, z, radius, enable
 uniform vec4 uFires[8];      // xyz pos, w intensity
 uniform float uFireR[8];     // soft-core radius squared, per light
@@ -2128,7 +2131,9 @@ vec3 applyFog(vec3 col, vec3 wp, vec3 cam){
   vec3 haze = skyTint(rd);
   float toSun = max(dot(rd, uSunDir), 0.0);
   haze += uSunCol * pow(toSun, 3.2) * 0.34 * uTurb * f;
-  haze = mix(haze, haze * 0.72 + vec3(0.30, 0.33, 0.38), f * 0.42);
+  // Only the opted-in night route removes the daylight whitening floor.
+  vec3 hazeLift = mix(vec3(0.30, 0.33, 0.38), uHorizon * 0.85 + uAmb * 0.12, clamp(uNightContrast, 0.0, 1.0));
+  haze = mix(haze, haze * 0.72 + hazeLift, f * 0.42);
   return mix(col, haze, f);
 }
 vec3 fireLight(vec3 wp, vec3 n){
@@ -3676,6 +3681,7 @@ class Renderer {
     gl.uniform3fv(p.u.uGround, a.gnd || a.amb);
     gl.uniform1f(p.u.uFogDens, a.fogDens); gl.uniform1f(p.u.uFogHeight, a.fogHeight);
     gl.uniform1f(p.u.uTurb, a.turb === undefined ? 1 : a.turb);
+    gl.uniform1f(p.u.uNightContrast, Math.max(0, Math.min(1, a.nightContrast || 0)));
     /* the cloud deck, for the shadow it throws on the ground */
     gl.uniform1f(p.u.uCloudY, a.cloud); gl.uniform1f(p.u.uCloudT, this.time || 0);
     gl.uniform1f(p.u.uCloudOv, a.overcast);
@@ -4058,7 +4064,7 @@ class Renderer {
     gl.uniform1f(this.pComp.u.uGrain, ngt ? 0.040 : 0.020);
     gl.uniform1f(this.pComp.u.uFlash, flash || 0);
     gl.uniform1f(this.pComp.u.uVig, ngt ? 0.50 : 0.34);
-    gl.uniform1f(this.pComp.u.uNight, this.episode ? ngt*.65 : ngt);
+    gl.uniform1f(this.pComp.u.uNight, this.atm.nightContrast > 0 ? ngt : this.episode ? ngt*.65 : ngt);
     gl.uniform1f(this.pComp.u.uExp, exposure || 1);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     gl.activeTexture(gl.TEXTURE0);
@@ -8901,7 +8907,9 @@ class Radar {
     this.sweep = 0;
     this.cvs = document.createElement('canvas');
     this.cvs.width = this.NA; this.cvs.height = this.NR;
-    this.ctx = this.cvs.getContext('2d', { willReadFrequently: false });
+    // This small raster is rewritten with ImageData every sweep; a CPU
+    // backing store suits that direct pixel-writing workload.
+    this.ctx = this.cvs.getContext('2d', { willReadFrequently: true });
     this.img = this.ctx.createImageData(this.NA, this.NR);
     this.age = new Float32Array(this.NA);
   }
@@ -9056,7 +9064,12 @@ class Cockpit {
     if (st.evade) { this.drawEvade(st); return; }
     if (st.chute) { this.drawChute(st); return; }
     if (st.extView) { this.drawExternal(st); return; }
-    if (this.scope) { if (st.rightSeat) this.drawBNStation(st); else this.drawScope(st); }
+    if (this.scope) {
+      // Opaque instrument panels need no glass-symbology shadow. Disable it
+      // before either CRT clip is created, rather than only at the bitmap.
+      g.shadowBlur = 0; g.shadowColor = 'transparent';
+      if (st.rightSeat) this.drawBNStation(st); else this.drawScope(st);
+    }
     else this.drawPilot(st);
   }
 
@@ -10021,6 +10034,10 @@ class Cockpit {
     // brightness and shape, and reading it was the skill.
     const img = rad.bake([1, 0.85, 0.3][this.assistLvl === undefined ? 1 : this.assistLvl]);
     g.save();
+    // The phosphor raster must not inherit the symbology's black halo. In
+    // particular, nested CRT/fan clips plus a shadowed transparent image can
+    // discard the surrounding panel on affected canvas GPU drivers.
+    g.shadowBlur = 0; g.shadowColor = 'transparent';
     g.globalAlpha = alpha;
     g.beginPath(); g.moveTo(ax, ay);
     g.arc(ax, ay, depth, -PI / 2 - RSECT, -PI / 2 + RSECT); g.closePath();
@@ -10078,6 +10095,7 @@ class Cockpit {
      his face in. */
   drawBNStation(st) {
     const g = this.g, W = this.W, H = this.H;
+    g.shadowBlur = 0; g.shadowColor = 'transparent';
     const tiny = Math.min(W, H) < 400, small = Math.min(W, H) < 520;
     const dead = st.dmg.diane > 0.8;
     g.fillStyle = '#070a0c'; g.fillRect(0, 0, W, H);
@@ -11351,7 +11369,7 @@ const App = {
       $('#'+id).onclick=()=>{const e=this.game&&this.game.evade;if(e&&!e.frozen)e.weaponWant=weapon;};
     $('#btnSurrender').onclick=()=>{if(this.game)this.game.raiseHands();};
     $('#btnFire').onclick=()=>{const e=this.game&&this.game.evade;if(e&&!e.frozen)e.attackWant=1;};
-    $('#btnScope').onclick = () => this.toggleScope();
+    WillardPresentation.bindButton($('#btnScope'), () => this.toggleScope());
     /* The note card folds away on a tap and comes back on a tap. On a
        phone it covers a third of the screen, and there was no way to get
        rid of it. */
@@ -11360,7 +11378,7 @@ const App = {
       tc.onclick = () => { tc.classList.remove('on'); tp.classList.add('on'); };
       tp.onclick = () => { tp.classList.remove('on'); tc.classList.add('on'); };
     }
-    $('#btnView').onclick = () => { if (this.game) this.game.extView = !this.game.extView; };
+    $('#btnView').onclick = () => { if (this.game?.willard && !this.game.evade && !this.game.chute) WillardPresentation.camera(this.game); else if (this.game) this.game.extView = !this.game.extView; };
     $('#btnGear').onclick = () => this.toggleGear();
     $('#btnBrake').onclick = () => { if (this.game) { this.game.brakeHold = !this.game.brakeHold; $('#btnBrake').classList.toggle('on', this.game.brakeHold); } };
     $('#pauseBtn').onclick = () => this.pause(true);
@@ -11451,7 +11469,7 @@ const App = {
       /* On the ground these keys belong to the man, not the aeroplane:
          V is the knife, F draws the revolver and R is the survival radio. */
       const onFoot = this.game && this.game.evade;
-      if (e.code === 'KeyV' && !onFoot) { if (this.game) this.game.extView = !this.game.extView; }
+      if (e.code === 'KeyV' && !onFoot) { if (this.game?.willard) WillardPresentation.camera(this.game); else if (this.game) this.game.extView = !this.game.extView; }
        if (e.code === 'KeyX' && onFoot) this.game.raiseHands();
       if (e.code === 'KeyG' && !onFoot) this.toggleGear();
       if (e.code === 'KeyB' && this.game) { this.game.brakeHold = !this.game.brakeHold; $('#btnBrake').classList.toggle('on', this.game.brakeHold); }
@@ -17221,9 +17239,13 @@ class Game {
     if(typeof FlightStrikeBoard!=='undefined')FlightStrikeBoard.render(this);
     if(POW.EpisodeAudio)POW.EpisodeAudio.step(this,0);
     R.setAtmos(this.atm);
-    const episodeProfile=this.pow && POW.MemoryDetail && POW.Mindscape && POW.Mindscape.active(this)
+    let episodeProfile=this.pow && POW.MemoryDetail && POW.Mindscape && POW.Mindscape.active(this)
       ? POW.MemoryDetail.renderState(this)
       : this.pow && POW.EpisodeScene ? POW.EpisodeScene.renderState(this) : this.willard && !this.evade && !this.chute ? WillardMission.lighting(this) : null;
+    if(this.willard && !this.evade && !this.chute){
+      const night=FlightRouteScene.atmosphere(this,this.atm);
+      if(night!==this.atm)episodeProfile={...(episodeProfile||{}),atmosphere:night};
+    }
     if(episodeProfile && episodeProfile.atmosphere)R.setAtmos(episodeProfile.atmosphere);
     R.setEpisode(episodeProfile,this.pow);
     /* ---- the lamps in the yard ----
@@ -17261,7 +17283,7 @@ class Game {
       if (this.cellPos && fl.length < 8)
         fl.push([this.cellPos[0], y0 + 2.5, this.cellPos[2] - 0.4, 0.70, 8.0, LAMP]);
       R.setFires(fl);
-    } else R.setFires(typeof FlightStrikeEffects!=='undefined'?FlightStrikeEffects.lights(W,ac.p,R.quality):W.fires);
+    } else R.setFires(FlightImmersion.lights(this,ac.p,typeof FlightStrikeEffects!=='undefined'?FlightStrikeEffects.lights(W,ac.p,R.quality):W.fires,R.quality));
     const ax = bodyAxes(ac.yaw, ac.pitch, ac.roll);
     const asp = R.W / R.H;
     let eye, fwd, up;
@@ -17329,7 +17351,8 @@ class Game {
       eye = vadd(eye, [rnd(-s, s) * 0.2, rnd(-s, s) * 0.2, rnd(-s, s) * 0.2]);
       fwd = vnorm(vadd(fwd, [rnd(-s, s) * 0.004, rnd(-s, s) * 0.004, rnd(-s, s) * 0.004]));
     }
-    R.setCamera(eye, fwd, up, this.willard && this.willard.rear ? 54 : this.extView ? 55 : 62, this.evade ? .12 : this.chute ? .35 : 1.2, 60000, asp);
+    R.setCamera(eye, fwd, up, this.willard && this.willard.rear ? WillardPresentation.rearFov(this) : this.extView ? 55 : 62, this.evade ? .12 : this.chute ? .35 : 1.2, 60000, asp);
+    if(this.willard && !this.evade && !this.chute)FlightRouteScene.ensureMeshes(R);
 
     /* ---- instanced meshes & photographic world inhabitants ----
        Version 4: previously ONLY evade.searchers used photographs.
@@ -17461,6 +17484,7 @@ class Game {
     }
     if (!this.pow) {
       for (const s of W.scenery) push(s.m, s.p, [s.y, 0, 0], [s.s, s.s, s.s], [1, 1, 1, 0]);
+      if(this.willard && !this.evade && !this.chute)FlightRouteScene.instances(this,eye,R.quality,push);
       W.clutter(this.rend.eye, null, push);
     }
     if (this.campGeo && this.evade && this.evade.camp) {
@@ -18125,6 +18149,8 @@ FlightStrikeBoard.install({App,Store});
 MISSIONS.push(WillardMission.definition);
 WillardMission.install({App,Game,Store,terrainH,coastAt});
 WillardPresentation.install({App,Game,Store,retry:game=>WillardMission.retry(game),pause:on=>App.pause(on),toggleCamera:game=>{game.extView=!game.extView;game.camSm=null;}});
+FlightRouteScene.configure({terrainH,coastAt,fbm,MB,Store});
+FlightImmersion.install({App,Game,Store});
 const _strikeShow=App.show;
 App.show=function(){const result=_strikeShow.apply(this,arguments);FlightStrikeBoard.render(this.game);return result;};
 const _strikeFlightUpdate=Game.prototype.update;

@@ -1,3 +1,10 @@
+# B/N immersion
+
+- Added independent chart/radar comparison, uncertain target hypotheses and advisory run-in plotting, using public briefing information and actual radar returns.
+- Added grounded route landmarks, adjustable Willard night visibility and bounded lighting from actual flak bursts; original aircraft physics, twelve missions and photographs are preserved.
+- Added readable combat alerts and rear-view magnification. Unified Willard camera transitions, corrected false stores-expended guidance, and repaired opaque B/N radar rendering and post-drag touch SCOPE activation.
+- Verification and device limits: [B/N immersion report](docs/BN_IMMERSION_REPORT.md). Native browser screenshots distinguish actual gameplay from explicit rendering fixtures.
+
 # Milestone 1
 
 ## Original photographs and development baseline

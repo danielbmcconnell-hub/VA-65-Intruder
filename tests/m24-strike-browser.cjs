@@ -55,6 +55,35 @@ module.exports = async function strikeBrowser(browser, target, evidenceDir) {
       finally { if (cdp) await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); else await page.keyboard.up('Space'); }
       assert.ok(actual.accepted > actual.before && (actual.bombCount > 0 || actual.armsCount > 0), 'Original weapon release must accept native consent: ' + JSON.stringify(actual)); assert.equal(actual.alive, true); return actual;
     }
+    async function armConsent() {
+      // The preserved ARM is edge-triggered: holding COMMIT while an emitter
+      // is silent cannot launch when it returns. Observe the genuine emitter
+      // cycle, test that negative path, then make a fresh trusted consent edge.
+      // No emission, target, weapon or damage state is assigned here.
+      const silent = await page.evaluate(() => {
+        const g = App.game; let frames = 0;
+        while ((g.world.radar.emitting || g.world.radar.strobe < .5) && g.ac.alive && frames++ < 7200) g.update(1 / 60);
+        return { frames, time: g.t, emitting: g.world.radar.emitting, strobe: g.world.radar.strobe, released: g.world.score.armsReleased || 0, alive: g.ac.alive };
+      });
+      assert.equal(silent.alive, true); assert.equal(silent.emitting, false); assert.ok(silent.strobe >= .5);
+      if (cdp) { const b = await page.locator('#pickle').boundingBox(); await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: b.x + b.width / 2, y: b.y + b.height / 2, id: 3, radiusX: 6, radiusY: 6, force: 1 }] }); }
+      else await page.keyboard.down('Space');
+      let held;
+      try {
+        held = await page.evaluate(() => {
+          const g = App.game; g.update(1 / 60);
+          const first = { time: g.t, emitting: g.world.radar.emitting, released: g.world.score.armsReleased || 0, commit: g._lastCommit };
+          let frames = 0;
+          while ((!g.world.radar.emitting || g.world.radar.strobe < .5) && g.ac.alive && frames++ < 7200) g.update(1 / 60);
+          return { first, frames, time: g.t, emitting: g.world.radar.emitting, strobe: g.world.radar.strobe, released: g.world.score.armsReleased || 0, alive: g.ac.alive };
+        });
+      } finally { if (cdp) await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); else await page.keyboard.up('Space'); }
+      assert.equal(held.first.emitting, false); assert.equal(held.first.commit, 1); assert.equal(held.first.released, silent.released);
+      assert.equal(held.alive, true); assert.equal(held.emitting, true); assert.ok(held.strobe >= .5); assert.equal(held.released, silent.released, 'A held consent must not launch merely because the emitter returns.');
+      await page.evaluate(() => App.game.update(1 / 60)); // Release resets the original edge detector.
+      const launched = await consent();
+      return { ...launched, emitterTiming: { silent, held, method: 'Real emitter cycle and native release/repress; no emitter or launch setter.' } };
+    }
     async function setupPass(point, lead = 0) {
       return page.evaluate(({ point, lead }) => { const g = App.game, a = g.ac, w = g.world;
         a.p = [point[0], point[1] + 120, point[2] + 1000]; a.v = [0, 0, -110]; a.yaw = 0; a.pitch = .03; a.roll = 0; a.gear = a.hook = false; a.onDeck = false; g.phase = 'airborne'; g.ripple = 1;
@@ -124,11 +153,11 @@ module.exports = async function strikeBrowser(browser, target, evidenceDir) {
       await flight('m8'); const radarPoint = await page.evaluate(() => App.game.world.radar.p.slice()); await placeReadback(radarPoint);
       const armBefore = await page.evaluate(() => ({ available: App.game.ac.arms, bombs: App.game.ac.bombs, type: App.game.mis.type, aircraft: App.game.mis.brief.ac }));
       assert.equal(armBefore.type, 'ironhand'); assert.ok(armBefore.available > 0); assert.match(armBefore.aircraft, /A-6B/);
-      const armRelease = await consent(); assert.equal(armRelease.armsReleased, 1); assert.equal(armRelease.dropped, 0); assert.equal(armRelease.arms, armBefore.available - 1);
+      const armRelease = await armConsent(); assert.equal(armRelease.armsReleased, 1); assert.equal(armRelease.dropped, 0); assert.equal(armRelease.arms, armBefore.available - 1);
       await render(); await click(page.locator('#flightStrikeBoardToggle')); const armBoard = await page.evaluate(() => FlightStrikeBoard.snapshot(App.game)); assert.equal(armBoard.stores.armsReleased, 1); assert.equal(armBoard.stores.bombsReleased, 0); assert.equal(armBoard.stores.released, 1); await shot('a6b-arm-stores-accounting'); await click(page.locator('#flightStrikeBoardToggle'));
       const armImpact = await untilImpact(); const radar = await page.evaluate(() => ({ hp: App.game.world.radar.hp, alive: App.game.world.radar.alive })); assert.equal(radar.alive, false); assert.ok(radar.hp <= 0); assert.ok(armImpact.visual.flashes.some(f => f.source === 'arm')); assert.equal(armImpact.visual.queue, 0);
       await frameImpact(radarPoint); await shot('a6b-arm-radar-impact');
-      record('Existing A-6B ARM launch is counted separately and an actual guided impact destroys the radar without fuel cook-off', { armBefore, armRelease, armBoard, impact: armImpact, radar }, 'Existing historical A-6B Iron Hand mission only. Native COMMIT/Space launches the original ARM; real seeker guidance, gravity/contact and target HP run without a fake radar kill. No A-6A gun or ARM capability is added.');
+      record('Existing A-6B ARM requires fresh consent on an active emitter, is counted separately and actually destroys the radar without fuel cook-off', { armBefore, armRelease, armBoard, impact: armImpact, radar }, 'Existing historical A-6B Iron Hand mission only. Genuine emission cycles prove that a silent-emitter press and continued hold do not launch; a fresh native COMMIT/Space press after emission returns launches the original ARM. Real seeker guidance, gravity/contact and target HP remain unchanged. No A-6A gun or ARM capability is added.');
       assert.deepEqual(errors, []); assert.deepEqual(badAssets, []); record('No uncaught JavaScript errors or missing runtime assets across target interpretation and real bomb impacts', { errors, badAssets }, 'Actual custom WebGL2 screenshots on desktop and simulated iPhone touch layout.');
     } catch (error) { const state = await page.evaluate(() => ({ screen: App?.screen, phase: App?.game?.phase, paused: App?.game?.paused, alive: App?.game?.ac?.alive, mission: App?.game?.mis?.id, graphicsLost: App?.graphicsContextLost, boardHidden: document.getElementById('flightStrikeBoard')?.hidden, teacher: document.getElementById('teach')?.className, teacherPeek: document.getElementById('teachPeek')?.className, knee: document.getElementById('knee')?.className, trace: window.__strikeInputTrace, board: window.FlightStrikeBoard && App?.game && FlightStrikeBoard.snapshot(App.game) })).catch(() => null); await fs.writeFile(path.join(out, name + '-failure-state.json'), JSON.stringify({ error: String(error), state }, null, 2)); await shot('FAIL').catch(() => {}); throw error; } finally { await context.close(); }
   }

@@ -82,15 +82,17 @@ const server=http.createServer((req,res)=>{
    const willardCard=page.locator('#readyBody .mcard[data-mission="willard"]');assert.equal(await willardCard.count(),1);
    if(opts.hasTouch)await willardCard.tap();else await willardCard.click();
    await page.locator('#willardStrike').uncheck();
+   assert.equal(await page.locator('#flightNightVisibility').count(),1,'Packaged night-visibility control must be available in the briefing');
    await page.evaluate(()=>{window.__packagedFixedClock=true});
    if(opts.hasTouch)await page.locator('#willardPlay').tap();else await page.locator('#willardPlay').click();
    await page.waitForFunction(()=>App.game?.mis?.id==='willard'&&document.getElementById('loader').style.display==='none',null,{polling:50,timeout:90000});
    await page.evaluate(()=>{App.screen='build-test';App.game.paused=true});
    await page.evaluate(async()=>{await WillardSprites.load(App.rend);const g=App.game;g.paused=false;for(let i=0;i<13*60&&g.ac.alive&&!g.result;i++)g.update(1/60);g.render(1/60);g.syncControls();App.screen='game';WillardPresentation.render(g)});
    if(opts.hasTouch)await page.locator('#willardRear').tap();else await page.locator('#willardRear').click();
-   const willard=await page.evaluate(()=>{const g=App.game;g.paused=true;g.render(1/60);return {mission:g.mis.id,alive:g.ac.alive,phase:g.willard.phase,rear:g.willard.rear,rightSeat:g.rightSeat,checkpointValid:WillardMission.validCheckpoint(Store.get(WillardMission.KEY,null)),artwork:WillardSprites.inspect(g.rend),gpuError:g.rend.gl.getError()}});
+   const willard=await page.evaluate(()=>{const g=App.game;g.paused=true;g.render(1/60);return {mission:g.mis.id,alive:g.ac.alive,phase:g.willard.phase,rear:g.willard.rear,rightSeat:g.rightSeat,checkpointValid:WillardMission.validCheckpoint(Store.get(WillardMission.KEY,null)),artwork:WillardSprites.inspect(g.rend),immersion:{nightContrast:g.rend.atm.nightContrast,meshes:['bnRouteFactory','bnRouteBridge','bnRouteRail'].every(n=>!!g.rend.meshes[n]),chart:!!FlightStrikeBoard.chart(g),rasterCPU:g.hud.radar.ctx.getContextAttributes().willReadFrequently},gpuError:g.rend.gl.getError()}});
    assert.equal(willard.mission,'willard');assert.equal(willard.alive,true);assert.equal(willard.rightSeat,false);assert.equal(willard.rear,true);assert.ok(['contact','defend'].includes(willard.phase));assert.equal(willard.checkpointValid,true);assert.equal(willard.artwork.status,'ready');assert.equal(willard.artwork.uploads,1);assert.ok(willard.artwork.draws>0);assert.equal(willard.artwork.last.visible,true);assert.equal(willard.gpuError,0);assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
    await page.screenshot({path:path.join(root,'test-results','build-'+name+'-willard.png'),timeout:90000});
+   assert.deepEqual(willard.immersion,{nightContrast:1,meshes:true,chart:true,rasterCPU:true});
    checks.push({name:name+' packaged Willard mission launches through native input and renders the supplied world-space interceptor',passed:true,observed:willard,errors,missing});console.log('PASS '+name+' packaged Willard native PLAY, original flight, checkpoint and actual GPU atlas');await ctx.close();
   }
   fs.writeFileSync(path.join(root,'test-results/build.json'),JSON.stringify({scope:'Runtime deployment folder byte checks and actual Chromium WebGL2 flight smoke; physical devices not tested',sourceSha256:manifest.entrySHA256,checks,recordedAt:new Date().toISOString()},null,2)+'\n');
