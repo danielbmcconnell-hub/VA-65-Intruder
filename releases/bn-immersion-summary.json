@@ -1,0 +1,123 @@
+{
+  "recordedAt": "2026-10-18T23:50:49.569034+00:00",
+  "branch": "bn-immersion",
+  "sourceCommit": "29a630af5202ac396b38f42d51606d3fb0a2b1af",
+  "baselineCommit": "13e35c0f55a8b25168b0d15512b8dfd3fa9c41ca",
+  "entrySHA256": "d9e60a93a7cab8b01c3ad5245e1647179114a3bc1f0468630077952b0f83e05d",
+  "runtimeFiles": 135,
+  "browserChecks": 222,
+  "browserSuites": 13,
+  "browserReports": [
+    {
+      "suite": "renderer",
+      "checks": 6,
+      "passed": true,
+      "report": "test-results/immersion-regression/renderer.json",
+      "recordedAt": "2026-10-17T16:10:54.564Z"
+    },
+    {
+      "suite": "missions",
+      "checks": 22,
+      "passed": true,
+      "report": "test-results/immersion-regression/missions.json",
+      "recordedAt": "2026-10-17T16:19:07.238Z"
+    },
+    {
+      "suite": "progression",
+      "checks": 26,
+      "passed": true,
+      "report": "test-results/immersion-regression/progression.json",
+      "recordedAt": "2026-10-17T16:20:16.143Z"
+    },
+    {
+      "suite": "willard",
+      "checks": 34,
+      "passed": true,
+      "report": "test-results/immersion-regression-extra/willard.json",
+      "recordedAt": "2026-10-17T16:18:42.388Z"
+    },
+    {
+      "suite": "willard-renderer",
+      "checks": 14,
+      "passed": true,
+      "report": "test-results/immersion-regression-extra/willard-renderer.json",
+      "recordedAt": "2026-10-17T16:19:40.453Z"
+    },
+    {
+      "suite": "willard-lifecycle",
+      "checks": 6,
+      "passed": true,
+      "report": "test-results/immersion-regression-extra/willard-lifecycle.json",
+      "recordedAt": "2026-10-17T16:20:23.155Z"
+    },
+    {
+      "suite": "m24-strike",
+      "checks": 22,
+      "passed": true,
+      "report": "test-results/immersion-regression-extra/m24-strike.json",
+      "recordedAt": "2026-10-18T23:41:19.525Z"
+    },
+    {
+      "suite": "m24-ammunition",
+      "checks": 22,
+      "passed": true,
+      "report": "test-results/immersion-regression-extra/m24-ammunition.json",
+      "recordedAt": "2026-10-18T23:42:19.353Z"
+    },
+    {
+      "suite": "episode-renderer",
+      "checks": 14,
+      "passed": true,
+      "report": "test-results/immersion-regression-extra/episode-renderer.json",
+      "recordedAt": "2026-10-18T23:42:38.526Z"
+    },
+    {
+      "suite": "controls",
+      "checks": 14,
+      "passed": true,
+      "report": "test-results/immersion-regression-extra/controls.json",
+      "recordedAt": "2026-10-18T23:43:09.938Z"
+    },
+    {
+      "suite": "immersion",
+      "checks": 20,
+      "passed": true,
+      "report": "test-results/immersion-final-current/immersion.json",
+      "recordedAt": "2026-10-18T23:40:24.351Z"
+    },
+    {
+      "suite": "bn-recognition",
+      "checks": 10,
+      "passed": true,
+      "report": "test-results/bn-recognition-final/bn-recognition.json",
+      "recordedAt": "2026-10-18T23:48:23.239Z"
+    },
+    {
+      "suite": "hud-opacity",
+      "checks": 12,
+      "passed": true,
+      "report": "test-results/hud-opacity-release/hud-opacity.json",
+      "recordedAt": "2026-10-18T23:48:35.575Z"
+    }
+  ],
+  "domainChecks": 598,
+  "domainSuites": 34,
+  "packagedChecks": 11,
+  "scope": "Focused current-pass selection, incremental source hashes, declared GPU/camera fixtures and two original-physics automated standard Willard sorties. Final chart, opaque radar and packaged checks cover final entry bytes; not all29 registered browser suites rerun.",
+  "playable": {
+    "file": "Intruder_Yankee_Station_BN_Immersion.zip",
+    "bytes": 34699026,
+    "sha256": "2946bf4de45cb68639a61e6bb8673d41cfdab24a156adeacbc80d0dbf44a993f"
+  },
+  "evidence": {
+    "file": "Intruder_Yankee_Station_BN_Immersion_Evidence.zip",
+    "bytes": 41716060,
+    "sha256": "cc081ffe3e3f180bd9d6ed6d0e78f3653ae8947b54ea45df4cbbfe0be8be4b71",
+    "pngCount": 34
+  },
+  "curatedScreenshots": 12,
+  "netlifyDeployed": false,
+  "physicalWindowsTested": false,
+  "actualIPhoneSafariTested": false,
+  "hardwareFPSMeasured": false
+}

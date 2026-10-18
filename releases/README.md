@@ -1,3 +1,19 @@
+# B/N immersion — chart correlation and vivid night flight
+
+The complete twelve-mission game gains a hands-on B/N chart/echo comparison and run-in plot, readable cannon/flak alerts, rear-view magnification, adjustable night visibility and grounded rail/river/industrial/coastal landmarks. Final native checks also repaired the opaque radar panel and SCOPE taps after a touch drag. Original A-6A physics, POW chapters, rooftop rope and photographs remain.
+
+- **[Download complete Netlify ZIP — 34.7 MB](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/bn-immersion/releases/Intruder_Yankee_Station_BN_Immersion.zip)**
+- [Download screenshots and test evidence — 41.7 MB](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/bn-immersion/releases/Intruder_Yankee_Station_BN_Immersion_Evidence.zip)
+- [Twelve selected screenshots](bn-immersion-screenshots/), [play guide](../docs/BN_IMMERSION_PLAY_GUIDE.md), [implementation/test/deployment report](../docs/BN_IMMERSION_REPORT.md), [summary](bn-immersion-summary.json) and [135 runtime hashes](bn-immersion-build-manifest.json).
+
+Sign into the private repository, download the playable ZIP, choose **Extract All** on Windows and upload the extracted folder containing `index.html`, `assets/` and `_headers` to the existing Netlify project's **Deploys** page. The [existing site](https://steady-croquembouche-46c1a0.netlify.app/) has not been redeployed by this delivery. Git-connected alternative: branch `bn-immersion`, command `npm run build`, publish directory `dist/site`.
+
+For target work choose **Ready Room → Settings → Right — B/N**, then a strike mission. Open **B/N worksheet → SCOPE**, mark a chart candidate, independently slew the actual radar, **COMPARE ECHO**, plot **RUN-IN**, then use the original **LOCK / COMMIT**. Correlations remain uncertain. For night flight choose **12 · WILLARD EGRESS → PLAY MISSION**; **H / LOOK AFT**, **Z / REAR ZOOM**, **V / VIEW**. Night visibility is in the briefing and pause menu.
+
+**222 selected source-browser, 598 domain and 11 packaged checks passed.** These include two original-physics automated Willard sorties and real native chart/radar/drag/touch tests. Fixture screenshots and incremental source versions are identified in the report. Physical Windows/iPhone Safari, hardware FPS and human difficulty still need device trials. Authored route scenery is representative; historical uncertainties remain documented.
+
+Tested source `29a630af5202ac396b38f42d51606d3fb0a2b1af`. ZIP SHA-256 `2946bf4de45cb68639a61e6bb8673d41cfdab24a156adeacbc80d0dbf44a993f`. Earlier branches, history and downloads are preserved below.
+
 # Willard Egress — playable night interception
 
 The complete game now includes **12 · WILLARD EGRESS**: a nighttime VA-65 A-6A escape with the supplied MiG-17PF artwork, finite cannon fire, hostile flak, B/N navigation, earned pursuit break-off, safe egress, checkpoints and optional original carrier recovery. All previous missions, POW chapters, rooftop rope fix and photographs remain.
