@@ -138,6 +138,19 @@ test('draw culling and quality budgets limit instances without changing target s
   assert.deepEqual(clone(game), before);
 });
 
+test('a full Low scenery budget reserves actual near burning embers without increasing draw count', () => {
+  const { F, game } = fixture();
+  const target = game.world.targets[0]; Object.assign(target, { alive: false, hp: -1, burn: 1 });
+  const before = clone(game.world), calls = [];
+  F.instances(game, game.world.briefed, 0, (...a) => calls.push(a));
+  assert.equal(calls.length, F.limits.low);
+  assert(calls.some(d => d[0] === 'bnStrikeEmbers'));
+  assert.deepEqual(clone(game.world), before);
+  target.burn = 0; const cold = [];
+  F.instances(game, game.world.briefed, 0, (...a) => cold.push(a));
+  assert.equal(cold.length, F.limits.low); assert(!cold.some(d => d[0] === 'bnStrikeEmbers'));
+});
+
 test('ordinary m2, all other missions and out-of-aircraft modes retain original visuals', () => {
   const edits = [g => delete g.strikeExperience, g => { g.mis.id = 'm3'; }, g => { g.mis.id = 'willard'; }, g => { g.pow = {}; }, g => { g.chute = {}; }, g => { g.evade = {}; }, g => { g.result = {}; }, g => { g.phase = 'done'; }, g => { g.ac.outOfAircraft = true; }, g => { g.ac.alive = false; }];
   for (const edit of edits) { const { F, game } = fixture(); edit(game); assert.equal(F.active(game), false); assert.equal(F.instances(game, game.world.briefed, 2, () => assert.fail('inactive')), 0); assert.equal(F.lights(game, game.world.briefed, 2).length, 0); assert.equal(F.targetVisual(game, game.world.targets[0]), null); }

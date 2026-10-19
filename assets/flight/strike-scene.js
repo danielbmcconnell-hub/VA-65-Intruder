@@ -127,13 +127,14 @@
     const budget = quality === 0 ? LIMIT.low : quality === 2 ? LIMIT.high : LIMIT.medium;
     const items = s.items.filter(i => (quality !== 0 || i.detail < 2) && d2(i.p, eye) < i.range ** 2).sort((a, b) => d2(a.p, eye) - d2(b.p, eye));
     let n = 0;
-    for (const item of items) { if (n >= budget) break; push(item.mesh, item.p, item.rot, item.scale, item.tint); n++; }
+    // A full static-scene budget must not starve actual nearby fire detail.
     for (const [t, v] of s.targets) if (n < budget && destroyed(t) && t.burn > .02 && d2(v.p, eye) < 5000 ** 2) {
       // Embers accompany a real surviving fire; they are neither a delayed
       // fake detonation nor an independently scheduled gameplay effect.
       const pulse = .8 + .2 * Math.sin((Number(game.world.t) || 0) * 3.2 + v.p[0]);
       push('bnStrikeEmbers', v.p, v.rot, [1, 1, 1], [1, pulse, .7, 1.7 * Math.min(1, t.burn)]); n++;
     }
+    for (const item of items) { if (n >= budget) break; push(item.mesh, item.p, item.rot, item.scale, item.tint); n++; }
     return n;
   }
   function lights(game, eye, quality) {

@@ -206,6 +206,17 @@ module.exports = async function dixieStrikeBrowser(browser, target, evidenceDir)
       for (let n = 0; n < 4 && await page.evaluate(() => App.game.ripple) !== 8; n++) await click(page.locator('#dixieRipple'));
       assert.equal(await page.evaluate(() => App.game.ripple), 8);
       assert.notEqual(await page.evaluate(() => document.activeElement.id), 'dixieRipple', 'Native flight action must release focus for immediate keyboard flight input.');
+      await page.keyboard.down('Space');
+      const hybridFocus = await page.evaluate(() => ({ commit: App.keys.Space, ripple: App.game.ripple, focused: document.activeElement.id, released: App.game.world.score.dropped }));
+      await page.keyboard.up('Space');
+      assert.equal(hybridFocus.commit, 1); assert.equal(hybridFocus.ripple, 8); assert.equal(hybridFocus.released, 0);
+      assert.equal(await page.evaluate(() => App.keys.Space), 0);
+      if (cdp) {
+        // A real centered touch restores the existing touch presentation
+        // after the hybrid keyboard probe, without advancing the aircraft.
+        const b = await page.locator('#stick').boundingBox();
+        if (b) { await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: b.x + b.width / 2, y: b.y + b.height / 2, id: 8, force: 1 }] }); await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); }
+      }
       let firstRelease = true;
       const observedReturns = [];
       for (let pass = 0; pass < 12; pass++) {
@@ -261,7 +272,7 @@ module.exports = async function dixieStrikeBrowser(browser, target, evidenceDir)
       }
       assert.equal(current.objectives[0][2], true, 'The actual original supply-depot objective must be achieved; no automatic success: ' + JSON.stringify(current));
       await click(page.locator('#dixieLook')); await run(.2); await shot('earned-target-objective'); await click(page.locator('#dixieLook'));
-      record('Original ASQ-61 releases and ballistic collisions genuinely satisfy the depot objective', { impacts: current.score.hits + current.score.misses, score: current.score, observedReturns, events }, 'Native selected eight-store intervalometer and held Space or CDP touchscreen COMMIT; a second pass can use only the four original remaining stores. Subsequent native aim reads only fresh displayed radar cells around the public briefed area. Every bomb, damage and impact advances through original Game.update/World.step. No release, impact, target ID, health or score setter.');
+      record('Original ASQ-61 releases and ballistic collisions genuinely satisfy the depot objective', { impacts: current.score.hits + current.score.misses, score: current.score, observedReturns, events, hybridFocus }, 'Native selected eight-store intervalometer and held Space or CDP touchscreen COMMIT; a second pass can use only the four original remaining stores. A genuine keyboard Space press after the same action also reaches COMMIT in both mouse and touch layouts without reactivating RIPPLE. Subsequent native aim reads only fresh displayed radar cells around the public briefed area. Every bomb, damage and impact advances through original Game.update/World.step. No release, impact, target ID, health or score setter.');
 
       await click(page.locator('#dixieHome')); await run(.2);
       for (let guard = 0; guard < 130 && !current.result && current.phase !== 'done' && current.aircraft.alive; guard++) {
