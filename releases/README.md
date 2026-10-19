@@ -1,3 +1,19 @@
+# Guided Dixie strike — a complete B/N-led sortie
+
+The twelve-mission game now offers an optional guided Mission 02: original carrier launch, radar navigation/target correlation, real ASQ-61 release and bomb impacts, visible ruined depots, flown reattacks, earned checkpoints and original carrier arrestment. The ordinary missions, A-6A model/physics, photographs and POW chapters remain.
+
+- **[Download complete Netlify ZIP — 34.7 MB](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/dixie-strike-experience/releases/Intruder_Yankee_Station_Dixie_Strike.zip)**
+- [Download screenshots/test evidence — 43.3 MB](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/dixie-strike-experience/releases/Intruder_Yankee_Station_Dixie_Strike_Evidence.zip)
+- [Twelve selected screenshots](dixie-strike-screenshots/), [play guide](../docs/DIXIE_STRIKE_PLAY_GUIDE.md), [implementation/test/deployment report](../docs/DIXIE_STRIKE_REPORT.md), [summary](dixie-strike-summary.json), [141 runtime hashes](dixie-strike-build-manifest.json).
+
+Sign into private GitHub, download the playable ZIP, Windows **Extract All**, then upload the folder containing `index.html`, `assets/` and `_headers` to the existing Netlify project's **Deploys** page. The [live site](https://steady-croquembouche-46c1a0.netlify.app/) has not been redeployed. Git-connected alternative: `dixie-strike-experience`, `npm run build`, `dist/site`.
+
+After deploying, **Ready Room → BRIEF THE GUIDED STRIKE → PLAY GUIDED SORTIE**. Short practice starts airborne. Work the chart and scope, use the original LOCK/STEER and held COMMIT, choose an appropriate ripple, LOOK OUT to observe, ANOTHER PASS to open range or HOME to recover. A successful return still needs a real wire and the original target objective. Your normal seat preference is retained.
+
+**98 selected browser, 686 domain and 13 packaged checks passed.** Both automated Standard sorties earned A/98, destroyed 3 of 5 primary depots with eight actual bombs and caught wire 1 after 7m15s. Native touch/paired-keyboard consent, retries/reload, old Mission02 and explicit GPU ruin/context-restoration fixtures passed. Incremental source versions and fixtures are identified in the report; physical Windows/iPhone Safari, hardware FPS and human difficulty remain untested.
+
+Tested runtime `f707d50773b4d58e28fcb0a6cfe900f469bb2a64`. ZIP SHA-256 `2bb91e40b5eb2783308e20f22c37195f3694addfd98a8c6fa4e244693d121667`. Full older history, branches and downloads remain below.
+
 # B/N immersion — chart correlation and vivid night flight
 
 The complete twelve-mission game gains a hands-on B/N chart/echo comparison and run-in plot, readable cannon/flak alerts, rear-view magnification, adjustable night visibility and grounded rail/river/industrial/coastal landmarks. Final native checks also repaired the opaque radar panel and SCOPE taps after a touch drag. Original A-6A physics, POW chapters, rooftop rope and photographs remain.

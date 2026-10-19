@@ -1,0 +1,91 @@
+{
+  "recordedAt": "2026-10-19T20:47:46.570484+00:00",
+  "branch": "dixie-strike-experience",
+  "sourceCommit": "f707d50773b4d58e28fcb0a6cfe900f469bb2a64",
+  "baselineCommit": "0d88e4a411b471724ce40dacde69db52221c185f",
+  "entrySHA256": "e63ae27e9d3f2a033a477384eb842a1aede2ebdf2a63cb118bd57a065b2fbdab",
+  "runtimeFiles": 141,
+  "browserChecks": 98,
+  "browserSuites": 5,
+  "browserReports": [
+    {
+      "suite": "hud-opacity",
+      "checks": 12,
+      "passed": true,
+      "report": "test-results/dixie-regression/hud-opacity.json",
+      "recordedAt": "2026-10-19T11:38:39.490Z"
+    },
+    {
+      "suite": "missions",
+      "checks": 22,
+      "passed": true,
+      "report": "test-results/dixie-regression/missions.json",
+      "recordedAt": "2026-10-19T11:44:26.836Z"
+    },
+    {
+      "suite": "progression",
+      "checks": 26,
+      "passed": true,
+      "report": "test-results/dixie-regression/progression.json",
+      "recordedAt": "2026-10-19T11:45:35.600Z"
+    },
+    {
+      "suite": "dixie-strike",
+      "checks": 26,
+      "passed": true,
+      "report": "test-results/dixie-final-accepted/dixie-strike.json",
+      "recordedAt": "2026-10-19T11:56:47.040Z"
+    },
+    {
+      "suite": "dixie-visual",
+      "checks": 12,
+      "passed": true,
+      "report": "test-results/dixie-visual-final/dixie-visual.json",
+      "recordedAt": "2026-10-19T20:45:31.071Z"
+    }
+  ],
+  "domainChecks": 686,
+  "domainSuites": 38,
+  "packagedChecks": 13,
+  "scope": "Incremental selected regressions, genuine automated Standard B/N sorties, explicitly isolated GPU fixtures; final ember-budget source has newer GPU/package coverage than complete-sortie hashes.",
+  "fullStandardSorties": [
+    {
+      "profile": "desktop",
+      "simulatedSeconds": 434.55,
+      "grade": "A",
+      "points": 98,
+      "wire": 1,
+      "released": 8,
+      "primaryTargetsDestroyed": 3,
+      "primaryTargetsTotal": 5,
+      "bothCrewSurvived": true
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "simulatedSeconds": 434.55,
+      "grade": "A",
+      "points": 98,
+      "wire": 1,
+      "released": 8,
+      "primaryTargetsDestroyed": 3,
+      "primaryTargetsTotal": 5,
+      "bothCrewSurvived": true
+    }
+  ],
+  "playable": {
+    "file": "Intruder_Yankee_Station_Dixie_Strike.zip",
+    "bytes": 34724072,
+    "sha256": "2bb91e40b5eb2783308e20f22c37195f3694addfd98a8c6fa4e244693d121667"
+  },
+  "evidence": {
+    "file": "Intruder_Yankee_Station_Dixie_Strike_Evidence.zip",
+    "bytes": 43313402,
+    "sha256": "7457187fbda73985723ae774b897ce2113d9ceda28167bc901010ed26e79ac0e",
+    "pngCount": 38
+  },
+  "curatedScreenshots": 12,
+  "netlifyDeployed": false,
+  "physicalWindowsTested": false,
+  "actualIPhoneSafariTested": false,
+  "hardwareFPSMeasured": false
+}
