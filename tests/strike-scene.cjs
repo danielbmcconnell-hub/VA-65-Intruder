@@ -172,6 +172,20 @@ test('production meshes have finite attributes, valid triangles and outward-faci
   for (let i = 48; i < 56; i++) assert(depot.n[i * 3 + 1] > 0, 'a roof must face the aircraft above, not be culled as an underside');
 });
 
+test('scenery detail keeps the original seven batched meshes, buried foundations and open truck wheels', () => {
+  const { F } = fixture(), built = {}, renderer = { meshes: {}, meshFromBuilder: (name, mb) => { built[name] = mb; renderer.meshes[name] = {}; } };
+  F.ensureMeshes(renderer);
+  const depot = built.bnStrikeDepot, truck = built.bnStrikeTruck, shed = built.bnStrikeShed;
+  // Roof laps, windows and door frames add real silhouette detail without
+  // another per-building draw or changing the target's extents or position.
+  assert(depot.count > 600 && depot.count < 2200);
+  assert(shed.count > 200 && shed.count < 1200);
+  assert(Math.min(...depot.p.filter((_, i) => i % 3 === 1)) === -12);
+  assert(Math.min(...truck.p.filter((_, i) => i % 3 === 1)) >= -1e-9, 'a parked truck must not carry the old five-metre concrete block below its chassis');
+  assert(Math.max(...truck.p.filter((_, i) => i % 3 === 1)) < 4);
+  assert.equal(Object.keys(built).length, 7);
+});
+
 test('mesh setup is idempotent and supports a fresh renderer after context restoration', () => {
   const { F } = fixture(); let count = 0;
   const make = () => { const r = { meshes: {}, meshFromBuilder: name => { count++; r.meshes[name] = {}; } }; return r; };

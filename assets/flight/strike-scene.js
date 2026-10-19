@@ -147,24 +147,70 @@
   function ensureMeshes(renderer) {
     const MB = ctx.MB; if (!renderer || !renderer.meshes || typeof renderer.meshFromBuilder !== 'function' || typeof MB !== 'function') return false;
     if (uploaded.has(renderer) && renderer.meshes.bnStrikeDepot && renderer.meshes.bnStrikeRuin && renderer.meshes.bnStrikeTower) return true;
-    const meshes = {}, wall = [.43, .38, .27], iron = [.26, .28, .25], roof = [.30, .25, .19], concrete = [.26, .25, .21], soot = [.105, .095, .075];
-    const foundation = (m, hx, hz) => m.box(0, -6, 0, hx, 6, hz, concrete);
+    const meshes = {}, wall = [.43, .38, .27], iron = [.26, .28, .25], roof = [.30, .25, .19], soot = [.105, .095, .075];
+    // A buried, earth-coloured retaining skirt closes the same sampled
+    // terrain footprint. It must not read as a concrete bunker on a slope.
+    const foundation = (m, hx, hz) => m.box(0, -6, 0, hx, 6, hz, [.255, .217, .155]);
     const pitched = (m, hx, hz, eave, ridge, col) => { m.quad([-hx, eave, -hz], [-hx, eave, hz], [0, ridge, hz], [0, ridge, -hz], col); m.quad([0, ridge, -hz], [0, ridge, hz], [hx, eave, hz], [hx, eave, -hz], col); m.tri([hx, eave, -hz], [-hx, eave, -hz], [0, ridge, -hz], wall); m.tri([-hx, eave, hz], [hx, eave, hz], [0, ridge, hz], wall); };
+    const roofPanels = (m, hx, hz, eave, ridge, count) => {
+      for (let i = 0; i < count; i++) {
+        const z0 = -hz + i * hz * 2 / count + .035, z1 = -hz + (i + 1) * hz * 2 / count - .035;
+        const shade = .94 + (i * 7 % 5) * .027, col = roof.map(c => c * shade);
+        m.quad([-hx + .03, eave + .018, z0], [-hx + .03, eave + .018, z1], [0, ridge + .018, z1], [0, ridge + .018, z0], col);
+        m.quad([0, ridge + .018, z0], [0, ridge + .018, z1], [hx - .03, eave + .018, z1], [hx - .03, eave + .018, z0], col);
+      }
+      m.box(0, ridge + .075, 0, .16, .085, hz - .06, iron);
+    };
+    const doorFrame = (m, x, z, halfWidth, height) => {
+      for (const sx of [-1, 1]) m.box(x + sx * (halfWidth + .13), height * .5, z, .10, height * .5, .15, [.29, .28, .21]);
+      m.box(x, height + .1, z, halfWidth + .23, .1, .15, [.32, .30, .22]);
+      m.box(x, height * .5, z, .055, height * .5, .16, [.22, .22, .17]);
+    };
     let m = new MB(); foundation(m, 9.8, 15.8); m.box(0, 3.3, 0, 9, 3.3, 15, wall); pitched(m, 9.8, 15.8, 6.6, 10.8, roof);
-    for (const z of [-15.04, 15.04]) { m.box(0, 2.3, z, 3.2, 2.3, .12, [.10, .11, .09]); for (const x of [-6.4, 6.4]) m.box(x, 4.3, z, 1.1, .9, .13, [.13, .16, .14]); }
+    roofPanels(m, 9.8, 15.8, 6.6, 10.8, 10);
+    for (const z of [-15.04, 15.04]) {
+      m.box(0, 2.3, z, 3.2, 2.3, .12, [.10, .11, .09]); doorFrame(m, 0, z, 3.2, 4.6);
+      for (const x of [-6.4, 6.4]) {
+        m.box(x, 4.3, z, 1.1, .9, .13, [.13, .16, .14]);
+        m.box(x, 4.3, z, 1.17, .045, .15, [.34, .32, .24]); m.box(x, 4.3, z, .045, .95, .15, [.34, .32, .24]);
+      }
+      m.box(0, 6.25, z, 8.6, .13, .17, [.35, .32, .23]);
+    }
     for (const x of [-9.05, 9.05]) for (const z of [-11, -5.5, 0, 5.5, 11]) m.box(x, 3.4, z, .15, 3.4, .16, iron);
-    for (let z = -14; z <= 14; z += 3.5) m.box(0, 10.85, z, .22, .18, .13, iron);
+    for (const x of [-9.05, 9.05]) for (const y of [.65, 3.2, 5.9]) m.box(x, y, 0, .12, .07, 14.9, [.36, .33, .24]);
     meshes.bnStrikeDepot = m;
     m = new MB(); foundation(m, 9.8, 15.8); m.box(0, .18, 0, 9.5, .18, 15.5, soot);
     m.box(-8.6, 2.1, -3, .4, 2.1, 11, soot); m.box(8.6, 1.4, 7, .4, 1.4, 7, [.16, .145, .11]); m.box(2.4, 1, -14.4, 5.6, 1, .5, soot);
     for (let i = 0; i < 13; i++) { const x = Math.sin(i * 2.7) * 7.8, z = Math.cos(i * 1.8) * 13; m.box(x, .5 + i % 3 * .25, z, 1.5 + i % 2, .55, 1.4, [.14 + i % 3 * .025, .12, .09], i * .7); }
-    m.box(-2, 1.7, -3, 7, .18, 5, [.20, .18, .14], .35); m.box(4, 1.3, 8, 4.5, .16, 5.5, iron, -.45); m.box(-3.5, 2.1, 5, .18, 2.1, .18, iron); meshes.bnStrikeRuin = m;
+    // Folded roof sheets and exposed, fallen rafters remain after fire dies;
+    // they are geometry owned by real destruction, not decorative explosions.
+    m.box(-2, 1.7, -3, 7, .18, 5, [.20, .18, .14], .35); m.box(4, 1.3, 8, 4.5, .16, 5.5, iron, -.45); m.box(-3.5, 2.1, 5, .18, 2.1, .18, iron);
+    m.quad([-8, 1.4, -10], [-7.1, 1.9, -2], [-1.1, 3.5, -1], [-2, 2.4, -11], [.19, .17, .13]);
+    m.quad([-2, 2.4, -11], [-1.1, 3.5, -1], [4.5, 1.1, 0], [3.6, .5, -10], [.24, .21, .15]);
+    for (let i = 0; i < 4; i++) m.box(-5.5 + i * 3.1, .8 + i % 2 * .45, 3 + Math.sin(i) * 3, .11, .15, 6.2, [.22, .20, .15], .30 + i * .38);
+    meshes.bnStrikeRuin = m;
     m = new MB(); for (let i = 0; i < 9; i++) m.box(Math.sin(i * 2.4) * 6.8, .65 + i % 3 * .3, Math.cos(i * 1.7) * 11, .55, .22, .9, i % 2 ? [1, .23, .025] : [1, .55, .08], i); meshes.bnStrikeEmbers = m;
-    m = new MB(); foundation(m, 7, 11); m.box(0, 2.4, 0, 6.5, 2.4, 10.5, [.42, .35, .22]); pitched(m, 7, 11, 4.8, 8, roof); m.box(0, 1.5, -10.6, 1.4, 1.5, .12, soot); meshes.bnStrikeShed = m;
+    m = new MB(); foundation(m, 7, 11); m.box(0, 2.4, 0, 6.5, 2.4, 10.5, [.42, .35, .22]); pitched(m, 7, 11, 4.8, 8, roof); roofPanels(m, 7, 11, 4.8, 8, 7);
+    m.box(0, 1.5, -10.6, 1.4, 1.5, .12, soot); doorFrame(m, 0, -10.6, 1.4, 3);
+    for (const x of [-6.52, 6.52]) for (const z of [-7, 0, 7]) m.box(x, 2.3, z, .07, 2.3, .08, [.29, .26, .17]);
+    meshes.bnStrikeShed = m;
     m = new MB(); foundation(m, 5, 5); for (const x of [-3.4, 3.4]) for (const z of [-3.4, 3.4]) m.box(x, 8, z, .32, 8, .32, iron);
-    m.cyl(0, 17, 0, 4.5, 3.3, [.39, .35, .26], 10); m.cyl(0, 20.45, 0, 4.8, .2, iron, 10); for (let y = 3; y < 15; y += 4) m.box(0, y, -3.4, 3.5, .18, .18, iron); meshes.bnStrikeTower = m;
+    m.cyl(0, 17, 0, 4.5, 3.3, [.39, .35, .26], 10); m.cyl(0, 20.45, 0, 4.8, .2, iron, 10); for (let y = 3; y < 15; y += 4) m.box(0, y, -3.4, 3.5, .18, .18, iron);
+    for (let y = 1; y < 14; y += .65) m.box(3.47, y, 0, .10, .035, .65, iron);
+    for (const x of [2.85, 4.10]) m.box(x, 7.2, 0, .055, 7.2, .055, iron);
+    // Thin X-braces, as opposed to a solid slab between the water legs.
+    for (const z of [-3.4, 3.4]) {
+      m.quad([-3.35, 2.9, z], [-3.15, 2.9, z], [3.35, 12.9, z], [3.15, 12.9, z], iron);
+      m.quad([3.15, 12.9, z], [3.35, 12.9, z], [-3.15, 2.9, z], [-3.35, 2.9, z], iron);
+      m.quad([3.15, 2.9, z], [3.35, 2.9, z], [-3.15, 12.9, z], [-3.35, 12.9, z], iron);
+      m.quad([-3.35, 12.9, z], [-3.15, 12.9, z], [3.35, 2.9, z], [3.15, 2.9, z], iron);
+    }
+    meshes.bnStrikeTower = m;
     m = new MB(); m.box(0, 0, 0, 4, .08, 14, [.34, .29, .20]); meshes.bnStrikeRoad = m;
-    m = new MB(); m.box(0, -2.5, 0, 1.95, 2.5, 5.35, concrete); m.box(0, 1.1, 0, 1.8, .25, 5.1, iron); m.box(0, 2, -3.2, 1.7, 1.1, 1.7, [.25, .29, .17]); m.box(0, 2.6, -4.92, 1.4, .55, .08, [.09, .14, .14]); m.box(0, 2.5, 1.8, 1.8, 1.35, 3, [.37, .33, .20]);
+    m = new MB(); m.box(0, 1.1, 0, 1.8, .25, 5.1, iron); m.box(0, 2, -3.2, 1.7, 1.1, 1.7, [.25, .29, .17]); m.box(0, 2.6, -4.92, 1.4, .55, .08, [.09, .14, .14]); m.box(0, 2.5, 1.8, 1.8, 1.35, 3, [.37, .33, .20]);
+    m.box(0, 2.6, -5.01, .045, .56, .035, [.26, .29, .18]); m.box(0, 1.22, -5.08, 1.68, .12, .10, iron);
+    for (const x of [-1.74, 1.74]) m.box(x, 2.7, -3.1, .035, .45, .88, [.09, .14, .14]);
+    for (let z = -.9; z < 4.8; z += 1.14) m.box(0, 3.89, z, 1.75, .045, .055, [.29, .28, .18]);
     for (const x of [-1.7, 1.7]) for (const z of [-3.3, 2.6, 4]) m.cyl(x, .7, z, .7, .25, soot, 8, 'x'); meshes.bnStrikeTruck = m;
     for (const name of Object.keys(meshes)) renderer.meshFromBuilder(name, meshes[name]); uploaded.add(renderer); return true;
   }

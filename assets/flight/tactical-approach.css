@@ -1,0 +1,7 @@
+#dixieApproach[hidden],#dixieApproachPanel[hidden]{display:none}
+#dixieApproachPanel{pointer-events:auto;border-top:1px solid #6c806f;padding-top:4px;margin-top:4px;color:#d8e0cb}
+#dixieApproachPanel p{margin:3px 0 6px;font:11px/1.4 system-ui,sans-serif}
+.tactical-route-buttons{display:flex;gap:5px}
+.tactical-route-buttons button{flex:1;min-width:44px;min-height:44px;padding:5px;border:1px solid #83947b;border-radius:3px;background:#17312e;color:#eee6c8;font:600 10px/1.25 system-ui,sans-serif;touch-action:manipulation}
+.tactical-route-buttons button:focus-visible{outline:3px solid #efd58b}
+@media(max-height:470px){#dixieApproachPanel p{font-size:10px}.dixie-actions button{min-width:44px}#dixieApproachPanel{max-height:136px;overflow:auto;overscroll-behavior:contain}}

@@ -10,7 +10,7 @@
 }
 </style>
 </head><body>
-<title>Intruder: Yankee Station — Dixie Strike</title>
+<title>Intruder: Yankee Station — Tactical &amp; Visual Update</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Share+Tech+Mono&display=swap">
@@ -850,6 +850,9 @@ body.desktop #hudbar{display:flex}
 <script src="assets/flight/strike-checkpoint.js"></script>
 <script src="assets/flight/strike-crew.js"></script>
 <script src="assets/flight/strike-experience.js"></script>
+<script src="assets/flight/tactical-approach.js"></script>
+<script src="assets/flight/visual-materials.js"></script>
+<script src="assets/flight/airframe-feedback.js"></script>
 <script src="assets/willard/interceptor.js"></script>
 <script src="assets/willard/flak.js"></script>
 <script src="assets/willard/sprites.js"></script>
@@ -860,6 +863,8 @@ body.desktop #hudbar{display:flex}
 <link rel="stylesheet" href="assets/flight/immersion.css">
 <link rel="stylesheet" href="assets/flight/strike-crew.css">
 <link rel="stylesheet" href="assets/flight/strike-experience.css">
+<link rel="stylesheet" href="assets/flight/tactical-approach.css">
+<link rel="stylesheet" href="assets/flight/airframe-feedback.css">
 <script>
 /* ===== src/00-assets.js ===== */
 /* ===================================================================
@@ -2499,7 +2504,7 @@ class Renderer {
         vOcc = sunOcc(w, h);
         gl_Position = uVP * vec4(vW,1.0);
       }
-    `, GLSL_NOISE + GLSL_TERRAIN + GLSL_ATMOS + GLSL_SHADOW + `
+    `, GLSL_NOISE + GLSL_TERRAIN + GLSL_ATMOS + GLSL_SHADOW + FlightVisualMaterials.glsl + `
       in vec3 vW; in float vFine; in float vOcc; in vec3 vTN; out vec4 o;
       uniform vec3 uCam; uniform float uWet, uDetail;
       void main(){
@@ -2741,6 +2746,7 @@ class Renderer {
         float wet2 = lowA * smoothstep(0.50, 0.70, fract(cell*1.91)) * (1.0 - max(gx,gy)) * (1.0 - max(hx,hy)*0.6);
         alb = mix(alb, vec3(0.074,0.090,0.082), wet2*0.80);
         flood = wet2;
+        alb = flightCropSurface(alb, vW, fc, lowA, wet2, max(max(gx,gy),max(hx,hy)), dcam, uDetail);
         float rdn = fbm3(vec2(vW.x*0.000043-9.1, vW.z*0.000043+4.3));
         float road = (1.0 - smoothstep(0.0, 0.0115, abs(rdn-0.5)))
                    * (1.0 - smoothstep(150.0, 480.0, h)) * smoothstep(1.0, 8.0, h);
@@ -2859,6 +2865,7 @@ class Renderer {
              which is why crews navigated off rivers in the first place. */
           float rp = fbm3(vW.xz*vec2(0.22,0.09));
           vec3 rn = normalize(vec3((rp-0.5)*0.22, 1.0, (fbm3(vW.xz*vec2(0.09,0.22)+5.1)-0.5)*0.22));
+          if(uSurfacePolish > 0.5) rn = flightRiverNormal(vW, dcam, uDetail, uCloudT);
           float fr = pow(1.0 - max(dot(rn, vd), 0.0), 4.0);
           col = mix(col, skyTintK(reflect(-vd, rn), 0.20)*0.80, riv*clamp(0.18+0.70*fr, 0.0, 0.92));
           vec3 hv = normalize(uSunDir + vd);
@@ -2988,18 +2995,23 @@ class Renderer {
       layout(location=3) in mat4 iM; layout(location=7) in vec4 iC;
       uniform mat4 uVP;
       out vec3 vW, vN, vC; out vec4 vTint;
+      out vec3 vSurfaceLocal, vSurfaceNormal;
       void main(){
         vec4 wp = iM * vec4(aP,1.0);
         vW = wp.xyz;
         vN = normalize(mat3(iM)*aN);
         vC = aC; vTint = iC;
+        vSurfaceLocal = aP; vSurfaceNormal = aN;
         gl_Position = uVP * wp;
       }
-    `, GLSL_NOISE + GLSL_ATMOS + GLSL_SHADOW + (window.EpisodeGLSL || '') + `
+    `, GLSL_NOISE + GLSL_ATMOS + GLSL_SHADOW + (window.EpisodeGLSL || '') + FlightVisualMaterials.glsl + `
       in vec3 vW, vN, vC; in vec4 vTint; out vec4 o;
+      in vec3 vSurfaceLocal, vSurfaceNormal;
+      uniform float uDetail;
       uniform vec3 uCam; uniform sampler2D uWear; uniform float uWearOn;
       void main(){
         vec3 alb = vC * vTint.rgb;
+        alb = flightMeshSurface(alb, vSurfaceLocal, vSurfaceNormal, length(uCam-vW), uDetail);
         /* ---- SURFACE ----
            Everything in this game was flat-shaded vertex colour: one
            number per surface, no grain, no wear, no bump. Doom in 1993
@@ -3217,27 +3229,37 @@ class Renderer {
       layout(location=2) in vec2 iHW;
       layout(location=3) in vec3 iCell;      // index, cols, rows
       layout(location=4) in vec4 iTintFlip;
-      layout(location=5) in vec4 iMotion;   // distance phase, stride, turn, crouch
+      layout(location=5) in vec4 iMotion;   // distance phase, stride, turn, source foot row
       uniform mat4 uVP; uniform vec3 uCam;
+      uniform float uVegetation, uBreezeTime;
       out vec2 vT; out vec3 vW, vTint, vFace3;
       flat out vec4 vCellBounds;
       void main(){
         vec3 toCam = uCam - iP; toCam.y = 0.0;
         float L = length(toCam);
         vec3 r = L > 0.001 ? normalize(vec3(toCam.z, 0.0, -toCam.x)) : vec3(1.0,0.0,0.0);
-        vec2 posed=aQ;
-        float leg=1.0-smoothstep(0.20,0.54,aQ.y);
+        float foot=clamp(iMotion.w,0.0,0.4);
+        float sourceY=aQ.y;
+        if(foot>0.0){sourceY=aQ.y<=1.0/12.0?aQ.y*foot*12.0:foot+(aQ.y-1.0/12.0)/(11.0/12.0)*(1.0-foot);}
+        vec2 posed=vec2(aQ.x,sourceY);
+        float visibleY=clamp((sourceY-foot)/(1.0-foot),0.0,1.0);
+        float leg=1.0-smoothstep(0.20,0.54,visibleY);
         float side=smoothstep(-0.04,0.04,aQ.x)*2.0-1.0;
         float gait=clamp(iMotion.y,0.0,1.0);
-        posed.x+=sin(iMotion.x)*side*leg*gait*0.034*smoothstep(0.0,0.07,aQ.y);
-        posed.x+=clamp(iMotion.z,-1.0,1.0)*smoothstep(0.35,0.85,aQ.y)*0.024;
-        posed.y+=sin(iMotion.x*2.0)*sin(aQ.y*3.14159)*gait*0.006;
+        posed.x+=sin(iMotion.x)*side*leg*gait*0.034*smoothstep(0.0,0.07,visibleY);
+        posed.x+=clamp(iMotion.z,-1.0,1.0)*smoothstep(0.35,0.85,visibleY)*0.024;
+        posed.y+=sin(iMotion.x*2.0)*sin(visibleY*3.14159)*gait*0.006;
+        if(uVegetation>0.5){
+          float windPhase=dot(iP.xz,vec2(0.017,0.023));
+          float breeze=sin(uBreezeTime*1.15+windPhase)*0.006+sin(uBreezeTime*0.47+windPhase*0.71)*0.004;
+          posed.x+=breeze*smoothstep(0.12,1.0,visibleY)*(1.0-smoothstep(240.0,420.0,L));
+        }
         vec3 wp = iP + r * (posed.x * iHW.y) + vec3(0.0, posed.y * iHW.x, 0.0);
         vW = wp;
         float cols = max(iCell.y, 1.0), rows = max(iCell.z, 1.0);
         float idx = clamp(iCell.x, 0.0, cols * rows - 1.0);
         float cx = mod(idx, cols), cy = floor(idx / cols);
-        vec2 uv = vec2((aQ.x + 0.5), 1.0 - aQ.y);
+        vec2 uv = vec2((aQ.x + 0.5), 1.0 - sourceY);
         if (iTintFlip.w > 0.5) uv.x = 1.0 - uv.x;
         vec2 grid = vec2(cols, rows);
         vCellBounds = vec4(vec2(cx, cy) / grid, (vec2(cx, cy) + 1.0) / grid);
@@ -3299,8 +3321,8 @@ class Renderer {
       at(1, 3, 0); at(2, 2, 12); at(3, 3, 20); at(4, 4, 32); at(5,4,48);
       gl.bindVertexArray(null);
       this.spVao = vao; this.spInst = inst;
-      // Only animated photographic people use the grid. Vegetation and all
-      // unchanged sprites keep the original four-vertex path.
+      // Intact photographic people and at most 60 nearby wind-driven plants
+      // share this grid. Distant and Low-quality foliage keeps the quad path.
       const motionVao=gl.createVertexArray();gl.bindVertexArray(motionVao);
       const points=[];
       for(let y=0;y<12;y++)for(let x=0;x<4;x++){
@@ -3688,6 +3710,7 @@ class Renderer {
     gl.uniform1f(p.u.uFogDens, a.fogDens); gl.uniform1f(p.u.uFogHeight, a.fogHeight);
     gl.uniform1f(p.u.uTurb, a.turb === undefined ? 1 : a.turb);
     gl.uniform1f(p.u.uNightContrast, Math.max(0, Math.min(1, a.nightContrast || 0)));
+    gl.uniform1f(p.u.uSurfacePolish, Math.max(0, Math.min(1, this.surfacePolish || 0)));
     /* the cloud deck, for the shadow it throws on the ground */
     gl.uniform1f(p.u.uCloudY, a.cloud); gl.uniform1f(p.u.uCloudT, this.time || 0);
     gl.uniform1f(p.u.uCloudOv, a.overcast);
@@ -3827,8 +3850,15 @@ class Renderer {
      which cell of the sheet, and a tint. The quad turns about Y only —
      a figure that also pitches toward the camera from above looks like
      a card falling over, which is exactly what it would be. */
-  drawSprites(name, list) {
+  drawSprites(name, list, vegetationSubset) {
     if (!list || !list.length) return;
+    if(name==='photo_vegetation' && vegetationSubset===undefined){
+      const near=[],far=[];
+      for(const s of list)(this.quality>0 && near.length<60 && vdist2(s.p,this.eye)<420*420?near:far).push(s);
+      if(far.length)this.drawSprites(name,far,false);
+      if(near.length)this.drawSprites(name,near,true);
+      return;
+    }
     const gl = this.gl, T = this.textures && this.textures[name];
     if (!T) return;
     const p = this.pSprite;
@@ -3859,7 +3889,9 @@ class Renderer {
     gl.uniform1i(p.u.uTex, 0);
     gl.uniform2f(p.u.uTexel, 1 / T.w, 1 / T.h);
     gl.uniform1f(p.u.uPremultiplied, T.premultiplied ? 1 : 0);
-    const articulated=name==='people' && sorted.some(s=>s.motion);
+    gl.uniform1f(p.u.uVegetation,vegetationSubset===true?1:0);
+    gl.uniform1f(p.u.uBreezeTime,this.time||0);
+    const articulated=vegetationSubset===true || name==='people' && sorted.some(s=>s.motion);
     gl.bindVertexArray(articulated?this.spMotionVao:this.spVao);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.spInst);
     gl.bufferData(gl.ARRAY_BUFFER, b.subarray(0, n * 16), gl.DYNAMIC_DRAW);
@@ -4003,6 +4035,7 @@ class Renderer {
     const p = this.pMesh;
     gl.useProgram(p); this._atmosUniforms(p);
     gl.uniform1f(p.u.uEpisodeMaterial,name==='powWater'?1:0);
+    gl.uniform1f(p.u.uSurfaceKind, FlightVisualMaterials.kind(name));
     gl.uniformMatrix4fv(p.u.uVP, false, this.matVP);
     gl.bindVertexArray(m.vao);
     gl.bindBuffer(gl.ARRAY_BUFFER, m.inst);
@@ -7871,7 +7904,7 @@ class World {
         const bp = [ap[0] + Math.cos(aa) * miss, ap[1] + rnd(-90, 120), ap[2] + Math.sin(aa) * miss];
         this.fx.flak(bp);
         this._say(ac, bp, 'boom', clamp(0.40 - miss / 900, 0.04, 0.36));
-        if (miss < 60 && Math.random() < lethal) this.hitAircraft(ac, 0.30, 'flak');
+        if (miss < 60 && Math.random() < lethal) this.hitAircraft(ac, 0.30, 'flak', bp);
       } else {
         const tof = d / 900;
         const aim = [ap[0] + ac.v[0] * tof * rnd(0.5, 1.0) + rnd(-160, 160),
@@ -7890,7 +7923,7 @@ class World {
             vmul(dv, 144), [1, rnd(0.54, 0.82), 0.16], rnd(0.72, 1.12),
             (d - lead) / 144 + rnd(0.3, 0.9), 9.8, rnd(24, 40));
         }
-        if (Math.random() < lethal * 0.35) this.hitAircraft(ac, 0.16, 'aaa');
+        if (Math.random() < lethal * 0.35) this.hitAircraft(ac, 0.16, 'aaa', mz);
       }
     }
   }
@@ -7976,7 +8009,7 @@ class World {
       const jink = clamp(Math.abs(ac.gLoad - 1) * 0.30 + Math.abs(ac.roll) * 0.22, 0, 1);
       const pHit = clamp((g.heavy ? 0.036 : 0.010) * lowK * lowK
         * (1 - d / 1800) * (1 - jink * 0.55) * (1 - clamp(spd / 420, 0, 0.6)) * this.leth, 0, 0.09);
-      if (Math.random() < pHit) this.hitAircraft(ac, rnd(0.08, 0.30) * this.leth, 'saf');
+      if (Math.random() < pHit) this.hitAircraft(ac, rnd(0.08, 0.30) * this.leth, 'saf', g.p);
     }
   }
 
@@ -8054,6 +8087,7 @@ class World {
     let anyTrack = 0;
     for (const g of this.threats) {
       if (!g.alive) continue;
+      if (typeof FlightTacticalApproach !== 'undefined' && !FlightTacticalApproach.gate(this, g, ac, dt)) continue;
       const d = Math.hypot(ap[0] - g.p[0], ap[2] - g.p[2]);
       const inRange = d < g.rng && ac.radalt < g.alt && ac.radalt > 20 && ac.alive;
       g.cool -= dt;
@@ -8074,7 +8108,7 @@ class World {
           const dd = vdist(bp, ap);
           // a burst close aboard is felt before it is heard
           this._say(ac, bp, 'boom', clamp(0.46 - dd / 1400, 0.03, 0.42));
-          if (dd < 55 && ac.alive) this.hitAircraft(ac, (1 - dd / 55) * 0.55, 'flak');
+          if (dd < 55 && ac.alive) this.hitAircraft(ac, (1 - dd / 55) * 0.55, 'flak', bp);
         }
       } else {
         /* A tracer burst, as it looks from the cockpit: a string of beads
@@ -8102,7 +8136,7 @@ class World {
         // roll for damage
         const jink = Math.min(1, (Math.abs(ac.gLoad - 1) * 0.35 + Math.abs(ac.roll) * 0.28));
         const pHit = clamp((1 - d / g.rng) * 0.115 * this.leth * (1 - jink * 0.62) * (ac.radalt < 300 ? 1.3 : 1), 0, 0.3);
-        if (Math.random() < pHit && ac.alive) this.hitAircraft(ac, rnd(0.14, 0.40) * this.leth, 'aaa');
+        if (Math.random() < pHit && ac.alive) this.hitAircraft(ac, rnd(0.14, 0.40) * this.leth, 'aaa', g.p);
       }
       anyTrack = 1;
     }
@@ -8135,7 +8169,7 @@ class World {
     for (let i = 0; i < 26; i++) this.fx.smoke([p[0] + rnd(-9, 9), p[1] + rnd(0, 4), p[2] + rnd(-9, 9)], [0.4, 0.38, 0.36], rnd(6, 13), rnd(3, 7), [rnd(-6, 6), rnd(1, 5), rnd(-6, 6)], 1.2);
   }
 
-  hitAircraft(ac, sev, src) {
+  hitAircraft(ac, sev, src, position) {
     if (!ac.alive) return;
     ac.hits++;
     this.score.damage += sev;
@@ -8148,7 +8182,7 @@ class World {
     const cockpit = src === 'saf' ? 0.16 : 0.07;
     if (Math.random() < cockpit && (ac.crew.pilot > 0 || ac.crew.bn > 0)) {
       this.crewHit(ac, sev, src);
-      this.onHit && this.onHit(sev, src);
+      this.onHit && this.onHit(sev, src, position);
       if (this.score.damage > 4.6) this.kill(ac, 'Aircraft destroyed by ' + (src === 'sam' ? 'surface-to-air missile' : 'anti-aircraft fire'));
       return;
     }
@@ -8158,7 +8192,7 @@ class World {
     else if (r < 0.74) ac.dmg.fuelLeak = Math.min(1, ac.dmg.fuelLeak + sev * 0.6);
     else if (r < 0.90) ac.dmg.diane = Math.min(1, ac.dmg.diane + sev * 0.9);
     else ac.dmg.fire = Math.min(1, ac.dmg.fire + sev * 0.5);
-    this.onHit && this.onHit(sev, src);
+    this.onHit && this.onHit(sev, src, position);
     if (this.score.damage > 4.6) { this.kill(ac, 'Aircraft destroyed by ' + (src === 'sam' ? 'surface-to-air missile' : 'anti-aircraft fire')); }
   }
   /* A round through the canopy. Either seat, and either a wound or not.
@@ -8256,7 +8290,7 @@ class World {
       const gh = terrainH(s.p[0], s.p[2]);
       if (d < 46) {
         this.fx.explosion(s.p, 2.0, false);
-        this.hitAircraft(ac, (1 - d / 46) * 1.7 + 0.5, 'sam');
+        this.hitAircraft(ac, (1 - d / 46) * 1.7 + 0.5, 'sam', s.p);
         this.sams.splice(i, 1); continue;
       }
       if (s.p[1] < gh || s.t > 34 || (s.t > 6 && d > 24000)) {
@@ -13196,13 +13230,14 @@ class Game {
     $('#btnScope').classList.toggle('on', this.rightSeat);
     $('#btnGear').classList.add('on');
     this.world.onKill = t => { this.onKill(t); };
-    this.world.onHit = (s, src) => { this.onHit(s, src); };
+    this.world.onHit = (s, src, position) => { this.onHit(s, src, position); };
     this.world.onDead = r => { this.onDead(r); };
     this._closeUpShip();
     if (mis.airStart) this.setupAirborne(); else this.setupDeck();
     this.atm = this.makeAtmos(mis.env);
     if(mis.willard)WillardMission.start(this);
     FlightStrikeExperience.begin(this);
+    FlightTacticalApproach.begin(this);
     this.teach(this.rightSeat ? 'rightseat' : 'start');
   }
 
@@ -14224,9 +14259,10 @@ class Game {
     this.flash = Math.min(0.5, this.flash + 0.18);
     this.checkObjectives();
   }
-  onHit(sev, src) {
+  onHit(sev, src, position) {
     this.shake = Math.min(1.4, this.shake + sev * 1.3);
-    this.app.audio.burst('thunk', 0.4);
+    const impact=FlightAirframeFeedback.hit(this, sev, src, position);
+    if(!impact.played && FlightAirframeFeedback.active(this) && this.app.set.sound)this.app.audio.burst('thunk', 0.4);
     if (sev > 0.35) this.app.radio('BN', 'We are hit!', 'bad');
   }
   /* ---------------- the handle ----------------
@@ -17255,7 +17291,10 @@ class Game {
   /* ---------------- render ---------------- */
   render(dt) {
     const R = this.rend, ac = this.ac, W = this.world, A = this.app;
+    R.surfacePolish = FlightStrikeScene.active(this) || !!this.evade ? 1 : 0;
     FlightStrikeExperience.render(this);
+    FlightTacticalApproach.render(this);
+    FlightAirframeFeedback.render(this);
     if(typeof FlightStrikeBoard!=='undefined')FlightStrikeBoard.render(this);
     if(POW.EpisodeAudio)POW.EpisodeAudio.step(this,0);
     R.setAtmos(this.atm);
@@ -17651,15 +17690,15 @@ class Game {
       const angleToCam = Math.atan2(Math.sin(face-camHeading),Math.cos(face-camHeading));
       const idlePose = Math.abs(angleToCam)<PI/3 ? 0 :
                        Math.abs(angleToCam)>2*PI/3 ? (['farmer','villager'].includes(sc.kind)?2:3) : 1;
-      const photographMotion=this.pow && POW.FigureMotion ? POW.FigureMotion.pose(sc,this) : null;
+      const photographMotion=POW.FigureMotion ? POW.FigureMotion.pose(sc,this) : null;
       const usePhotographMotion=photographMotion && photographMotion.enabled && photographMotion.visible && Number.isFinite(photographMotion.cell) && photographMotion.cell>=0;
       if(usePhotographMotion)cell=photographMotion.cell;
       if (cell >= 0 && this.rend.textures && this.rend.textures.people) {
-        sprites.push({ p: [sc.p[0] + swx, gy, sc.p[2] + swz],
-                       h: usePhotographMotion ? 1.76*photographMotion.heightRatio : 1.76 + bob * .60, w: 0.96 * wob,
+        sprites.push({ p: [sc.p[0] + (usePhotographMotion?0:swx), gy, sc.p[2] + (usePhotographMotion?0:swz)],
+                       h: usePhotographMotion ? 1.76*photographMotion.heightRatio : 1.76 + bob * .60, w: usePhotographMotion ? .96 : 0.96 * wob,
                        cell: cell, cols: SPR.cols, rows: SPR.rows,
-                       useCleanFigure: !!this.pow || (this.evade.camp && !this.pow) || sc.kind==='nva',
-                       motion: usePhotographMotion ? [photographMotion.phase,photographMotion.stride,photographMotion.turn,photographMotion.crouch] : null,
+                       useCleanFigure: usePhotographMotion || !!this.pow || (this.evade.camp && !this.pow) || sc.kind==='nva',
+                       motion: usePhotographMotion ? [photographMotion.phase,photographMotion.stride,photographMotion.turn,photographMotion.anchorBottom] : null,
                        photoName: this.evade.camp && !this.pow ? 'nva'
                          : sc.kind === 'nva' ? 'nva'
                          : (sc.kind === 'vc' || sc.kind === 'vcFem') ? 'female_vc'
@@ -17885,7 +17924,8 @@ class Game {
         const h=s.h/f.height;
         // Preserve each photographed figure's source proportions at the requested height.
         const w=name==='vegetation'||name==='cow'?s.w:h*(meta.width/cols)/(meta.height/rows);
-        return {...s,p:[s.p[0],s.p[1]-f.bottom*h,s.p[2]],h,w,cols,rows,cell:frame};
+        return {...s,p:[s.p[0],s.p[1]-f.bottom*h,s.p[2]],h,w,cols,rows,cell:frame,
+          motion:name==='vegetation'?[0,0,0,f.bottom]:s.motion};
       };
       for (const s of this._sprites) {
         const nm=s.photoName;
@@ -18183,6 +18223,8 @@ FlightRouteScene.configure({terrainH,coastAt,fbm,MB,Store});
 FlightImmersion.install({App,Game,Store});
 FlightStrikeScene.configure({terrainH,coastAt,fbm,MB});
 FlightStrikeExperience.install({App,Game,Store,missions:MISSIONS,terrainH,coastAt});
+FlightTacticalApproach.configure({App,terrainH,coastAt});
+FlightAirframeFeedback.install({App});
 const _strikeShow=App.show;
 App.show=function(){const result=_strikeShow.apply(this,arguments);FlightStrikeBoard.render(this.game);return result;};
 const _strikeFlightUpdate=Game.prototype.update;
@@ -18191,13 +18233,16 @@ Game.prototype.update=function(dt){
   // World time stops outside the aircraft. Retire short-lived strike flashes
   // on that transition; original fires and smoke continue through survival.
   if(typeof FlightStrikeEffects!=='undefined' && (this.phase==='chute' || this.phase==='evade' || this.result))FlightStrikeEffects.clearTransient(this.world);
-  FlightStrikeBoard.tick(this,dt);FlightStrikeExperience.tick(this,dt);FlightStrikeCrew.tick(this,dt);return result;
+  FlightStrikeBoard.tick(this,dt);FlightStrikeExperience.tick(this,dt);FlightTacticalApproach.tick(this,dt);FlightStrikeCrew.tick(this,dt);FlightAirframeFeedback.tick(this,dt);return result;
 };
 const _strikeDebrief=Game.prototype.debrief;
 Game.prototype.debrief=function(){const before=this.result,result=_strikeDebrief.apply(this,arguments);if(!before && this.result){FlightStrikeBoard.appendDebrief(this);FlightStrikeExperience.appendDebrief(this);}return result;};
 const _originalStepEvade = Game.prototype.stepEvade;
 Game.prototype.stepEvade = function(dt) {
-  return this.pow ? POW.tick(this,dt) : _originalStepEvade.call(this,dt);
+  if(this.pow)return POW.tick(this,dt);
+  const result=_originalStepEvade.call(this,dt);
+  if(POW.FigureMotion)POW.FigureMotion.step(this,dt);
+  return result;
 };
 App.cokerCamp = function(game) { if (this.game !== game) return; return POW.begin(game,'cell'); };
 App.captivity = function(game) { if (this.game !== game) return; return POW.begin(game,'solitary'); };

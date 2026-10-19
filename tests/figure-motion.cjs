@@ -19,10 +19,11 @@ test('the visually inspected original sheet remains byte-identical and source li
   assert.equal(digest, f.M.source.sha256); assert.equal(f.M.source.columns, 8); assert.equal(f.M.source.rows, 9);
   assert.match(f.M.source.limitations, /not leg-stride frames/); assert.match(f.M.source.limitations, /already kneeling/);
 });
-test('motion is limited to the extended POW chapter and never changes portraits or legacy survival', () => {
+test('known photographic people animate in POW and existing ground evasion while portraits and other assets stay untouched', () => {
   const f = fixture(); delete f.game.pow;
-  assert.equal(f.M.step(f.game, .1), 0); assert.equal(f.M.pose(f.actor, f.game).enabled, false);
+  assert.equal(f.M.step(f.game, .1), 1); assert.equal(f.M.pose(f.actor, f.game).enabled, true);
   f.game.pow = { time: 0, complete: true }; assert.equal(f.M.pose(f.actor, f.game).enabled, false);
+  delete f.game.evade; assert.equal(f.M.step(f.game, .1), 0); assert.equal(f.M.pose(f.actor, f.game).enabled, false);
   for (const kind of ['portrait', 'stockdale', 'denton', 'cow', 'aviator', 'vegetation', 'pow']) {
     const g = fixture(kind); assert.equal(g.M.pose(g.actor, g.game).enabled, false);
   }
@@ -30,7 +31,7 @@ test('motion is limited to the extended POW chapter and never changes portraits 
 test('cadence advances by actual horizontal distance rather than declared speed or elapsed time', () => {
   const f = fixture(); f.actor.spd = 3;
   const idle = step(f, 0, .2); assert.equal(idle.phase, 0); assert.equal(idle.stride, 0); assert.equal(idle.state, 'idle');
-  const moved = step(f, .13, .1); assert.ok(moved.phase > 0); assert.ok(moved.stride > .5);
+  const moved = step(f, .13, .1); assert.ok(moved.phase > 0); assert.ok(moved.stride > .5 && moved.stride < .7);
   assert.ok(Math.abs(moved.phase - .13 * Math.PI * 2 / 1.56) < 1e-10);
 });
 test('one measured stride cycle and matching paths at different update frequencies have the same phase', () => {
@@ -44,7 +45,8 @@ test('one measured stride cycle and matching paths at different update frequenci
 test('running follows actual speed and selects the supplied charging guard pose after a short transition', () => {
   const f = fixture(); f.actor.state = 'pursuit'; f.actor.seen = 1;
   const first = step(f, .26, .1); assert.equal(first.state, 'running'); assert.equal(first.row, 0);
-  const second = step(f, .26, .1); assert.equal(second.row, 8); assert.equal(second.heightRatio, 1); assert.equal(second.stride, .96);
+  const second = step(f, .26, .1); assert.equal(second.row, 8); assert.equal(second.heightRatio, 1);
+  assert.ok(Math.abs(second.stride - (1 - Math.exp(-1.6))) < 1e-12);
 });
 test('a stopped threatening guard uses the genuine aiming row without transparent crossfading', () => {
   const f = fixture(); f.actor.state = 'pursuit'; f.actor.seen = 1;
@@ -55,17 +57,73 @@ test('stopping eases the movement envelope while the stride phase immediately st
   const f = fixture(); for (let i = 0; i < 5; i++) step(f, .12);
   const before = f.M.pose(f.actor, f.game), first = step(f);
   assert.equal(first.phase, before.phase); assert.ok(first.stride < before.stride && first.stride > 0);
-  for (let i = 0; i < 5; i++) step(f); assert.equal(f.M.pose(f.actor, f.game).stride, 0);
+  for (let i = 0; i < 10; i++) step(f); assert.equal(f.M.pose(f.actor, f.game).stride, 0);
 });
 test('turning uses shortest-angle real heading changes and decays when the actor stops turning', () => {
   const f = fixture(); step(f, 0, .1, Math.PI - .05); const across = step(f, 0, .1, -Math.PI + .05);
   assert.ok(across.turn > 0 && across.turn <= 1);
-  for (let i = 0; i < 15; i++) step(f); assert.ok(Math.abs(f.M.pose(f.actor, f.game).turn) < .000001);
+  for (let i = 0; i < 15; i++) step(f); assert.equal(f.M.pose(f.actor, f.game).headingTurn, 0);
 });
 test('camera-relative source column selection never alters actor heading or motion phase', () => {
   const f = fixture(); const original = f.M.pose(f.actor, f.game); f.game.rend.eye = [8, 1.5, 0]; const quarter = f.M.pose(f.actor, f.game);
   assert.notEqual(original.column, quarter.column); assert.equal(original.phase, quarter.phase); assert.equal(f.actor.face, 0);
   assert.ok(quarter.cell >= 0 && quarter.cell < 72);
+});
+test('direction hysteresis keeps one intact photograph near a sector edge and changes after a real turn', () => {
+  const f = fixture(), margin = f.M.limits.directionMarginRadians, edge = Math.PI / 8;
+  step(f, 0, .1, edge - .01);
+  for (const offset of [.005, -.008, .012, -.003]) assert.equal(step(f, 0, .1, edge + offset).column, 0);
+  assert.equal(step(f, 0, .1, edge + margin + .01).column, 1);
+  for (const offset of [.01, -.01, .02, -.005]) assert.equal(step(f, 0, .1, edge + offset).column, 1);
+  assert.equal(step(f, 0, .1, edge - margin - .01).column, 0);
+  assert.equal(f.actor.face, edge - margin - .01);
+});
+test('running pose uses different entry and exit speeds rather than flickering around a threshold', () => {
+  const f = fixture(); f.actor.state = 'pursuit';
+  step(f, .2); let p = step(f, .2); assert.equal(p.state, 'running'); assert.equal(p.row, 8);
+  for (const speed of [1.68, 1.78, 1.65, 1.8, 1.55]) { p = step(f, speed * .1); assert.equal(p.state, 'running'); assert.equal(p.row, 8); }
+  p = step(f, .145); assert.equal(p.state, 'walking-alert');
+  p = step(f, .145); assert.equal(p.row, 1);
+  for (const speed of [1.6, 1.75, 1.89]) { p = step(f, speed * .1); assert.equal(p.state, 'walking-alert'); assert.equal(p.row, 1); }
+});
+test('start and stop envelopes match across low and high simulation frequencies', () => {
+  const slow = fixture(), fast = fixture();
+  for (let i = 0; i < 10; i++) step(slow, .12, .1);
+  for (let i = 0; i < 100; i++) step(fast, .012, .01);
+  assert.ok(Math.abs(slow.M.pose(slow.actor, slow.game).stride - fast.M.pose(fast.actor, fast.game).stride) < 1e-12);
+  for (let i = 0; i < 3; i++) step(slow, 0, .1);
+  for (let i = 0; i < 30; i++) step(fast, 0, .01);
+  assert.ok(Math.abs(slow.M.pose(slow.actor, slow.game).stride - fast.M.pose(fast.actor, fast.game).stride) < 1e-12);
+});
+test('a collision-blocked actor does not walk on the spot even if AI still requests running speed', () => {
+  const f = fixture(); f.actor.spd = 3; f.actor.state = 'pursuit';
+  for (let i = 0; i < 12; i++) step(f);
+  const p = f.M.pose(f.actor, f.game); assert.equal(p.speed, 0); assert.equal(p.distance, 0); assert.equal(p.phase, 0); assert.equal(p.stride, 0); assert.equal(p.row, 1);
+});
+test('hidden actors keep measured cadence without visibility granting a movement or detection shortcut', () => {
+  const f = fixture(); f.actor.visible = false; f.actor.seen = false;
+  const p = step(f, .12); assert.ok(p.phase > 0); assert.equal(f.actor.visible, false); assert.equal(f.actor.seen, false);
+  const phase = p.phase; for (let i = 0; i < 10; i++) step(f); assert.equal(f.M.pose(f.actor, f.game).phase, phase);
+});
+test('idle and inspection weight shift remains bounded, grounded and explicitly authored', () => {
+  const f = fixture(); f.actor.action = 'inspect'; const shifts = [];
+  for (let i = 0; i < 60; i++) { const p = step(f); shifts.push(p.idleLean); assert.equal(p.phase, 0); assert.equal(p.stride, 0); assert.ok(Math.abs(p.idleLean) <= .22); }
+  assert.ok(Math.max(...shifts) - Math.min(...shifts) > .2);
+  assert.match(f.M.pose(f.actor, f.game).source, /authored grid deformation/);
+});
+test('inspection and conversation do not misuse the supplied running photograph as a recorded interaction pose', () => {
+  for (const action of ['inspect', 'door', 'talk']) {
+    const f = fixture(); f.actor.action = action;
+    for (let i = 0; i < 6; i++) step(f);
+    const p = f.M.pose(f.actor, f.game); assert.equal(p.state, 'interaction'); assert.equal(p.row, 0); assert.equal(p.stride, 0);
+  }
+});
+test('existing ground evasion uses its real simulation clock without a POW clock or mutable actor phases', () => {
+  const f = fixture('farmer'); delete f.game.pow;
+  const phase = f.actor.ph; f.actor.p[0] += .09; f.game.t += .1;
+  assert.equal(f.M.step(f.game, .1), 1); const p = f.M.pose(f.actor, f.game);
+  assert.ok(Math.abs(p.phase - .09 * Math.PI * 2 / 1.56) < 1e-12); assert.equal(f.actor.ph, phase);
+  assert.equal(f.M.step(f.game, .1), 0);
 });
 test('renderer reads do not advance cadence or any motion cache', () => {
   const f = fixture(); step(f, .12); const before = f.M.pose(f.actor, f.game);
@@ -148,7 +206,28 @@ test('bounded shared-vertex deformation keeps tile foot/top anchors and finite N
       if (y === 0) { assert.ok(Math.abs(p.y) < 1e-12); assert.ok(Math.abs(p.dx) < 1e-12); }
       if (y === 1) assert.ok(Math.abs(p.y - 1) < 1e-12);
     }
-    for (const bottom of [6 / 384, 16 / 384]) assert.ok(Math.abs(f.M.deform(.25, bottom, motion).dy) * 1.92 < .003);
+    for (const bottom of [6 / 384, 16 / 384]) {
+      const feet = f.M.deform(.25, 1 / 12, { ...motion, anchorBottom: bottom });
+      assert.equal(feet.y, bottom); assert.ok(Math.abs(feet.dx) === 0); assert.ok(Math.abs(feet.dy) === 0);
+    }
+  }
+});
+test('every photographed foot line is a real shared grid row with matching source UV and no inverted triangles', () => {
+  const f = fixture(), area = (a, b, c) => (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+  for (const bottom of [6 / 384, 16 / 384, 58 / 384]) for (let phase = 0; phase < Math.PI * 2; phase += .2) {
+    const motion = { phase, stride: 1, turn: .8, anchorBottom: bottom };
+    for (let row = 0; row <= 12; row++) {
+      const p = f.M.deform(.25, row / 12, motion);
+      assert.ok(p.sourceY >= 0 && p.sourceY <= 1);
+      if (row <= 1) { assert.ok(Math.abs(p.dx) === 0); assert.ok(Math.abs(p.dy) === 0); }
+      if (row === 1) assert.equal(p.sourceY, bottom);
+      if (row === 12) assert.equal(p.sourceY, 1);
+    }
+    for (let row = 0; row < 12; row++) for (let column = 0; column < 4; column++) {
+      const x = column / 4 - .5, y = row / 12, a = f.M.deform(x, y, motion), b = f.M.deform(x + .25, y, motion),
+        c = f.M.deform(x, y + 1 / 12, motion), d = f.M.deform(x + .25, y + 1 / 12, motion);
+      assert.ok(area(a, b, c) > 0); assert.ok(area(b, d, c) > 0);
+    }
   }
 });
 test('the actual four-by-twelve grid stays consistently wound without gaps, inverted triangles or alpha-layer cuts', () => {
