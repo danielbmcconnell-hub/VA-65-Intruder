@@ -151,7 +151,12 @@
       assessment: s.assessment ? copy(s.assessment) : null, observed: !!s.checkedVisual, elapsed: s.elapsed };
   }
   function setTutorial(g, on) { if (!eligible(g)) return false; g.strikeExperience.tutorial = !!on; render(g); return true; }
-  function bind(node, fn) { root.WillardPresentation.bindButton(node, event => { if (event) event.stopPropagation(); node.blur(); fn(); }); }
+  function bind(node, fn) {
+    root.WillardPresentation.bindButton(node, event => { if (event) event.stopPropagation(); node.blur(); fn(); });
+    // A touch compatibility click can refocus the button after pointerup.
+    // Clear that focus even when the helper correctly suppresses its action.
+    node.addEventListener('click', () => node.blur());
+  }
   function mount() {
     if (ui || typeof document === 'undefined') return;
     const panel = document.createElement('section'); panel.id = 'dixiePanel'; panel.hidden = true; panel.setAttribute('aria-label', 'Dixie B/N strike');
