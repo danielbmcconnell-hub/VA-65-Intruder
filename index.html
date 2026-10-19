@@ -10,7 +10,7 @@
 }
 </style>
 </head><body>
-<title>Intruder: Yankee Station — B/N Immersion</title>
+<title>Intruder: Yankee Station — Dixie Strike</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Share+Tech+Mono&display=swap">
@@ -846,6 +846,10 @@ body.desktop #hudbar{display:flex}
 <script src="assets/flight/sortie-checkpoint.js"></script>
 <script src="assets/flight/route-scene.js"></script>
 <script src="assets/flight/immersion.js"></script>
+<script src="assets/flight/strike-scene.js"></script>
+<script src="assets/flight/strike-checkpoint.js"></script>
+<script src="assets/flight/strike-crew.js"></script>
+<script src="assets/flight/strike-experience.js"></script>
 <script src="assets/willard/interceptor.js"></script>
 <script src="assets/willard/flak.js"></script>
 <script src="assets/willard/sprites.js"></script>
@@ -854,6 +858,8 @@ body.desktop #hudbar{display:flex}
 <link rel="stylesheet" href="assets/willard/presentation.css">
 <link rel="stylesheet" href="assets/flight/strike-board.css">
 <link rel="stylesheet" href="assets/flight/immersion.css">
+<link rel="stylesheet" href="assets/flight/strike-crew.css">
+<link rel="stylesheet" href="assets/flight/strike-experience.css">
 <script>
 /* ===== src/00-assets.js ===== */
 /* ===================================================================
@@ -13196,6 +13202,7 @@ class Game {
     if (mis.airStart) this.setupAirborne(); else this.setupDeck();
     this.atm = this.makeAtmos(mis.env);
     if(mis.willard)WillardMission.start(this);
+    FlightStrikeExperience.begin(this);
     this.teach(this.rightSeat ? 'rightseat' : 'start');
   }
 
@@ -13472,7 +13479,18 @@ class Game {
     const touchP = dkW(0, CV.aim), stp = dkW(0, CV.aim + START);
     const apC = Math.atan2(touchP[0] - stp[0], -(touchP[2] - stp[2]));
     const dStart = Math.hypot(stp[0] - ac.p[0], stp[2] - ac.p[2]);
-    if (home && this.departed && sr < 7500 && !ac.onDeck) this.aclsCoupled = true;
+    // The guided strike must establish the stern approach before capture.
+    // Range alone can couple on the bow, where ACLS has no approach to fly.
+    let captureReady = true;
+    if (this.strikeExperience) {
+      const L = worldToLocal([cv.p[0], cv.p[1] + (cv.heave || 0), cv.p[2]], cv.hdg, ac.p);
+      const ca = Math.cos(CV.angle), sa = Math.sin(CV.angle);
+      const ax = L[0] * ca - L[2] * sa, az = L[0] * sa + L[2] * ca;
+      const he = Math.atan2(Math.sin(ac.yaw - (cv.hdg - CV.angle)), Math.cos(ac.yaw - (cv.hdg - CV.angle)));
+      const slope = 1.55 + (az - (CV.wire[1] + 2)) * Math.tan(3.5 * DEG);
+      captureReady = az > 800 && Math.abs(ax) < 350 && Math.abs(he) < 35 * DEG && Math.abs(L[1] - slope) < 90;
+    }
+    if (home && this.departed && sr < 7500 && !ac.onDeck && captureReady) this.aclsCoupled = true;
     if (sr > 9000) this.aclsCoupled = false;
     if (this.aclsCoupled) return out;            // the ship is flying it
     let wantHdg, wantAlt, wantThr, wantIAS;
@@ -14038,7 +14056,7 @@ class Game {
     const alive = W.targets.filter(t => t.alive && !t.bonus).length;
     const done = !alive || ac.bombs === 0;
     if (this.phase === 'recovery' || done || this.egressCalled)
-      return { main: 'Get aboard', sub: 'Kitty Hawk ' + rb(W.carrier.p) };
+      return { main: 'Get aboard', sub: ((this.mis.brief.origin || 'Carrier').split('(')[0].trim()) + ' ' + rb(W.carrier.p) };
     if (ac.onDeck)
       return { main: this.mis.brief.target, sub: 'launch, then the chart is on M' };
     // ashore, with work to do
@@ -14173,6 +14191,7 @@ class Game {
   }
 
   teach(key) {
+    if (this.strikeExperience && key !== 'eject' && key !== 'sam') return;
     if (this.taught[key]) return;
     const list = this.mis.teach || [];
     // the mission's own card wins; otherwise fall back to the common set
@@ -14200,7 +14219,7 @@ class Game {
   }
 
   onKill(t) {
-    this.app.radio('BN', 'Good hits. ' + (t.label || 'Target') + ' is burning.', '');
+    if (!this.strikeExperience) this.app.radio('BN', 'Good hits. ' + (t.label || 'Target') + ' is burning.', '');
     this.app.audio.burst('boom', 0.55);
     this.flash = Math.min(0.5, this.flash + 0.18);
     this.checkObjectives();
@@ -16946,8 +16965,7 @@ class Game {
     const inland = ac.p[0] < coastAt(ac.p[2]) + 500;
     if (W.saf && W.saf.length && !ac.onDeck && ac.radalt < 1100 && this.departed)
       this.teach('smallarms');
-    this.pilotChatter(dt, ac, W);
-    this.director(dt, ac, W);
+    if (!this.strikeExperience) { this.pilotChatter(dt, ac, W); this.director(dt, ac, W); }
     /* ---- the missile that ends the sortie ----
        Scripted, because it is not a thing that can be outflown and
        pretending otherwise would be the one dishonest moment in this
@@ -16981,8 +16999,9 @@ class Game {
        has to have been left behind first. Without this the meatball comes up
        seconds after the catapult and the LSO starts grading the climb-out. */
     if (!ac.onDeck && this.shipRange > 7000) this.departed = true;
-    this.recoveryCalls(ac, W);
-    if (this.departed && this.shipRange < 5600 && !ac.onDeck && this.phase !== 'done' && this.phase !== 'deck') {
+    const recovering = !this.strikeExperience || this.egressCalled || ac.bombs === 0;
+    if (recovering) this.recoveryCalls(ac, W);
+    if (recovering && this.departed && this.shipRange < 5600 && !ac.onDeck && this.phase !== 'done' && this.phase !== 'deck') {
       if (this.phase !== 'recovery') { this.phase = 'recovery'; this.app.radio('LSO', 'Roger ball. Call the ball at three-quarters of a mile.'); }
       this.teach('nearship');
     }
@@ -17236,6 +17255,7 @@ class Game {
   /* ---------------- render ---------------- */
   render(dt) {
     const R = this.rend, ac = this.ac, W = this.world, A = this.app;
+    FlightStrikeExperience.render(this);
     if(typeof FlightStrikeBoard!=='undefined')FlightStrikeBoard.render(this);
     if(POW.EpisodeAudio)POW.EpisodeAudio.step(this,0);
     R.setAtmos(this.atm);
@@ -17283,7 +17303,11 @@ class Game {
       if (this.cellPos && fl.length < 8)
         fl.push([this.cellPos[0], y0 + 2.5, this.cellPos[2] - 0.4, 0.70, 8.0, LAMP]);
       R.setFires(fl);
-    } else R.setFires(FlightImmersion.lights(this,ac.p,typeof FlightStrikeEffects!=='undefined'?FlightStrikeEffects.lights(W,ac.p,R.quality):W.fires,R.quality));
+    } else {
+      let lights=FlightImmersion.lights(this,ac.p,typeof FlightStrikeEffects!=='undefined'?FlightStrikeEffects.lights(W,ac.p,R.quality):W.fires,R.quality);
+      if(FlightStrikeScene.active(this))lights=lights.concat(FlightStrikeScene.lights(this,ac.p,R.quality)).slice(0,R.quality===0?4:8);
+      R.setFires(lights);
+    }
     const ax = bodyAxes(ac.yaw, ac.pitch, ac.roll);
     const asp = R.W / R.H;
     let eye, fwd, up;
@@ -17346,6 +17370,8 @@ class Game {
       fwd = ax.fwd; up = ax.up;
       this.camSm = null;
     }
+    const strikeLook=FlightStrikeExperience.camera(this);
+    if(strikeLook){eye=strikeLook.eye;fwd=vnorm(vsub(strikeLook.target,eye));up=[0,1,0];}
     if (shake > 0.01) {
       const s = shake * 0.7;
       eye = vadd(eye, [rnd(-s, s) * 0.2, rnd(-s, s) * 0.2, rnd(-s, s) * 0.2]);
@@ -17353,6 +17379,7 @@ class Game {
     }
     R.setCamera(eye, fwd, up, this.willard && this.willard.rear ? WillardPresentation.rearFov(this) : this.extView ? 55 : 62, this.evade ? .12 : this.chute ? .35 : 1.2, 60000, asp);
     if(this.willard && !this.evade && !this.chute)FlightRouteScene.ensureMeshes(R);
+    if(FlightStrikeScene.active(this))FlightStrikeScene.ensureMeshes(R);
 
     /* ---- instanced meshes & photographic world inhabitants ----
        Version 4: previously ONLY evade.searchers used photographs.
@@ -17479,12 +17506,15 @@ class Game {
       }
     }
     if (!this.pow) for (const t of W.targets) {
+      const strikeTarget=FlightStrikeScene.targetVisual(this,t);
+      if(strikeTarget){push(strikeTarget.mesh,strikeTarget.p,strikeTarget.rot,strikeTarget.scale,strikeTarget.tint);continue;}
       if (!t.alive && t.mesh !== 'bridge') { push(t.mesh, t.p, [t.yaw, 0, 0], [0.9, 0.35, 0.9], [0.25, 0.22, 0.2, 0]); continue; }
       push(t.mesh, t.p, [t.yaw, 0, 0], [1, 1, 1], t.alive ? [1, 1, 1, 0] : [0.3, 0.27, 0.25, 0]);
     }
     if (!this.pow) {
       for (const s of W.scenery) push(s.m, s.p, [s.y, 0, 0], [s.s, s.s, s.s], [1, 1, 1, 0]);
       if(this.willard && !this.evade && !this.chute)FlightRouteScene.instances(this,eye,R.quality,push);
+      if(FlightStrikeScene.active(this))FlightStrikeScene.instances(this,eye,R.quality,push);
       W.clutter(this.rend.eye, null, push);
     }
     if (this.campGeo && this.evade && this.evade.camp) {
@@ -18151,6 +18181,8 @@ WillardMission.install({App,Game,Store,terrainH,coastAt});
 WillardPresentation.install({App,Game,Store,retry:game=>WillardMission.retry(game),pause:on=>App.pause(on),toggleCamera:game=>{game.extView=!game.extView;game.camSm=null;}});
 FlightRouteScene.configure({terrainH,coastAt,fbm,MB,Store});
 FlightImmersion.install({App,Game,Store});
+FlightStrikeScene.configure({terrainH,coastAt,fbm,MB});
+FlightStrikeExperience.install({App,Game,Store,missions:MISSIONS,terrainH,coastAt});
 const _strikeShow=App.show;
 App.show=function(){const result=_strikeShow.apply(this,arguments);FlightStrikeBoard.render(this.game);return result;};
 const _strikeFlightUpdate=Game.prototype.update;
@@ -18159,10 +18191,10 @@ Game.prototype.update=function(dt){
   // World time stops outside the aircraft. Retire short-lived strike flashes
   // on that transition; original fires and smoke continue through survival.
   if(typeof FlightStrikeEffects!=='undefined' && (this.phase==='chute' || this.phase==='evade' || this.result))FlightStrikeEffects.clearTransient(this.world);
-  FlightStrikeBoard.tick(this,dt);return result;
+  FlightStrikeBoard.tick(this,dt);FlightStrikeExperience.tick(this,dt);FlightStrikeCrew.tick(this,dt);return result;
 };
 const _strikeDebrief=Game.prototype.debrief;
-Game.prototype.debrief=function(){const before=this.result,result=_strikeDebrief.apply(this,arguments);if(!before && this.result)FlightStrikeBoard.appendDebrief(this);return result;};
+Game.prototype.debrief=function(){const before=this.result,result=_strikeDebrief.apply(this,arguments);if(!before && this.result){FlightStrikeBoard.appendDebrief(this);FlightStrikeExperience.appendDebrief(this);}return result;};
 const _originalStepEvade = Game.prototype.stepEvade;
 Game.prototype.stepEvade = function(dt) {
   return this.pow ? POW.tick(this,dt) : _originalStepEvade.call(this,dt);

@@ -16,6 +16,7 @@ for(const name of ['core.js','core.css','ai.js','river.js','captivity.js','solid
 for(const name of ['episode-shaders.js','episode-scene.js','episode-stealth.js','episode-actions.js','episode-actions.css','episode-audio.js','figure-motion.js','memory-detail.js'])allow.push('assets/pow/'+name);
 allow.push('assets/flight/coach.js');
 allow.push('assets/survival/ammunition.js','assets/flight/strike-board.js','assets/flight/strike-board.css','assets/flight/strike-effects.js');
+allow.push('assets/flight/strike-scene.js','assets/flight/strike-checkpoint.js','assets/flight/strike-crew.js','assets/flight/strike-crew.css','assets/flight/strike-experience.js','assets/flight/strike-experience.css');
 allow.push('assets/flight/sortie-checkpoint.js','assets/flight/route-scene.js','assets/flight/immersion.js','assets/flight/immersion.css');
 for(const name of ['interceptor.js','flak.js','sprites.js','presentation.js','presentation.css','mission.js'])allow.push('assets/willard/'+name);
 for(const name of ['MiG17PF_Willard_Egress_ATLAS.png','MiG17PF_Willard_Egress_ATLAS.json'])allow.push('assets/willard/media/'+name);
@@ -28,5 +29,5 @@ const files=[...allow,'_headers'].map(file=>({file,sha256:sha(fs.readFileSync(pa
 const metadata={commit:cp.execFileSync('git',['rev-parse','HEAD'],{cwd:root}).toString().trim(),entrySHA256:sha(fs.readFileSync(path.join(site,'index.html'))),files};
 fs.writeFileSync(path.join(root,'dist/build-manifest.json'),JSON.stringify(metadata,null,2)+'\n');
 // Python's standard-library zipper makes packaging portable in this cloud image.
-cp.execFileSync('python3',['-c',"import pathlib,zipfile; p=pathlib.Path('dist/site'); z=zipfile.ZipFile('dist/Intruder_Yankee_Station_BN_Immersion.zip','w',zipfile.ZIP_DEFLATED); [z.write(f,f.relative_to(p)) for f in sorted(p.rglob('*')) if f.is_file()]; z.close()"],{cwd:root});
-console.log('Built runtime-only Netlify folder and ZIP: dist/site, dist/Intruder_Yankee_Station_BN_Immersion.zip ('+allow.length+' game files)');
+cp.execFileSync('python3',['-c',"import pathlib,zipfile; p=pathlib.Path('dist/site'); z=zipfile.ZipFile('dist/Intruder_Yankee_Station_Dixie_Strike.zip','w',zipfile.ZIP_DEFLATED); [z.write(f,f.relative_to(p)) for f in sorted(p.rglob('*')) if f.is_file()]; z.close()"],{cwd:root});
+console.log('Built runtime-only Netlify folder and ZIP: dist/site, dist/Intruder_Yankee_Station_Dixie_Strike.zip ('+allow.length+' game files)');

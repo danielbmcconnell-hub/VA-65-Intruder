@@ -1,3 +1,10 @@
+# Guided Dixie strike
+
+- Added an optional complete B/N-led version of existing Mission 02, with full carrier launch or a short airborne practice start, clearer task guidance, original ripple/reattack controls, actual-position observation and earned flight checkpoints.
+- Added terrain-grounded depot landmarks, detailed intact warehouses, actual-destruction rubble and bounded embers. Crew captions explain real navigation, consent, release and aftermath; optional browser speech is labelled synthesized and dramatized.
+- Fixed premature bow-side ACLS capture and misleading recovery calls during reattack within the guided sortie. New controls release keyboard focus so Space reaches original bomb consent. Original mission definitions, A-6A physics/geometry, photographs and POW systems are preserved.
+- Verification and device limits: [Dixie strike report](docs/DIXIE_STRIKE_REPORT.md).
+
 # B/N immersion
 
 - Added independent chart/radar comparison, uncertain target hypotheses and advisory run-in plotting, using public briefing information and actual radar returns.

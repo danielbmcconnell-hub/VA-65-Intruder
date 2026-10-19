@@ -78,6 +78,7 @@
     // identity overlay. A nearby strong return can still be the wrong site.
     let supplied = null;
     if (root.FlightRouteScene && typeof root.FlightRouteScene.chart === 'function') supplied = root.FlightRouteScene.chart(game);
+    if (root.FlightStrikeScene && root.FlightStrikeScene.active(game)) supplied = root.FlightStrikeScene.chart(game);
     const raw = Array.isArray(supplied) ? supplied : supplied && supplied.features || [];
     const features = raw.filter(f => f && f.briefed === true && validPoint(f.p)).slice(0, 32).map(f => ({ id: String(f.id || ''), label: String(f.label || f.name || 'Briefed landmark').slice(0, 70), kind: String(f.kind || 'landmark'), p: f.p.slice(0, 3), signature: String(f.signature || '').slice(0, 200), points: Array.isArray(f.points) ? f.points.filter(validPoint).slice(0, 64).map(p => p.slice(0, 3)) : [] }));
     const bp = validPoint(w.briefed) ? w.briefed.slice(0, 3) : null;
