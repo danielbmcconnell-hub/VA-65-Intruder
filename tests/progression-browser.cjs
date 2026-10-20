@@ -65,13 +65,37 @@ module.exports=async function progression(browser,target,evidenceDir){
     const check=[];for(const call of calls)for(const s of call.list){const nm=call.name==='people'?'people':call.name.slice(6),f=PHOTO_ATLAS[nm]?.frames[s.cell];if(!f)continue;
      const y=s.p[1]+f.bottom*s.h,ground=Math.max(0,terrainH(s.p[0],s.p[2]));
      if(Math.hypot(s.p[0]-x,s.p[2]-z)<30)check.push({name:nm,feet:y,ground,error:Math.abs(y-ground),visibleHeight:s.h*f.height});}
-    return {near:check,types:[...new Set(G._sprites.map(s=>s.photoName).filter(Boolean))],glError:G.rend.gl.getError()};
+    const actors=e.locals.map(a=>{
+     const call=calls.find(c=>c.name==='people'&&c.list.some(s=>Math.hypot(s.p[0]-a.p[0],s.p[2]-a.p[2])<1e-8));
+     const s=call?.list.find(s=>Math.hypot(s.p[0]-a.p[0],s.p[2]-a.p[2])<1e-8);
+     if(!s)return {kind:a.kind,drawn:false};
+     const frame=PHOTO_ATLAS.people.frames[s.cell],column=s.cell%8,row=Math.floor(s.cell/8);
+     const heading=Math.atan2(G.rend.eye[0]-a.p[0],-(G.rend.eye[2]-a.p[2]));
+     const relative=Math.atan2(Math.sin(a.face-heading+Math.PI),Math.cos(a.face-heading+Math.PI));
+     const expectedColumn=((Math.round(relative/(Math.PI/4))%8)+8)%8;
+     const canvas=document.createElement('canvas');canvas.width=192;canvas.height=384;
+     const c=canvas.getContext('2d',{willReadFrequently:true});c.drawImage(FIGIMG,column*192,row*384,192,384,0,0,192,384);
+     const rgba=c.getImageData(0,0,192,384).data;let opaque=0,transparent=0;
+     for(let i=3;i<rgba.length;i+=4){if(rgba[i]>=250)opaque++;if(rgba[i]===0)transparent++;}
+     return {kind:a.kind,drawn:true,atlas:call.name,row,column,expectedColumn,cell:s.cell,cols:s.cols,rows:s.rows,
+      visibleHeight:s.h*frame.height,expectedHeight:1.76*frame.height/(352/384),
+      visibleWidth:s.w,expectedWidth:s.h*192/384,feet:s.p[1]+frame.bottom*s.h,
+      ground:Math.max(0,terrainH(a.p[0],a.p[2])),opaque,transparent,flipped:!!s.flip};
+    });
+    return {near:check,actors,types:[...new Set(G._sprites.map(s=>s.photoName).filter(Boolean))],glError:G.rend.gl.getError()};
    });
    assert.equal(anchors.glError,0);assert.ok(['farmer','female_vc','nva','vegetation'].every(n=>anchors.types.includes(n)));
-   assert.ok(anchors.near.length>=4);assert.ok(['people','farmer','female_vc','vegetation'].every(n=>anchors.near.some(s=>s.name===n)));
-   assert.ok(anchors.near.filter(s=>s.name!=='vegetation').every(s=>Math.abs(s.visibleHeight-1.76)<.01));
-   // The small gait sway is horizontal; terrain under a footprint may slope slightly.
-   assert.ok(anchors.near.every(s=>s.error<.15));record('Solid photographic crowd and grounded vegetation',anchors,'Existing NPC types and three existing vegetation props placed in front of camera; real draw-call instrumentation and WebGL');await page.evaluate(()=>document.getElementById('radio').innerHTML='');await shot('farmers-vc-nva-vegetation');
+   assert.ok(anchors.near.length>=4);assert.ok(['people','vegetation'].every(n=>anchors.near.some(s=>s.name===n)));
+   assert.equal(anchors.actors.length,3);
+   for(const [kind,row] of [['farmer',6],['vcFem',4],['nva',0]]){
+    const a=anchors.actors.find(a=>a.kind===kind);assert.ok(a?.drawn,kind+' photograph must actually reach the GPU draw pass');
+    assert.equal(a.atlas,'people');assert.equal(a.row,row);assert.equal(a.column,a.expectedColumn);assert.equal(a.cols,8);assert.equal(a.rows,9);assert.equal(a.flipped,false);
+    assert.ok(Math.abs(a.visibleHeight-a.expectedHeight)<1e-8,kind+' keeps its source height, including the kneeling VC');
+    assert.ok(Math.abs(a.visibleWidth-a.expectedWidth)<1e-8,kind+' keeps the original source aspect ratio');
+    assert.ok(Math.abs(a.feet-a.ground)<1e-7,kind+' visible feet are anchored to terrain');
+    assert.ok(a.opaque>500&&a.transparent>500,kind+' source cell must contain a solid photographed subject and transparent surrounding gutter');
+   }
+   assert.ok(anchors.near.every(s=>s.error<1e-7));record('Solid photographic crowd and grounded vegetation',anchors,'Declared existing farmer, kneeling VC and NVA roster plus three vegetation props. Real draw-call instrumentation verifies each original clean-sheet identity row, camera-relative frame, source aspect/height, intact opaque/transparent image pixels and exact terrain foot anchors; full GPU silhouette/occlusion is covered separately.');await page.evaluate(()=>document.getElementById('radio').innerHTML='');await shot('farmers-vc-nva-vegetation');
    // Queued controls must survive a delayed simulation frame; no timed key pulses.
    for(const [id,mode] of [['btnKnife','knife'],['btnPistol','pistol'],['btnPunch','fists']]){
     await page.locator('#'+id).dispatchEvent('click');await page.waitForTimeout(180);await advance(.05);assert.equal(await page.evaluate(()=>App.game.evade.weaponMode),mode);

@@ -22,7 +22,7 @@ module.exports = async function dixieStrikeBrowser(browser, target, evidenceDir)
     page.setDefaultTimeout(90000);
     page.on('pageerror', e => { errors.push(e.message); console.log('Dixie JavaScript error ' + name + ': ' + e.message); });
     page.on('response', r => { if (r.status() >= 400 && /\/assets\//.test(r.url())) missing.push({ status: r.status(), url: r.url() }); });
-    page.on('response', r => { const file = new URL(r.url()).pathname; if (r.ok() && /\/assets\/flight\/(?:strike-(?:experience|crew|scene|checkpoint|effects|board)|immersion)\.(?:js|css)$/.test(file)) digestTasks.push(r.body().then(bytes => { const sha = createHash('sha256').update(bytes).digest('hex'); (runtimeSHA256[file] ||= []); if (!runtimeSHA256[file].includes(sha)) runtimeSHA256[file].push(sha); })); });
+    page.on('response', r => { const file = new URL(r.url()).pathname; if (r.ok() && /\/assets\/(?:flight\/(?:strike-(?:experience|crew|scene|checkpoint|effects|board)|immersion|tactical-approach|visual-materials|airframe-feedback)\.(?:js|css)|pow\/figure-motion\.js)$/.test(file)) digestTasks.push(r.body().then(bytes => { const sha = createHash('sha256').update(bytes).digest('hex'); (runtimeSHA256[file] ||= []); if (!runtimeSHA256[file].includes(sha)) runtimeSHA256[file].push(sha); })); });
     await context.addInitScript(() => {
       localStorage.setItem('a6_set', JSON.stringify({ quality: 0, sound: 0, voices: 0, mouse: 0, seat: 0, assist: 1, sens: 1 }));
       localStorage.setItem('a6_sawkeys', '1');
@@ -139,7 +139,13 @@ module.exports = async function dixieStrikeBrowser(browser, target, evidenceDir)
       await click(page.locator('#dixieReady'));
       assert.equal(await page.locator('#dixieStart').count(), 1); assert.equal(await page.locator('#dixiePractice').count(), 1);
       assert.match(await page.locator('#briefBody').innerText(), /dramatized|authored|representative/i);
+      // Suspend only RAF scheduling before the native launch. The original
+      // asynchronous loader and constructor still execute, while no random
+      // number of real-time preframes can shift the fixed-step simulation's
+      // random stream differently across desktop and touch layouts.
+      await page.evaluate(() => { window.__dixieFixedClock = true; });
       await click(page.locator('#dixieStart')); await loaded(); const initial = await state();
+      assert.equal(initial.time, 0, 'The first original simulation tick must be controlled, starting at constructor time zero.');
       assert.equal(initial.rightSeat, true); assert.equal(initial.aircraft.onDeck, true); assert.equal(initial.gl, 0);
       assert.equal(await page.evaluate(() => App.set.seat), 0, 'Opt-in B/N experience must not rewrite the saved default seat.');
       assert.ok(initial.experience); await shot('original-carrier-bn-start');
@@ -165,7 +171,7 @@ module.exports = async function dixieStrikeBrowser(browser, target, evidenceDir)
       const trajectory = [], events = [];
       async function run(seconds) { const batch = await advance(seconds); events.push(...batch.observed); trajectory.push(await state()); return trajectory.at(-1); }
       let current = await run(50);
-      assert.equal(current.aircraft.alive, true); assert.equal(current.aircraft.onDeck, false); assert.ok(current.time >= 50);
+      assert.equal(current.aircraft.alive, true); assert.equal(current.aircraft.onDeck, false); assert.ok(current.time - initial.time >= 50 - 1e-7, 'Exactly 3,000 fixed steps must advance fifty simulated seconds within floating-point precision.');
       assert.ok(Math.hypot(...current.aircraft.p.map((v, i) => v - initial.aircraft.p[i])) > 1500);
       record('Existing right-seat pilot performs the real catapult launch and flies toward the coast', { initial: initial.aircraft.p, current }, 'Fifty seconds of original Game.update/acStep and the existing autoFly/pilotGuide. No aircraft, launch, velocity, phase or timer setter.');
 
@@ -275,18 +281,48 @@ module.exports = async function dixieStrikeBrowser(browser, target, evidenceDir)
       record('Original ASQ-61 releases and ballistic collisions genuinely satisfy the depot objective', { impacts: current.score.hits + current.score.misses, score: current.score, observedReturns, events, hybridFocus }, 'Native selected eight-store intervalometer and held Space or CDP touchscreen COMMIT; a second pass can use only the four original remaining stores. A genuine keyboard Space press after the same action also reaches COMMIT in both mouse and touch layouts without reactivating RIPPLE. Subsequent native aim reads only fresh displayed radar cells around the public briefed area. Every bomb, damage and impact advances through original Game.update/World.step. No release, impact, target ID, health or score setter.');
 
       await click(page.locator('#dixieHome')); await run(.2);
-      for (let guard = 0; guard < 130 && !current.result && current.phase !== 'done' && current.aircraft.alive; guard++) {
-        current = await run(8);
-        if (current.acls && !screenshots.includes('dixie-strike/' + name + '-original-carrier-recovery.png')) await shot('original-carrier-recovery');
+      async function flyRecovery() {
+        for (let guard = 0; guard < 130 && !current.result && current.phase !== 'done' && current.aircraft.alive; guard++) {
+          current = await run(8);
+          if (current.acls && !screenshots.includes('dixie-strike/' + name + '-original-carrier-recovery.png')) await shot('original-carrier-recovery');
+        }
+      }
+      await flyRecovery();
+      let combatLoss = null;
+      if (!current.aircraft.alive) {
+        // A real cockpit hit may kill the player's B/N. That is a valid
+        // combat outcome, not a rendering failure or permission to heal him.
+        // Exercise the intended rapid retry exactly once, from the actual
+        // already-earned checkpoint, preserving its existing crew injuries,
+        // weapons, target destruction and aircraft damage.
+        await page.waitForFunction(() => App.game.result && App.screen === 'debrief', null, { timeout: 15000 });
+        combatLoss = await state();
+        assert.equal(combatLoss.result.pass, false); assert.equal(combatLoss.result.recovered, false);
+        assert.equal(combatLoss.phase, 'dead'); assert.equal(combatLoss.wire, 0);
+        const earned = await page.evaluate(() => FlightStrikeCheckpoint.saved());
+        assert.ok(earned && await page.evaluate(() => FlightStrikeCheckpoint.valid(FlightStrikeCheckpoint.saved())));
+        await fs.writeFile(path.join(out, name + '-genuine-combat-loss.json'), JSON.stringify({ trajectory: trajectory.slice(), events: events.slice(), finish: combatLoss, earnedCheckpoint: earned }, null, 2) + '\n');
+        await shot('genuine-combat-loss-debrief');
+        await page.evaluate(() => { window.__dixieCombatLostGame = App.game; });
+        await click(page.locator('#dixieDebriefRetry')); await loaded(); current = await state();
+        assert.equal(current.aircraft.alive, true); assert.equal(current.result, null);
+        assert.deepEqual(current.aircraft.p, earned.aircraft.p); assert.deepEqual(current.aircraft.damage, earned.aircraft.dmg);
+        assert.deepEqual(current.aircraft.crew, earned.aircraft.crew); assert.equal(current.aircraft.bombs, earned.aircraft.bombs);
+        assert.equal(current.score.dropped, earned.world.score.dropped); assert.equal(current.score.killed, earned.world.score.killed);
+        assert.equal(current.experience.retries, earned.experience.retries + 1);
+        assert.equal(await page.evaluate(() => window.__dixieCombatLostGame !== App.game), true);
+        await shot('native-combat-checkpoint-continuation');
+        record('Genuine combat defeat reports failure and one native earned-checkpoint retry preserves its existing injuries, weapons and target results', { loss: combatLoss, restored: current, checkpoint: earned, originalAttempt: 'dixie-strike/' + name + '-genuine-combat-loss.json', retryBound: 1 }, 'No hit was suppressed and no aircraft/crew/target/RNG/checkpoint field is edited. The original death timer produces a failed debrief. Native RETRY constructs a fresh Game from the previously earned record; only that recorded point is rewound. The following recovery is a checkpoint continuation, not an uninterrupted carrier-to-carrier survival claim.');
+        await flyRecovery();
       }
       if (current.phase === 'done' && !current.result) { await page.waitForTimeout(1850); current = await state(); }
-      await fs.writeFile(path.join(out, name + '-input-driven-sortie.json'), JSON.stringify({ trajectory, events, finish: current }, null, 2) + '\n');
+      await fs.writeFile(path.join(out, name + '-input-driven-sortie.json'), JSON.stringify({ trajectory, events, finish: current, uninterrupted: combatLoss === null, combatLoss, boundedNativeCheckpointRetries: combatLoss ? 1 : 0 }, null, 2) + '\n');
       assert.equal(current.aircraft.alive, true); assert.ok(current.result, 'A genuine original arrested landing and debrief must complete: ' + JSON.stringify(current));
       assert.equal(current.result.recovered, true); assert.ok(current.wire >= 1 && current.wire <= 4); assert.equal(current.aircraft.onDeck, true);
       assert.equal(current.result.pass, true);
       assert.equal(current.result.pass, current.objectives.filter((o, i) => i === 0).every(o => o[2]), 'Return must not award a successful attack when the actual target objective was not achieved.');
       await shot('honest-carrier-return-debrief');
-      record('Original coupled carrier approach catches an actual arresting wire and debrief reflects measured attack results', { finish: current, trajectory: 'dixie-strike/' + name + '-input-driven-sortie.json' }, 'RETURN requests the original pilot/carrier route; it never sets position, wire, phase or result. Attack success remains conditional on original target damage. This is automated fixed-step flight, not a human or hardware-FPS claim.');
+      record('Original coupled carrier approach catches an actual arresting wire and debrief reflects measured attack results', { finish: current, uninterrupted: combatLoss === null, boundedNativeCheckpointRetries: combatLoss ? 1 : 0, trajectory: 'dixie-strike/' + name + '-input-driven-sortie.json' }, 'RETURN requests the original pilot/carrier route; it never sets position, wire, phase or result. Attack success remains conditional on original target damage. A recorded combat loss explicitly distinguishes an earned-checkpoint continuation from an uninterrupted sortie. This is automated fixed-step flight, not a human or hardware-FPS claim.');
 
       const saved = await page.evaluate(() => FlightStrikeCheckpoint.saved());
       assert.ok(saved && await page.evaluate(() => FlightStrikeCheckpoint.valid(FlightStrikeCheckpoint.saved())));
