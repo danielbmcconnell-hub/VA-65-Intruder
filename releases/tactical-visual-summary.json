@@ -1,0 +1,146 @@
+{
+  "recordedAt": "2026-10-20T13:00:10.398630+00:00",
+  "branch": "tactical-visual-polish",
+  "sourceCommit": "503995daa8054bc86bc6e14ce571a7ba6097ff4d",
+  "entrySHA256": "28d8d35a88731ffc60f715ab809c45f83c74562e9b1a9992601607a6ba383d08",
+  "runtimeFiles": 146,
+  "domainChecks": 751,
+  "domainSuites": 41,
+  "browserChecks": 188,
+  "browserReports": [
+    {
+      "report": "tactical-native-final/dixie-strike.json",
+      "checks": 26,
+      "kind": "Actual Chromium WebGL2 and native gameplay or explicitly identified fixtures"
+    },
+    {
+      "report": "tactical-visual-final/tactical-visual.json",
+      "checks": 30,
+      "kind": "Actual Chromium WebGL2 and native gameplay or explicitly identified fixtures"
+    },
+    {
+      "report": "tactical-regressions-final/progression.json",
+      "checks": 26,
+      "kind": "Actual Chromium regression"
+    },
+    {
+      "report": "tactical-regressions-final/hud-opacity.json",
+      "checks": 12,
+      "kind": "Actual Chromium regression"
+    },
+    {
+      "report": "tactical-regressions-final/episode-renderer.json",
+      "checks": 14,
+      "kind": "Actual Chromium regression"
+    },
+    {
+      "report": "tactical-regressions-final/episode.json",
+      "checks": 49,
+      "kind": "Actual Chromium regression"
+    },
+    {
+      "report": "tactical-regressions-final/ground.json",
+      "checks": 11,
+      "kind": "Actual Chromium regression"
+    },
+    {
+      "report": "tactical-regressions-final/willard-renderer.json",
+      "checks": 14,
+      "kind": "Actual Chromium regression"
+    },
+    {
+      "report": "tactical-regressions-final/willard-lifecycle.json",
+      "checks": 6,
+      "kind": "Actual Chromium regression"
+    }
+  ],
+  "nativeSorties": [
+    {
+      "profile": "desktop",
+      "seconds": 361.68333333333305,
+      "wire": 1,
+      "grade": "A",
+      "points": 98,
+      "score": {
+        "hits": 4,
+        "misses": 4,
+        "cep": [
+          123.06051648036092,
+          51.81909715921931,
+          83.27699574308544,
+          61.53779449761275,
+          25.796186863040678,
+          61.403427536355224,
+          138.4244124451935,
+          102.09273512929363
+        ],
+        "dropped": 8,
+        "killed": 3,
+        "total": 5,
+        "damage": 1.1370677645597609,
+        "discipline": true
+      },
+      "crew": {
+        "pilot": 1,
+        "bn": 1
+      },
+      "uninterrupted": true
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "seconds": 361.68333333333305,
+      "wire": 1,
+      "grade": "A",
+      "points": 98,
+      "score": {
+        "hits": 4,
+        "misses": 4,
+        "cep": [
+          123.06051648036092,
+          51.81909715921931,
+          83.27699574308544,
+          61.53779449761275,
+          25.796186863040678,
+          61.403427536355224,
+          138.4244124451935,
+          102.09273512929363
+        ],
+        "dropped": 8,
+        "killed": 3,
+        "total": 5,
+        "damage": 1.1370677645597609,
+        "discipline": true
+      },
+      "crew": {
+        "pilot": 1,
+        "bn": 1
+      },
+      "uninterrupted": true
+    }
+  ],
+  "packagedChecks": 15,
+  "preservedPreviousZIPs": 19,
+  "screenshots": 166,
+  "physicalWindowsTested": false,
+  "actualIPhoneSafariTested": false,
+  "netlifyDeployed": false,
+  "playable": {
+    "file": "Intruder_Yankee_Station_Tactical_Visual.zip",
+    "bytes": 34740251,
+    "sha256": "e3405a59813e132fe8a528ba4b5d553b65df8a35aaeaa90c0856c573b88fa848",
+    "download": "https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/tactical-visual-polish/releases/Intruder_Yankee_Station_Tactical_Visual.zip"
+  },
+  "evidence": {
+    "file": "Intruder_Yankee_Station_Tactical_Visual_Evidence.zip",
+    "bytes": 48071574,
+    "sha256": "7a46ba463a38235628ba35d461c954651b22a7c12a62651c15d155b7211cbe87",
+    "screenshots": 58
+  },
+  "passed": true,
+  "regressionEvidence": {
+    "file": "Intruder_Yankee_Station_Tactical_Visual_Regression_Evidence.zip",
+    "bytes": 72464101,
+    "sha256": "6d8619d3875ac54a7edce2ef0c64fbda5624232288e54deeb5f698a403193ce9",
+    "screenshots": 108
+  }
+}

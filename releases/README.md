@@ -1,3 +1,16 @@
+# Tactical and visual update
+
+Better grounded photographic character motion, anchored nearby vegetation, richer depot/terrain detail, optional direct/low routes, reactive guided-Dixie guns and actual aircraft-damage feedback. Original physics, all twelve missions and historical photographs remain.
+
+- **[Download complete Netlify ZIP — 34.7 MB](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/tactical-visual-polish/releases/Intruder_Yankee_Station_Tactical_Visual.zip)**
+- [Screenshots](tactical-visual-screenshots/), [play/deploy guide](../docs/TACTICAL_VISUAL_PLAY_GUIDE.md), [test report](../docs/TACTICAL_VISUAL_REPORT.md), [runtime hashes](tactical-visual-build-manifest.json) and [summary](tactical-visual-summary.json).
+
+Sign into private GitHub, download and Extract All on Windows; upload the extracted index.html/assets/_headers folder to the existing Netlify project's Deploys page. Git-connected option: `tactical-visual-polish`, `npm run build`, `dist/site`. The live site has not been redeployed.
+
+After deployment: Ready Room → BRIEF THE GUIDED STRIKE → PLAY GUIDED SORTIE or SHORT B/N PRACTICE. ROUTE offers direct 700 m or lower 320 m doglegs; radar/target work and COMMIT remain yours. Existing POW Escape chapter shows the photographic motion.
+
+751 domain, 188 final selected source-browser and15 packaged checks passed; actual WebGL screenshots and fixture boundaries are documented. Physical Windows/iPhone Safari and hardware FPS remain untested. Tested runtime `503995daa8054bc86bc6e14ce571a7ba6097ff4d`; ZIP SHA256 `e3405a59813e132fe8a528ba4b5d553b65df8a35aaeaa90c0856c573b88fa848`. Earlier releases and history remain below.
+
 # Guided Dixie strike — a complete B/N-led sortie
 
 The twelve-mission game now offers an optional guided Mission 02: original carrier launch, radar navigation/target correlation, real ASQ-61 release and bomb impacts, visible ruined depots, flown reattacks, earned checkpoints and original carrier arrestment. The ordinary missions, A-6A model/physics, photographs and POW chapters remain.
