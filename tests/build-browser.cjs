@@ -99,6 +99,15 @@ const server=http.createServer((req,res)=>{
    if(opts.hasTouch)await page.locator('#dixiePractice').tap();else await page.locator('#dixiePractice').click();
    await page.waitForFunction(()=>App.game?.mis?.id==='m2'&&!!App.game.strikeExperience&&document.getElementById('loader').style.display==='none',null,{polling:50,timeout:90000});
    await page.evaluate(()=>{const g=App.game;g.update(1/60);g.render(1/60);g.syncControls()});
+   const tacticalBefore=await page.evaluate(()=>({p:App.game.ac.p.slice(),fixes:App.game.world.nav.fixes,score:{...App.game.world.score}}));
+   if(opts.hasTouch)await page.locator('#dixieApproach').tap();else await page.locator('#dixieApproach').click();
+   if(opts.hasTouch)await page.locator('#dixieRouteTerrain').tap();else await page.locator('#dixieRouteTerrain').click();
+   const tactical=await page.evaluate(()=>({route:FlightTacticalApproach.inspect(App.game),materials:typeof FlightVisualMaterials.glsl==='string',feedback:FlightAirframeFeedback.view(App.game),p:App.game.ac.p.slice(),clearance:App.game.apAGL,fixes:App.game.world.nav.fixes,score:{...App.game.world.score},focus:document.activeElement?.id}));
+   assert.equal(tactical.route.choice,'terrain');assert.equal(tactical.route.following,true);assert.equal(tactical.clearance,320);assert.ok(tactical.materials&&tactical.feedback.active);assert.deepEqual(tactical.p,tacticalBefore.p);assert.equal(tactical.fixes,tacticalBefore.fixes);assert.deepEqual(tactical.score,tacticalBefore.score);assert.notEqual(tactical.focus,'dixieRouteTerrain');
+   if(opts.hasTouch)await page.locator('#dixieApproach').tap();else await page.locator('#dixieApproach').click();
+   if(opts.hasTouch)await page.locator('#dixieRouteFree').tap();else await page.locator('#dixieRouteFree').click();
+   assert.equal(await page.evaluate(()=>FlightTacticalApproach.inspect(App.game).following),false);
+   checks.push({name:name+' packaged native terrain route and manual override preserve aircraft position, navigation fixes and score',passed:true,observed:tactical});
    const beforeDixie=await page.evaluate(()=>({p:App.game.ac.p.slice(),bombs:App.game.ac.bombs,score:{...App.game.world.score}}));
    if(opts.hasTouch)await page.locator('#dixieRipple').tap();else await page.locator('#dixieRipple').click();
    if(opts.hasTouch)await page.locator('#dixieLook').tap();else await page.locator('#dixieLook').click();

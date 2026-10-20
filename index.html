@@ -3855,10 +3855,16 @@ class Renderer {
     if(name==='photo_vegetation' && vegetationSubset===undefined){
       const near=[],far=[];
       for(const s of list)(this.quality>0 && near.length<60 && vdist2(s.p,this.eye)<420*420?near:far).push(s);
-      if(far.length)this.drawSprites(name,far,false);
-      if(near.length)this.drawSprites(name,near,true);
+      if(far.length)this._drawSpriteBatch(name,far,false);
+      if(near.length)this._drawSpriteBatch(name,near,true);
       return;
     }
+    return this._drawSpriteBatch(name,list,vegetationSubset);
+  }
+
+  // Keep batching internal: public draw observers may intentionally accept
+  // only (name,list), so recursive public dispatch could drop the subset flag.
+  _drawSpriteBatch(name, list, vegetationSubset) {
     const gl = this.gl, T = this.textures && this.textures[name];
     if (!T) return;
     const p = this.pSprite;

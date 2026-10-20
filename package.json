@@ -22,7 +22,8 @@
     "test:bn": "node tests/ammunition.cjs && node tests/strike-board.cjs && node tests/strike-effects.cjs && node tests/sortie-checkpoint.cjs && node tests/run-browser.cjs --suite=m24-ammunition && node tests/run-browser.cjs --suite=m24-strike",
     "test:willard": "node tests/willard-sprites.cjs && node tests/willard-interceptor.cjs && node tests/willard-flak.cjs && node tests/willard-presentation.cjs && node tests/willard-mission.cjs && node tests/run-browser.cjs --suite=willard && node tests/run-browser.cjs --suite=willard-renderer && node tests/run-browser.cjs --suite=willard-lifecycle",
     "test:immersion": "node tests/bn-recognition.cjs && node tests/route-scene.cjs && node tests/combat-feedback.cjs && node tests/flight-immersion.cjs && node tests/run-browser.cjs --suite=bn-recognition && node tests/run-browser.cjs --suite=immersion && node tests/run-browser.cjs --suite=hud-opacity",
-    "test:dixie": "node tests/strike-scene.cjs && node tests/strike-checkpoint.cjs && node tests/strike-crew.cjs && node tests/strike-experience.cjs && node tests/run-browser.cjs --suite=dixie-strike && node tests/run-browser.cjs --suite=dixie-visual"
+    "test:dixie": "node tests/strike-scene.cjs && node tests/strike-checkpoint.cjs && node tests/strike-crew.cjs && node tests/strike-experience.cjs && node tests/run-browser.cjs --suite=dixie-strike && node tests/run-browser.cjs --suite=dixie-visual",
+    "test:tactical": "node tests/tactical-approach.cjs && node tests/airframe-feedback.cjs && node tests/visual-materials.cjs && node tests/figure-motion.cjs && node tests/run-browser.cjs --suite=tactical-visual"
   },
   "devDependencies": {
     "playwright": "1.62.1"
