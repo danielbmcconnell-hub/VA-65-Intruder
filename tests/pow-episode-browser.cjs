@@ -94,14 +94,18 @@ module.exports = async function episodeBrowser(browser, target, evidenceDir) {
     }
     const h = { page, layout, click, tick, touch, center, shot, walk, aim, hold, throwStone, record };
     try {
-      await page.addInitScript(() => { localStorage.setItem('a6_set', JSON.stringify({ quality: 0, sound: 0, voices: 0, mouse: 0, seat: 0, assist: 1, sens: 1 })); localStorage.setItem('a6_sawkeys', '1'); });
+      await page.addInitScript(() => {
+        localStorage.setItem('a6_set', JSON.stringify({ quality: 0, sound: 0, voices: 0, mouse: 0, seat: 0, assist: 1, sens: 1 })); localStorage.setItem('a6_sawkeys', '1');
+        const raf=window.requestAnimationFrame.bind(window);
+        window.requestAnimationFrame=cb=>window.__episodeFixedClock?0:raf(t=>{if(!window.__episodeFixedClock)cb(t)});
+      });
       const coreResponse = page.waitForResponse(r => new URL(r.url()).pathname.endsWith('/assets/pow/core.js'));
       const entry = await page.goto(target, { waitUntil: 'domcontentloaded', timeout: 30000 }); const core = await coreResponse;
       sourceHashes.push({ layout: layout.name, entrySHA256: createHash('sha256').update(await entry.body()).digest('hex'), coreSHA256: createHash('sha256').update(await core.body()).digest('hex') });
       await page.waitForFunction(() => window.App && window.POW?.EpisodeScene && POW.EpisodeStealth && POW.EpisodeActions, null, { timeout: 30000 });
       await click(page.locator('#bootGo')); await click(page.locator('#powChapter [data-pow-chapter="escape"]'));
       await page.waitForFunction(() => App.game?.pow?.stage === 'cell' && document.getElementById('loader').style.display === 'none', null, { timeout: 90000 });
-      await page.evaluate(() => { App.screen = 'fixture'; App.game.paused = false; for (const k of Object.keys(App.keys)) App.keys[k] = 0; App.gctl.pitch = App.gctl.roll = 0; });
+      await page.evaluate(() => { window.__episodeFixedClock=true; App.screen = 'fixture'; App.game.paused = false; for (const k of Object.keys(App.keys)) App.keys[k] = 0; App.gctl.pitch = App.gctl.roll = 0; });
       if (await page.locator('#powHUD [data-guide-skip]').isVisible()) await click(page.locator('#powHUD [data-guide-skip]'));
       const initial = await page.evaluate(() => ({ stage: App.game.pow.stage, webgl: App.game.rend.gl.getParameter(App.game.rend.gl.VERSION), normalPatrols: App.game.evade.searchers.map(a => ({ id: a.id, p: a.p.slice(), route: a.route.map(p => p.slice()), schedule: { ...a.schedule } })) }));
       assert.match(initial.webgl, /WebGL 2/); assert.ok(initial.normalPatrols.length >= 4); record('Original playable cell starts with the unmodified active patrol roster', initial);
@@ -133,8 +137,14 @@ async function exerciseCellAndPebbles(h) {
   // Genuine CDP gestures, not synthetic DOM events, check phone look and feet.
   if (layout.hasTouch) {
     const before = await page.evaluate(() => ({ p: App.game.evade.p.slice(), hdg: App.game.evade.hdg }));
-    await touch('touchStart', [{ x: 520, y: 155, id: 2 }]);
-    await touch('touchMove', [{ x: 555, y: 165, id: 2 }]); await touch('touchEnd');
+    // Real POW look is correctly limited to the active game screen. Keep
+    // the original App.frame suspended, but expose that screen for trusted
+    // gestures instead of asking gameplay input to work in a hidden fixture.
+    await page.evaluate(() => { App.screen='game'; });
+    try {
+      await touch('touchStart', [{ x: 520, y: 155, id: 2 }]);
+      await touch('touchMove', [{ x: 555, y: 165, id: 2 }]); await touch('touchEnd');
+    } finally { await page.evaluate(() => { App.screen='fixture'; }); }
     const stick = await center('#stick');
     await touch('touchStart', [{ x: stick.x, y: stick.y, id: 1 }]);
     await touch('touchMove', [{ x: stick.x, y: stick.y - (stick.width / 2 - 10) * .68, id: 1 }]);
