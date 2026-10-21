@@ -576,8 +576,15 @@
   };
   P.install = function () {
     if(installed || !P.ctx)return;installed=true;const A=P.ctx.App,G=P.ctx.Game;
+    const cancelTouchLook=()=>{
+      const previous=touchLook;touchLook=null;
+      const stack=document.getElementById('stack');
+      try{if(previous && stack && stack.hasPointerCapture && stack.hasPointerCapture(previous.id))stack.releasePointerCapture(previous.id);}catch(_){}
+    };
+    const canLook=g=>!!(g && g.pow && g.evade && A.game===g && A.screen==='game' && !g.paused && !g.pow.complete && !A.graphicsContextLost && !document.hidden && !inputBlocked(g));
     const init=A.init;A.init=function(){const result=init.apply(this,arguments);P.mountUI();P.activate(!!(this.game && this.game.pow));return result;};
-    const show=A.show;A.show=function(){const result=show.apply(this,arguments);P.activate(this.screen==='game' && !!(this.game && this.game.pow));if(this.screen==='ready' && this.renderReady)this.renderReady();return result;};
+    const show=A.show;A.show=function(){const result=show.apply(this,arguments);if(this.screen!=='game' || touchLook && touchLook.game!==this.game)cancelTouchLook();P.activate(this.screen==='game' && !!(this.game && this.game.pow));if(this.screen==='ready' && this.renderReady)this.renderReady();return result;};
+    const pause=A.pause;A.pause=function(on){if(on)cancelTouchLook();return pause.apply(this,arguments);};
     const sync=G.prototype.syncControls;G.prototype.syncControls=function(){const result=sync.apply(this,arguments);P.activate(!!this.pow);return result;};
     // Capture only POW input so aeroplane key and pointer behavior is preserved.
     window.addEventListener('keydown',event=>{
@@ -589,23 +596,23 @@
       }
     },true);
     window.addEventListener('keyup',event=>{const g=current();if(g && g.pow && A.keys)A.keys[event.code]=0;},true);
-    window.addEventListener('blur',()=>{const g=current();if(g && g.pow){g.pow.touchInteract=false;g.pow.touchClimb=false;g.pow.holding=null;}touchLook=null;});
-    document.addEventListener('visibilitychange',()=>{if(document.hidden && P.EpisodeAudio)P.EpisodeAudio.stop();});
+    window.addEventListener('blur',()=>{const g=current();if(g && g.pow){g.pow.touchInteract=false;g.pow.touchClimb=false;g.pow.holding=null;}cancelTouchLook();});
+    document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelTouchLook();if(P.EpisodeAudio)P.EpisodeAudio.stop();}});
     document.addEventListener('mousemove',event=>{
-      const g=current();if(!g || !g.pow || g.paused || inputBlocked(g) || document.pointerLockElement!==document.getElementById('stack'))return;
+      const g=current();if(!canLook(g) || document.pointerLockElement!==document.getElementById('stack'))return;
       event.stopImmediatePropagation();const e=g.evade,factor=.0025*(A.set.sens || 1);e.hdg+=event.movementX*factor;e.pitchCmd=clamp((e.pitchCmd || 0)-event.movementY*factor,-.85,1.2);e.look=e.pitchCmd;
     },true);
     const stack=document.getElementById('stack');
     const canvas=document.getElementById('gl');
     if(canvas)canvas.addEventListener('webglcontextlost',()=>{
-      const g=current();touchLook=null;
+      const g=current();cancelTouchLook();
       if(P.EpisodeAudio)P.EpisodeAudio.stop(g);
       if(g && g.pow){g.pow.touchInteract=false;g.pow.touchClimb=false;g.pow.holding=null;g.pow.interactLatched=false;}
     });
     if(stack) {
-      stack.addEventListener('pointerdown',event=>{const g=current();if(!g || !g.pow || g.paused || inputBlocked(g) || event.pointerType==='mouse' || event.target.closest('button,.tc,#stick') || event.clientX<innerWidth*.43)return;touchLook={id:event.pointerId,x:event.clientX,y:event.clientY};stack.setPointerCapture && stack.setPointerCapture(event.pointerId);event.preventDefault();});
-      stack.addEventListener('pointermove',event=>{const g=current();if(!touchLook || touchLook.id!==event.pointerId || !g || !g.pow || inputBlocked(g))return;const e=g.evade;e.hdg+=(event.clientX-touchLook.x)*.006;e.pitchCmd=clamp((e.pitchCmd || 0)-(event.clientY-touchLook.y)*.006,-.85,1.2);e.look=e.pitchCmd;touchLook.x=event.clientX;touchLook.y=event.clientY;event.preventDefault();});
-      const release=event=>{if(touchLook && event.pointerId===touchLook.id)touchLook=null;};stack.addEventListener('pointerup',release);stack.addEventListener('pointercancel',release);
+      stack.addEventListener('pointerdown',event=>{const g=current();if(!canLook(g) || event.pointerType==='mouse' || event.target.closest('button,.tc,#stick') || event.clientX<innerWidth*.43)return;touchLook={game:g,actor:g.evade,id:event.pointerId,x:event.clientX,y:event.clientY};stack.setPointerCapture && stack.setPointerCapture(event.pointerId);event.preventDefault();});
+      stack.addEventListener('pointermove',event=>{const g=current();if(!touchLook || touchLook.id!==event.pointerId)return;if(!canLook(g) || touchLook.game!==g || touchLook.actor!==g.evade){cancelTouchLook();return;}const e=g.evade;e.hdg+=(event.clientX-touchLook.x)*.006;e.pitchCmd=clamp((e.pitchCmd || 0)-(event.clientY-touchLook.y)*.006,-.85,1.2);e.look=e.pitchCmd;touchLook.x=event.clientX;touchLook.y=event.clientY;event.preventDefault();});
+      const release=event=>{if(touchLook && event.pointerId===touchLook.id)cancelTouchLook();};stack.addEventListener('pointerup',release);stack.addEventListener('pointercancel',release);stack.addEventListener('lostpointercapture',release);
     }
   };
 })(window);
