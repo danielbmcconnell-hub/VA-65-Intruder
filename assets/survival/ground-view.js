@@ -3,7 +3,7 @@
  * A private camera cache eases stance changes; it never moves the player. */
 (function (root) {
   'use strict';
-  let context = null, installed = false;
+  let context = null, installed = false, touchLook = null;
   const states = new WeakMap(), STAND = 1.68, CROUCH = 1.16, RATE = 12;
   const finite = (n, fallback = 0) => Number.isFinite(n) ? n : fallback;
   const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
@@ -27,7 +27,7 @@
   function entry(g) {
     let s = states.get(g);
     if (!s || s.actor !== g.evade) {
-      s = { actor: g.evade, height: target(g), target: target(g), p: g.evade.p.slice(0, 3), steps: 0 };
+      s = { actor: g.evade, height: target(g), target: target(g), p: g.evade.p.slice(0, 3), steps: 0, touchPitch: false };
       states.set(g, s);
     }
     return s;
@@ -59,11 +59,25 @@
     e.look = e.pitchCmd;
     return true;
   }
-  function holdPitch(g) { return locked(g) && !blockedInput(g); }
-  function reset(g) { return !!g && states.delete(g); }
+  function holdPitch(g) {
+    if (!active(g) || g.pow || blockedInput(g)) return false;
+    const s = states.get(g);
+    return locked(g) || !!(s && s.actor === g.evade && s.touchPitch);
+  }
+  function cancelTouch() {
+    const previous = touchLook; touchLook = null;
+    const d = root.document, stack = d && d.getElementById('stack');
+    try { if (previous && stack && stack.hasPointerCapture && stack.hasPointerCapture(previous.id)) stack.releasePointerCapture(previous.id); } catch (_) {}
+  }
+  function touchAllowed(g) {
+    const a = appFor(g);
+    return active(g) && !g.pow && !g.evade.held && !g._solitaryActive && !blockedInput(g) &&
+      (!a || !a.screen || a.screen === 'game');
+  }
+  function reset(g) { if (touchLook && touchLook.game === g) cancelTouch(); return !!g && states.delete(g); }
   function view(g) {
     if (!eligible(g)) return null;
-    const s = entry(g); return { active: active(g), height: s.height, target: target(g), steps: s.steps, pointerLocked: locked(g) };
+    const s = entry(g); return { active: active(g), height: s.height, target: target(g), steps: s.steps, pointerLocked: locked(g), touchPitchHeld: s.touchPitch };
   }
   function install(c) {
     if (!c || !c.App || installed) return false;
@@ -72,7 +86,43 @@
     // ground sequence or survive pointer-lock release while on the ground.
     const clear = () => { const a = c.App; if (a.game && a.game.evade && a.gctl) { a.gctl.mx = 0; a.gctl.my = 0; } };
     if (root.document && root.document.addEventListener) root.document.addEventListener('pointerlockchange', clear);
-    if (root.addEventListener) root.addEventListener('blur', clear);
+    if (root.addEventListener) root.addEventListener('blur', () => { clear(); cancelTouch(); });
+    const d = root.document, stack = d && d.getElementById('stack'), canvas = d && d.getElementById('gl');
+    if (d && d.addEventListener) d.addEventListener('visibilitychange', () => { if (d.hidden) cancelTouch(); });
+    if (canvas && canvas.addEventListener) canvas.addEventListener('webglcontextlost', cancelTouch);
+    const app = c.App;
+    if (typeof app.pause === 'function') {
+      const pause = app.pause;
+      app.pause = function(on) { if (on) cancelTouch(); return pause.apply(this, arguments); };
+    }
+    if (typeof app.show === 'function') {
+      const show = app.show;
+      app.show = function() { const result = show.apply(this, arguments); if (this.screen !== 'game' || touchLook && (touchLook.game !== this.game || touchLook.actor !== this.game?.evade)) cancelTouch(); return result; };
+    }
+    if (stack && stack.addEventListener) {
+      stack.addEventListener('pointerdown', event => {
+        const g = app.game;
+        if (touchLook || !touchAllowed(g) || !['touch', 'pen'].includes(event.pointerType) || event.clientX < finite(root.innerWidth) * .43 ||
+          event.target && event.target.closest && event.target.closest('button,input,textarea,select,a,[role=dialog],.tc,#stick,.veil')) return;
+        touchLook = { game: g, actor: g.evade, id: event.pointerId, x: event.clientX, y: event.clientY };
+        entry(g).touchPitch = true;
+        try { if (stack.setPointerCapture) stack.setPointerCapture(event.pointerId); } catch (_) {}
+        if (event.preventDefault) event.preventDefault();
+      });
+      stack.addEventListener('pointermove', event => {
+        if (!touchLook || touchLook.id !== event.pointerId) return;
+        const g = app.game;
+        if (!touchAllowed(g) || touchLook.game !== g || touchLook.actor !== g.evade) { cancelTouch(); return; }
+        const e = g.evade, sensitivity = clamp(finite(app.set && app.set.sens, 1), .25, 3);
+        const x = finite(event.clientX, touchLook.x), y = finite(event.clientY, touchLook.y);
+        e.hdg = finite(e.hdg) + (x - touchLook.x) * .006 * sensitivity;
+        e.pitchCmd = clamp(finite(e.look, finite(e.pitchCmd)) - (y - touchLook.y) * .006 * sensitivity, -.55, 1.15);
+        e.look = e.pitchCmd; touchLook.x = x; touchLook.y = y;
+        if (event.preventDefault) event.preventDefault();
+      });
+      const release = event => { if (touchLook && touchLook.id === event.pointerId) cancelTouch(); };
+      for (const event of ['pointerup', 'pointercancel', 'lostpointercapture']) stack.addEventListener(event, release);
+    }
     return true;
   }
   root.GroundView = Object.freeze({ install, mouse, holdPitch, step, eyeHeight, reset, view,

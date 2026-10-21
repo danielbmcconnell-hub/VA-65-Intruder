@@ -24,7 +24,8 @@
     "test:immersion": "node tests/bn-recognition.cjs && node tests/route-scene.cjs && node tests/combat-feedback.cjs && node tests/flight-immersion.cjs && node tests/run-browser.cjs --suite=bn-recognition && node tests/run-browser.cjs --suite=immersion && node tests/run-browser.cjs --suite=hud-opacity",
     "test:dixie": "node tests/strike-scene.cjs && node tests/strike-checkpoint.cjs && node tests/strike-crew.cjs && node tests/strike-experience.cjs && node tests/run-browser.cjs --suite=dixie-strike && node tests/run-browser.cjs --suite=dixie-visual",
     "test:tactical": "node tests/tactical-approach.cjs && node tests/airframe-feedback.cjs && node tests/visual-materials.cjs && node tests/figure-motion.cjs && node tests/run-browser.cjs --suite=tactical-visual",
-    "test:refinement": "node --test tests/sprite-layers.cjs tests/ground-view.cjs tests/contact-shadows.cjs tests/quality-policy.cjs && node tests/run-browser.cjs --suite=sprite-layer-upload && node tests/run-browser.cjs --suite=refinement-visual && node tests/run-browser.cjs --suite=ground-view && node tests/run-browser.cjs --suite=quality-policy"
+    "test:refinement": "node --test tests/sprite-layers.cjs tests/ground-view.cjs tests/contact-shadows.cjs tests/quality-policy.cjs && node tests/run-browser.cjs --suite=sprite-layer-upload && node tests/run-browser.cjs --suite=refinement-visual && node tests/run-browser.cjs --suite=ground-view && node tests/run-browser.cjs --suite=quality-policy",
+    "test:movement": "node --test tests/ground-view.cjs tests/equipment-view.cjs tests/ground-combat.cjs tests/terrain-shadows.cjs && node tests/run-browser.cjs --suite=equipment-view && node tests/run-browser.cjs --suite=ground-combat && node tests/run-browser.cjs --suite=terrain-shadows && node tests/run-browser.cjs --suite=ground-touch"
   },
   "devDependencies": {
     "playwright": "1.62.1"

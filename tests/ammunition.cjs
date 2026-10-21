@@ -21,6 +21,8 @@ function fixture() {
     rnd: (lo, hi) => (lo + hi) / 2, terrainH: () => 0 });
   vm.runInContext(moduleSource, context);
   context.SurvivalAmmunition = window.SurvivalAmmunition;
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/survival/ground-combat.js'), 'utf8'), context);
+  context.GroundCombat = window.GroundCombat;
   vm.runInContext('globalThis.methods={' +
     method('_weapons(dt, e, A, K)', '  /* ---- people are solid') + ',' +
     method('applyFirstContact(res)', '  /* The hour between the canopy') + '};', context);

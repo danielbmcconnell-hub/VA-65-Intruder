@@ -10,7 +10,7 @@
 }
 </style>
 </head><body>
-<title>Intruder: Yankee Station — Ground &amp; Visual Refinement</title>
+<title>Intruder: Yankee Station — Movement &amp; Combat Polish</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Share+Tech+Mono&display=swap">
@@ -609,13 +609,8 @@ body.desktop #hudbar{display:flex}
  width:min(40vw,385px);height:min(56vh,350px);transform:translateX(-50%);overflow:hidden;
  filter:drop-shadow(0 9px 10px rgba(0,0,0,.65));opacity:.96}
 #weaponViewport img{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom;
- transform-origin:65% 100%;animation:weapon-breathe 2.5s ease-in-out infinite}
-#weaponViewport.attacking img{animation:weapon-strike .29s ease-out 1}
+ transform-origin:65% 100%}
 @media(max-height:470px){body.onfoot #fcol{bottom:calc(91px + env(safe-area-inset-bottom,0px));gap:3px}body.onfoot #fcol .sbtn{height:28px;min-height:28px;width:54px;font-size:8.5px}}
-#weaponViewport.walking img{animation:weapon-step .44s ease-in-out infinite alternate}
-@keyframes weapon-breathe{0%,100%{transform:translateY(3px)}50%{transform:translateY(-1px)}}
-@keyframes weapon-step{from{transform:translateY(5px) rotate(-.65deg)}to{transform:translateY(-3px) rotate(.65deg)}}
-@keyframes weapon-strike{0%{transform:translateY(2px)}28%{transform:translate(-4px,-40px) scale(1.10) rotate(-4deg)}100%{transform:none}}
 @media(max-height:470px){#weaponViewport{height:58vh;width:min(31vw,285px)}}
 </style>
 
@@ -857,6 +852,9 @@ body.desktop #hudbar{display:flex}
 <script src="assets/render/contact-shadows.js"></script>
 <script src="assets/render/quality-policy.js"></script>
 <script src="assets/survival/ground-view.js"></script>
+<script src="assets/survival/equipment-view.js"></script>
+<script src="assets/survival/ground-combat.js"></script>
+<script src="assets/render/terrain-shadows.js"></script>
 <script src="assets/willard/interceptor.js"></script>
 <script src="assets/willard/flak.js"></script>
 <script src="assets/willard/sprites.js"></script>
@@ -9360,7 +9358,8 @@ class Cockpit {
       g.save();
       g.strokeStyle = e.aim != null && e.aim < 55 ? '#ff4a32' : 'rgba(216,221,225,.65)';
       g.lineWidth = 1.4;
-      const cx = W / 2, cy = H * 0.54, r = 9;
+      // The sight marks the same centre ray used by the ground camera and hit test.
+      const cx = W / 2, cy = H / 2, r = 9;
       g.beginPath();
       g.moveTo(cx - r - 6, cy); g.lineTo(cx - 4, cy);
       g.moveTo(cx + 4, cy); g.lineTo(cx + r + 6, cy);
@@ -11449,7 +11448,7 @@ const App = {
     for(const [id,weapon] of [['btnPistol','pistol'],['btnKnife','knife'],['btnPunch','fists']])
       $('#'+id).onclick=()=>{const e=this.game&&this.game.evade;if(e&&!e.frozen)e.weaponWant=weapon;};
     $('#btnSurrender').onclick=()=>{if(this.game)this.game.raiseHands();};
-    $('#btnFire').onclick=()=>{const e=this.game&&this.game.evade;if(e&&!e.frozen)e.attackWant=1;};
+    WillardPresentation.bindButton($('#btnFire'),()=>{const e=this.game&&this.game.evade;if(e&&!e.frozen)e.attackWant=1;});
     WillardPresentation.bindButton($('#btnScope'), () => this.toggleScope());
     /* The note card folds away on a tap and comes back on a tap. On a
        phone it covers a third of the screen, and there was no way to get
@@ -14675,9 +14674,11 @@ class Game {
       const q = this._moveOnFoot(e.p[0], e.p[2], nx - e.p[0], nz - e.p[2], 0.43, e);
       e.p[0] = q[0]; e.p[2] = q[1];
     }
-    e.running = run && fwd > 0 && !e.crouch;
-
-    e.moving = spd !== 0;
+    const footDistance=Math.hypot(e.p[0]-footX,e.p[2]-footZ);
+    // Controls request travel; collision decides whether a step happened.
+    // Holding a wall must not animate running or advertise movement to AI.
+    e.moving = footDistance > 0.0001;
+    e.running = !!(e.moving && run && fwd > 0 && !e.crouch);
     if (e.handsUp) {
       e.handsT=(e.handsT||0)+dt;
       const captor=(e.searchers||[]).concat(e.locals||[]).find(o=>o.alive && (e.camp || o.armed)
@@ -14687,7 +14688,7 @@ class Game {
         return;
       }
     }
-    this._groundFootfalls(dt,e,Math.hypot(e.p[0]-footX,e.p[2]-footZ));
+    this._groundFootfalls(dt,e,footDistance);
     this._noticeAtCloseRange(e,dt);
     if (e.camp) { this._stepCamp(dt, e, A); return; }
 
@@ -15898,10 +15899,12 @@ class Game {
 
   _groundLineOfSight(a,b,e){
     const d=Math.hypot(b[0]-a[0],b[2]-a[2]),n=Math.max(2,Math.ceil(d/.18));
+    const ay=e.camp?0:Math.max(0,terrainH(a[0],a[2]))+1.35,
+      by=e.camp?0:Math.max(0,terrainH(b[0],b[2]))+1.35;
     for(let i=1;i<n;i++){
       const t=i/n,x=a[0]+(b[0]-a[0])*t,z=a[2]+(b[2]-a[2])*t;
       if(e.camp?this._campSolidAt(x,z,.05):this._localSolidAt(x,z,.05))return false;
-      if(!e.camp){const ay=Math.max(0,terrainH(a[0],a[2]))+1.35,by=Math.max(0,terrainH(b[0],b[2]))+1.35;
+      if(!e.camp){
         if(terrainH(x,z)>ay+(by-ay)*t)return false;}
     }
     return true;
@@ -15935,21 +15938,15 @@ class Game {
     /* Everything in front of him that can be hit: the people, and the
        cattle standing in the same field. One target list, so the sight
        picture tells the truth about what the muzzle is on. */
-    let closest = null, cd = 1e9, cIsCow = false;
-    const consider = (o, cone, cow) => {
-      if (!o.alive) return;
-      const dm = Math.hypot(o.p[0] - e.p[0], o.p[2] - e.p[2]);
-      let rb = Math.atan2(o.p[0] - e.p[0], -(o.p[2] - e.p[2])) - e.hdg;
-      rb = ((rb + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
-      /* The cone opens up close in: at four metres a man fills the
-         sight, and a shot that missed because he was eight degrees off
-         centre was the commonest reason the revolver felt broken. */
-      const w = cone + clamp((26 - dm) / 26, 0, 1) * 0.42;
-      if (dm < 60 && dm < cd && Math.abs(rb) < w && this._groundLineOfSight(e.p,o.p,e)) { cd = dm; closest = o; cIsCow = !!cow; }
-    };
-    for (const s of e.searchers) consider(s, 0.30, false);
-    for (const s of (e.locals || [])) consider(s, 0.30, false);
-    for (const c of (e.cattle || [])) consider(c, 0.26, true);
+    const eyeHeight=e.crouch?1.16:1.68;
+    const sight=GroundCombat.target(this,e,{
+      floorAt:p=>this.pow?p[1]:e.camp?this.campY:Math.max(terrainH(p[0],p[2]),0),
+      eyeHeight:typeof GroundView!=='undefined'?GroundView.eyeHeight(this,eyeHeight):eyeHeight,
+      bodyHeight:o=>{const pose=typeof POW!=='undefined'&&POW.FigureMotion?POW.FigureMotion.pose(o,this):null;
+        return 1.76*(pose&&pose.enabled?pose.heightRatio:1);},
+      lineOfSight:o=>this._groundLineOfSight(e.p,o.p,e)
+    });
+    const closest=sight?sight.actor:null,cd=sight?sight.distance:1e9,cIsCow=!!(sight&&sight.isCow);
     e.aim = closest ? Math.round(cd) : null;
     e.aimCow = closest ? cIsCow : false;
 
@@ -16128,16 +16125,8 @@ class Game {
      knock-back, and the few seconds of a wounded man behaving like
      one. */
   _stepReactions(dt, e) {
-    const settle = (o) => {
-      if (!o.kick) return;
-      const k = o.kick;
-      o.p[0] += Math.sin(k.a) * k.v * dt;
-      o.p[2] += -Math.cos(k.a) * k.v * dt;
-      k.v -= dt * 7.5;
-      if (k.v <= 0) o.kick = null;
-    };
-    for (const s of e.searchers.concat(e.locals || [])) { settle(s); }
-    for (const c of (e.cattle || [])) settle(c);
+    return GroundCombat.reactions(this,dt,e,
+      (x,z,dx,dz,r,context)=>this._moveOnFoot(x,z,dx,dz,r,context));
   }
 
   /* V10: solid prison navigation. Guards use a grid of accessible ground,
@@ -17869,11 +17858,8 @@ class Game {
         // Reserve the bounded nearby feet before long shadows: dense
         // vegetation must not consume all 600 instances and drop the cores.
         blobs.push(...ContactShadows.collect(this,sprites,R.quality));
-        for (const s of sprites) {
-          const reach = 0.30 + lean * 0.95;
-          blobs.push({ p: [s.p[0] + ox * reach * 0.5, s.p[1], s.p[2] + oz * reach * 0.5],
-                       r: 1.05 + lean * 0.8, d: dark * 0.92 });
-        }
+        blobs.push(...TerrainShadows.collect(this,sprites,{ox,oz,
+          reach:0.30+lean*0.95,radius:1.05+lean*0.8,darkness:dark*0.92,quality:R.quality}));
         if (this.evade) {
           const E = this.evade;
           /* The helicopter's shadow, which is the one piece of the rescue
@@ -18042,9 +18028,7 @@ class Game {
       this._lastWeaponArt=mode;
       art.src=FIRSTPERSON_ART[mode]||FIRSTPERSON_ART.fists;
     }
-    const attacking=!!(e.actionT && this.t-e.actionT<.27);
-    view.classList.toggle('attacking',attacking);
-    view.classList.toggle('walking',!attacking&&!!e.moving);
+    EquipmentView.render(this,view,art);
   }
 
   syncControls() {
@@ -18257,6 +18241,8 @@ FlightTacticalApproach.configure({App,terrainH,coastAt});
 FlightAirframeFeedback.install({App});
 ContactShadows.configure({terrainH});
 GroundView.install({App});
+EquipmentView.install({App});
+TerrainShadows.configure({terrainH});
 const _strikeShow=App.show;
 App.show=function(){const result=_strikeShow.apply(this,arguments);FlightStrikeBoard.render(this.game);return result;};
 const _strikeFlightUpdate=Game.prototype.update;
@@ -18271,10 +18257,13 @@ const _strikeDebrief=Game.prototype.debrief;
 Game.prototype.debrief=function(){const before=this.result,result=_strikeDebrief.apply(this,arguments);if(!before && this.result){FlightStrikeBoard.appendDebrief(this);FlightStrikeExperience.appendDebrief(this);}return result;};
 const _originalStepEvade = Game.prototype.stepEvade;
 Game.prototype.stepEvade = function(dt) {
-  const wasPOW=!!this.pow;
+  const wasPOW=!!this.pow,actor=this.evade;
+  const before=actor&&Array.isArray(actor.p)?actor.p.slice(0,3):null;
   const result=wasPOW?POW.tick(this,dt):_originalStepEvade.call(this,dt);
   if(!wasPOW && POW.FigureMotion)POW.FigureMotion.step(this,dt);
   GroundView.step(this,dt);
+  const distance=actor&&actor===this.evade&&actor.moving&&before?Math.hypot(actor.p[0]-before[0],actor.p[2]-before[2]):0;
+  EquipmentView.step(this,dt,distance);
   return result;
 };
 App.cokerCamp = function(game) { if (this.game !== game) return; return POW.begin(game,'cell'); };

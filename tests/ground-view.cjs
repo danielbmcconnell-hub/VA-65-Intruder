@@ -41,3 +41,44 @@ test('declared App mouse-lock flag without actual browser pointer lock never rot
 test('installation is idempotent and pointer-lock loss/blur flush only ground flight accumulators',()=>{const f=fixture();assert.equal(f.M.install({App:f.App}),false);assert.equal(f.events.pointerlockchange.length,1);assert.equal(f.events.blur.length,1);f.events.pointerlockchange[0]();assert.deepEqual(f.App.gctl,{mx:0,my:0});f.App.gctl.mx=.4;delete f.g.evade;f.events.blur[0]();assert.equal(f.App.gctl.mx,.4);});
 
 test('switching from eased keyboard look to the mouse starts at the current visible pitch',()=>{const f=fixture();f.doc.pointerLockElement=f.stack;f.g.evade.pitchCmd=-.35;f.g.evade.look=.2;f.M.mouse(f.g,{movementX:0,movementY:-20});near(f.g.evade.look,.25);near(f.g.evade.pitchCmd,.25);});
+
+function touchFixture(){
+ const events={},captured=new Set();
+ const stack={addEventListener:(n,f)=>(events['stack:'+n]??=[]).push(f),setPointerCapture:id=>captured.add(id),hasPointerCapture:id=>captured.has(id),releasePointerCapture:id=>captured.delete(id)};
+ const canvas={addEventListener:(n,f)=>(events['gl:'+n]??=[]).push(f)};
+ const doc={hidden:false,pointerLockElement:null,activeElement:null,getElementById:id=>id==='stack'?stack:id==='gl'?canvas:null,addEventListener:(n,f)=>(events[n]??=[]).push(f)};
+ const window={innerWidth:844,document:doc,addEventListener:(n,f)=>(events[n]??=[]).push(f)};
+ vm.runInNewContext(source,{window,Math,Number,Object,Array,WeakMap});
+ const g={phase:'evade',t:1,paused:false,evade:{p:[1,2,3],hdg:0,pitchCmd:0,look:0,crouch:false}},App={game:g,screen:'game',set:{sens:1},gctl:{mx:.3,my:.4},pause(on){g.paused=!!on},show(screen){this.screen=screen}};
+ const M=window.GroundView;M.install({App});
+ const emit=(name,extra={})=>{const event={pointerId:1,pointerType:'touch',clientX:510,clientY:190,target:{closest:()=>null},preventDefault(){this.prevented=true},...extra};for(const f of events[name]||[])f(event);return event};
+ return{M,g,App,doc,events,stack,captured,emit};
+}
+test('legacy right drag uses visible pitch, sensitivity and exact touch deltas while retaining aim after release',()=>{
+ const f=touchFixture();f.App.set.sens=2;f.g.evade.look=.2;f.g.evade.pitchCmd=-.3;
+ f.emit('stack:pointerdown');f.emit('stack:pointermove',{clientX:530,clientY:180});near(f.g.evade.hdg,.24);near(f.g.evade.look,.32);assert.ok(f.captured.has(1));
+ f.emit('stack:pointerup');assert.equal(f.captured.size,0);assert.equal(f.M.holdPitch(f.g),true);assert.deepEqual(f.App.gctl,{mx:.3,my:.4});
+ f.emit('stack:pointerdown');near(f.g.evade.look,.32);f.emit('stack:pointermove',{clientY:-1e6});assert.equal(f.g.evade.look,1.15);f.emit('stack:pointermove',{clientY:1e6});assert.equal(f.g.evade.look,-.55);
+});
+test('touch aiming leaves mouse, left stick, buttons, POW, held encounters and inactive games to their original controls',()=>{
+ for(const condition of ['mouse','left','button','pow','held','paused','menu','hidden','context','stale','input']){
+  const f=touchFixture();let extra={};if(condition==='mouse')extra.pointerType='mouse';if(condition==='left')extra.clientX=100;if(condition==='button')extra.target={closest:()=>({})};
+  if(condition==='pow')f.g.pow={};if(condition==='held')f.g.evade.held=true;if(condition==='paused')f.g.paused=true;if(condition==='menu')f.App.screen='ready';if(condition==='hidden')f.doc.hidden=true;if(condition==='context')f.App.graphicsContextLost=true;if(condition==='stale')f.App.game={};if(condition==='input')f.doc.activeElement={closest:()=>({})};
+  const before=JSON.stringify(f.g);f.emit('stack:pointerdown',extra);f.emit('stack:pointermove',{...extra,clientX:650,clientY:100});assert.equal(JSON.stringify(f.g),before,condition);assert.equal(f.captured.size,0,condition);
+ }
+});
+test('pause, menu, blur, hidden tab and graphics loss cancel held drags without a resumed movement jump',()=>{
+ for(const reason of ['pause','menu','blur','hidden','context']){
+  const f=touchFixture();f.emit('stack:pointerdown');f.emit('stack:pointermove',{clientX:530,clientY:180});const before={hdg:f.g.evade.hdg,look:f.g.evade.look};
+  if(reason==='pause'){f.App.pause(true);f.App.pause(false)}if(reason==='menu'){f.App.show('ready');f.App.show('game')}if(reason==='blur')f.emit('blur');if(reason==='hidden'){f.doc.hidden=true;f.emit('visibilitychange');f.doc.hidden=false}if(reason==='context')f.emit('gl:webglcontextlost');
+  f.emit('stack:pointermove',{clientX:700,clientY:50});assert.deepEqual({hdg:f.g.evade.hdg,look:f.g.evade.look},before,reason);assert.equal(f.captured.size,0,reason);
+  f.emit('stack:pointerdown');f.emit('stack:pointermove',{clientX:520,clientY:185});near(f.g.evade.hdg,before.hdg+.06);near(f.g.evade.look,before.look+.03);
+ }
+});
+test('checkpoint owner changes and lost capture cannot transfer held touch input to another actor',()=>{
+ const f=touchFixture();f.emit('stack:pointerdown');f.emit('stack:pointermove',{clientX:530,clientY:180});f.g.evade={...f.g.evade,p:[7,2,3]};const before=JSON.stringify(f.g.evade);f.App.show('game');f.emit('stack:pointermove',{clientX:700,clientY:80});assert.equal(JSON.stringify(f.g.evade),before);assert.equal(f.M.holdPitch(f.g),false);
+ f.emit('stack:pointerdown');f.emit('stack:lostpointercapture');f.emit('stack:pointermove',{clientX:700,clientY:80});assert.equal(JSON.stringify(f.g.evade),before);assert.equal(f.captured.size,0);
+});
+test('a second finger can operate another control without replacing the first look pointer',()=>{
+ const f=touchFixture();f.emit('stack:pointerdown');f.emit('stack:pointerdown',{pointerId:2,clientX:700,clientY:300,target:{closest:()=>({})}});f.emit('stack:pointermove',{pointerId:2,clientX:800,clientY:50});near(f.g.evade.hdg,0);f.emit('stack:pointermove',{clientX:520,clientY:185});near(f.g.evade.hdg,.06);near(f.g.evade.look,.03);assert.ok(f.captured.has(1));assert.equal(f.captured.size,1);
+});

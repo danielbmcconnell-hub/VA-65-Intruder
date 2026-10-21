@@ -22,7 +22,9 @@ function fixture() {
   const math = Object.create(Math); math.random = () => .5;
   const sandbox = {Math: math, Number, PI: Math.PI, TAU: Math.PI * 2, IS_TOUCH: false,
     terrainH: () => 10, rnd: (a, b) => (a + b) / 2, clamp: (n, lo, hi) => Math.max(lo, Math.min(hi, n))};
-  const Fixture = vm.runInNewContext('(class GroundFixture {' + methods() + '\n})', sandbox);
+  const context = vm.createContext(sandbox);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/survival/ground-combat.js'), 'utf8'), context);
+  const Fixture = vm.runInContext('(class GroundFixture {' + methods() + '\n})', context);
   const G = new Fixture(); G.t = 20; G.world = {fx: {glow() {}, smoke() {}}};
   G.app = {radio(...args) { messages.push(args); }, vn() {}, audio: {burst() {}}};
   G._seedLivingWorld = () => { throw new Error('Fixture must not refill'); };
