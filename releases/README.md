@@ -1,3 +1,16 @@
+# Ground & Visual Refinement — latest playable game
+
+- [Download the complete playable Netlify ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/ground-visual-refinement/releases/Intruder_Yankee_Station_Ground_Visual_Refinement.zip) — 34.8 MB, all twelve missions. Sign into private GitHub.
+- [Evidence ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/ground-visual-refinement/releases/Intruder_Yankee_Station_Ground_Visual_Refinement_Evidence.zip), [12 selected screenshots](ground-visual-screenshots/), [test report](../docs/GROUND_VISUAL_REPORT.md), [play/deploy guide](../docs/GROUND_VISUAL_PLAY_GUIDE.md), [summary](ground-visual-summary.json) and [runtime hashes](ground-visual-build-manifest.json).
+
+Adds frame-isolated photographic filtering, visible terrain-aligned contact shadows, working countryside mouse look, smooth crouch camera movement, reliable POW touch pause/checkpoint handling and session-only graphics fallback. Original photo bytes, A-6A physics/model/markings, prior missions and rooftop rope remain. Source palette and photographic direction coverage still limit realism.
+
+**816 domain checks, 393 selected browser checks and 17 exact packaged checks passed.** Physical Windows/iPhone Safari and hardware FPS remain untested. The complete 36-suite source-browser registry was not rerun.
+
+On Windows: download, **Extract All**, and upload the extracted folder containing `index.html`, `assets/` and `_headers` to the existing Netlify project's **Deploys** page. The live [game address](https://steady-croquembouche-46c1a0.netlify.app/) has not been redeployed. After upload, confirm the tab title **Ground & Visual Refinement**. Git-connected deployment: branch `ground-visual-refinement`, `npm run build`, `dist/site`. Same-origin browser saves remain local to that browser/device.
+
+Tested source `a487480cec448a7d4674113a00e7c943686e9bba`. ZIP SHA256 `2ddf2db8f6df934f256a3e3b61b45410f82a8788a1d8c78b3d3e60936d4f8c38`. Preserves full ancestry and22 earlier release archives. Previous delivery follows.
+
 # Tactical and visual update
 
 Better grounded photographic character motion, anchored nearby vegetation, richer depot/terrain detail, optional direct/low routes, reactive guided-Dixie guns and actual aircraft-damage feedback. Original physics, all twelve missions and historical photographs remain.

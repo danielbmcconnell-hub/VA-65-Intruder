@@ -1,6 +1,6 @@
 # Ground & Visual Refinement — download and play
 
-The complete game ZIP is intended for `releases/Intruder_Yankee_Station_Ground_Visual_Refinement.zip` on the `ground-visual-refinement` branch of the private [VA-65-Intruder repository](https://github.com/danielbmcconnell-hub/VA-65-Intruder/tree/ground-visual-refinement). Sign in to GitHub with access to that repository, open **releases**, select the ZIP and choose **Download raw file**. Downloading the repository's **Code → Download ZIP** instead gives the source checkout, rather than this ready-to-deploy archive.
+The complete game ZIP is available as `releases/Intruder_Yankee_Station_Ground_Visual_Refinement.zip` on the `ground-visual-refinement` branch of the private [VA-65-Intruder repository](https://github.com/danielbmcconnell-hub/VA-65-Intruder/tree/ground-visual-refinement). Sign in to GitHub with access to that repository, open **releases**, select the ZIP and choose **Download raw file**. Downloading the repository's **Code → Download ZIP** instead gives the source checkout, rather than this ready-to-deploy archive.
 
 The ZIP contains the complete existing game. This delivery does not redeploy your Netlify site. Your current [game address](https://steady-croquembouche-46c1a0.netlify.app/) will show the new version only after you upload the build there.
 
