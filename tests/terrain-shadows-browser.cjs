@@ -69,6 +69,31 @@ module.exports=async function(browser,target,evidenceDir){
    for(const q of data.budget){assert.ok(q.maximum<=[48,72,96][q.quality]);assert.equal(q.count,[128,256,384][q.quality]);assert.equal(q.staticCalls,0);assert.ok(q.cache<=1024);}
    assert.equal(data.raised.p[1],13.4);assert.deepEqual(data.raised.slope,[0,0]);assert.ok(data.raisedPixels.dark>100);checks.push({name:name+' native JavaScript callback budgets and raised-floor preservation',passed:true,observed:{budget:data.budget,raised:data.raised,raisedPixels:data.raisedPixels}});
    for(const image of data.images){const file=name+'-'+image.name+'.png';await fs.writeFile(path.join(out,file),Buffer.from(image.png.split(',')[1],'base64'));screenshots.push('terrain-shadows/'+file);}
+   const cow=await page.evaluate(p=>{
+    // Declared isolated moving-actor fixture: original Game.render builds
+    // every sprite and shadow. No source matching or replacement descriptor
+    // can supply the ownership that this regression requires.
+    App.frame=()=>{};App.screen='game';const g=App.game;g.paused=true;
+    g._startGroundPhase(p.x,p.z,0,'chute');
+    const e=g.evade;e.hdg=e.look=e.pitchCmd=0;e.searchers=[];e.locals=[];
+    g.wreck=null;g.world.clutter=()=>{};g.world.scenery=[];g.world.targets=[];g.world.saf=[];
+    const actor={p:[p.x,0,p.z-4],yaw:0,t:0,walk:2,alive:true};e.cattle=[actor];
+    for(const id of ['teach','teachPeek','legend','captVeil'])document.getElementById(id)?.classList.remove('on');
+    const original=TerrainShadows,records=[];original.reset(g);
+    window.TerrainShadows=Object.freeze({...original,collect(game,sprites,options){
+      const desc=sprites.find(s=>s.photoName==='cow'),out=original.collect(game,sprites,options);
+      const centre=desc&&[desc.p[0]+options.ox*options.reach*.5,desc.p[2]+options.oz*options.reach*.5];
+      const cast=centre&&out.find(s=>Math.hypot(s.p[0]-centre[0],s.p[2]-centre[1])<1e-6);
+      records.push({time:game.t,owned:!!desc&&desc.owner===actor,position:desc?.p.slice(),cast:!!cast,darkness:cast?.d||0,cache:original.inspect(g).cacheSize});return out;
+    }});
+    const start=g.t;
+    try{for(let i=0;i<14;i++){g.t=start+i*.025;actor.p[0]=p.x+i*.02;actor.t=i*.025;g.render(0);}}
+    finally{window.TerrainShadows=original;}
+    return {records,gl:g.rend.gl.getError(),fixture:'Declared isolated cow positions on native terrain,14 original Game.render calls over0.325 simulation seconds. Background clutter/other actors removed for descriptor attribution; no cow sprite, owner or shadow is synthesized by the assertion. This proves production render ownership/fade, not natural cow AI or universal native shadow visibility.'};
+   },data.native[2]);
+   assert.equal(cow.gl,0);assert.equal(cow.records.length,14);assert.ok(cow.records.every(r=>r.owned));assert.equal(cow.records[0].cast,false);assert.ok(cow.records.slice(8).every(r=>r.cast&&r.darkness>0));assert.ok(cow.records.every(r=>r.cache===1));assert.ok(cow.records.at(-1).position[0]>cow.records[0].position[0]);
+   checks.push({name:name+' original moving-cow render descriptors preserve actor ownership and finish the cold fade',passed:true,observed:cow});
+   const cowFile=name+'-original-moving-cow-after-cold-fade.png';await page.screenshot({path:path.join(out,cowFile),timeout:90000});screenshots.push('terrain-shadows/'+cowFile);
   }finally{await context.close();}
  }
  assert.deepEqual(errors,[]);return {suite:'terrain-shadows',passed:true,checks,screenshots,browserErrors:errors,limitations:['Two of the three selected native clipmap probes show no visible long shadow in either state; the third visibly improves. Analytic local projection does not establish universal grounding or wrapping over interpolated native terrain.','The unchanged8m clipmap and CPU analytic terrain need not coincide at every fragment; no clipmap geometry, terrain physics, source art or actor position was changed.','Callback instrumentation is a bounded-work check, not a device FPS measurement.'],scope:'Actual Chromium/SwiftShader WebGL2 desktop and simulated iPhone landscape; explicit declared GPU slope/native clipmap fixtures and bounded CPU call instrumentation; physical hardware and FPS untested.'};

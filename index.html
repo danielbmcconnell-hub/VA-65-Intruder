@@ -17801,7 +17801,7 @@ class Game {
         const action = !c.alive ? 5 : (c.walk || 0)>0 ? 1 : head < 0 ? 4 : 0;
         const fr = Math.floor((c.t || this.t)*(c.walk>0 ? 5.5 : 2.1))%8;
         sprites.push({p:[c.p[0],gy,c.p[2]], h:c.alive?1.42:0.70,
-          w:c.alive?2.1:2.45, photoName:'cow', photoFrame:action*8+fr});
+          w:c.alive?2.1:2.45, photoName:'cow', photoFrame:action*8+fr, owner:c});
       } else {
         push('cow', [c.p[0], gy, c.p[2]],
              [c.yaw, c.alive ? head : 0, c.alive ? 0 : 1.48],

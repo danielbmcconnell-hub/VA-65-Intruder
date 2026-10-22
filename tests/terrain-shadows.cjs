@@ -36,6 +36,21 @@ test('moving owners, clock rollback, world replacement and terrain revision inva
  g.t=.3;g.world={};M.collect(g,[s],opt);assert.equal(M.inspect(g).updates,1);
  M.configure({terrainH:()=>10});g.t=.6;M.collect(g,[sprite([0,10,0])],opt);assert.equal(M.inspect(g).updates,1);
 });
+test('a continuously moving cow with stable ownership finishes its cold fade instead of restarting every frame',()=>{
+ const M=create(),g=game();M.configure({terrainH:()=>10});
+ const cow={p:[0,0,-5]},submitted=[];
+ for(let frame=0;frame<120;frame++){
+  g.t=frame/60;cow.p[0]=frame*.02;
+  // Game.render creates a fresh descriptor each frame. Actor identity must
+  // survive those replacements even though every rounded position changes.
+  const descriptor={p:[cow.p[0],10,cow.p[2]],photoName:'cow',owner:cow};
+  const casts=M.collect(g,[descriptor],opt);
+  submitted.push(casts.length);
+  if(frame>=12){assert.equal(casts.length,1);near(casts[0].p[0],cow.p[0]+.5);near(casts[0].d,.7);}
+  assert.equal(M.inspect(g).cacheSize,1);
+ }
+ assert.equal(submitted[0],0);assert.ok(submitted.slice(12).every(n=>n===1));
+});
 test('strong curvature, cliffs, invalid terrain and exceptions do not emit floating fallback planes',()=>{
  for(const terrain of [(x)=>x>0?20:10,(x,z)=>10+4*x*x+4*z*z,()=>NaN,()=>{throw Error('terrain unavailable')}]){
   const M=create(),g=game();M.configure({terrainH:terrain});const s=sprite([0,10,0]);
