@@ -1,3 +1,16 @@
+# Movement & Combat Polish — latest playable game
+
+- [Download the complete Netlify ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/movement-combat-polish/releases/Intruder_Yankee_Station_Movement_Combat_Polish.zip) — 34.8 MB, all twelve missions. Sign into private GitHub.
+- [Evidence ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/movement-combat-polish/releases/Intruder_Yankee_Station_Movement_Combat_Polish_Evidence.zip), [screenshots](movement-combat-screenshots/), [test report](../docs/MOVEMENT_COMBAT_REPORT.md), [play/deploy guide](../docs/MOVEMENT_COMBAT_PLAY_GUIDE.md), [summary](movement-combat-summary.json), [runtime hashes](movement-combat-build-manifest.json).
+
+Fixes actual view-direction aiming, centered reticle, terrain-obstructed hits, wall-safe hit reactions, movement-driven equipment animation, pause/reduced-motion handling and countryside touch look. Adds bounded cached terrain projection for long shadows, with native clipmap limitations explicitly recorded. Preserves original photographs, flight physics, missions and rooftop escape rope.
+
+**861 domain checks in 48 suites; 278 source-browser checks in 16 selected suites; 17 packaged-build checks.** The complete 40-suite source-browser registry was not rerun. Physical Windows/iPhone Safari and hardware FPS remain untested.
+
+On Windows: download, **Extract All**, then upload the extracted folder containing `index.html`, `assets/` and `_headers` through your existing Netlify project's **Deploys** page. The [live game](https://steady-croquembouche-46c1a0.netlify.app/) has not been redeployed. After upload, confirm tab title **Movement & Combat Polish**. Git-connected deployment: branch `movement-combat-polish`, build `npm run build`, publish `dist/site`. Keep the same origin/browser/device for existing local saves.
+
+Source `ca2339b5cd32116fcee335d68fc8a30623ad1b2a`. ZIP SHA256 `234a8163a68663b67d63f6741c5b74228ac67c265639cfe68618c61aac011518`. Preserves complete ancestry and 24 earlier release archives. Previous delivery follows.
+
 # Ground & Visual Refinement — latest playable game
 
 - [Download the complete playable Netlify ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/ground-visual-refinement/releases/Intruder_Yankee_Station_Ground_Visual_Refinement.zip) — 34.8 MB, all twelve missions. Sign into private GitHub.
