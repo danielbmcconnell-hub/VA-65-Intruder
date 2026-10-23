@@ -94,9 +94,9 @@ async function main(browser,target,evidenceDir) {
       G.evade = e; G.phase = 'evade'; G._capt = 0;
       for (let i = 0; i < 300 && G.evade; i++) { G.t += 1 / 60; G.stepEvade(1 / 60); }
       G.render(1 / 60);
-      return { fixture: 'one live armed local at two metres, raised hands, five seconds of real stepEvade', expected: 'near armed local accepts surrender and captures player',
+      return { fixture: 'one live armed local at two metres, raised hands, five seconds of real stepEvade with automatic simulation paused', expected: 'near armed local accepts surrender and begins the ground-view capture transition',
         actual: { phase: G.phase, handsTime: e.handsT, seen: s.seen, separation: Math.hypot(e.p[0] - s.p[0], e.p[2] - s.p[2]), hasEvade: !!G.evade },
-        passed: G.phase==='done' && !G.evade && e.handsT>1.1 };
+        passed: G.phase==='evade' && G.evade===e && CaptureTransition.active(G) && e.handsT>1.1 };
     }) });
     await page.screenshot({ path: path.join(out, 'ground-local-ignores-surrender.png') });
 
@@ -169,13 +169,13 @@ async function main(browser,target,evidenceDir) {
     // Mission11's legacy menu and automatic dawn recapture are superseded by
     // physical POV chapters. Exercise the real landing capture into that chapter;
     // actual river/daylight/performance outcomes are in pow-river-browser.cjs.
-    await page.evaluate(() => { const G = App.game; G._capt = 0; G._escStage = 'landing'; G.phase = 'evade'; G.captured(); });
+    await page.evaluate(() => { const G = App.game; G._capt = 0; G._escStage = 'landing'; G.phase = 'evade'; G.captured(); G.paused=false;for(let i=0;i<360;i++)G.update(1/60);G.paused=true; });
     await page.waitForFunction(() => App.game?.pow?.stage === 'cell', null, { timeout: 15000 });
     await page.evaluate(() => App.game.render(1 / 60));
     await page.screenshot({ path: path.join(out, 'ground-captured-cell.png') });
     results.push({ name: 'landing-capture-enters-physical-prison', ...await page.evaluate(() => {
       const G = App.game;
-      return { fixture: 'real captured() after Mission11 landing and asynchronous prison entry', expected: 'live collision-backed prison, checkpoint and controls',
+      return { fixture: 'real captured() after Mission11 landing, six seconds of original fixed-step update through transfer and prison reveal', expected: 'live collision-backed prison, checkpoint and controls',
         actual: { captured: G._capt, phase: G.phase, stage: G.pow.stage, solids: G.pow.solids.length, frozen: G.evade.frozen }, passed: G._capt===1 && G.phase==='evade' && G.pow.stage==='cell' && G.pow.solids.length>20 && !G.evade.frozen };
     }) });
 

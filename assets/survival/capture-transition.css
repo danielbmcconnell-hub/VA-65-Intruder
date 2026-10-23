@@ -1,0 +1,10 @@
+#captureTransition{position:absolute;inset:0;z-index:92;display:flex;align-items:center;justify-content:center;padding:22px;color:#ede9dc;touch-action:manipulation;pointer-events:auto}
+#captureTransition .capture-card{max-width:540px;width:100%;padding:22px 26px;border-left:2px solid #bcad8b;background:rgba(6,12,14,.78);font:16px/1.5 Arial,sans-serif}
+#captureTransition .capture-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#b8b49f;margin:0 0 9px}
+#captureTransition h2{font-size:30px;line-height:1.15;margin:0 0 13px;color:#ece3cb}
+#captureTransition button{margin-top:12px;min-height:44px}
+#captureTransition button[hidden]{display:none!important}
+body.capture-active #weaponViewport,body.capture-active #radioViewport,body.capture-active #signalViewport,body.capture-active #powHUD,body.capture-active #pow-captivity,body.capture-active .tc:not(#pauseBtn),body.capture-active #hudbar,body.capture-active #hud,body.capture-active #radio,body.capture-active #flightCoach{visibility:hidden!important}
+body.capture-active #pauseBtn{z-index:94}
+body.capture-active #pauseVeil{z-index:96}
+@media(max-height:440px){#captureTransition .capture-card{max-width:450px;padding:16px 21px;font-size:14px}#captureTransition h2{font-size:25px}}

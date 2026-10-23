@@ -15,7 +15,7 @@ module.exports=async function main(browser,target,evidenceDir) {
     await page.goto(target,{waitUntil:'domcontentloaded',timeout:30000});await page.waitForFunction(()=>window.POW && window.App);
     await page.locator('#bootGo').tap();await page.locator('#powChapter button').filter({hasText:'Enter the prison'}).tap();
     await page.waitForFunction(()=>App.game?.pow?.stage==='cell' && document.getElementById('loader').style.display==='none',null,{timeout:90000});
-    await page.evaluate(()=>{App.screen='fixture';App.game.paused=false;for(const key of Object.keys(App.keys))App.keys[key]=0;App.gctl.pitch=0;App.gctl.roll=0;});
+    await page.evaluate(()=>{window.__powControlsFrame=App.frame;App.frame=()=>{};App.screen='game';App.game.paused=false;for(const key of Object.keys(App.keys))App.keys[key]=0;App.gctl.pitch=0;App.gctl.roll=0;});
     const session=await page.context().newCDPSession(page);
     const touch=async(type,points=[])=>session.send('Input.dispatchTouchEvent',{type,touchPoints:points.map(p=>({...p,radiusX:7,radiusY:7,force:1}))});
     const center=async selector=>page.locator(selector).evaluate(n=>{const r=n.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2,width:r.width,height:r.height};});
@@ -58,8 +58,10 @@ module.exports=async function main(browser,target,evidenceDir) {
     await page.evaluate(()=>{const g=App.game;POW.AI.noise(g,g.evade.p,1.2,'door-fitting');});await step(.8);
     record('guard-hears-and-investigates-without-visible-player',await page.evaluate(()=>{const a=App.game.evade.searchers[0];return {passed:a.sus>.1 && ['investigate','suspicious','search','pursuit'].includes(a.state),suspicion:a.sus,state:a.state,goal:a.goal.slice(),seen:a.seen};}));
     await page.evaluate(()=>{const g=App.game,b=g.pow.base,a=g.evade.searchers[0];for(const q of g.pow.solids)if(q.id==='browser-thin-wall')q.active=false;g.campGeo=g.campGeo.filter(q=>q.id!=='browser-thin-wall');g.pow.navVersion++;a.p=[b[0]+34,b[1],b[2]-24];a.home=a.p.slice();a.route=[a.p.slice()];a.goal=a.p.slice();a.path=[];a.sus=0;a.seen=0;a.state='patrol';a.face=-Math.PI/2;a.senseAt=0;a.grab=0;g.pow.noises=[];});
-    record('visible-close-guard-pursues-and-captures-through-real-physics',await page.evaluate(()=>{const g=App.game;let pursuit=false,steps=0;for(;steps<200 && g.pow.stage!=='solitary';steps++){g.stepEvade(.05);pursuit=pursuit || g.evade.searchers.some(a=>a.state==='pursuit');}return {passed:pursuit && g.pow.stage==='solitary' && g.pow.stats.recaptures===1,pursuit,stage:g.pow.stage,recaptures:g.pow.stats.recaptures,steps};}));
-    await step(3);record('sustained-capture-transitions-once',await page.evaluate(()=>({passed:App.game.pow.stage==='solitary' && App.game.pow.stats.recaptures===1,stage:App.game.pow.stage,recaptures:App.game.pow.stats.recaptures,realCaptivityModule:!!App.game.pow.captivity})));
+    // Keep the original ten-second pursuit budget and allow six additional
+    // seconds for the readable capture transfer and prison reveal.
+    record('visible-close-guard-pursues-and-captures-through-real-physics',await page.evaluate(()=>{const g=App.game;let pursuit=false,steps=0;for(;steps<320 && g.pow.stage!=='solitary';steps++){g.stepEvade(.05);pursuit=pursuit || g.evade.searchers.some(a=>a.state==='pursuit');}return {passed:pursuit && g.pow.stage==='solitary' && g.pow.stats.recaptures===1,pursuit,stage:g.pow.stage,recaptures:g.pow.stats.recaptures,steps};}));
+    await step(1);record('sustained-capture-transitions-once',await page.evaluate(()=>({passed:App.game.pow.stage==='solitary' && App.game.pow.stats.recaptures===1 && !CaptureTransition.active(App.game),stage:App.game.pow.stage,recaptures:App.game.pow.stats.recaptures,realCaptivityModule:!!App.game.pow.captivity})));
     await render('04-recaptured-solitary');
     // Exercise the actual GPU context lifecycle with registered river meshes.
     await page.evaluate(()=>{
@@ -68,6 +70,7 @@ module.exports=async function main(browser,target,evidenceDir) {
       window.__powContextGame=g;window.__powContextPosition=g.evade.p.slice();
       window.__powContextExtension=g.rend.gl.getExtension('WEBGL_lose_context');
       if(!window.__powContextExtension)throw Error('WEBGL_lose_context unavailable');
+      App.frame=window.__powControlsFrame;requestAnimationFrame(t=>App.frame(t));
       window.__powContextExtension.loseContext();
     });
     await page.waitForFunction(()=>App.graphicsContextLost && App.rend===null);

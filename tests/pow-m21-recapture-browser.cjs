@@ -67,6 +67,7 @@ module.exports = async function (browser, target, evidenceDir) {
       record('Visible suspicious running causes actual guard pursuit with collision and alert memory', encounter);
       assert.equal(encounter.stage, 'solitary'); assert.equal(encounter.recaptures, encounter.previousRecaptures + 1); assert.ok(encounter.steps > 0 && encounter.steps < 180);
       record('Sustained physical guard contact causes recapture into the actual solitary cell', encounter);
+      await tick(10); // Complete the visible arrival fade before inspecting the cell.
       await page.evaluate(() => { App.game.render(1 / 60); App.game.syncControls(); });
       const image = name + '-recaptured-cell.png'; await page.screenshot({ path: path.join(out, image) }); screenshots.push('pow-m21-recapture/' + image);
       const restoration = await page.evaluate(() => {

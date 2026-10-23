@@ -16,7 +16,7 @@ module.exports=async function progression(browser,target,evidenceDir){
   const start=async escape=>{
    await page.evaluate(esc=>App.start(MISSIONS.find(m=>esc?m.escape:m.id==='m1')),escape);
    await page.waitForFunction(()=>App.game?.st&&document.getElementById('loader').style.display==='none',null,{timeout:60000});
-   await page.waitForFunction(()=>FIGIMG&&['nva','female_vc','militia','farmer','cow','vegetation'].every(n=>App.rend.textures['photo_'+n]),null,{timeout:30000});
+   await page.waitForFunction(()=>['nva','nva_front','female_vc','militia','farmer','cow','vegetation'].every(n=>App.rend.textures['photo_'+n]),null,{timeout:30000});
    await page.evaluate(()=>{App.game.paused=true;App.screen='fixture';});await clearCards();
   };
   const advance=async seconds=>page.evaluate(sec=>{const G=App.game;G.paused=false;for(let i=0;i<sec*60;i++)G.update(1/60);G.paused=true;G.render(1/60);G.syncControls();},seconds);
@@ -55,7 +55,7 @@ module.exports=async function progression(browser,target,evidenceDir){
    assert.ok(movement.distance>.5);record('Ground movement and turning',movement,'Real keyboard inputs, one second simulation');
    // Place existing entity types together to inspect their actual photographic
    // sprites in the real terrain renderer, including a complete clean NVA figure.
-   const anchors=await page.evaluate(()=>{
+   const anchors=await page.evaluate(async()=>{
     const G=App.game,e=G.evade,x=e.p[0],z=e.p[2];e.hdg=0;e.hurt=false;e.look=0;
     e.locals=['farmer','vcFem','nva'].map((kind,i)=>({p:[x+(i-1)*2.3,0,z-7],goal:[x+(i-1)*2.3,0,z-6],home:[x,z],kind,armed:kind!=='farmer',alive:true,face:PI,seen:0,spd:0,ph:0}));
     const props=[{m:'palm',p:[x-9,terrainH(x-9,z-16),z-16],s:.55,y:0},{m:'bamboo',p:[x+9,terrainH(x+9,z-15),z-15],s:.7,y:0},{m:'tree',p:[x+14,terrainH(x+14,z-26),z-26],s:.65,y:0}];G.world.scenery.push(...props);
@@ -65,37 +65,39 @@ module.exports=async function progression(browser,target,evidenceDir){
     const check=[];for(const call of calls)for(const s of call.list){const nm=call.name==='people'?'people':call.name.slice(6),f=PHOTO_ATLAS[nm]?.frames[s.cell];if(!f)continue;
      const y=s.p[1]+f.bottom*s.h,ground=Math.max(0,terrainH(s.p[0],s.p[2]));
      if(Math.hypot(s.p[0]-x,s.p[2]-z)<30)check.push({name:nm,feet:y,ground,error:Math.abs(y-ground),visibleHeight:s.h*f.height});}
-    const actors=e.locals.map(a=>{
-     const call=calls.find(c=>c.name==='people'&&c.list.some(s=>Math.hypot(s.p[0]-a.p[0],s.p[2]-a.p[2])<1e-8));
-     const s=call?.list.find(s=>Math.hypot(s.p[0]-a.p[0],s.p[2]-a.p[2])<1e-8);
+    const actors=await Promise.all(e.locals.map(async a=>{
+     const call=calls.find(c=>c.list.some(s=>s.owner===a));
+     const s=call?.list.find(s=>s.owner===a);
      if(!s)return {kind:a.kind,drawn:false};
-     const frame=PHOTO_ATLAS.people.frames[s.cell],column=s.cell%8,row=Math.floor(s.cell/8);
-     const heading=Math.atan2(G.rend.eye[0]-a.p[0],-(G.rend.eye[2]-a.p[2]));
-     const relative=Math.atan2(Math.sin(a.face-heading+Math.PI),Math.cos(a.face-heading+Math.PI));
-     const expectedColumn=((Math.round(relative/(Math.PI/4))%8)+8)%8;
-     const canvas=document.createElement('canvas');canvas.width=192;canvas.height=384;
-     const c=canvas.getContext('2d',{willReadFrequently:true});c.drawImage(FIGIMG,column*192,row*384,192,384,0,0,192,384);
-     const rgba=c.getImageData(0,0,192,384).data;let opaque=0,transparent=0;
+     const photo=call.name.slice(6),meta=PHOTO_ATLAS[photo],frame=meta.frames[s.cell],cols=meta.cols||8,rows=meta.rows||6,column=s.cell%cols,row=Math.floor(s.cell/cols);
+     const source=photo==='nva_front'?'assets/sprites/nva-front-repaired.png':photo==='nva'?'assets/sprites/nva-repaired.png':'assets/processed/'+photo+'.webp';
+     const im=new Image();im.src=source;await im.decode();
+     const width=im.naturalWidth/cols,height=im.naturalHeight/rows;
+     const canvas=document.createElement('canvas');canvas.width=Math.round(width);canvas.height=Math.round(height);
+     const c=canvas.getContext('2d',{willReadFrequently:true});c.drawImage(im,column*width,row*height,width,height,0,0,canvas.width,canvas.height);
+     const rgba=c.getImageData(0,0,canvas.width,canvas.height).data;let opaque=0,transparent=0;
      for(let i=3;i<rgba.length;i+=4){if(rgba[i]>=250)opaque++;if(rgba[i]===0)transparent++;}
-     return {kind:a.kind,drawn:true,atlas:call.name,row,column,expectedColumn,cell:s.cell,cols:s.cols,rows:s.rows,
-      visibleHeight:s.h*frame.height,expectedHeight:1.76*frame.height/(352/384),
-      visibleWidth:s.w,expectedWidth:s.h*192/384,feet:s.p[1]+frame.bottom*s.h,
+     return {kind:a.kind,drawn:true,atlas:call.name,row,column,cell:s.cell,cols:s.cols,rows:s.rows,expectedCols:cols,expectedRows:rows,source,width,height,imageWidth:im.naturalWidth,imageHeight:im.naturalHeight,metadataWidth:meta.width,metadataHeight:meta.height,
+      visibleHeight:s.h*frame.height,expectedHeight:1.76*frame.height/Math.max(...meta.frames.slice(0,8).map(f=>f.height)),
+      visibleWidth:s.w,expectedWidth:s.h*width/height,feet:s.p[1]+frame.bottom*s.h,
       ground:Math.max(0,terrainH(a.p[0],a.p[2])),opaque,transparent,flipped:!!s.flip};
-    });
+    }));
     return {near:check,actors,types:[...new Set(G._sprites.map(s=>s.photoName).filter(Boolean))],glError:G.rend.gl.getError()};
    });
    assert.equal(anchors.glError,0);assert.ok(['farmer','female_vc','nva','vegetation'].every(n=>anchors.types.includes(n)));
-   assert.ok(anchors.near.length>=4);assert.ok(['people','vegetation'].every(n=>anchors.near.some(s=>s.name===n)));
+   assert.ok(anchors.near.length>=4);assert.ok(['farmer','female_vc','nva_front','vegetation'].every(n=>anchors.near.some(s=>s.name===n)));
    assert.equal(anchors.actors.length,3);
-   for(const [kind,row] of [['farmer',6],['vcFem',4],['nva',0]]){
+   for(const [kind,photo] of [['farmer','farmer'],['vcFem','female_vc'],['nva','nva_front']]){
     const a=anchors.actors.find(a=>a.kind===kind);assert.ok(a?.drawn,kind+' photograph must actually reach the GPU draw pass');
-    assert.equal(a.atlas,'people');assert.equal(a.row,row);assert.equal(a.column,a.expectedColumn);assert.equal(a.cols,8);assert.equal(a.rows,9);assert.equal(a.flipped,false);
-    assert.ok(Math.abs(a.visibleHeight-a.expectedHeight)<1e-8,kind+' keeps its source height, including the kneeling VC');
+    assert.equal(a.atlas,'photo_'+photo);assert.equal(a.cell,0);assert.equal(a.row,0);assert.equal(a.column,0);assert.equal(a.cols,a.expectedCols);assert.equal(a.rows,a.expectedRows);assert.equal(a.flipped,false);
+    assert.equal(a.imageWidth,a.metadataWidth);assert.equal(a.imageHeight,a.metadataHeight);
+    assert.equal(a.cols,photo==='nva_front'?1:8);assert.equal(a.rows,photo==='nva_front'?1:6);
+    assert.ok(Math.abs(a.visibleHeight-a.expectedHeight)<1e-8,kind+' keeps its measured source height');
     assert.ok(Math.abs(a.visibleWidth-a.expectedWidth)<1e-8,kind+' keeps the original source aspect ratio');
     assert.ok(Math.abs(a.feet-a.ground)<1e-7,kind+' visible feet are anchored to terrain');
     assert.ok(a.opaque>500&&a.transparent>500,kind+' source cell must contain a solid photographed subject and transparent surrounding gutter');
    }
-   assert.ok(anchors.near.every(s=>s.error<1e-7));record('Solid photographic crowd and grounded vegetation',anchors,'Declared existing farmer, kneeling VC and NVA roster plus three vegetation props. Real draw-call instrumentation verifies each original clean-sheet identity row, camera-relative frame, source aspect/height, intact opaque/transparent image pixels and exact terrain foot anchors; full GPU silhouette/occlusion is covered separately.');await page.evaluate(()=>document.getElementById('radio').innerHTML='');await shot('farmers-vc-nva-vegetation');
+   assert.ok(anchors.near.every(s=>s.error<1e-7));record('Solid photographic crowd and grounded vegetation',anchors,'Declared front-facing farmer, female VC and NVA roster plus three vegetation props. Real production draw calls retain the supplied source atlases (8x6), with the separately restored full-body NVA front image (1x1). Actual decoded runtime images and measured alpha metadata verify source aspect/height, opaque subjects, transparent surroundings and terrain foot anchors. These repaired derivatives are not pixel-identical originals; full GPU silhouette/occlusion is covered separately.');await page.evaluate(()=>document.getElementById('radio').innerHTML='');await shot('farmers-vc-nva-vegetation');
    // Queued controls must survive a delayed simulation frame; no timed key pulses.
    for(const [id,mode] of [['btnKnife','knife'],['btnPistol','pistol'],['btnPunch','fists']]){
     await page.locator('#'+id).dispatchEvent('click');await page.waitForTimeout(180);await advance(.05);assert.equal(await page.evaluate(()=>App.game.evade.weaponMode),mode);
@@ -121,18 +123,19 @@ module.exports=async function progression(browser,target,evidenceDir){
    // river/captivity coverage is in the dedicated POW suites, not button replay.
    await start(true);await ground();
    await page.evaluate(()=>{const G=App.game;G.evade.doom=0;G.evade.doomMax=1;G.t+=1/60;G.stepEvade(1/60)});
-   await page.waitForFunction(()=>App.game?.pow?.stage==='cell',null,{timeout:10000});
+   await page.evaluate(()=>{App.game.paused=false;for(let i=0;i<360;i++)App.game.update(1/60)});
+   await page.waitForFunction(()=>App.game?.pow?.stage==='cell'&&!CaptureTransition.active(App.game),null,{timeout:10000});
    const prison=await page.evaluate(()=>({stage:App.game.pow?.stage,phase:App.game.phase,solidCount:App.game.pow?.solids.length,objects:App.game.pow?.objects.map(o=>o.id),checkpoint:Store.get('pow_checkpoint',null)?.stage}));
    assert.equal(prison.stage,'cell');assert.equal(prison.phase,'evade');assert.ok(prison.solidCount>20);assert.equal(prison.checkpoint,'cell');
    record('Mission11 parachute progression enters the physical prison chapter',prison,'Actual Mission11 ejection/descent; new playable chapter supersedes the former menu sequence');
    await shot('mission11-physical-cell');
    await page.evaluate(()=>{App.game=null;App.show('ready');App.renderReady();});
    // Regular flight capture now joins the same physical captivity system.
-   await start(false);await ground();await page.evaluate(()=>App.game.captured());
+   await start(false);await ground();await page.evaluate(()=>{App.game.captured();App.game.paused=false;for(let i=0;i<360;i++)App.game.update(1/60)});
    await page.waitForFunction(()=>App.game?.pow?.stage==='solitary',null,{timeout:10000});
    const confinement=await page.evaluate(()=>({captured:App.game._capt,stage:App.game.pow.stage,phase:App.game.phase,objects:App.game.pow.objects.map(o=>o.id),day:App.game.pow.day,captureYear:App.game.pow.captivity.captureYear,checkpoint:Store.get('pow_checkpoint',null)?.stage}));
    assert.equal(confinement.captured,1);assert.equal(confinement.stage,'solitary');assert.equal(confinement.phase,'evade');assert.equal(confinement.checkpoint,'solitary');assert.ok(confinement.objects.includes('cell-notebook'));
-   record('Regular mission capture enters interactive solitary confinement',confinement,'Real flight capture callback; extended time/puzzles/release are covered by the captivity suite');
+   record('Regular mission capture enters interactive solitary confinement',confinement,'Real capture and six seconds of original fixed-step transfer/reveal; extended time/puzzles/release are covered by the captivity suite');
    await shot('captivity-physical-cell');
    assert.deepEqual(errors,[]);assert.deepEqual(badAssets,[]);record('No uncaught JavaScript errors or missing runtime assets',{errors,badAssets},'Throughout progression');
   }finally{await ctx.close()}

@@ -410,6 +410,7 @@
     e.crouch=s.input.crouch;e.weaponWant=null;e.attackWant=0;
   }
   P.tick = function (game,dt) {
+    if(global.CaptureTransition && global.CaptureTransition.active(game)){global.CaptureTransition.step(game,dt);return;}
     const s=game.pow,e=game.evade;if(!s || !e || game.paused || s.complete)return;
     if(P.Mindscape && P.Mindscape.active(game)){
       dt=clamp(dt,0,.10);readInput(game,dt);P.Mindscape.tick(game,dt);
@@ -441,6 +442,7 @@
     if(game.pow!==s || s.complete)return;
     if(P.AI && P.AI.step)P.AI.step(game,dt);
     if(game.pow!==s || s.complete)return;
+    if(global.CaptureTransition && global.CaptureTransition.active(game))return;
     if(P.FigureMotion)P.FigureMotion.step(game,dt);
     if(P.EpisodeStealth)P.EpisodeStealth.step(game,dt);
     if(P.Feedback && P.Feedback.step)P.Feedback.step(game,dt);

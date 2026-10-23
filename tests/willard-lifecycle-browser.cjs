@@ -4,7 +4,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
 
-// Targeted original capture-timeout lifecycle regression, separate from the
+// Targeted capture-transfer ownership regression, separate from the
 // successful input-driven Willard combat sorties. Aircraft placement only
 // shortens the original native ejection/descent; no POW/capture flag is set.
 module.exports = async function willardLifecycle(browser, target, evidenceDir) {
@@ -54,8 +54,7 @@ module.exports = async function willardLifecycle(browser, target, evidenceDir) {
       console.log('Willard lifecycle '+name+' checkpoint earned');
       const ground=await nativeGround();
       console.log('Willard lifecycle '+name+' original ejection/descent complete');
-      // Prepare the native pause action before starting the short callback
-      // window so automation's visibility/stability waits cannot consume it.
+      // Prepare the native retry before the capture transfer starts.
       await click(page.locator('#pauseBtn'));
       await page.locator('#willardPauseRetry').scrollIntoViewIfNeeded();
       const retryBox=await page.locator('#willardPauseRetry').boundingBox();assert.ok(retryBox&&retryBox.width>0&&retryBox.height>0);
@@ -66,11 +65,12 @@ module.exports = async function willardLifecycle(browser, target, evidenceDir) {
       assert.equal(capture.captured,true);assert.equal(capture.pending,true);assert.equal(capture.powAlreadyActive,false);
       if(profile.hasTouch)await page.touchscreen.tap(retryPoint.x,retryPoint.y);else await page.mouse.click(retryPoint.x,retryPoint.y);
       const requested=await page.evaluate(()=>({startToken:App._missionStart,ownerChanged:App.game!==window.__willardRetiredCapture,elapsed:Date.now()-window.__willardCaptureAt,inputs:window.__willardLifecycleInputs.slice(-8)}));
-      assert.notEqual(requested.startToken,capture.startToken,'Native retry must initiate App.start: '+JSON.stringify({retryPoint,targetAtPoint,requested}));assert.equal(requested.ownerChanged,true);assert.ok(requested.elapsed<1800);
+      assert.notEqual(requested.startToken,capture.startToken,'Native retry must initiate App.start: '+JSON.stringify({retryPoint,targetAtPoint,requested}));assert.equal(requested.ownerChanged,true);
       await loaded(true);
       const restarted=await page.evaluate(()=>({fresh:App.game!==window.__willardRetiredCapture,elapsed:Date.now()-window.__willardCaptureAt,alive:App.game.ac.alive,phase:App.game.willard.phase}));
-      assert.equal(restarted.fresh,true);assert.equal(restarted.alive,true);assert.ok(restarted.elapsed<1800,'Native retry must complete before the actual 1.8-second capture callback: '+JSON.stringify(restarted));
-      await page.waitForTimeout(2300); // Real wall time; exceeds the 1.8-second callback by a full margin.
+      assert.equal(restarted.fresh,true);assert.equal(restarted.alive,true);
+      await page.evaluate(()=>{for(let i=0;i<360;i++)window.__willardRetiredCapture.update(1/60);});
+      await page.waitForTimeout(2300); // Also exclude any legacy delayed wall-clock handoff.
       const stale=await page.evaluate(()=>({sourceClock:Date.now()-window.__willardCaptureAt,
         freshGame:App.game!==window.__willardRetiredCapture,currentPOW:!!App.game.pow,retiredPOW:!!window.__willardRetiredCapture.pow,
         powClass:document.body.classList.contains('pow-active'),powHUDHidden:document.getElementById('powHUD').hidden,
@@ -86,7 +86,7 @@ module.exports = async function willardLifecycle(browser, target, evidenceDir) {
       });
       await shot('retired-capture-after-native-retry');
       const stalePassed=stale.sourceClock>=2300&&stale.freshGame&&!stale.currentPOW&&!stale.retiredPOW&&!stale.powClass&&stale.powHUDHidden&&!stale.groundAudio&&stale.checkpointUnchanged&&stale.alive&&coker.returnedNothing&&coker.sameActiveGame&&coker.unchanged;
-      record('Retired capture and Coker-camp entries cannot activate prison UI/audio or overwrite a checkpoint after native Willard retry',stalePassed,{sourceSHA256,earned,ground,capture,retryBox,retryPoint,targetAtPoint,requested,restarted,stale,coker},'Original native J/two-tap ejection and all original descent frames. The real pause menu is prepared and its retry button scrolled into view before a declared Game.captured entry-point fixture invokes its real 1.8-second callback. A trusted native mouse/touch press at the verified button replaces the Game before that callback; event targets and mission-start token verify the restart. The test waits 2.3 real seconds after loading the new Game, then separately calls the production App.cokerCamp entry point with the retired Game and checks no mutation. No captured/POW flag, chapter callback, result or save is assigned.');
+      record('Retired capture and Coker-camp entries cannot activate prison UI/audio or overwrite a checkpoint after native Willard retry',stalePassed,{sourceSHA256,earned,ground,capture,retryBox,retryPoint,targetAtPoint,requested,restarted,stale,coker},'Original native J/two-tap ejection and all original descent frames. The real pause menu is prepared and retry scrolled into view before a declared Game.captured entry-point fixture. A trusted native mouse/touch press replaces the Game. The retired Game receives six seconds of original updates, followed by a2.3-second real wait to exclude old wall-clock callbacks; App.cokerCamp is separately called with the retired Game. No capture/POW flag, chapter callback, result or save is assigned.');
 
       // One ordinary current-game frame also models how the flight loop would
       // heal stale DOM visibility; the save/audio/retired-state checks above
@@ -94,16 +94,16 @@ module.exports = async function willardLifecycle(browser, target, evidenceDir) {
       await page.evaluate(()=>{App.game.update(1/60);App.game.render(1/60);App.game.syncControls();});
       const positiveGround=await nativeGround();
       await page.evaluate(()=>{window.__willardCurrentCapture=App.game;window.__willardCurrentCaptureAt=Date.now();App.game.captured();});
-      await page.waitForTimeout(2300);
+      await page.evaluate(()=>{App.game.paused=false;for(let i=0;i<360;i++)App.game.update(1/60);});
       const positive=await page.evaluate(()=>{const g=App.game;g.render(1/60);g.syncControls();return {sameGame:g===window.__willardCurrentCapture,elapsed:Date.now()-window.__willardCurrentCaptureAt,captured:!!g._capt,stage:g.pow?.stage||null,solids:g.pow?.solids.length||0,objects:g.pow?.objects.length||0,powClass:document.body.classList.contains('pow-active'),powHUDHidden:document.getElementById('powHUD').hidden,savedStage:Store.get('pow_checkpoint',null)?.stage||null,groundAudio:!!App.audio.groundMode,gl:g.rend.gl.getError()};});
       await shot('current-capture-still-enters-solitary');
-      const positivePassed=positive.elapsed>=2300&&positive.sameGame&&positive.captured&&positive.stage==='solitary'&&positive.solids>0&&positive.objects>0&&positive.powClass&&!positive.powHUDHidden&&positive.savedStage==='solitary'&&positive.groundAudio&&positive.gl===0;
-      record('A current-game original capture callback still enters playable solitary confinement',positivePassed,{ground:positiveGround,positive},'Second native ejection/descent from the live aircraft, followed by the same original Game.captured entry point and an uninterrupted 2.3-second real wait. The production delayed callback must create actual prison geometry, HUD, save and ground audio.');
+      const positivePassed=positive.sameGame&&positive.captured&&positive.stage==='solitary'&&positive.solids>0&&positive.objects>0&&positive.powClass&&!positive.powHUDHidden&&positive.savedStage==='solitary'&&positive.groundAudio&&positive.gl===0;
+      record('A current-game capture transfer still enters playable solitary confinement',positivePassed,{ground:positiveGround,positive},'Second native ejection/descent from the live aircraft, followed by the production Game.captured entry point and six simulated seconds of original updates. The transition must create actual prison geometry, HUD, save and ground audio.');
       record('The targeted lifecycle paths emit no JavaScript errors',errors.length===0,{errors},'Actual original custom WebGL2 and unmodified capture/start/POW systems.');
     }finally{await context.close();}
   }
   const report={suite:'willard-lifecycle',passed:results.every(r=>r.passed),total:results.length,results,screenshots,
-    actualIPhoneSafariTested:false,physicalWindowsTested:false,scope:'Targeted real delayed capture lifecycle after native Willard checkpoint retry, with declared ejection placement and original capture entry-point fixture. Not another full-sortie or natural enemy-capture claim.'};
+    actualIPhoneSafariTested:false,physicalWindowsTested:false,scope:'Targeted simulation-driven capture lifecycle after native Willard checkpoint retry, with declared ejection placement and original capture entry-point fixture. Not another full-sortie or natural enemy-capture claim.'};
   await fs.writeFile(path.join(out,'observations.json'),JSON.stringify(report,null,2)+'\n');
   await fs.writeFile(path.join(evidenceDir,'willard-lifecycle.json'),JSON.stringify(report,null,2)+'\n');
   assert.equal(report.passed,true,'Delayed capture lifecycle regression failed; complete observations were saved.');return report;

@@ -542,7 +542,8 @@
     if (a.grab >= (s.difficulty === 'hard' ? 1.3 : 1.7) && !s.flags.capturePending) {
       s.flags.capturePending = true; s.stats.recaptures = finite(s.stats.recaptures, 0) + 1;
       s.flags.recaptures = finite(s.flags.recaptures, 0) + 1;
-      if (P.begin) P.begin(game, 'solitary');
+      if (global.CaptureTransition) global.CaptureTransition.recaptured(game);
+      else if (P.begin) P.begin(game, 'solitary');
       return true;
     }
     return false;

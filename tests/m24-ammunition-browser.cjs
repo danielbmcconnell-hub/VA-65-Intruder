@@ -68,12 +68,12 @@ module.exports = async function ammunitionBrowser(browser, target, evidenceDir) 
       await select('knife'); await fire(.95); await select('fists'); await fire(.95); assert.equal((await ledger()).pistolShots, 6); assert.equal((await ledger()).bulletsExpended, 6);
       record('Empty-trigger, carried knife and fists never add bullets expended', await ledger(), 'Actual empty trigger and native knife/fists selection with subsequent attack inputs.');
 
-      await page.evaluate(() => App.game.captured()); await page.waitForFunction(() => App.game?.pow?.stage === 'solitary', null, { timeout: 15000 });
+      await page.evaluate(() => {App.game.captured();App.game.paused=false;for(let i=0;i<360;i++)App.game.update(1/60);}); await page.waitForFunction(() => App.game?.pow?.stage === 'solitary'&&!CaptureTransition.active(App.game), null, { timeout: 15000 });
       await page.evaluate(() => { App.screen = 'fixture'; App.game.paused = false; App.game.render(1 / 60); App.game.syncControls(); });
       const captured = await ledger(); assert.equal(captured.bulletsExpended, 6); assert.equal(captured.remaining, 0); assert.equal(captured.hasPistol, false);
       await click(page.locator('#powHUD .pow-tools button').filter({ hasText: /^Save$/ }));
       const checkpoint = await page.evaluate(() => Store.get('pow_checkpoint', null)); assert.equal(checkpoint.ammunition.bulletsExpended, 6); assert.equal(checkpoint.sortie.missionId, 'm2'); assert.equal(checkpoint.sortie.context.captured, true); assert.equal(checkpoint.sortie.context.ejected, true);
-      record('Actual capture confiscates equipment while Save retains the completed shot ledger', { captured, saved: checkpoint.ammunition }, 'Real Game.captured and its asynchronous solitary transition; native Save control.');
+      record('Actual capture confiscates equipment while Save retains the completed shot ledger', { captured, saved: checkpoint.ammunition }, 'Real Game.captured and six seconds of original fixed-step transfer/reveal; native Save control.');
       await page.reload({ waitUntil: 'domcontentloaded' }); await page.waitForFunction(() => window.App && window.SurvivalAmmunition); await click(page.locator('#bootGo'));
       await click(page.locator('#powChapter button').filter({ hasText: /^Continue POW checkpoint$/ }));
       await page.waitForFunction(() => App.game?.pow?.stage === 'solitary' && document.getElementById('loader').style.display === 'none', null, { timeout: 90000 });
