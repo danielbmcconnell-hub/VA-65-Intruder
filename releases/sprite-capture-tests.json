@@ -1,0 +1,4294 @@
+{
+  "summary": {
+    "recordedAt": "2026-10-23T20:18:41.884942+00:00",
+    "branch": "sprite-capture-repair",
+    "sourceCommit": "b0d17a002cf14367f3d7255b846da265dee6cde7",
+    "entrySHA256": "d02b937cbca07e57383fdafc04774f557898e844f5be2dffd417d3d6d521e7c6",
+    "passed": true,
+    "domainChecks": 85,
+    "powAIChecks": 17,
+    "spriteBrowserChecks": 8,
+    "captureBrowserChecks": 10,
+    "additionalRegressionBrowserChecks": 87,
+    "packagedChecks": 17,
+    "runtimeFiles": 167,
+    "preservedEarlierZIPs": 32,
+    "physicalWindowsTested": false,
+    "actualIPhoneSafariTested": false,
+    "netlifyDeployed": false,
+    "fullBrowserRegistryRun": false,
+    "playable": {
+      "file": "Intruder_Yankee_Station_Photo_Sprites_Capture_Repair.zip",
+      "bytes": 48772584,
+      "sha256": "e9866efe8e860b733aa2325b41b57a401e7fff92154e81457240d02d3514f53a"
+    },
+    "screenshots": [
+      "desktop-01-captured-ground-view.png",
+      "desktop-02-under-guard.png",
+      "desktop-03-prison-after-fade.png",
+      "desktop-04-river-recapture-transfer.png",
+      "desktop-declared-ground-roster.png",
+      "desktop-native-prison-guards.png",
+      "desktop-production-webgl-night-photographs.png",
+      "desktop-production-webgl-photograph-gallery.png",
+      "iphone-layout-chromium-01-captured-ground-view.png",
+      "iphone-layout-chromium-02-under-guard.png",
+      "iphone-layout-chromium-03-prison-after-fade.png",
+      "iphone-layout-chromium-04-river-recapture-transfer.png",
+      "iphone-layout-chromium-declared-ground-roster.png",
+      "iphone-layout-chromium-native-prison-guards.png",
+      "iphone-layout-chromium-production-webgl-night-photographs.png",
+      "iphone-layout-chromium-production-webgl-photograph-gallery.png"
+    ]
+  },
+  "photos": {
+    "suite": "photographic-sprites",
+    "passed": true,
+    "checks": [
+      {
+        "layout": "desktop",
+        "name": "Ready Room prison guards use supplied NVA photographs rather than the reconstructed sheet",
+        "passed": true,
+        "actual": {
+          "stage": "cell",
+          "calls": [
+            {
+              "name": "photo_nva",
+              "kind": "nva",
+              "variant": null,
+              "cell": 3,
+              "rows": 6,
+              "cols": 8,
+              "motion": null,
+              "width": 1.2501923076923076,
+              "height": 1.8756410256410256
+            },
+            {
+              "name": "photo_nva",
+              "kind": "nva",
+              "variant": null,
+              "cell": 3,
+              "rows": 6,
+              "cols": 8,
+              "motion": null,
+              "width": 1.2501923076923076,
+              "height": 1.8756410256410256
+            },
+            {
+              "name": "photo_nva",
+              "kind": "nva",
+              "variant": null,
+              "cell": 3,
+              "rows": 6,
+              "cols": 8,
+              "motion": null,
+              "width": 1.2501923076923076,
+              "height": 1.8756410256410256
+            },
+            {
+              "name": "photo_militia",
+              "kind": "militia",
+              "variant": null,
+              "cell": 3,
+              "rows": 6,
+              "cols": 8,
+              "motion": null,
+              "width": 1.224348251947218,
+              "height": 1.836522377920827
+            },
+            {
+              "name": "photo_nva_front",
+              "kind": "nva",
+              "variant": "nva_front",
+              "cell": 0,
+              "rows": 1,
+              "cols": 1,
+              "motion": null,
+              "width": 1.2455010366275052,
+              "height": 1.868251554941258
+            }
+          ],
+          "actors": 5,
+          "gl": 0
+        }
+      },
+      {
+        "layout": "desktop",
+        "name": "Actual countryside renderer preserves farmer, male VC, female VC, NVA, guard and cattle identity, source aspect and foot contact",
+        "passed": true,
+        "actual": {
+          "calls": [
+            {
+              "name": "photo_militia",
+              "kind": "vc",
+              "variant": null,
+              "id": "photo-roster-vc",
+              "frame": 0,
+              "cols": 8,
+              "rows": 6,
+              "aspect": 0.6666666666666666,
+              "sourceAspect": 0.6666666666666666,
+              "feet": 8.290055936362775,
+              "ground": 8.290055936362775,
+              "motion": null
+            },
+            {
+              "name": "photo_nva_front",
+              "kind": "nva",
+              "variant": "nva_front",
+              "id": "photo-roster-nva",
+              "frame": 0,
+              "cols": 1,
+              "rows": 1,
+              "aspect": 0.6666666666666666,
+              "sourceAspect": 0.6666666666666666,
+              "feet": 8.393745278680452,
+              "ground": 8.393745278680452,
+              "motion": null
+            },
+            {
+              "name": "photo_nva_front",
+              "kind": "guard",
+              "variant": "nva_front",
+              "id": "photo-roster-guard",
+              "frame": 0,
+              "cols": 1,
+              "rows": 1,
+              "aspect": 0.6666666666666666,
+              "sourceAspect": 0.6666666666666666,
+              "feet": 8.44682874200545,
+              "ground": 8.44682874200545,
+              "motion": null
+            },
+            {
+              "name": "photo_farmer",
+              "kind": "farmer",
+              "variant": null,
+              "id": "photo-roster-farmer",
+              "frame": 0,
+              "cols": 8,
+              "rows": 6,
+              "aspect": 0.6666666666666666,
+              "sourceAspect": 0.6666666666666666,
+              "feet": 8.239334805470111,
+              "ground": 8.239334805470111,
+              "motion": null
+            },
+            {
+              "name": "photo_female_vc",
+              "kind": "vcFem",
+              "variant": null,
+              "id": "photo-roster-vcFem",
+              "frame": 0,
+              "cols": 8,
+              "rows": 6,
+              "aspect": 0.6666666666666666,
+              "sourceAspect": 0.6666666666666666,
+              "feet": 8.341506487376108,
+              "ground": 8.341506487376108,
+              "motion": null
+            },
+            {
+              "name": "photo_cow",
+              "kind": "cow",
+              "variant": null,
+              "id": "photo-cow",
+              "frame": 32,
+              "cols": 8,
+              "rows": 6,
+              "aspect": 1.3333333333333333,
+              "sourceAspect": 1.3333333333333333,
+              "feet": 8.441514923860959,
+              "ground": 8.441514923860959,
+              "motion": null
+            }
+          ],
+          "nearGround": {
+            "active": true,
+            "complete": true,
+            "pending": false,
+            "samples": 0,
+            "totalSamples": 1089,
+            "uploads": 1,
+            "failures": 0,
+            "bytes": 4356,
+            "origin": [
+              -7744,
+              1152
+            ],
+            "centre": [
+              -7609.974225508356,
+              1273.40169340973
+            ],
+            "remaining": 0
+          },
+          "gl": 0,
+          "p": [
+            -7609.974225508356,
+            8.736310591032108,
+            1273.40169340973
+          ],
+          "phase": "evade"
+        }
+      },
+      {
+        "layout": "desktop",
+        "name": "Production WebGL gallery renders the supplied 48-cell photographs with decoded source alpha",
+        "passed": true,
+        "actual": {
+          "samples": [
+            {
+              "name": "farmer",
+              "frame": 0,
+              "variant": null,
+              "width": 192,
+              "height": 288,
+              "visible": 16155,
+              "transparent": 39141,
+              "source": "assets/farmer.webp",
+              "runtimeAspect": 0.6666666666666666,
+              "expectedAspect": 0.6666666666666666
+            },
+            {
+              "name": "militia",
+              "frame": 0,
+              "variant": null,
+              "width": 192,
+              "height": 288,
+              "visible": 15869,
+              "transparent": 39427,
+              "source": "assets/militia.webp",
+              "runtimeAspect": 0.6666666666666666,
+              "expectedAspect": 0.6666666666666666
+            },
+            {
+              "name": "female_vc",
+              "frame": 0,
+              "variant": null,
+              "width": 192,
+              "height": 288,
+              "visible": 14008,
+              "transparent": 41288,
+              "source": "assets/female_vc.webp",
+              "runtimeAspect": 0.6666666666666666,
+              "expectedAspect": 0.6666666666666666
+            },
+            {
+              "name": "nva",
+              "frame": 0,
+              "variant": "nva_front",
+              "width": 192,
+              "height": 288,
+              "visible": 13131,
+              "transparent": 42165,
+              "source": "assets/nva.webp",
+              "runtimeAspect": 0.6666666666666666,
+              "expectedAspect": 0.6666666666666666
+            },
+            {
+              "name": "aviator",
+              "frame": 0,
+              "variant": null,
+              "width": 192,
+              "height": 288,
+              "visible": 11777,
+              "transparent": 43519,
+              "source": "assets/aviator.webp",
+              "runtimeAspect": 0.6665413533834585,
+              "expectedAspect": 0.6665413533834587
+            },
+            {
+              "name": "cow",
+              "frame": 32,
+              "variant": null,
+              "width": 256,
+              "height": 192,
+              "visible": 23350,
+              "transparent": 25802,
+              "source": "assets/cow.webp",
+              "runtimeAspect": 1.3333333333333333,
+              "expectedAspect": 1.3333333333333333
+            }
+          ],
+          "foreground": 25817,
+          "lighting": {
+            "count": 25817,
+            "dayMean": 9.5400203276912,
+            "nightMean": 0.9618025177209191,
+            "ratio": 0.10081765915415893
+          },
+          "width": 720,
+          "height": 346,
+          "gl": 0
+        }
+      },
+      {
+        "layout": "desktop",
+        "name": "Identical source poses respond to day and night illumination without a daylight self-lit floor",
+        "passed": true,
+        "actual": {
+          "count": 25817,
+          "dayMean": 9.5400203276912,
+          "nightMean": 0.9618025177209191,
+          "ratio": 0.10081765915415893
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "Ready Room prison guards use supplied NVA photographs rather than the reconstructed sheet",
+        "passed": true,
+        "actual": {
+          "stage": "cell",
+          "calls": [
+            {
+              "name": "photo_nva",
+              "kind": "nva",
+              "variant": null,
+              "cell": 3,
+              "rows": 6,
+              "cols": 8,
+              "motion": null,
+              "width": 1.2501923076923076,
+              "height": 1.8756410256410256
+            },
+            {
+              "name": "photo_nva",
+              "kind": "nva",
+              "variant": null,
+              "cell": 3,
+              "rows": 6,
+              "cols": 8,
+              "motion": null,
+              "width": 1.2501923076923076,
+              "height": 1.8756410256410256
+            },
+            {
+              "name": "photo_nva",
+              "kind": "nva",
+              "variant": null,
+              "cell": 3,
+              "rows": 6,
+              "cols": 8,
+              "motion": null,
+              "width": 1.2501923076923076,
+              "height": 1.8756410256410256
+            },
+            {
+              "name": "photo_militia",
+              "kind": "militia",
+              "variant": null,
+              "cell": 3,
+              "rows": 6,
+              "cols": 8,
+              "motion": null,
+              "width": 1.224348251947218,
+              "height": 1.836522377920827
+            },
+            {
+              "name": "photo_nva_front",
+              "kind": "nva",
+              "variant": "nva_front",
+              "cell": 0,
+              "rows": 1,
+              "cols": 1,
+              "motion": null,
+              "width": 1.2455010366275052,
+              "height": 1.868251554941258
+            }
+          ],
+          "actors": 5,
+          "gl": 0
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "Actual countryside renderer preserves farmer, male VC, female VC, NVA, guard and cattle identity, source aspect and foot contact",
+        "passed": true,
+        "actual": {
+          "calls": [
+            {
+              "name": "photo_militia",
+              "kind": "vc",
+              "variant": null,
+              "id": "photo-roster-vc",
+              "frame": 0,
+              "cols": 8,
+              "rows": 6,
+              "aspect": 0.6666666666666666,
+              "sourceAspect": 0.6666666666666666,
+              "feet": 46.9585433100834,
+              "ground": 46.9585433100834,
+              "motion": null
+            },
+            {
+              "name": "photo_farmer",
+              "kind": "farmer",
+              "variant": null,
+              "id": "photo-roster-farmer",
+              "frame": 0,
+              "cols": 8,
+              "rows": 6,
+              "aspect": 0.6666666666666666,
+              "sourceAspect": 0.6666666666666666,
+              "feet": 46.90175542995859,
+              "ground": 46.90175542995859,
+              "motion": null
+            },
+            {
+              "name": "photo_female_vc",
+              "kind": "vcFem",
+              "variant": null,
+              "id": "photo-roster-vcFem",
+              "frame": 0,
+              "cols": 8,
+              "rows": 6,
+              "aspect": 0.6666666666666666,
+              "sourceAspect": 0.6666666666666666,
+              "feet": 47.01432558602501,
+              "ground": 47.01432558602501,
+              "motion": null
+            },
+            {
+              "name": "photo_nva_front",
+              "kind": "nva",
+              "variant": "nva_front",
+              "id": "photo-roster-nva",
+              "frame": 0,
+              "cols": 1,
+              "rows": 1,
+              "aspect": 0.6666666666666666,
+              "sourceAspect": 0.6666666666666666,
+              "feet": 47.069015513459156,
+              "ground": 47.069015513459156,
+              "motion": null
+            },
+            {
+              "name": "photo_nva_front",
+              "kind": "guard",
+              "variant": "nva_front",
+              "id": "photo-roster-guard",
+              "frame": 0,
+              "cols": 1,
+              "rows": 1,
+              "aspect": 0.6666666666666666,
+              "sourceAspect": 0.6666666666666666,
+              "feet": 47.123382465863614,
+              "ground": 47.123382465863614,
+              "motion": null
+            },
+            {
+              "name": "photo_cow",
+              "kind": "cow",
+              "variant": null,
+              "id": "photo-cow",
+              "frame": 32,
+              "cols": 8,
+              "rows": 6,
+              "aspect": 1.3333333333333333,
+              "sourceAspect": 1.3333333333333333,
+              "feet": 46.90251286817038,
+              "ground": 46.90251286817038,
+              "motion": null
+            }
+          ],
+          "nearGround": {
+            "active": true,
+            "complete": true,
+            "pending": false,
+            "samples": 0,
+            "totalSamples": 1089,
+            "uploads": 1,
+            "failures": 0,
+            "bytes": 4356,
+            "origin": [
+              -8352,
+              -1152
+            ],
+            "centre": [
+              -8217.829911920991,
+              -1025.2692069558232
+            ],
+            "remaining": 0
+          },
+          "gl": 0,
+          "p": [
+            -8217.829911920991,
+            46.93409962938735,
+            -1025.2692069558232
+          ],
+          "phase": "evade"
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "Production WebGL gallery renders the supplied 48-cell photographs with decoded source alpha",
+        "passed": true,
+        "actual": {
+          "samples": [
+            {
+              "name": "farmer",
+              "frame": 0,
+              "variant": null,
+              "width": 192,
+              "height": 288,
+              "visible": 16155,
+              "transparent": 39141,
+              "source": "assets/farmer.webp",
+              "runtimeAspect": 0.6666666666666666,
+              "expectedAspect": 0.6666666666666666
+            },
+            {
+              "name": "militia",
+              "frame": 0,
+              "variant": null,
+              "width": 192,
+              "height": 288,
+              "visible": 15869,
+              "transparent": 39427,
+              "source": "assets/militia.webp",
+              "runtimeAspect": 0.6666666666666666,
+              "expectedAspect": 0.6666666666666666
+            },
+            {
+              "name": "female_vc",
+              "frame": 0,
+              "variant": null,
+              "width": 192,
+              "height": 288,
+              "visible": 14008,
+              "transparent": 41288,
+              "source": "assets/female_vc.webp",
+              "runtimeAspect": 0.6666666666666666,
+              "expectedAspect": 0.6666666666666666
+            },
+            {
+              "name": "nva",
+              "frame": 0,
+              "variant": "nva_front",
+              "width": 192,
+              "height": 288,
+              "visible": 13131,
+              "transparent": 42165,
+              "source": "assets/nva.webp",
+              "runtimeAspect": 0.6666666666666666,
+              "expectedAspect": 0.6666666666666666
+            },
+            {
+              "name": "aviator",
+              "frame": 0,
+              "variant": null,
+              "width": 192,
+              "height": 288,
+              "visible": 11777,
+              "transparent": 43519,
+              "source": "assets/aviator.webp",
+              "runtimeAspect": 0.6665413533834585,
+              "expectedAspect": 0.6665413533834587
+            },
+            {
+              "name": "cow",
+              "frame": 32,
+              "variant": null,
+              "width": 256,
+              "height": 192,
+              "visible": 23350,
+              "transparent": 25802,
+              "source": "assets/cow.webp",
+              "runtimeAspect": 1.3333333333333333,
+              "expectedAspect": 1.3333333333333333
+            }
+          ],
+          "foreground": 25866,
+          "lighting": {
+            "count": 25866,
+            "dayMean": 9.546843941854354,
+            "nightMean": 1.0386982525322777,
+            "ratio": 0.10880017091077783
+          },
+          "width": 720,
+          "height": 346,
+          "gl": 0
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "Identical source poses respond to day and night illumination without a daylight self-lit floor",
+        "passed": true,
+        "actual": {
+          "count": 25866,
+          "dayMean": 9.546843941854354,
+          "nightMean": 1.0386982525322777,
+          "ratio": 0.10880017091077783
+        }
+      }
+    ],
+    "screenshots": [
+      "photographic-sprites/desktop-native-prison-guards.png",
+      "photographic-sprites/desktop-declared-ground-roster.png",
+      "photographic-sprites/desktop-production-webgl-photograph-gallery.png",
+      "photographic-sprites/desktop-production-webgl-night-photographs.png",
+      "photographic-sprites/iphone-layout-chromium-native-prison-guards.png",
+      "photographic-sprites/iphone-layout-chromium-declared-ground-roster.png",
+      "photographic-sprites/iphone-layout-chromium-production-webgl-photograph-gallery.png",
+      "photographic-sprites/iphone-layout-chromium-production-webgl-night-photographs.png"
+    ],
+    "errors": [],
+    "missing": [],
+    "sourceSHA256": "34058a798909dbf6e3d260fe907637fcdacebdb34cf261d3a5dceac3537804fe",
+    "scope": "Actual Chromium/SwiftShader WebGL2, desktop and iPhone landscape layout emulation. Native Ready Room prison entry; declared mixed-roster countryside and isolated production renderer gallery fixtures. Original photographs and their limitations retained. No physical iPhone Safari, Windows GPU or completed-mission claim. Repaired NVA and aviator derivatives are not pixel-identical originals. Gallery PNGs read linear light before the normal display compositor; native prison and countryside PNGs include the game compositor.",
+    "sourceHashes": [
+      {
+        "layout": "desktop",
+        "indexSHA256": "d02b937cbca07e57383fdafc04774f557898e844f5be2dffd417d3d6d521e7c6",
+        "verification": "Identical index bytes verified immediately after browser launch and after completion; response hash capture subsequently added to the reporter as a metadata-only change."
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "indexSHA256": "d02b937cbca07e57383fdafc04774f557898e844f5be2dffd417d3d6d521e7c6",
+        "verification": "Identical index bytes verified immediately after browser launch and after completion; response hash capture subsequently added to the reporter as a metadata-only change."
+      }
+    ],
+    "finalDescriptorSHA256": "c39385a16e48fadd79d49335d5bb7f804ac4f7400d38f91cfdc768ea1c140d37",
+    "descriptorFollowup": "After the GPU run, only the aimed/fallen aviator frame mappings changed; those paths are not exercised by the browser idle-gallery/native-prison/countryside checks. All six photographic-sprite domain checks were rerun successfully against the final descriptor. No GPU checks or success criteria were changed."
+  },
+  "capture": {
+    "passed": true,
+    "checks": [
+      {
+        "layout": "desktop",
+        "name": "Native surrender keeps the original ground actor and camera while capture fades in",
+        "passed": true,
+        "actual": {
+          "original": {
+            "p": [
+              -7687.255654282993,
+              0,
+              -1050.1303643762344
+            ],
+            "eye": [
+              -7687.255654282993,
+              63.73100250881428,
+              -1050.1303643762344
+            ],
+            "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+          },
+          "taken": {
+            "phase": "evade",
+            "pow": null,
+            "transition": {
+              "age": 0.3,
+              "stage": "taken",
+              "arriving": false,
+              "recapture": false,
+              "groundRetained": true,
+              "finished": false
+            },
+            "p": [
+              -7687.255654282993,
+              0,
+              -1050.1303643762344
+            ],
+            "eye": [
+              -7687.255654282993,
+              63.73100250881428,
+              -1050.1303643762344
+            ],
+            "sameActor": true,
+            "paused": false,
+            "visible": true,
+            "title": "Captured",
+            "gl": 0,
+            "recaptures": 0
+          }
+        }
+      },
+      {
+        "layout": "desktop",
+        "name": "Native pause retains ground view and does not permit a wall-clock prison jump",
+        "passed": true,
+        "actual": {
+          "paused": {
+            "phase": "evade",
+            "pow": null,
+            "transition": {
+              "age": 0.3,
+              "stage": "taken",
+              "arriving": false,
+              "recapture": false,
+              "groundRetained": true,
+              "finished": false
+            },
+            "p": [
+              -7687.255654282993,
+              0,
+              -1050.1303643762344
+            ],
+            "eye": [
+              -7687.255654282993,
+              63.73100250881428,
+              -1050.1303643762344
+            ],
+            "sameActor": true,
+            "paused": true,
+            "visible": true,
+            "title": "Captured",
+            "gl": 0,
+            "recaptures": 0
+          },
+          "held": {
+            "phase": "evade",
+            "pow": null,
+            "transition": {
+              "age": 0.3,
+              "stage": "taken",
+              "arriving": false,
+              "recapture": false,
+              "groundRetained": true,
+              "finished": false
+            },
+            "p": [
+              -7687.255654282993,
+              0,
+              -1050.1303643762344
+            ],
+            "eye": [
+              -7687.255654282993,
+              63.73100250881428,
+              -1050.1303643762344
+            ],
+            "sameActor": true,
+            "paused": true,
+            "visible": true,
+            "title": "Captured",
+            "gl": 0,
+            "recaptures": 0
+          }
+        }
+      },
+      {
+        "layout": "desktop",
+        "name": "The transfer beat clearly bridges the capture and prison",
+        "passed": true,
+        "actual": {
+          "transfer": {
+            "phase": "evade",
+            "pow": null,
+            "transition": {
+              "age": 2.1999999999999993,
+              "stage": "transfer",
+              "arriving": false,
+              "recapture": false,
+              "groundRetained": true,
+              "finished": false
+            },
+            "p": [
+              -7687.255654282993,
+              0,
+              -1050.1303643762344
+            ],
+            "eye": [
+              -7687.255654282993,
+              63.73100250881428,
+              -1050.1303643762344
+            ],
+            "sameActor": true,
+            "paused": false,
+            "visible": true,
+            "title": "Under guard",
+            "gl": 0,
+            "recaptures": 0
+          }
+        }
+      },
+      {
+        "layout": "desktop",
+        "name": "The actual prison appears beneath black and reveals smoothly; phone Continue works",
+        "passed": true,
+        "actual": {
+          "arriving": {
+            "phase": "evade",
+            "pow": "solitary",
+            "transition": {
+              "age": 4.84999999999999,
+              "stage": "arrival",
+              "arriving": true,
+              "recapture": false,
+              "groundRetained": true,
+              "finished": true
+            },
+            "p": [
+              16006.39999999998,
+              2,
+              8.339999999999998
+            ],
+            "eye": [
+              16006.39999999998,
+              3.6799999999999997,
+              8.339999999999998
+            ],
+            "sameActor": false,
+            "paused": false,
+            "visible": true,
+            "title": "Confinement",
+            "gl": 0,
+            "recaptures": 0
+          },
+          "cell": {
+            "phase": "evade",
+            "pow": "solitary",
+            "transition": null,
+            "p": [
+              16006.39999999998,
+              2,
+              8.339999999999998
+            ],
+            "eye": [
+              16006.39999999998,
+              3.6799999999999997,
+              8.339999999999998
+            ],
+            "sameActor": false,
+            "paused": false,
+            "visible": false,
+            "gl": 0,
+            "recaptures": 0
+          }
+        }
+      },
+      {
+        "layout": "desktop",
+        "name": "River recapture retains its ground view, transfers once, and preserves its count",
+        "passed": true,
+        "actual": {
+          "river": {
+            "count": 0,
+            "now": 1,
+            "stage": "river",
+            "transition": {
+              "age": 0,
+              "stage": "taken",
+              "arriving": false,
+              "recapture": true,
+              "groundRetained": true,
+              "finished": false
+            },
+            "p": [
+              16097.39999999998,
+              5.18,
+              9.499999999999998
+            ]
+          },
+          "recapture": {
+            "phase": "evade",
+            "pow": "river",
+            "transition": {
+              "age": 2,
+              "stage": "transfer",
+              "arriving": false,
+              "recapture": true,
+              "groundRetained": true,
+              "finished": false
+            },
+            "p": [
+              16097.39999999998,
+              5.18,
+              9.499999999999998
+            ],
+            "eye": [
+              16097.39999999998,
+              5.66,
+              9.499999999999998
+            ],
+            "sameActor": true,
+            "paused": false,
+            "visible": true,
+            "title": "Under guard",
+            "gl": 0,
+            "recaptures": 1
+          },
+          "returned": {
+            "phase": "evade",
+            "pow": "solitary",
+            "transition": null,
+            "p": [
+              16006.39999999998,
+              2,
+              8.339999999999998
+            ],
+            "eye": [
+              16006.39999999998,
+              3.6799999999999997,
+              8.339999999999998
+            ],
+            "sameActor": false,
+            "paused": false,
+            "visible": false,
+            "gl": 0,
+            "recaptures": 1
+          }
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "Native surrender keeps the original ground actor and camera while capture fades in",
+        "passed": true,
+        "actual": {
+          "original": {
+            "p": [
+              -8263.663727900865,
+              0,
+              -252.50659888380142
+            ],
+            "eye": [
+              -8263.663727900865,
+              44.86581604336093,
+              -252.50659888380142
+            ],
+            "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+          },
+          "taken": {
+            "phase": "evade",
+            "pow": null,
+            "transition": {
+              "age": 0.3,
+              "stage": "taken",
+              "arriving": false,
+              "recapture": false,
+              "groundRetained": true,
+              "finished": false
+            },
+            "p": [
+              -8263.663727900865,
+              0,
+              -252.50659888380142
+            ],
+            "eye": [
+              -8263.663727900865,
+              44.86581604336093,
+              -252.50659888380142
+            ],
+            "sameActor": true,
+            "paused": false,
+            "visible": true,
+            "title": "Captured",
+            "gl": 0,
+            "recaptures": 0
+          }
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "Native pause retains ground view and does not permit a wall-clock prison jump",
+        "passed": true,
+        "actual": {
+          "paused": {
+            "phase": "evade",
+            "pow": null,
+            "transition": {
+              "age": 0.3,
+              "stage": "taken",
+              "arriving": false,
+              "recapture": false,
+              "groundRetained": true,
+              "finished": false
+            },
+            "p": [
+              -8263.663727900865,
+              0,
+              -252.50659888380142
+            ],
+            "eye": [
+              -8263.663727900865,
+              44.86581604336093,
+              -252.50659888380142
+            ],
+            "sameActor": true,
+            "paused": true,
+            "visible": true,
+            "title": "Captured",
+            "gl": 0,
+            "recaptures": 0
+          },
+          "held": {
+            "phase": "evade",
+            "pow": null,
+            "transition": {
+              "age": 0.3,
+              "stage": "taken",
+              "arriving": false,
+              "recapture": false,
+              "groundRetained": true,
+              "finished": false
+            },
+            "p": [
+              -8263.663727900865,
+              0,
+              -252.50659888380142
+            ],
+            "eye": [
+              -8263.663727900865,
+              44.86581604336093,
+              -252.50659888380142
+            ],
+            "sameActor": true,
+            "paused": true,
+            "visible": true,
+            "title": "Captured",
+            "gl": 0,
+            "recaptures": 0
+          }
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "The transfer beat clearly bridges the capture and prison",
+        "passed": true,
+        "actual": {
+          "transfer": {
+            "phase": "evade",
+            "pow": null,
+            "transition": {
+              "age": 2.1999999999999993,
+              "stage": "transfer",
+              "arriving": false,
+              "recapture": false,
+              "groundRetained": true,
+              "finished": false
+            },
+            "p": [
+              -8263.663727900865,
+              0,
+              -252.50659888380142
+            ],
+            "eye": [
+              -8263.663727900865,
+              44.86581604336093,
+              -252.50659888380142
+            ],
+            "sameActor": true,
+            "paused": false,
+            "visible": true,
+            "title": "Under guard",
+            "gl": 0,
+            "recaptures": 0
+          }
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "The actual prison appears beneath black and reveals smoothly; phone Continue works",
+        "passed": true,
+        "actual": {
+          "arriving": {
+            "phase": "evade",
+            "pow": "solitary",
+            "transition": {
+              "age": 4.85,
+              "stage": "arrival",
+              "arriving": true,
+              "recapture": false,
+              "groundRetained": true,
+              "finished": true
+            },
+            "p": [
+              16011.8,
+              2,
+              8.339999999999998
+            ],
+            "eye": [
+              16011.8,
+              3.6799999999999997,
+              8.339999999999998
+            ],
+            "sameActor": false,
+            "paused": false,
+            "visible": true,
+            "title": "Confinement",
+            "gl": 0,
+            "recaptures": 0
+          },
+          "cell": {
+            "phase": "evade",
+            "pow": "solitary",
+            "transition": null,
+            "p": [
+              16011.8,
+              2,
+              8.339999999999998
+            ],
+            "eye": [
+              16011.8,
+              3.6799999999999997,
+              8.339999999999998
+            ],
+            "sameActor": false,
+            "paused": false,
+            "visible": false,
+            "gl": 0,
+            "recaptures": 0
+          }
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "River recapture retains its ground view, transfers once, and preserves its count",
+        "passed": true,
+        "actual": {
+          "river": {
+            "count": 0,
+            "now": 1,
+            "stage": "river",
+            "transition": {
+              "age": 0,
+              "stage": "taken",
+              "arriving": false,
+              "recapture": true,
+              "groundRetained": true,
+              "finished": false
+            },
+            "p": [
+              16102.8,
+              5.18,
+              9.499999999999998
+            ]
+          },
+          "recapture": {
+            "phase": "evade",
+            "pow": "river",
+            "transition": {
+              "age": 2,
+              "stage": "transfer",
+              "arriving": false,
+              "recapture": true,
+              "groundRetained": true,
+              "finished": false
+            },
+            "p": [
+              16102.8,
+              5.18,
+              9.499999999999998
+            ],
+            "eye": [
+              16102.8,
+              5.66,
+              9.499999999999998
+            ],
+            "sameActor": true,
+            "paused": false,
+            "visible": true,
+            "title": "Under guard",
+            "gl": 0,
+            "recaptures": 1
+          },
+          "returned": {
+            "phase": "evade",
+            "pow": "solitary",
+            "transition": null,
+            "p": [
+              16011.8,
+              2,
+              8.339999999999998
+            ],
+            "eye": [
+              16011.8,
+              3.6799999999999997,
+              8.339999999999998
+            ],
+            "sameActor": false,
+            "paused": false,
+            "visible": false,
+            "gl": 0,
+            "recaptures": 1
+          }
+        }
+      }
+    ],
+    "screenshots": [
+      "capture-transition/desktop-01-captured-ground-view.png",
+      "capture-transition/desktop-02-under-guard.png",
+      "capture-transition/desktop-03-prison-after-fade.png",
+      "capture-transition/desktop-04-river-recapture-transfer.png",
+      "capture-transition/iphone-layout-chromium-01-captured-ground-view.png",
+      "capture-transition/iphone-layout-chromium-02-under-guard.png",
+      "capture-transition/iphone-layout-chromium-03-prison-after-fade.png",
+      "capture-transition/iphone-layout-chromium-04-river-recapture-transfer.png"
+    ],
+    "browserErrors": [],
+    "scope": "Actual custom WebGL2 Chromium/SwiftShader desktop and iPhone-size landscape. Declared isolated dry-ground/militia and river entry fixtures, native surrender/pause/Continue controls, original capture/POW methods and simulation-driven fades. Does not claim natural enemy capture or physical iPhone Safari."
+  },
+  "regressions": {
+    "progression": {
+      "scope": "Fixture-assisted real Chromium WebGL2 progression on desktop and emulated iPhone layout; no engine mocks. Not physical iPhone Safari or human completion of all historical missions.",
+      "results": [
+        {
+          "profile": "desktop",
+          "name": "Audio activates from browser gesture and generates signal",
+          "passed": true,
+          "observed": {
+            "state": "running",
+            "signal": 2
+          },
+          "fixture": "Actual Web Audio analyser on the existing audio graph; not a subjective listening test"
+        },
+        {
+          "profile": "desktop",
+          "name": "Ejection and real parachute descent",
+          "passed": true,
+          "observed": {
+            "steps": 1152,
+            "phase": "evade",
+            "ejected": true,
+            "out": true,
+            "held": false
+          },
+          "fixture": "Aircraft positioned110m above dry terrain; real seat/canopy/descent simulation, UI two-tap eject"
+        },
+        {
+          "profile": "desktop",
+          "name": "Ground movement and turning",
+          "passed": true,
+          "observed": {
+            "distance": 1.9086382317997035,
+            "heading": 2.934639138479454
+          },
+          "fixture": "Real keyboard inputs, one second simulation"
+        },
+        {
+          "profile": "desktop",
+          "name": "Solid photographic crowd and grounded vegetation",
+          "passed": true,
+          "observed": {
+            "near": [
+              {
+                "name": "vegetation",
+                "feet": 32.314876838971394,
+                "ground": 32.314876838971394,
+                "error": 0,
+                "visibleHeight": 6.050000000000001
+              },
+              {
+                "name": "vegetation",
+                "feet": 30.06478456882651,
+                "ground": 30.06478456882651,
+                "error": 0,
+                "visibleHeight": 5.53
+              },
+              {
+                "name": "vegetation",
+                "feet": 30.522272428535757,
+                "ground": 30.522272428535757,
+                "error": 0,
+                "visibleHeight": 8.905
+              },
+              {
+                "name": "vegetation",
+                "feet": 32.64100823514361,
+                "ground": 32.64100823514361,
+                "error": 0,
+                "visibleHeight": 4.455859229564666
+              },
+              {
+                "name": "nva_front",
+                "feet": 30.12346022079314,
+                "ground": 30.12346022079314,
+                "error": 0,
+                "visibleHeight": 1.76
+              },
+              {
+                "name": "farmer",
+                "feet": 30.677021345065604,
+                "ground": 30.677021345065604,
+                "error": 0,
+                "visibleHeight": 1.7536694713854455
+              },
+              {
+                "name": "female_vc",
+                "feet": 30.401016941804112,
+                "ground": 30.401016941804112,
+                "error": 0,
+                "visibleHeight": 1.7410065908474035
+              }
+            ],
+            "actors": [
+              {
+                "kind": "farmer",
+                "drawn": true,
+                "atlas": "photo_farmer",
+                "row": 0,
+                "column": 0,
+                "cell": 0,
+                "cols": 8,
+                "rows": 6,
+                "expectedCols": 8,
+                "expectedRows": 6,
+                "source": "assets/processed/farmer.webp",
+                "width": 192,
+                "height": 288,
+                "imageWidth": 1536,
+                "imageHeight": 1728,
+                "metadataWidth": 1536,
+                "metadataHeight": 1728,
+                "visibleHeight": 1.7536694713854455,
+                "expectedHeight": 1.7536694713854455,
+                "visibleWidth": 1.2155392885089407,
+                "expectedWidth": 1.2155392885089407,
+                "feet": 30.677021345065604,
+                "ground": 30.677021345065604,
+                "opaque": 17922,
+                "transparent": 37374,
+                "flipped": false
+              },
+              {
+                "kind": "vcFem",
+                "drawn": true,
+                "atlas": "photo_female_vc",
+                "row": 0,
+                "column": 0,
+                "cell": 0,
+                "cols": 8,
+                "rows": 6,
+                "expectedCols": 8,
+                "expectedRows": 6,
+                "source": "assets/processed/female_vc.webp",
+                "width": 192,
+                "height": 288,
+                "imageWidth": 1536,
+                "imageHeight": 1728,
+                "metadataWidth": 1536,
+                "metadataHeight": 1728,
+                "visibleHeight": 1.7410065908474035,
+                "expectedHeight": 1.7410065908474035,
+                "visibleWidth": 1.2155392885089407,
+                "expectedWidth": 1.2155392885089407,
+                "feet": 30.401016941804112,
+                "ground": 30.401016941804112,
+                "opaque": 15770,
+                "transparent": 39526,
+                "flipped": false
+              },
+              {
+                "kind": "nva",
+                "drawn": true,
+                "atlas": "photo_nva_front",
+                "row": 0,
+                "column": 0,
+                "cell": 0,
+                "cols": 1,
+                "rows": 1,
+                "expectedCols": 1,
+                "expectedRows": 1,
+                "source": "assets/sprites/nva-front-repaired.png",
+                "width": 1024,
+                "height": 1536,
+                "imageWidth": 1024,
+                "imageHeight": 1536,
+                "metadataWidth": 1024,
+                "metadataHeight": 1536,
+                "visibleHeight": 1.76,
+                "expectedHeight": 1.76,
+                "visibleWidth": 1.2455010366275052,
+                "expectedWidth": 1.2455010366275052,
+                "feet": 30.12346022079314,
+                "ground": 30.12346022079314,
+                "opaque": 453100,
+                "transparent": 1076528,
+                "flipped": false
+              }
+            ],
+            "types": [
+              "vegetation",
+              "nva",
+              "militia",
+              "farmer",
+              "female_vc"
+            ],
+            "glError": 0
+          },
+          "fixture": "Declared front-facing farmer, female VC and NVA roster plus three vegetation props. Real production draw calls retain the supplied source atlases (8x6), with the separately restored full-body NVA front image (1x1). Actual decoded runtime images and measured alpha metadata verify source aspect/height, opaque subjects, transparent surroundings and terrain foot anchors. These repaired derivatives are not pixel-identical originals; full GPU silhouette/occlusion is covered separately."
+        },
+        {
+          "profile": "desktop",
+          "name": "Queued weapon selections survive delayed frames",
+          "passed": true,
+          "observed": {
+            "delayMilliseconds": 180
+          },
+          "fixture": "Existing UI buttons then delayed real simulation"
+        },
+        {
+          "profile": "desktop",
+          "name": "Radio, smoke, helicopter approach and hoist rescue",
+          "passed": true,
+          "observed": {
+            "steps": 2715,
+            "rescued": true,
+            "phase": "done",
+            "jolly": {
+              "p": [
+                -7636.872830054391,
+                51.72650039675045,
+                651.4582335054317
+              ],
+              "yaw": 2.2999999999890854,
+              "pitch": -0.061260000000650086,
+              "roll": 8.391983580815788e-10,
+              "hoist": 1,
+              "down": 1,
+              "_dw": 0.045,
+              "hoverTime": 7.183333333333313,
+              "hoverLimit": 48
+            },
+            "smoke": [
+              -7636.518620078807,
+              29.72650039675045,
+              651.7747146153567
+            ]
+          },
+          "fixture": "Rescue clock accelerated and ground fire isolated; real CSAR engine"
+        },
+        {
+          "profile": "desktop",
+          "name": "Clean standing debrief photograph",
+          "passed": true,
+          "observed": {
+            "src": "assets/photos/standing-portrait.jpeg",
+            "w": 864,
+            "h": 1223,
+            "filter": "none",
+            "mask": "none"
+          },
+          "fixture": "Actual SAR debrief after hoist rescue"
+        },
+        {
+          "profile": "desktop",
+          "name": "Cruise Log after rescue",
+          "passed": true,
+          "observed": {
+            "hasSAR": true
+          },
+          "fixture": "Actual log UI with a stored sortie"
+        },
+        {
+          "profile": "desktop",
+          "name": "Ejection and real parachute descent",
+          "passed": true,
+          "observed": {
+            "steps": 1082,
+            "phase": "evade",
+            "ejected": true,
+            "out": true,
+            "held": true
+          },
+          "fixture": "Aircraft positioned110m above dry terrain; real seat/canopy/descent simulation, UI two-tap eject"
+        },
+        {
+          "profile": "desktop",
+          "name": "Mission11 parachute progression enters the physical prison chapter",
+          "passed": true,
+          "observed": {
+            "stage": "cell",
+            "phase": "evade",
+            "solidCount": 47,
+            "objects": [
+              "bunk-bracket",
+              "wall-contact",
+              "door-fitting",
+              "roof-rope",
+              "roof-descent",
+              "alley-rest",
+              "episode-pebbles",
+              "episode-conceal-fitting",
+              "episode-lamp:cell-bulb",
+              "episode-lamp:corridor-lamp",
+              "episode-lamp:yard-west",
+              "episode-lamp:yard-east",
+              "mental-notebook"
+            ],
+            "checkpoint": "cell"
+          },
+          "fixture": "Actual Mission11 ejection/descent; new playable chapter supersedes the former menu sequence"
+        },
+        {
+          "profile": "desktop",
+          "name": "Ejection and real parachute descent",
+          "passed": true,
+          "observed": {
+            "steps": 1079,
+            "phase": "evade",
+            "ejected": true,
+            "out": true,
+            "held": false
+          },
+          "fixture": "Aircraft positioned110m above dry terrain; real seat/canopy/descent simulation, UI two-tap eject"
+        },
+        {
+          "profile": "desktop",
+          "name": "Regular mission capture enters interactive solitary confinement",
+          "passed": true,
+          "observed": {
+            "captured": 1,
+            "stage": "solitary",
+            "phase": "evade",
+            "objects": [
+              "cell-notebook",
+              "cell-wall",
+              "cell-bed",
+              "cell-door",
+              "transfer-regular",
+              "cell-tray",
+              "cell-vent",
+              "cell-exercise"
+            ],
+            "day": 1,
+            "captureYear": 1966,
+            "checkpoint": "solitary"
+          },
+          "fixture": "Real capture and six seconds of original fixed-step transfer/reveal; extended time/puzzles/release are covered by the captivity suite"
+        },
+        {
+          "profile": "desktop",
+          "name": "No uncaught JavaScript errors or missing runtime assets",
+          "passed": true,
+          "observed": {
+            "errors": [],
+            "badAssets": []
+          },
+          "fixture": "Throughout progression"
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "Audio activates from browser gesture and generates signal",
+          "passed": true,
+          "observed": {
+            "state": "running",
+            "signal": 2
+          },
+          "fixture": "Actual Web Audio analyser on the existing audio graph; not a subjective listening test"
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "Ejection and real parachute descent",
+          "passed": true,
+          "observed": {
+            "steps": 1104,
+            "phase": "evade",
+            "ejected": true,
+            "out": true,
+            "held": false
+          },
+          "fixture": "Aircraft positioned110m above dry terrain; real seat/canopy/descent simulation, UI two-tap eject"
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "Ground movement and turning",
+          "passed": true,
+          "observed": {
+            "distance": 1.9086382317989772,
+            "heading": 4.778301317295211
+          },
+          "fixture": "Real keyboard inputs, one second simulation"
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "Solid photographic crowd and grounded vegetation",
+          "passed": true,
+          "observed": {
+            "near": [
+              {
+                "name": "vegetation",
+                "feet": 80.93224728441002,
+                "ground": 80.93224728441002,
+                "error": 0,
+                "visibleHeight": 6.050000000000001
+              },
+              {
+                "name": "vegetation",
+                "feet": 81.20389872703886,
+                "ground": 81.20389872703886,
+                "error": 0,
+                "visibleHeight": 5.53
+              },
+              {
+                "name": "vegetation",
+                "feet": 81.45041145595033,
+                "ground": 81.45041145595033,
+                "error": 0,
+                "visibleHeight": 8.905
+              },
+              {
+                "name": "vegetation",
+                "feet": 80.21001118625068,
+                "ground": 80.21001118625068,
+                "error": 0,
+                "visibleHeight": 2.966103880405426
+              },
+              {
+                "name": "vegetation",
+                "feet": 80.61128166751419,
+                "ground": 80.61128166751419,
+                "error": 0,
+                "visibleHeight": 2.2063157987594604
+              },
+              {
+                "name": "farmer",
+                "feet": 80.89533626821381,
+                "ground": 80.89533626821381,
+                "error": 0,
+                "visibleHeight": 1.7536694713854455
+              },
+              {
+                "name": "female_vc",
+                "feet": 80.9294233630133,
+                "ground": 80.9294233630133,
+                "error": 0,
+                "visibleHeight": 1.7410065908474035
+              },
+              {
+                "name": "nva_front",
+                "feet": 80.96424607002753,
+                "ground": 80.96424607002753,
+                "error": 0,
+                "visibleHeight": 1.76
+              }
+            ],
+            "actors": [
+              {
+                "kind": "farmer",
+                "drawn": true,
+                "atlas": "photo_farmer",
+                "row": 0,
+                "column": 0,
+                "cell": 0,
+                "cols": 8,
+                "rows": 6,
+                "expectedCols": 8,
+                "expectedRows": 6,
+                "source": "assets/processed/farmer.webp",
+                "width": 192,
+                "height": 288,
+                "imageWidth": 1536,
+                "imageHeight": 1728,
+                "metadataWidth": 1536,
+                "metadataHeight": 1728,
+                "visibleHeight": 1.7536694713854455,
+                "expectedHeight": 1.7536694713854455,
+                "visibleWidth": 1.2155392885089407,
+                "expectedWidth": 1.2155392885089407,
+                "feet": 80.89533626821381,
+                "ground": 80.89533626821381,
+                "opaque": 17922,
+                "transparent": 37374,
+                "flipped": false
+              },
+              {
+                "kind": "vcFem",
+                "drawn": true,
+                "atlas": "photo_female_vc",
+                "row": 0,
+                "column": 0,
+                "cell": 0,
+                "cols": 8,
+                "rows": 6,
+                "expectedCols": 8,
+                "expectedRows": 6,
+                "source": "assets/processed/female_vc.webp",
+                "width": 192,
+                "height": 288,
+                "imageWidth": 1536,
+                "imageHeight": 1728,
+                "metadataWidth": 1536,
+                "metadataHeight": 1728,
+                "visibleHeight": 1.7410065908474035,
+                "expectedHeight": 1.7410065908474035,
+                "visibleWidth": 1.2155392885089407,
+                "expectedWidth": 1.2155392885089407,
+                "feet": 80.9294233630133,
+                "ground": 80.9294233630133,
+                "opaque": 15770,
+                "transparent": 39526,
+                "flipped": false
+              },
+              {
+                "kind": "nva",
+                "drawn": true,
+                "atlas": "photo_nva_front",
+                "row": 0,
+                "column": 0,
+                "cell": 0,
+                "cols": 1,
+                "rows": 1,
+                "expectedCols": 1,
+                "expectedRows": 1,
+                "source": "assets/sprites/nva-front-repaired.png",
+                "width": 1024,
+                "height": 1536,
+                "imageWidth": 1024,
+                "imageHeight": 1536,
+                "metadataWidth": 1024,
+                "metadataHeight": 1536,
+                "visibleHeight": 1.76,
+                "expectedHeight": 1.76,
+                "visibleWidth": 1.2455010366275052,
+                "expectedWidth": 1.2455010366275052,
+                "feet": 80.96424607002753,
+                "ground": 80.96424607002753,
+                "opaque": 453100,
+                "transparent": 1076528,
+                "flipped": false
+              }
+            ],
+            "types": [
+              "vegetation",
+              "farmer",
+              "militia",
+              "female_vc",
+              "nva"
+            ],
+            "glError": 0
+          },
+          "fixture": "Declared front-facing farmer, female VC and NVA roster plus three vegetation props. Real production draw calls retain the supplied source atlases (8x6), with the separately restored full-body NVA front image (1x1). Actual decoded runtime images and measured alpha metadata verify source aspect/height, opaque subjects, transparent surroundings and terrain foot anchors. These repaired derivatives are not pixel-identical originals; full GPU silhouette/occlusion is covered separately."
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "Queued weapon selections survive delayed frames",
+          "passed": true,
+          "observed": {
+            "delayMilliseconds": 180
+          },
+          "fixture": "Existing UI buttons then delayed real simulation"
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "Radio, smoke, helicopter approach and hoist rescue",
+          "passed": true,
+          "observed": {
+            "steps": 2715,
+            "rescued": true,
+            "phase": "done",
+            "jolly": {
+              "p": [
+                -8931.011015944408,
+                102.80744445198926,
+                -1684.8812214312588
+              ],
+              "yaw": 2.2999999999926435,
+              "pitch": -0.06126000000011918,
+              "roll": 8.391983580815788e-10,
+              "hoist": 1,
+              "down": 1,
+              "_dw": 0.045,
+              "hoverTime": 7.183333333333313,
+              "hoverLimit": 48
+            },
+            "smoke": [
+              -8930.656805968656,
+              80.80744445198926,
+              -1684.5647403211901
+            ]
+          },
+          "fixture": "Rescue clock accelerated and ground fire isolated; real CSAR engine"
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "Clean standing debrief photograph",
+          "passed": true,
+          "observed": {
+            "src": "assets/photos/standing-portrait.jpeg",
+            "w": 864,
+            "h": 1223,
+            "filter": "none",
+            "mask": "none"
+          },
+          "fixture": "Actual SAR debrief after hoist rescue"
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "Cruise Log after rescue",
+          "passed": true,
+          "observed": {
+            "hasSAR": true
+          },
+          "fixture": "Actual log UI with a stored sortie"
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "Ejection and real parachute descent",
+          "passed": true,
+          "observed": {
+            "steps": 1096,
+            "phase": "evade",
+            "ejected": true,
+            "out": true,
+            "held": true
+          },
+          "fixture": "Aircraft positioned110m above dry terrain; real seat/canopy/descent simulation, UI two-tap eject"
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "Mission11 parachute progression enters the physical prison chapter",
+          "passed": true,
+          "observed": {
+            "stage": "cell",
+            "phase": "evade",
+            "solidCount": 47,
+            "objects": [
+              "bunk-bracket",
+              "wall-contact",
+              "door-fitting",
+              "roof-rope",
+              "roof-descent",
+              "alley-rest",
+              "episode-pebbles",
+              "episode-conceal-fitting",
+              "episode-lamp:cell-bulb",
+              "episode-lamp:corridor-lamp",
+              "episode-lamp:yard-west",
+              "episode-lamp:yard-east",
+              "mental-notebook"
+            ],
+            "checkpoint": "cell"
+          },
+          "fixture": "Actual Mission11 ejection/descent; new playable chapter supersedes the former menu sequence"
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "Ejection and real parachute descent",
+          "passed": true,
+          "observed": {
+            "steps": 1147,
+            "phase": "evade",
+            "ejected": true,
+            "out": true,
+            "held": false
+          },
+          "fixture": "Aircraft positioned110m above dry terrain; real seat/canopy/descent simulation, UI two-tap eject"
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "Regular mission capture enters interactive solitary confinement",
+          "passed": true,
+          "observed": {
+            "captured": 1,
+            "stage": "solitary",
+            "phase": "evade",
+            "objects": [
+              "cell-notebook",
+              "cell-wall",
+              "cell-bed",
+              "cell-door",
+              "transfer-regular",
+              "cell-tray",
+              "cell-vent",
+              "cell-exercise"
+            ],
+            "day": 1,
+            "captureYear": 1966,
+            "checkpoint": "solitary"
+          },
+          "fixture": "Real capture and six seconds of original fixed-step transfer/reveal; extended time/puzzles/release are covered by the captivity suite"
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "No uncaught JavaScript errors or missing runtime assets",
+          "passed": true,
+          "observed": {
+            "errors": [],
+            "badAssets": []
+          },
+          "fixture": "Throughout progression"
+        }
+      ],
+      "physicalIPhoneTested": false,
+      "target": "http://127.0.0.1:33537/",
+      "recordedAt": "2026-10-23T20:12:10.368Z"
+    },
+    "m24-ammunition": {
+      "suite": "m24-ammunition",
+      "results": [
+        {
+          "profile": "desktop",
+          "name": "Real parachute landing issues six finite rounds and a zero expenditure ledger",
+          "passed": true,
+          "actual": {
+            "fixture": {
+              "aircraft": [
+                -8563.063828812836,
+                136.7763478798152,
+                -772.1787291471351
+              ],
+              "velocity": [
+                0,
+                0,
+                0
+              ],
+              "mission": "m2"
+            },
+            "descent": {
+              "frames": 1070,
+              "phase": "evade",
+              "ejected": true
+            },
+            "ledger": {
+              "bulletsExpended": 0,
+              "pistolShots": 0,
+              "narrativeRoundsExpended": 0,
+              "roundsAcquired": 0,
+              "remaining": 6,
+              "hasPistol": true,
+              "rounds": 6,
+              "drawn": 0
+            },
+            "sourceSHA256": "4018ef73a87b979c1f12ac73d870213eae73b4f4c4f8995ad74e73e28095db79",
+            "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+          },
+          "fixture": "Aircraft position/velocity and absent countryside encounters isolate ammunition; existing Run/Go on cards spend no ammunition. No shot/hit/capture result is assigned."
+        },
+        {
+          "profile": "desktop",
+          "name": "An attack while the revolver is holstered spends no ammunition",
+          "passed": true,
+          "actual": {
+            "bulletsExpended": 0,
+            "pistolShots": 0,
+            "narrativeRoundsExpended": 0,
+            "roundsAcquired": 0,
+            "remaining": 6,
+            "hasPistol": true,
+            "rounds": 6,
+            "mode": "fists",
+            "drawn": 0
+          },
+          "fixture": "Original initial fists mode and native attack input before drawing."
+        },
+        {
+          "profile": "desktop",
+          "name": "Native draw and fire count an accepted missed round exactly once",
+          "passed": true,
+          "actual": {
+            "bulletsExpended": 1,
+            "pistolShots": 1,
+            "narrativeRoundsExpended": 0,
+            "roundsAcquired": 0,
+            "remaining": 5,
+            "hasPistol": true,
+            "rounds": 5,
+            "mode": "pistol",
+            "drawn": true
+          },
+          "fixture": "Actual F selection and Space trigger keyboard events; no target is in sight."
+        },
+        {
+          "profile": "desktop",
+          "name": "Trigger cooldown and repeated actual renders do not spend or duplicate a shot",
+          "passed": true,
+          "actual": {
+            "bulletsExpended": 1,
+            "pistolShots": 1,
+            "narrativeRoundsExpended": 0,
+            "roundsAcquired": 0,
+            "remaining": 5,
+            "hasPistol": true,
+            "rounds": 5,
+            "mode": "pistol",
+            "drawn": true
+          },
+          "fixture": "A second real trigger within .85 seconds, then four original renderer/control refreshes."
+        },
+        {
+          "profile": "desktop",
+          "name": "Six actual accepted missed shots empty the revolver and draw the live HUD counter",
+          "passed": true,
+          "actual": {
+            "bulletsExpended": 6,
+            "pistolShots": 6,
+            "narrativeRoundsExpended": 0,
+            "roundsAcquired": 0,
+            "remaining": 0,
+            "hasPistol": true,
+            "rounds": 0,
+            "mode": "pistol",
+            "drawn": true,
+            "hud": {
+              "text": [
+                "HEADING 323",
+                "SURVIVAL",
+                "RADIO",
+                "0%",
+                "PICKUP",
+                "293 M",
+                "NEAREST",
+                "674 M",
+                "COVER",
+                "LOW",
+                ".38",
+                "0 LEFT",
+                "SPENT",
+                "6 ROUNDS",
+                "SEEN",
+                "LOOKING",
+                "SPACE FIRES \u2014 SIX ROUNDS, AND EVERY ONE OF THEM IS HEARD  \u00b7  F HOLSTERS  \u00b7  V IS THE KNIFE"
+              ],
+              "state": {
+                "bulletsExpended": 6,
+                "pistolShots": 6,
+                "narrativeRoundsExpended": 0,
+                "roundsAcquired": 0,
+                "remaining": 0,
+                "hasPistol": true
+              }
+            },
+            "pistolButton": "Pistol 0F"
+          },
+          "fixture": "Native firing inputs and fixed-step cooldown advancement, no inventory assignment. Canvas text instrumentation forwards every original drawing call."
+        },
+        {
+          "profile": "desktop",
+          "name": "Empty-trigger, carried knife and fists never add bullets expended",
+          "passed": true,
+          "actual": {
+            "bulletsExpended": 6,
+            "pistolShots": 6,
+            "narrativeRoundsExpended": 0,
+            "roundsAcquired": 0,
+            "remaining": 0,
+            "hasPistol": true,
+            "rounds": 0,
+            "mode": "fists",
+            "drawn": 0
+          },
+          "fixture": "Actual empty trigger and native knife/fists selection with subsequent attack inputs."
+        },
+        {
+          "profile": "desktop",
+          "name": "Actual capture confiscates equipment while Save retains the completed shot ledger",
+          "passed": true,
+          "actual": {
+            "captured": {
+              "bulletsExpended": 6,
+              "pistolShots": 6,
+              "narrativeRoundsExpended": 0,
+              "roundsAcquired": 0,
+              "remaining": 0,
+              "hasPistol": false,
+              "rounds": 0,
+              "mode": "fists",
+              "drawn": 0
+            },
+            "saved": {
+              "version": 1,
+              "bulletsExpended": 6,
+              "pistolShots": 6,
+              "narrativeRoundsExpended": 0,
+              "roundsAcquired": 0
+            }
+          },
+          "fixture": "Real Game.captured and six seconds of original fixed-step transfer/reveal; native Save control."
+        },
+        {
+          "profile": "desktop",
+          "name": "Reload and native Continue restore original sortie and expenditure without restoring confiscated rounds",
+          "passed": true,
+          "actual": {
+            "bulletsExpended": 6,
+            "pistolShots": 6,
+            "narrativeRoundsExpended": 0,
+            "roundsAcquired": 0,
+            "remaining": 0,
+            "hasPistol": false,
+            "rounds": 0,
+            "mode": "fists",
+            "drawn": 0,
+            "sortie": {
+              "mission": "m2",
+              "captured": true,
+              "ejected": true,
+              "bombs": 12,
+              "dropped": 0,
+              "total": 5
+            }
+          },
+          "fixture": "Same browser storage, actual checkpoint restore into physical solitary; Mission2 remains Mission2 with its recorded aircraft stores and capture/ejection context."
+        },
+        {
+          "profile": "desktop",
+          "name": "Actual debrief and stored Cruise Log retain the six expended rounds after capture and reload",
+          "passed": true,
+          "actual": {
+            "text": "F1966 \u00b7 DIXIE-3\n      Break-in on Dixie StationAmmunition regression: captivity chapter intentionally ended.Destroy the supply depot0 / 5 destroyed  (3 needed)Return to the shippendingBombs expended0 of 12Pistol rounds expended6Radar fixes taken0 of 3Battle damagenoneCrewtaken prisonerScore15 / 100The crew survived capture. The captivity chapter has ended; the mission objectives and historical account above record the outcome. This does not mean the crew was killed.Fly It AgainReady Room",
+            "log": {
+              "t": 1792786089813,
+              "id": "m2",
+              "num": "02",
+              "code": "DIXIE-3",
+              "title": "Break-in on Dixie Station",
+              "year": "1966",
+              "grade": "F",
+              "pts": 15,
+              "pass": false,
+              "landed": false,
+              "lost": true,
+              "reason": "Ammunition regression: captivity chapter intentionally ended.",
+              "wire": 0,
+              "trap": "",
+              "bolters": 0,
+              "ejected": true,
+              "crashed": false,
+              "rescued": false,
+              "captured": true,
+              "breakout": false,
+              "escaped": false,
+              "trucks": 0,
+              "dropped": 0,
+              "armsReleased": 0,
+              "killed": 0,
+              "total": 5,
+              "bulletsExpended": 6,
+              "pistolShots": 6,
+              "narrativeRoundsExpended": 0,
+              "roundsAcquired": 0,
+              "cep": null,
+              "dmg": 0,
+              "seat": "PILOT"
+            }
+          },
+          "fixture": "Real debrief of an intentionally incomplete captured sortie; no successful release or rescue claim."
+        },
+        {
+          "profile": "desktop",
+          "name": "Cruise Log visibly reports the stored ammunition expenditure",
+          "passed": true,
+          "actual": {
+            "text": "Cruise LogATKRON 65 \u00b7 your recordTotals1 sortieSorties flown1Recovered aboard0 of 1Aircraft lost1Ejections1  \u00b7  1 taken prisonerArrested landings0Bombs expended0Pistol rounds expended6Targets destroyed0Sorties02 Break-in on Dixie StationOct 23 08:08 PM \u00b7 PILOT \u00b7 ejected \u00b7 taken prisoner \u00b7 .38 spent 6FFor scale: VA-65 flew the A-6A from 1965 and took it through some of the hardest flying of the war. Attack squadrons on Yankee Station lost aircraft and lost crews, and the men who went out at two in the morning, single-ship, under the weather, did it knowing that. Your record above is a game. Theirs was not.The log is kept in this browser only.A tribute project. VA-65 squadron history, deployment dates and aircraft systems are drawn from the Naval History and Heritage Command's Dictionary of American Naval Aviation Squadrons, the Intruder Association, and Osprey's A-6 Intruder Units of the Vietnam War. Terrain and individual sorties are invented. Willard Egress separately labels its user-supplied historical crew attribution and dramatized reconstruction."
+          },
+          "fixture": "Native Ready Room and Cruise Log UI."
+        },
+        {
+          "profile": "desktop",
+          "name": "No uncaught errors or missing assets across ammunition, capture, restore and report",
+          "passed": true,
+          "actual": {
+            "errors": [],
+            "badAssets": []
+          },
+          "fixture": "Actual Chromium WebGL2 desktop/touch layout execution."
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "Real parachute landing issues six finite rounds and a zero expenditure ledger",
+          "passed": true,
+          "actual": {
+            "fixture": {
+              "aircraft": [
+                -7258.454492394949,
+                160.67768499739503,
+                3509.823244102388
+              ],
+              "velocity": [
+                0,
+                0,
+                0
+              ],
+              "mission": "m2"
+            },
+            "descent": {
+              "frames": 1089,
+              "phase": "evade",
+              "ejected": true
+            },
+            "ledger": {
+              "bulletsExpended": 0,
+              "pistolShots": 0,
+              "narrativeRoundsExpended": 0,
+              "roundsAcquired": 0,
+              "remaining": 6,
+              "hasPistol": true,
+              "rounds": 6,
+              "drawn": 0
+            },
+            "sourceSHA256": "e71e4e43237f7b2206327b9479f34a94f5244b112d081f0c3c1566a0db857394",
+            "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+          },
+          "fixture": "Aircraft position/velocity and absent countryside encounters isolate ammunition; existing Run/Go on cards spend no ammunition. No shot/hit/capture result is assigned."
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "An attack while the revolver is holstered spends no ammunition",
+          "passed": true,
+          "actual": {
+            "bulletsExpended": 0,
+            "pistolShots": 0,
+            "narrativeRoundsExpended": 0,
+            "roundsAcquired": 0,
+            "remaining": 6,
+            "hasPistol": true,
+            "rounds": 6,
+            "mode": "fists",
+            "drawn": 0
+          },
+          "fixture": "Original initial fists mode and native attack input before drawing."
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "Native draw and fire count an accepted missed round exactly once",
+          "passed": true,
+          "actual": {
+            "bulletsExpended": 1,
+            "pistolShots": 1,
+            "narrativeRoundsExpended": 0,
+            "roundsAcquired": 0,
+            "remaining": 5,
+            "hasPistol": true,
+            "rounds": 5,
+            "mode": "pistol",
+            "drawn": true
+          },
+          "fixture": "Actual touchscreen Pistol/FIRE buttons; no target is in sight."
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "Trigger cooldown and repeated actual renders do not spend or duplicate a shot",
+          "passed": true,
+          "actual": {
+            "bulletsExpended": 1,
+            "pistolShots": 1,
+            "narrativeRoundsExpended": 0,
+            "roundsAcquired": 0,
+            "remaining": 5,
+            "hasPistol": true,
+            "rounds": 5,
+            "mode": "pistol",
+            "drawn": true
+          },
+          "fixture": "A second real trigger within .85 seconds, then four original renderer/control refreshes."
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "Six actual accepted missed shots empty the revolver and draw the live HUD counter",
+          "passed": true,
+          "actual": {
+            "bulletsExpended": 6,
+            "pistolShots": 6,
+            "narrativeRoundsExpended": 0,
+            "roundsAcquired": 0,
+            "remaining": 0,
+            "hasPistol": true,
+            "rounds": 0,
+            "mode": "pistol",
+            "drawn": true,
+            "hud": {
+              "text": [
+                "HEADING 077",
+                "SURVIVAL",
+                "RADIO",
+                "0%",
+                "PICKUP",
+                "497 M",
+                "NEAREST",
+                "216 M",
+                "COVER",
+                "LOW",
+                ".38",
+                "0 LEFT",
+                "SPENT",
+                "6 ROUNDS",
+                "SEEN",
+                "LOOKING",
+                "SPACE FIRES \u2014 SIX ROUNDS, AND EVERY ONE OF THEM IS HEARD  \u00b7  F HOLSTERS  \u00b7  V IS THE KNIFE"
+              ],
+              "state": {
+                "bulletsExpended": 6,
+                "pistolShots": 6,
+                "narrativeRoundsExpended": 0,
+                "roundsAcquired": 0,
+                "remaining": 0,
+                "hasPistol": true
+              }
+            },
+            "pistolButton": "Pistol 0F"
+          },
+          "fixture": "Native firing inputs and fixed-step cooldown advancement, no inventory assignment. Canvas text instrumentation forwards every original drawing call."
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "Empty-trigger, carried knife and fists never add bullets expended",
+          "passed": true,
+          "actual": {
+            "bulletsExpended": 6,
+            "pistolShots": 6,
+            "narrativeRoundsExpended": 0,
+            "roundsAcquired": 0,
+            "remaining": 0,
+            "hasPistol": true,
+            "rounds": 0,
+            "mode": "fists",
+            "drawn": false
+          },
+          "fixture": "Actual empty trigger and native knife/fists selection with subsequent attack inputs."
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "Actual capture confiscates equipment while Save retains the completed shot ledger",
+          "passed": true,
+          "actual": {
+            "captured": {
+              "bulletsExpended": 6,
+              "pistolShots": 6,
+              "narrativeRoundsExpended": 0,
+              "roundsAcquired": 0,
+              "remaining": 0,
+              "hasPistol": false,
+              "rounds": 0,
+              "mode": "fists",
+              "drawn": 0
+            },
+            "saved": {
+              "version": 1,
+              "bulletsExpended": 6,
+              "pistolShots": 6,
+              "narrativeRoundsExpended": 0,
+              "roundsAcquired": 0
+            }
+          },
+          "fixture": "Real Game.captured and six seconds of original fixed-step transfer/reveal; native Save control."
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "Reload and native Continue restore original sortie and expenditure without restoring confiscated rounds",
+          "passed": true,
+          "actual": {
+            "bulletsExpended": 6,
+            "pistolShots": 6,
+            "narrativeRoundsExpended": 0,
+            "roundsAcquired": 0,
+            "remaining": 0,
+            "hasPistol": false,
+            "rounds": 0,
+            "mode": "fists",
+            "drawn": 0,
+            "sortie": {
+              "mission": "m2",
+              "captured": true,
+              "ejected": true,
+              "bombs": 12,
+              "dropped": 0,
+              "total": 5
+            }
+          },
+          "fixture": "Same browser storage, actual checkpoint restore into physical solitary; Mission2 remains Mission2 with its recorded aircraft stores and capture/ejection context."
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "Actual debrief and stored Cruise Log retain the six expended rounds after capture and reload",
+          "passed": true,
+          "actual": {
+            "text": "F1966 \u00b7 DIXIE-3\n      Break-in on Dixie StationAmmunition regression: captivity chapter intentionally ended.Destroy the supply depot0 / 5 destroyed  (3 needed)Return to the shippendingBombs expended0 of 12Pistol rounds expended6Radar fixes taken0 of 3Battle damagenoneCrewtaken prisonerScore15 / 100The crew survived capture. The captivity chapter has ended; the mission objectives and historical account above record the outcome. This does not mean the crew was killed.Fly It AgainReady Room",
+            "log": {
+              "t": 1792786108490,
+              "id": "m2",
+              "num": "02",
+              "code": "DIXIE-3",
+              "title": "Break-in on Dixie Station",
+              "year": "1966",
+              "grade": "F",
+              "pts": 15,
+              "pass": false,
+              "landed": false,
+              "lost": true,
+              "reason": "Ammunition regression: captivity chapter intentionally ended.",
+              "wire": 0,
+              "trap": "",
+              "bolters": 0,
+              "ejected": true,
+              "crashed": false,
+              "rescued": false,
+              "captured": true,
+              "breakout": false,
+              "escaped": false,
+              "trucks": 0,
+              "dropped": 0,
+              "armsReleased": 0,
+              "killed": 0,
+              "total": 5,
+              "bulletsExpended": 6,
+              "pistolShots": 6,
+              "narrativeRoundsExpended": 0,
+              "roundsAcquired": 0,
+              "cep": null,
+              "dmg": 0,
+              "seat": "PILOT"
+            }
+          },
+          "fixture": "Real debrief of an intentionally incomplete captured sortie; no successful release or rescue claim."
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "Cruise Log visibly reports the stored ammunition expenditure",
+          "passed": true,
+          "actual": {
+            "text": "Cruise LogATKRON 65 \u00b7 your recordTotals1 sortieSorties flown1Recovered aboard0 of 1Aircraft lost1Ejections1  \u00b7  1 taken prisonerArrested landings0Bombs expended0Pistol rounds expended6Targets destroyed0Sorties02 Break-in on Dixie StationOct 23 08:08 PM \u00b7 PILOT \u00b7 ejected \u00b7 taken prisoner \u00b7 .38 spent 6FFor scale: VA-65 flew the A-6A from 1965 and took it through some of the hardest flying of the war. Attack squadrons on Yankee Station lost aircraft and lost crews, and the men who went out at two in the morning, single-ship, under the weather, did it knowing that. Your record above is a game. Theirs was not.The log is kept in this browser only.A tribute project. VA-65 squadron history, deployment dates and aircraft systems are drawn from the Naval History and Heritage Command's Dictionary of American Naval Aviation Squadrons, the Intruder Association, and Osprey's A-6 Intruder Units of the Vietnam War. Terrain and individual sorties are invented. Willard Egress separately labels its user-supplied historical crew attribution and dramatized reconstruction."
+          },
+          "fixture": "Native Ready Room and Cruise Log UI."
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "No uncaught errors or missing assets across ammunition, capture, restore and report",
+          "passed": true,
+          "actual": {
+            "errors": [],
+            "badAssets": []
+          },
+          "fixture": "Actual Chromium WebGL2 desktop/touch layout execution."
+        }
+      ],
+      "total": 22,
+      "screenshots": [
+        "m24-ammunition/desktop-six-rounds-expended-hud.png",
+        "m24-ammunition/desktop-ammunition-captivity-debrief.png",
+        "m24-ammunition/iphone-layout-chromium-six-rounds-expended-hud.png",
+        "m24-ammunition/iphone-layout-chromium-ammunition-captivity-debrief.png"
+      ],
+      "passed": true,
+      "physicalWindowsTested": false,
+      "actualIPhoneSafariTested": false,
+      "scope": "Real Chromium WebGL2, native keyboard/touch controls, original ejection and weapon simulation; declared dry-ground/encounter-isolation fixtures. No physical Windows or iPhone Safari validation.",
+      "target": "http://127.0.0.1:40547/",
+      "recordedAt": "2026-10-23T20:08:29.466Z"
+    },
+    "controls": {
+      "scope": "Chromium touch emulation at 844\u00d7390/DPR 3 using CDP touch events and the real Game simulation/custom WebGL renderer. One explicitly positioned guard isolates facing, thin-wall LOS, hearing, navigation and capture behavior. Not a physical iPhone Safari test or human escape playthrough.",
+      "target": "http://127.0.0.1:40159/",
+      "results": [
+        {
+          "name": "touch-only-survival-controls-hide-radio-and-weapons",
+          "status": "passed",
+          "actual": {
+            "passed": true,
+            "dpr": 3,
+            "touch": true
+          }
+        },
+        {
+          "name": "real-touch-left-stick-translates-player",
+          "status": "passed",
+          "actual": {
+            "passed": true,
+            "feet": [
+              3277.4672987809863,
+              2,
+              421.0763501307331
+            ],
+            "stick": {
+              "pitch": 0.6958142657612645,
+              "roll": 0
+            },
+            "distance": 2.139628867215606
+          }
+        },
+        {
+          "name": "touch-release-stops-movement",
+          "status": "passed",
+          "actual": {
+            "passed": true,
+            "pitch": 0,
+            "roll": 0
+          }
+        },
+        {
+          "name": "real-touch-right-drag-turns-and-looks-up",
+          "status": "passed",
+          "actual": {
+            "passed": true,
+            "heading": 0.36,
+            "look": 0.24
+          }
+        },
+        {
+          "name": "real-touch-crouch-lowers-rendered-camera",
+          "status": "passed",
+          "actual": {
+            "passed": true,
+            "crouch": true,
+            "eyeHeight": 1.2071733357104941
+          }
+        },
+        {
+          "name": "real-touch-interaction-shows-partial-hold",
+          "status": "passed",
+          "actual": {
+            "passed": true,
+            "hold": {
+              "id": "bunk-bracket",
+              "t": 0.7000000000000001
+            },
+            "progress": 0.39999999999999997
+          }
+        },
+        {
+          "name": "real-touch-full-hold-collects-concealed-bracket",
+          "status": "passed",
+          "actual": {
+            "passed": true,
+            "inventory": {
+              "bracket": true
+            }
+          }
+        },
+        {
+          "name": "guard-looking-away-does-not-track-player-through-its-back",
+          "status": "passed",
+          "actual": {
+            "passed": true,
+            "seen": 0,
+            "suspicion": 0,
+            "state": "patrol"
+          }
+        },
+        {
+          "name": "thin-wall-occludes-facing-guard",
+          "status": "passed",
+          "actual": {
+            "passed": true,
+            "seen": 0,
+            "state": "patrol",
+            "suspicion": 0
+          }
+        },
+        {
+          "name": "guard-hears-and-investigates-without-visible-player",
+          "status": "passed",
+          "actual": {
+            "passed": true,
+            "suspicion": 0.5696597222222226,
+            "state": "investigate",
+            "goal": [
+              3308.667298780986,
+              2,
+              398.7159789979487
+            ],
+            "seen": 0
+          }
+        },
+        {
+          "name": "visible-close-guard-pursues-and-captures-through-real-physics",
+          "status": "passed",
+          "actual": {
+            "passed": true,
+            "pursuit": true,
+            "stage": "solitary",
+            "recaptures": 1,
+            "steps": 225
+          }
+        },
+        {
+          "name": "sustained-capture-transitions-once",
+          "status": "passed",
+          "actual": {
+            "passed": true,
+            "stage": "solitary",
+            "recaptures": 1,
+            "realCaptivityModule": true
+          }
+        },
+        {
+          "name": "graphics-loss-clears-held-POW-touch-actions",
+          "status": "passed",
+          "actual": {
+            "passed": true,
+            "preservedGame": true,
+            "paused": true
+          }
+        },
+        {
+          "name": "restored-GPU-rebuilds-custom-POW-meshes-and-preserves-position",
+          "status": "passed",
+          "actual": {
+            "passed": true,
+            "stage": "river",
+            "position": [
+              3368.1577673210145,
+              3.4999999999999996,
+              423.3517752492528
+            ],
+            "paused": true
+          }
+        }
+      ],
+      "browserErrors": [],
+      "recordedAt": "2026-10-23T20:07:46.069Z"
+    },
+    "m21-recapture": {
+      "checks": [
+        {
+          "name": "desktop: Genuine movement and held door work reach the permitted supervised yard",
+          "passed": true,
+          "observed": {
+            "stage": "regular",
+            "suspicious": false,
+            "p": [
+              3295.7880692477656,
+              2,
+              512.0528350972925
+            ]
+          }
+        },
+        {
+          "name": "desktop: Visible suspicious running causes actual guard pursuit with collision and alert memory",
+          "passed": true,
+          "observed": {
+            "steps": 68,
+            "states": [
+              "investigate",
+              "pursuit"
+            ],
+            "pursuit": true,
+            "wanted": true,
+            "clear": true,
+            "stage": "solitary",
+            "recaptures": 1,
+            "previousRecaptures": 0,
+            "p": [
+              3295.7880692477656,
+              2,
+              516.0928350972926
+            ],
+            "cellSolids": 46
+          }
+        },
+        {
+          "name": "desktop: Sustained physical guard contact causes recapture into the actual solitary cell",
+          "passed": true,
+          "observed": {
+            "steps": 68,
+            "states": [
+              "investigate",
+              "pursuit"
+            ],
+            "pursuit": true,
+            "wanted": true,
+            "clear": true,
+            "stage": "solitary",
+            "recaptures": 1,
+            "previousRecaptures": 0,
+            "p": [
+              3295.7880692477656,
+              2,
+              516.0928350972926
+            ],
+            "cellSolids": 46
+          }
+        },
+        {
+          "name": "desktop: Recapture checkpoint restores position and count; a fresh camp attempt restores secure barriers",
+          "passed": true,
+          "observed": {
+            "before": {
+              "p": [
+                3295.7880692477656,
+                2,
+                516.0928350972926
+              ],
+              "recaptures": 1,
+              "stage": "solitary"
+            },
+            "after": {
+              "p": [
+                3295.7880692477656,
+                2,
+                516.0928350972926
+              ],
+              "recaptures": 1,
+              "stage": "solitary"
+            },
+            "cellOpen": false,
+            "fasteners": 0,
+            "tool": false,
+            "attempts": 1,
+            "gl": 0
+          }
+        },
+        {
+          "name": "iphone-layout-chromium: Genuine movement and held door work reach the permitted supervised yard",
+          "passed": true,
+          "observed": {
+            "stage": "regular",
+            "suspicious": false,
+            "p": [
+              3283.285500066826,
+              2,
+              2664.0198495746513
+            ]
+          }
+        },
+        {
+          "name": "iphone-layout-chromium: Visible suspicious running causes actual guard pursuit with collision and alert memory",
+          "passed": true,
+          "observed": {
+            "steps": 68,
+            "states": [
+              "investigate",
+              "pursuit"
+            ],
+            "pursuit": true,
+            "wanted": true,
+            "clear": true,
+            "stage": "solitary",
+            "recaptures": 1,
+            "previousRecaptures": 0,
+            "p": [
+              3283.285500066826,
+              2,
+              2668.0598495746513
+            ],
+            "cellSolids": 46
+          }
+        },
+        {
+          "name": "iphone-layout-chromium: Sustained physical guard contact causes recapture into the actual solitary cell",
+          "passed": true,
+          "observed": {
+            "steps": 68,
+            "states": [
+              "investigate",
+              "pursuit"
+            ],
+            "pursuit": true,
+            "wanted": true,
+            "clear": true,
+            "stage": "solitary",
+            "recaptures": 1,
+            "previousRecaptures": 0,
+            "p": [
+              3283.285500066826,
+              2,
+              2668.0598495746513
+            ],
+            "cellSolids": 46
+          }
+        },
+        {
+          "name": "iphone-layout-chromium: Recapture checkpoint restores position and count; a fresh camp attempt restores secure barriers",
+          "passed": true,
+          "observed": {
+            "before": {
+              "p": [
+                3283.285500066826,
+                2,
+                2668.0598495746513
+              ],
+              "recaptures": 1,
+              "stage": "solitary"
+            },
+            "after": {
+              "p": [
+                3283.285500066826,
+                2,
+                2668.0598495746513
+              ],
+              "recaptures": 1,
+              "stage": "solitary"
+            },
+            "cellOpen": false,
+            "fasteners": 0,
+            "tool": false,
+            "attempts": 1,
+            "gl": 0
+          }
+        }
+      ],
+      "screenshots": [
+        "pow-m21-recapture/desktop-recaptured-cell.png",
+        "pow-m21-recapture/iphone-layout-chromium-recaptured-cell.png"
+      ],
+      "browserErrors": [],
+      "scope": "Actual Chromium WebGL2 isolated encounters in desktop and phone layouts. Regular-stage entry and near-player patrol location are declared fixtures. Real keyboard walking/running, held door interaction, detection, pursuit, collision, capture and checkpoint restoration execute unchanged gameplay. This is not a human balance test or physical Safari.",
+      "target": "http://127.0.0.1:43537/",
+      "recordedAt": "2026-10-23T20:01:34.622Z"
+    },
+    "ground": {
+      "scope": "Fixture-assisted Chromium browser checks using Milestone 1 Game methods and actual custom WebGL 2 rendering. No source edits or method stubs. Not human gameplay completion or physical iPhone Safari validation.",
+      "targetUrl": "http://127.0.0.1:37277/",
+      "info": {
+        "title": "Intruder: Yankee Station \u2014 B/N Immersion & Visual Polish \u00b7 Restored Photo Sprites & Capture Transition",
+        "mission": "Twelve and a Half Hours",
+        "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "renderer": "WebKit WebGL"
+      },
+      "results": [
+        {
+          "name": "close-range-facing",
+          "fixture": "real countryside searcher shape, placed two metres ahead on dry terrain",
+          "expected": "finite facing and same visible NPC after noticing player",
+          "actual": {
+            "seen": 1,
+            "face": "3.141592653589793",
+            "faceFinite": true,
+            "beforePhotoSprites": [
+              "nva"
+            ],
+            "afterPhotoSprites": [
+              "nva"
+            ]
+          },
+          "passed": true,
+          "status": "passed"
+        },
+        {
+          "name": "knife-after-last-round",
+          "fixture": "same carried knife, target two metres ahead; ammo count only changes",
+          "expected": "knife reach remains available after revolver ammunition is exhausted",
+          "actual": {
+            "withAmmo": {
+              "rounds": 1,
+              "mode": "knife",
+              "wounds": 1,
+              "alive": false,
+              "knifeButton": "KnifeV",
+              "knifeUnavailable": false,
+              "visibleArt": "knife"
+            },
+            "empty": {
+              "rounds": 0,
+              "mode": "knife",
+              "wounds": 1,
+              "alive": true,
+              "knifeButton": "KnifeV",
+              "knifeUnavailable": false,
+              "visibleArt": "knife"
+            }
+          },
+          "passed": true,
+          "status": "passed"
+        },
+        {
+          "name": "armed-local-surrender-ignored",
+          "fixture": "one live armed local at two metres, raised hands, five seconds of real stepEvade with automatic simulation paused",
+          "expected": "near armed local accepts surrender and begins the ground-view capture transition",
+          "actual": {
+            "phase": "evade",
+            "handsTime": 1.100000000000001,
+            "seen": 1,
+            "separation": 0.8199999999999932,
+            "hasEvade": true
+          },
+          "passed": true,
+          "status": "passed"
+        },
+        {
+          "name": "camp-clock",
+          "fixture": "real startCamp, one 1/60-second stepEvade call",
+          "expected": 0.016666666666666666,
+          "actual": 0.016666666666666666,
+          "passed": true,
+          "status": "passed"
+        },
+        {
+          "name": "frozen-cell-controls",
+          "fixture": "real enterCell frozen scene, keyboard turn input",
+          "expected": "frozen cell heading unchanged",
+          "actual": {
+            "frozen": 1,
+            "before": 3.141592653589793,
+            "after": 3.141592653589793
+          },
+          "passed": true,
+          "status": "passed"
+        },
+        {
+          "name": "camp-wall-sweep",
+          "fixture": "real generated camp perimeter, eight-metre forward sweep",
+          "expected": "wall stops sweep on inside of perimeter",
+          "actual": {
+            "beforeBlocked": false,
+            "start": [
+              -13839.236589464517,
+              -431.07886505777685
+            ],
+            "end": [
+              -13839.236589464517,
+              -428.9455317244432
+            ],
+            "wallZ": -428.07886505777685
+          },
+          "passed": true,
+          "status": "passed"
+        },
+        {
+          "name": "wreck-wing-sweep",
+          "fixture": "stationary A-6 wreck, 26-metre sweep across wing",
+          "expected": "wing prevents crossing",
+          "actual": {
+            "start": [
+              -13654.236589464517,
+              -362.07886505777685
+            ],
+            "end": [
+              -13650.471072223147,
+              -362.07886505777685
+            ],
+            "wreck": [
+              -13641.236589464517,
+              -362.07886505777685
+            ]
+          },
+          "passed": true,
+          "status": "passed"
+        },
+        {
+          "name": "live-body-sweep",
+          "fixture": "live NPC body, six-metre player sweep",
+          "expected": "actor body stops player",
+          "actual": {
+            "start": [
+              -13647.236589464517,
+              -376.07886505777685
+            ],
+            "end": [
+              -13647.236589464517,
+              -378.1965121166005
+            ],
+            "npc": [
+              -13647.236589464517,
+              -379.07886505777685
+            ]
+          },
+          "passed": true,
+          "status": "passed"
+        },
+        {
+          "name": "revolver-through-prison-wall",
+          "fixture": "real camp wall between player and enemy, .38 fired from 2.5 metres",
+          "expected": "solid wall blocks revolver hit",
+          "actual": {
+            "wallBlocked": true,
+            "wounds": 0,
+            "remainingRounds": 0
+          },
+          "passed": true,
+          "status": "passed"
+        },
+        {
+          "name": "body-push-into-static-solid",
+          "fixture": "real hut footprint with player near wall and live NPC outside",
+          "expected": "contact push respects static solid",
+          "actual": {
+            "beforeBlocked": false,
+            "afterBlocked": false,
+            "relativePlayerX": 3
+          },
+          "passed": true,
+          "status": "passed"
+        },
+        {
+          "name": "landing-capture-enters-physical-prison",
+          "fixture": "real captured() after Mission11 landing, six seconds of original fixed-step update through transfer and prison reveal",
+          "expected": "live collision-backed prison, checkpoint and controls",
+          "actual": {
+            "captured": 1,
+            "phase": "evade",
+            "stage": "cell",
+            "solids": 47,
+            "frozen": 0
+          },
+          "passed": true,
+          "status": "passed"
+        }
+      ],
+      "browserErrors": [],
+      "reproducedDefects": 0,
+      "knownDefectsNotReproduced": [],
+      "passingChecks": 11,
+      "target": "http://127.0.0.1:37277/",
+      "recordedAt": "2026-10-23T20:03:23.035Z"
+    },
+    "willard-lifecycle": {
+      "suite": "willard-lifecycle",
+      "passed": true,
+      "total": 6,
+      "results": [
+        {
+          "profile": "desktop",
+          "name": "Retired capture and Coker-camp entries cannot activate prison UI/audio or overwrite a checkpoint after native Willard retry",
+          "passed": true,
+          "actual": {
+            "sourceSHA256": "4018ef73a87b979c1f12ac73d870213eae73b4f4c4f8995ad74e73e28095db79",
+            "earned": {
+              "phase": "contact",
+              "label": "After the night strike",
+              "valid": true,
+              "alive": true
+            },
+            "ground": {
+              "dry": [
+                -65000,
+                162.8707533375319,
+                13100
+              ],
+              "descent": {
+                "phase": "evade",
+                "frames": 1081,
+                "ejected": true,
+                "out": true
+              }
+            },
+            "capture": {
+              "at": 1792786018310,
+              "startToken": 1,
+              "captured": true,
+              "pending": true,
+              "powAlreadyActive": false
+            },
+            "retryBox": {
+              "x": 379,
+              "y": 509.5,
+              "width": 319.46875,
+              "height": 46
+            },
+            "retryPoint": {
+              "x": 538.734375,
+              "y": 532.5
+            },
+            "targetAtPoint": {
+              "target": "willardPauseRetry",
+              "width": 1280,
+              "height": 720
+            },
+            "requested": {
+              "startToken": 2,
+              "ownerChanged": true,
+              "elapsed": 6,
+              "inputs": [
+                {
+                  "type": "pointerup",
+                  "target": "willardPlay",
+                  "trusted": true,
+                  "pointer": "mouse",
+                  "x": 674.489990234375,
+                  "y": 257.7799987792969
+                },
+                {
+                  "type": "click",
+                  "target": "willardPlay",
+                  "trusted": true,
+                  "pointer": "mouse",
+                  "x": 674,
+                  "y": 257
+                },
+                {
+                  "type": "pointerdown",
+                  "target": "pauseBtn",
+                  "trusted": true,
+                  "pointer": "mouse",
+                  "x": 29,
+                  "y": 25
+                },
+                {
+                  "type": "pointerup",
+                  "target": "pauseBtn",
+                  "trusted": true,
+                  "pointer": "mouse",
+                  "x": 29,
+                  "y": 25
+                },
+                {
+                  "type": "click",
+                  "target": "pauseBtn",
+                  "trusted": true,
+                  "pointer": "mouse",
+                  "x": 29,
+                  "y": 25
+                },
+                {
+                  "type": "pointerdown",
+                  "target": "willardPauseRetry",
+                  "trusted": true,
+                  "pointer": "mouse",
+                  "x": 538.734375,
+                  "y": 532.5
+                },
+                {
+                  "type": "pointerup",
+                  "target": "willardPauseRetry",
+                  "trusted": true,
+                  "pointer": "mouse",
+                  "x": 538.734375,
+                  "y": 532.5
+                },
+                {
+                  "type": "click",
+                  "target": "willardPauseRetry",
+                  "trusted": true,
+                  "pointer": "mouse",
+                  "x": 538,
+                  "y": 532
+                }
+              ]
+            },
+            "restarted": {
+              "fresh": true,
+              "elapsed": 1036,
+              "alive": true,
+              "phase": "contact"
+            },
+            "stale": {
+              "sourceClock": 3346,
+              "freshGame": true,
+              "currentPOW": false,
+              "retiredPOW": false,
+              "powClass": false,
+              "powHUDHidden": true,
+              "groundAudio": false,
+              "checkpointUnchanged": true,
+              "checkpointStage": null,
+              "alive": true,
+              "phase": "contact"
+            },
+            "coker": {
+              "returnedNothing": true,
+              "sameActiveGame": true,
+              "unchanged": true,
+              "before": {
+                "retiredPOW": false,
+                "retiredStage": null,
+                "retiredEvade": true,
+                "currentPOW": false,
+                "powClass": false,
+                "powHUDHidden": true,
+                "groundAudio": false,
+                "checkpoint": "null"
+              },
+              "after": {
+                "retiredPOW": false,
+                "retiredStage": null,
+                "retiredEvade": true,
+                "currentPOW": false,
+                "powClass": false,
+                "powHUDHidden": true,
+                "groundAudio": false,
+                "checkpoint": "null"
+              }
+            }
+          },
+          "fixture": "Original native J/two-tap ejection and all original descent frames. The real pause menu is prepared and retry scrolled into view before a declared Game.captured entry-point fixture. A trusted native mouse/touch press replaces the Game. The retired Game receives six seconds of original updates, followed by a2.3-second real wait to exclude old wall-clock callbacks; App.cokerCamp is separately called with the retired Game. No capture/POW flag, chapter callback, result or save is assigned."
+        },
+        {
+          "profile": "desktop",
+          "name": "A current-game capture transfer still enters playable solitary confinement",
+          "passed": true,
+          "actual": {
+            "ground": {
+              "dry": [
+                -65000,
+                162.8707533375319,
+                13100
+              ],
+              "descent": {
+                "phase": "evade",
+                "frames": 1073,
+                "ejected": true,
+                "out": true
+              }
+            },
+            "positive": {
+              "sameGame": true,
+              "elapsed": 92,
+              "captured": true,
+              "stage": "solitary",
+              "solids": 46,
+              "objects": 8,
+              "powClass": true,
+              "powHUDHidden": false,
+              "savedStage": "solitary",
+              "groundAudio": true,
+              "gl": 0
+            }
+          },
+          "fixture": "Second native ejection/descent from the live aircraft, followed by the production Game.captured entry point and six simulated seconds of original updates. The transition must create actual prison geometry, HUD, save and ground audio."
+        },
+        {
+          "profile": "desktop",
+          "name": "The targeted lifecycle paths emit no JavaScript errors",
+          "passed": true,
+          "actual": {
+            "errors": []
+          },
+          "fixture": "Actual original custom WebGL2 and unmodified capture/start/POW systems."
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "Retired capture and Coker-camp entries cannot activate prison UI/audio or overwrite a checkpoint after native Willard retry",
+          "passed": true,
+          "actual": {
+            "sourceSHA256": "4018ef73a87b979c1f12ac73d870213eae73b4f4c4f8995ad74e73e28095db79",
+            "earned": {
+              "phase": "contact",
+              "label": "After the night strike",
+              "valid": true,
+              "alive": true
+            },
+            "ground": {
+              "dry": [
+                -65000,
+                162.8707533375319,
+                13100
+              ],
+              "descent": {
+                "phase": "evade",
+                "frames": 1083,
+                "ejected": true,
+                "out": true
+              }
+            },
+            "capture": {
+              "at": 1792786032013,
+              "startToken": 1,
+              "captured": true,
+              "pending": true,
+              "powAlreadyActive": false
+            },
+            "retryBox": {
+              "x": 157,
+              "y": 321.5,
+              "width": 319.46875,
+              "height": 46
+            },
+            "retryPoint": {
+              "x": 316.734375,
+              "y": 344.5
+            },
+            "targetAtPoint": {
+              "target": "willardPauseRetry",
+              "width": 844,
+              "height": 390
+            },
+            "requested": {
+              "startToken": 2,
+              "ownerChanged": true,
+              "elapsed": 78,
+              "inputs": [
+                {
+                  "type": "pointerup",
+                  "target": "btnEject",
+                  "trusted": true,
+                  "pointer": "touch",
+                  "x": 807,
+                  "y": 183
+                },
+                {
+                  "type": "click",
+                  "target": "btnEject",
+                  "trusted": true,
+                  "pointer": "touch",
+                  "x": 807,
+                  "y": 183
+                },
+                {
+                  "type": "pointerdown",
+                  "target": "pauseBtn",
+                  "trusted": true,
+                  "pointer": "touch",
+                  "x": 32,
+                  "y": 27
+                },
+                {
+                  "type": "pointerup",
+                  "target": "pauseBtn",
+                  "trusted": true,
+                  "pointer": "touch",
+                  "x": 32,
+                  "y": 27
+                },
+                {
+                  "type": "click",
+                  "target": "pauseBtn",
+                  "trusted": true,
+                  "pointer": "touch",
+                  "x": 32,
+                  "y": 27
+                },
+                {
+                  "type": "pointerdown",
+                  "target": "willardPauseRetry",
+                  "trusted": true,
+                  "pointer": "touch",
+                  "x": 316.734375,
+                  "y": 344.5
+                },
+                {
+                  "type": "pointerup",
+                  "target": "willardPauseRetry",
+                  "trusted": true,
+                  "pointer": "touch",
+                  "x": 316.734375,
+                  "y": 344.5
+                },
+                {
+                  "type": "click",
+                  "target": "willardPauseRetry",
+                  "trusted": true,
+                  "pointer": "touch",
+                  "x": 317,
+                  "y": 345
+                }
+              ]
+            },
+            "restarted": {
+              "fresh": true,
+              "elapsed": 1107,
+              "alive": true,
+              "phase": "contact"
+            },
+            "stale": {
+              "sourceClock": 3415,
+              "freshGame": true,
+              "currentPOW": false,
+              "retiredPOW": false,
+              "powClass": false,
+              "powHUDHidden": true,
+              "groundAudio": false,
+              "checkpointUnchanged": true,
+              "checkpointStage": null,
+              "alive": true,
+              "phase": "contact"
+            },
+            "coker": {
+              "returnedNothing": true,
+              "sameActiveGame": true,
+              "unchanged": true,
+              "before": {
+                "retiredPOW": false,
+                "retiredStage": null,
+                "retiredEvade": true,
+                "currentPOW": false,
+                "powClass": false,
+                "powHUDHidden": true,
+                "groundAudio": false,
+                "checkpoint": "null"
+              },
+              "after": {
+                "retiredPOW": false,
+                "retiredStage": null,
+                "retiredEvade": true,
+                "currentPOW": false,
+                "powClass": false,
+                "powHUDHidden": true,
+                "groundAudio": false,
+                "checkpoint": "null"
+              }
+            }
+          },
+          "fixture": "Original native J/two-tap ejection and all original descent frames. The real pause menu is prepared and retry scrolled into view before a declared Game.captured entry-point fixture. A trusted native mouse/touch press replaces the Game. The retired Game receives six seconds of original updates, followed by a2.3-second real wait to exclude old wall-clock callbacks; App.cokerCamp is separately called with the retired Game. No capture/POW flag, chapter callback, result or save is assigned."
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "A current-game capture transfer still enters playable solitary confinement",
+          "passed": true,
+          "actual": {
+            "ground": {
+              "dry": [
+                -65000,
+                162.8707533375319,
+                13100
+              ],
+              "descent": {
+                "phase": "evade",
+                "frames": 1074,
+                "ejected": true,
+                "out": true
+              }
+            },
+            "positive": {
+              "sameGame": true,
+              "elapsed": 46,
+              "captured": true,
+              "stage": "solitary",
+              "solids": 46,
+              "objects": 8,
+              "powClass": true,
+              "powHUDHidden": false,
+              "savedStage": "solitary",
+              "groundAudio": true,
+              "gl": 0
+            }
+          },
+          "fixture": "Second native ejection/descent from the live aircraft, followed by the production Game.captured entry point and six simulated seconds of original updates. The transition must create actual prison geometry, HUD, save and ground audio."
+        },
+        {
+          "profile": "iphone-layout-chromium",
+          "name": "The targeted lifecycle paths emit no JavaScript errors",
+          "passed": true,
+          "actual": {
+            "errors": []
+          },
+          "fixture": "Actual original custom WebGL2 and unmodified capture/start/POW systems."
+        }
+      ],
+      "screenshots": [
+        "willard-lifecycle/desktop-retired-capture-after-native-retry.png",
+        "willard-lifecycle/desktop-current-capture-still-enters-solitary.png",
+        "willard-lifecycle/iphone-layout-chromium-retired-capture-after-native-retry.png",
+        "willard-lifecycle/iphone-layout-chromium-current-capture-still-enters-solitary.png"
+      ],
+      "actualIPhoneSafariTested": false,
+      "physicalWindowsTested": false,
+      "scope": "Targeted simulation-driven capture lifecycle after native Willard checkpoint retry, with declared ejection placement and original capture entry-point fixture. Not another full-sortie or natural enemy-capture claim.",
+      "target": "http://127.0.0.1:43365/",
+      "recordedAt": "2026-10-23T20:07:19.300Z"
+    }
+  },
+  "packaged": {
+    "scope": "Runtime deployment folder byte checks and actual Chromium WebGL2 flight smoke; physical devices not tested",
+    "sourceSha256": "d02b937cbca07e57383fdafc04774f557898e844f5be2dffd417d3d6d521e7c6",
+    "checks": [
+      {
+        "name": "All 167 packaged runtime files served with exact hashes",
+        "passed": true
+      },
+      {
+        "name": "desktop packaged B/N worksheet opens through native input and keeps flight controls exposed",
+        "passed": true,
+        "observed": {
+          "modules": {
+            "ammunition": true,
+            "board": true,
+            "effects": true,
+            "sortie": true
+          },
+          "panel": {
+            "x": 86,
+            "y": 120,
+            "width": 360,
+            "height": 490
+          }
+        },
+        "errors": [],
+        "missing": []
+      },
+      {
+        "name": "desktop packaged flight guidance toggles through native input without moving its target",
+        "passed": true,
+        "observed": {
+          "before": {
+            "x": 914,
+            "y": 72,
+            "width": 160,
+            "height": 44
+          },
+          "after": {
+            "x": 914,
+            "y": 72,
+            "width": 160,
+            "height": 44
+          }
+        },
+        "errors": [],
+        "missing": []
+      },
+      {
+        "name": "desktop packaged flight launches and renders with fresh default settings",
+        "passed": true,
+        "observed": {
+          "mission": "m1",
+          "quality": 2,
+          "shadowSize": 4096,
+          "alive": true,
+          "onDeck": false,
+          "phase": "airborne",
+          "finite": true,
+          "gpuError": 0,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "photosDecoded": 18
+        },
+        "errors": [],
+        "missing": []
+      },
+      {
+        "name": "desktop packaged native-resolution photographic arrays and ground/policy modules use complete GPU resources",
+        "passed": true,
+        "observed": {
+          "title": "Intruder: Yankee Station \u2014 B/N Immersion & Visual Polish \u00b7 Restored Photo Sprites & Capture Transition",
+          "modules": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "layers": [
+            {
+              "name": "people",
+              "layers": 72,
+              "width": 192,
+              "height": 384,
+              "array": true,
+              "proxy": true
+            },
+            {
+              "name": "photo_vegetation",
+              "layers": 48,
+              "width": 192,
+              "height": 256,
+              "array": true,
+              "proxy": true
+            }
+          ],
+          "arrays": {
+            "uploads": 2,
+            "liveArrays": 2,
+            "bytes": 40893696,
+            "fallbackReady": true,
+            "failures": 0,
+            "lastFailure": null
+          },
+          "ground": {
+            "active": false,
+            "height": 1.68,
+            "target": 1.68,
+            "steps": 0,
+            "pointerLocked": false,
+            "touchPitchHeld": false
+          },
+          "policy": {
+            "requested": 2,
+            "effective": 2,
+            "requestedLabel": "High",
+            "effectiveLabel": "High",
+            "adaptive": false,
+            "samples": 0,
+            "warmup": 0,
+            "changes": 0,
+            "notices": 0,
+            "average": null,
+            "longFrames": 0,
+            "reason": "inactive"
+          }
+        }
+      },
+      {
+        "name": "desktop packaged Ready Room prison entry, tutorial, checkpoint and historical photographs",
+        "passed": true,
+        "observed": {
+          "stage": "cell",
+          "solids": 47,
+          "checkpoint": "cell",
+          "savedSortie": "m11",
+          "restoredSortie": "m11",
+          "ammunition": {
+            "version": 1,
+            "bulletsExpended": 0,
+            "pistolShots": 0,
+            "narrativeRoundsExpended": 0,
+            "roundsAcquired": 0
+          },
+          "historicalPhotos": 8,
+          "riverLoaded": true,
+          "captivityLoaded": true,
+          "m21Loaded": true,
+          "m22Loaded": true,
+          "m23Loaded": true,
+          "m23Scene": 1,
+          "m23Pebbles": 3,
+          "guidanceChapter": "escape",
+          "gpuError": 0,
+          "cameraHeight": 1.6799999999999997
+        },
+        "errors": [],
+        "missing": []
+      },
+      {
+        "name": "desktop packaged Willard mission launches through native input and renders the supplied world-space interceptor",
+        "passed": true,
+        "observed": {
+          "mission": "willard",
+          "alive": true,
+          "phase": "contact",
+          "rear": true,
+          "rightSeat": false,
+          "checkpointValid": true,
+          "artwork": {
+            "status": "ready",
+            "error": null,
+            "draws": 2,
+            "uploads": 1,
+            "atlasFrames": 54,
+            "atlasSize": [
+              4096,
+              3584
+            ],
+            "last": {
+              "name": "front",
+              "mode": "end-reference",
+              "size": 10.603354838709679,
+              "angle": -0.773637011294151,
+              "heading": -2.2911759341160836,
+              "sourceHeading": 0,
+              "elevation": 0.02381618605728245,
+              "bank": 0.7736186395006516,
+              "distance": 3067.9819630353886,
+              "noseScreen": [
+                -0.035239873016143015,
+                -0.030931437088900005
+              ],
+              "worldPosition": [
+                -65231.59877938118,
+                821.7981609187071,
+                18301.11523913277
+              ],
+              "flip": false,
+              "limitedAspect": true,
+              "ndc": [
+                0.08363323191112794,
+                0.07280431751296629,
+                0.9992551286906936
+              ],
+              "clipW": 3057.124945288626,
+              "widthPixels": 2.45056776013772,
+              "visible": true,
+              "blend": 1,
+              "previousFrame": "front",
+              "frames": [
+                "front",
+                "front"
+              ],
+              "alphaDepthPass": true,
+              "worldMetres": true
+            }
+          },
+          "immersion": {
+            "nightContrast": 1,
+            "meshes": true,
+            "chart": true,
+            "rasterCPU": true
+          },
+          "gpuError": 0
+        },
+        "errors": [],
+        "missing": []
+      },
+      {
+        "name": "desktop packaged native terrain route and manual override preserve aircraft position, navigation fixes and score",
+        "passed": true,
+        "observed": {
+          "route": {
+            "choice": "terrain",
+            "following": true,
+            "leg": 0,
+            "route": {
+              "id": "terrain",
+              "label": "LOW TERRAIN DOGLEG",
+              "clearance": 320,
+              "points": [
+                {
+                  "p": [
+                    -1516.2875876828748,
+                    8.627960411353511,
+                    1917.1707415621254
+                  ],
+                  "label": "COAST-IN"
+                },
+                {
+                  "p": [
+                    -3194.7598117453967,
+                    29.136207148872145,
+                    2150.7777589357197
+                  ],
+                  "label": "CHECKPOINT"
+                },
+                {
+                  "p": [
+                    -5056.865222576317,
+                    0.244797069095542,
+                    1434.2461177975713
+                  ],
+                  "label": "LOW TERRAIN CORNER 2"
+                },
+                {
+                  "p": [
+                    -5524.439320117741,
+                    72.25226352590191,
+                    3373.8926363947726
+                  ],
+                  "label": "INITIAL POINT"
+                }
+              ],
+              "length": 16837.066368205415,
+              "maxTerrain": 72.25226352590191
+            },
+            "status": "Lower dogleg: 320 m clearance, more observation and tighter terrain margins. Fix the ORIGINAL chart checkpoints.",
+            "next": {
+              "p": [
+                -1516.2875876828748,
+                8.627960411353511,
+                1917.1707415621254
+              ],
+              "label": "COAST-IN",
+              "distance": 5149.332684727918,
+              "bearing": -1.6798131336264206
+            },
+            "guns": [
+              {
+                "mode": "unaware",
+                "confidence": 0,
+                "visible": false,
+                "checkedAt": -100,
+                "lastSeen": -100,
+                "lastPosition": null
+              },
+              {
+                "mode": "unaware",
+                "confidence": 0,
+                "visible": false,
+                "checkedAt": -100,
+                "lastSeen": -100,
+                "lastPosition": null
+              },
+              {
+                "mode": "unaware",
+                "confidence": 0,
+                "visible": false,
+                "checkedAt": -100,
+                "lastSeen": -100,
+                "lastPosition": null
+              },
+              {
+                "mode": "unaware",
+                "confidence": 0,
+                "visible": false,
+                "checkedAt": -100,
+                "lastSeen": -100,
+                "lastPosition": null
+              },
+              {
+                "mode": "unaware",
+                "confidence": 0,
+                "visible": false,
+                "checkedAt": -100,
+                "lastSeen": -100,
+                "lastPosition": null
+              }
+            ]
+          },
+          "materials": true,
+          "feedback": {
+            "active": true,
+            "alert": null,
+            "source": null,
+            "sourceCount": 0,
+            "impacts": 0,
+            "emitted": 0,
+            "mix": {
+              "speechFocus": false,
+              "leaseSeconds": 0.35,
+              "reason": ""
+            }
+          },
+          "p": [
+            3602.4763451564886,
+            755.8296239243192,
+            1356.9182111170442
+          ],
+          "clearance": 320,
+          "fixes": 0,
+          "score": {
+            "hits": 0,
+            "misses": 0,
+            "cep": [],
+            "dropped": 0,
+            "killed": 0,
+            "total": 5,
+            "damage": 0,
+            "discipline": true
+          },
+          "focus": ""
+        }
+      },
+      {
+        "name": "desktop packaged guided Dixie native briefing, airborne practice, scene, chart and original intervalometer",
+        "passed": true,
+        "observed": {
+          "mission": "m2",
+          "rightSeat": true,
+          "airborne": true,
+          "view": {
+            "phase": "navigation",
+            "title": "I \u00b7 COAST-IN",
+            "objective": "Work the next charted fix. The pilot flies; you correct the navigation.",
+            "tutorial": true,
+            "look": true,
+            "targetArea": [
+              -7329.571232770616,
+              54.20615594827275,
+              2553.4389725428064
+            ],
+            "nextFix": {
+              "label": "COAST-IN",
+              "p": [
+                -1516.2875876828748,
+                8.627960411353511,
+                1917.1707415621254
+              ],
+              "hint": "the shoreline \u2014 the hard edge where the sea stops returning and the land starts"
+            },
+            "readiness": null,
+            "checkpointLabel": null,
+            "retries": 0,
+            "ripple": 4,
+            "bombs": 12,
+            "assessment": null,
+            "observed": false,
+            "elapsed": 0.016666666666666666
+          },
+          "meshes": true,
+          "chart": true,
+          "p": [
+            3602.4763451564886,
+            755.8296239243192,
+            1356.9182111170442
+          ],
+          "bombs": 12,
+          "score": {
+            "hits": 0,
+            "misses": 0,
+            "cep": [],
+            "dropped": 0,
+            "killed": 0,
+            "total": 5,
+            "damage": 0,
+            "discipline": true
+          },
+          "gpuError": 0,
+          "focused": ""
+        },
+        "errors": [],
+        "missing": []
+      },
+      {
+        "name": "iphone-layout-chromium packaged B/N worksheet opens through native input and keeps flight controls exposed",
+        "passed": true,
+        "observed": {
+          "modules": {
+            "ammunition": true,
+            "board": true,
+            "effects": true,
+            "sortie": true
+          },
+          "panel": {
+            "x": 130,
+            "y": 94,
+            "width": 285,
+            "height": 215
+          }
+        },
+        "errors": [],
+        "missing": []
+      },
+      {
+        "name": "iphone-layout-chromium packaged flight guidance toggles through native input without moving its target",
+        "passed": true,
+        "observed": {
+          "before": {
+            "x": 513,
+            "y": 46,
+            "width": 160,
+            "height": 44
+          },
+          "after": {
+            "x": 513,
+            "y": 46,
+            "width": 160,
+            "height": 44
+          }
+        },
+        "errors": [],
+        "missing": []
+      },
+      {
+        "name": "iphone-layout-chromium packaged flight launches and renders with fresh default settings",
+        "passed": true,
+        "observed": {
+          "mission": "m1",
+          "quality": 1,
+          "shadowSize": 2048,
+          "alive": true,
+          "onDeck": false,
+          "phase": "airborne",
+          "finite": true,
+          "gpuError": 0,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "photosDecoded": 18
+        },
+        "errors": [],
+        "missing": []
+      },
+      {
+        "name": "iphone-layout-chromium packaged native-resolution photographic arrays and ground/policy modules use complete GPU resources",
+        "passed": true,
+        "observed": {
+          "title": "Intruder: Yankee Station \u2014 B/N Immersion & Visual Polish \u00b7 Restored Photo Sprites & Capture Transition",
+          "modules": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "layers": [
+            {
+              "name": "people",
+              "layers": 72,
+              "width": 192,
+              "height": 384,
+              "array": true,
+              "proxy": true
+            },
+            {
+              "name": "photo_vegetation",
+              "layers": 48,
+              "width": 192,
+              "height": 256,
+              "array": true,
+              "proxy": true
+            }
+          ],
+          "arrays": {
+            "uploads": 2,
+            "liveArrays": 2,
+            "bytes": 40893696,
+            "fallbackReady": true,
+            "failures": 0,
+            "lastFailure": null
+          },
+          "ground": {
+            "active": false,
+            "height": 1.68,
+            "target": 1.68,
+            "steps": 0,
+            "pointerLocked": false,
+            "touchPitchHeld": false
+          },
+          "policy": {
+            "requested": 1,
+            "effective": 1,
+            "requestedLabel": "Medium",
+            "effectiveLabel": "Medium",
+            "adaptive": false,
+            "samples": 0,
+            "warmup": 0,
+            "changes": 0,
+            "notices": 0,
+            "average": null,
+            "longFrames": 0,
+            "reason": "inactive"
+          }
+        }
+      },
+      {
+        "name": "iphone-layout-chromium packaged Ready Room prison entry, tutorial, checkpoint and historical photographs",
+        "passed": true,
+        "observed": {
+          "stage": "cell",
+          "solids": 47,
+          "checkpoint": "cell",
+          "savedSortie": "m11",
+          "restoredSortie": "m11",
+          "ammunition": {
+            "version": 1,
+            "bulletsExpended": 0,
+            "pistolShots": 0,
+            "narrativeRoundsExpended": 0,
+            "roundsAcquired": 0
+          },
+          "historicalPhotos": 8,
+          "riverLoaded": true,
+          "captivityLoaded": true,
+          "m21Loaded": true,
+          "m22Loaded": true,
+          "m23Loaded": true,
+          "m23Scene": 1,
+          "m23Pebbles": 3,
+          "guidanceChapter": "escape",
+          "gpuError": 0,
+          "cameraHeight": 1.6799999999999997
+        },
+        "errors": [],
+        "missing": []
+      },
+      {
+        "name": "iphone-layout-chromium packaged Willard mission launches through native input and renders the supplied world-space interceptor",
+        "passed": true,
+        "observed": {
+          "mission": "willard",
+          "alive": true,
+          "phase": "contact",
+          "rear": true,
+          "rightSeat": false,
+          "checkpointValid": true,
+          "artwork": {
+            "status": "ready",
+            "error": null,
+            "draws": 2,
+            "uploads": 1,
+            "atlasFrames": 54,
+            "atlasSize": [
+              4096,
+              3584
+            ],
+            "last": {
+              "name": "front",
+              "mode": "end-reference",
+              "size": 10.603354838709679,
+              "angle": 1.0052438897819345,
+              "heading": 2.18250197726985,
+              "sourceHeading": 0,
+              "elevation": 0.04768483276796759,
+              "bank": -1.005662057066667,
+              "distance": 3075.985692927659,
+              "noseScreen": [
+                0.04405772780167449,
+                -0.03090476610319265
+              ],
+              "worldPosition": [
+                -64679.48131476072,
+                821.8094559037453,
+                18301.12811866964
+              ],
+              "flip": false,
+              "limitedAspect": true,
+              "ndc": [
+                -0.09512443056450638,
+                0.07281137476394735,
+                0.999255131958715
+              ],
+              "clipW": 3057.137673566278,
+              "widthPixels": 1.752829411122552,
+              "visible": true,
+              "blend": 1,
+              "previousFrame": "front",
+              "frames": [
+                "front",
+                "front"
+              ],
+              "alphaDepthPass": true,
+              "worldMetres": true
+            }
+          },
+          "immersion": {
+            "nightContrast": 1,
+            "meshes": true,
+            "chart": true,
+            "rasterCPU": true
+          },
+          "gpuError": 0
+        },
+        "errors": [],
+        "missing": []
+      },
+      {
+        "name": "iphone-layout-chromium packaged native terrain route and manual override preserve aircraft position, navigation fixes and score",
+        "passed": true,
+        "observed": {
+          "route": {
+            "choice": "terrain",
+            "following": true,
+            "leg": 0,
+            "route": {
+              "id": "terrain",
+              "label": "LOW TERRAIN DOGLEG",
+              "clearance": 320,
+              "points": [
+                {
+                  "p": [
+                    -2063.70019844144,
+                    6.586378889422093,
+                    -556.9568220446583
+                  ],
+                  "label": "COAST-IN"
+                },
+                {
+                  "p": [
+                    -4311.248332683618,
+                    18.74936898369589,
+                    381.53090708928926
+                  ],
+                  "label": "LOW TERRAIN CORNER 1"
+                },
+                {
+                  "p": [
+                    -5764.603934729536,
+                    16.04906403649168,
+                    -1572.9483912078904
+                  ],
+                  "label": "CHECKPOINT"
+                },
+                {
+                  "p": [
+                    -6633.1835211212265,
+                    21.423849252363496,
+                    -157.77710246270192
+                  ],
+                  "label": "INITIAL POINT"
+                }
+              ],
+              "length": 17683.698555949137,
+              "maxTerrain": 42.99200015022276
+            },
+            "status": "Lower dogleg: 320 m clearance, more observation and tighter terrain margins. Fix the ORIGINAL chart checkpoints.",
+            "next": {
+              "p": [
+                -2063.70019844144,
+                6.586378889422093,
+                -556.9568220446583
+              ],
+              "label": "COAST-IN",
+              "distance": 5149.3326843886025,
+              "bearing": -1.5399731608569827
+            },
+            "guns": [
+              {
+                "mode": "unaware",
+                "confidence": 0,
+                "visible": false,
+                "checkedAt": -100,
+                "lastSeen": -100,
+                "lastPosition": null
+              },
+              {
+                "mode": "unaware",
+                "confidence": 0,
+                "visible": false,
+                "checkedAt": -100,
+                "lastSeen": -100,
+                "lastPosition": null
+              },
+              {
+                "mode": "unaware",
+                "confidence": 0,
+                "visible": false,
+                "checkedAt": -100,
+                "lastSeen": -100,
+                "lastPosition": null
+              },
+              {
+                "mode": "unaware",
+                "confidence": 0,
+                "visible": false,
+                "checkedAt": -100,
+                "lastSeen": -100,
+                "lastPosition": null
+              },
+              {
+                "mode": "unaware",
+                "confidence": 0,
+                "visible": false,
+                "checkedAt": -100,
+                "lastSeen": -100,
+                "lastPosition": null
+              }
+            ]
+          },
+          "materials": true,
+          "feedback": {
+            "active": true,
+            "alert": null,
+            "source": null,
+            "sourceCount": 0,
+            "impacts": 0,
+            "emitted": 0,
+            "mix": {
+              "speechFocus": false,
+              "leaseSeconds": 0.35,
+              "reason": ""
+            }
+          },
+          "p": [
+            3083.1865726394194,
+            765.592622973948,
+            -398.2632173040182
+          ],
+          "clearance": 320,
+          "fixes": 0,
+          "score": {
+            "hits": 0,
+            "misses": 0,
+            "cep": [],
+            "dropped": 0,
+            "killed": 0,
+            "total": 5,
+            "damage": 0,
+            "discipline": true
+          },
+          "focus": ""
+        }
+      },
+      {
+        "name": "iphone-layout-chromium packaged guided Dixie native briefing, airborne practice, scene, chart and original intervalometer",
+        "passed": true,
+        "observed": {
+          "mission": "m2",
+          "rightSeat": true,
+          "airborne": true,
+          "view": {
+            "phase": "navigation",
+            "title": "I \u00b7 COAST-IN",
+            "objective": "Work the next charted fix. The pilot flies; you correct the navigation.",
+            "tutorial": true,
+            "look": true,
+            "targetArea": [
+              -7908.922420834044,
+              64.73427397117044,
+              -737.1821555790075
+            ],
+            "nextFix": {
+              "label": "COAST-IN",
+              "p": [
+                -2063.70019844144,
+                6.586378889422093,
+                -556.9568220446583
+              ],
+              "hint": "the shoreline \u2014 the hard edge where the sea stops returning and the land starts"
+            },
+            "readiness": null,
+            "checkpointLabel": null,
+            "retries": 0,
+            "ripple": 4,
+            "bombs": 12,
+            "assessment": null,
+            "observed": false,
+            "elapsed": 0.016666666666666666
+          },
+          "meshes": true,
+          "chart": true,
+          "p": [
+            3083.1865726394194,
+            765.592622973948,
+            -398.2632173040182
+          ],
+          "bombs": 12,
+          "score": {
+            "hits": 0,
+            "misses": 0,
+            "cep": [],
+            "dropped": 0,
+            "killed": 0,
+            "total": 5,
+            "damage": 0,
+            "discipline": true
+          },
+          "gpuError": 0,
+          "focused": ""
+        },
+        "errors": [],
+        "missing": []
+      }
+    ],
+    "recordedAt": "2026-10-23T20:18:15.927Z"
+  },
+  "domainLog": "\u2714 capture retains first-person ground until one simulated transfer, never legacy cockpit path (4.543699ms)\n\u2714 pause and large dt cannot skip the readable transfer or advance the prison (1.748787ms)\n\u2714 replacing the game abandons the transfer without mutating a newer mission (1.133657ms)\n\u2714 explicitly entering a new ground actor abandons the obsolete transfer (0.975387ms)\n\u2714 ending the chapter cancels a pending transfer (1.029859ms)\n\u2714 recapture counts once and preserves the old POW chapter until its transfer (1.306969ms)\n\u2714 Coker landing still arrives at the escape cell rather than solitary (1.998035ms)\n\u2714 legacy compound recapture retains its original solitary continuation (1.409965ms)\n\u2714 supported photographic NPCs receive cores while scenery, corpses and unrelated sprites do not (2.593516ms)\n\u2714 invalid or sparse coordinates/motion cannot emit nonfinite render instances (1.553642ms)\n\u2714 restored unwarped source photographs retain contact shadows without legacy figure motion (0.830427ms)\n\u2714 quality limits select only the nearest cores and cap terrain work at four samples each (4.784184ms)\n\u2714 range fade, night intensity and camera ownership remain bounded and continuous (0.866182ms)\n\u2714 terrain plane uses exactly four local samples and retains the actual sprite foot (0.822405ms)\n\u2714 cache cadence skips repeated sampling but refreshes on movement, clock rollback and changed terrain (0.850548ms)\n\u2714 cache is bounded per game and evicts the least recently used owner (1.764791ms)\n\u2714 prison/camp floors and roof-height feet stay horizontal and cannot be pulled down to terrain (1.803801ms)\n\u2714 steep, curved, discontinuous or invalid terrain safely falls back to a flat foot-height core (4.065925ms)\n\u2714 switching between terrain and known floor invalidates cached surface orientation immediately (0.807873ms)\n\u2714 duplicate descriptors for one actor contribute only one core and independent owners remain independent (0.624346ms)\n\u2714 descriptors and diagnostics are detached copies and frozen gameplay state is never mutated (0.802054ms)\n\u2714 reset drops only the requested game cache and public resource limits cannot be changed (0.994616ms)\n\u2714 existing equipment art and simulation-driven phase use actual distance, not the movement flag (5.328998ms)\n\u2714 equal movement at30/60/120Hz has equal phase, pose and exponential start response (7.60294ms)\n\u2714 collision-blocked movement damps the old gait instead of continuing a wall-clock walk cycle (2.545634ms)\n\u2714 walk, run and crouch remain smoothly bounded and stop continuously (3.811241ms)\n\u2714 render reads do not advance simulation, gait, recoil or idle time (2.227723ms)\n\u2714 pause and resume freeze an unfinished pose and continue without a wall-clock jump (1.349403ms)\n\u2714 menu, held encounter, legacy solitary, hidden document and graphics loss cannot advance the presentation cache (3.640001ms)\n\u2714 a stale game cannot animate over the current owner and its cache is discarded (1.058452ms)\n\u2714 checkpoint/new actor replaces gait and action state without retaining a prior pulse (1.231564ms)\n\u2714 teleports do not create fast footsteps, large hand swings or catch-up pulses (1.202331ms)\n\u2714 timestamp zero is a genuine accepted attack and repeat renders do not replay it (1.85583ms)\n\u2714 a second accepted action timestamp replays the attack while unchanged held input does not (1.230192ms)\n\u2714 pistol recoil is distinct from a melee thrust while ammo and weapon state remain authoritative (2.075563ms)\n\u2714 mode changes lower and raise only the existing art without setting an attack (1.028657ms)\n\u2714 prefers-reduced-motion suppresses idle and walking transforms and limits active attack amplitude (1.580733ms)\n\u2714 POW, flight, raised hands and frozen captivity keep the legacy layer out of the way (1.995291ms)\n\u2714 invalid time is ignored and a delayed step is bounded without creating timers (0.742654ms)\n\u2714 presentation reads and writes do not mutate gameplay, coordinates, saved fields or original image data (1.150862ms)\n\u2714 center view selects actual body with original horizontal distance and a real forward surface (1.344526ms)\n\u2714 sky and ground misses do not select horizontally aligned people; close downward legs remain hittable (0.331863ms)\n\u2714 elevated bodies require matching vertical aim and metadata body heights constrain the top (0.289378ms)\n\u2714 near physical body wins across rosters; exact crosshair target beats an assisted near miss (0.287876ms)\n\u2714 occlusion callback, dead actors, rear hemisphere and 60m range remain authoritative (0.281687ms)\n\u2714 cow shape uses its own height and eligibility while angular padding stays bounded (0.194665ms)\n\u2714 sparse/nonfinite points cannot emit invalid targeting data and helper never mutates actors (0.202276ms)\n\u2714 reactions call existing swept solver, omit self, include player and preserve both other actor rosters (0.427718ms)\n\u2714 living and dead kicked people and cows resolve solids rather than teleport through them (0.307686ms)\n\u2714 analytic reaction travel is stable across 30/60/120Hz and bounded during a long frame (2.507296ms)\n\u2714 invalid time is inert and invalid kicks cannot poison the solver or actor position (0.622783ms)\n\u2714 a foreground rise blocks a leg-aimed shot even when inherited chest-height LOS is clear (0.189718ms)\n\u2714 a higher visible body point clears that same rise without changing its source height (0.157839ms)\n\u2714 fresh ground view starts at the actual current posture without changing the actor (3.351935ms)\n\u2714 crouch eye moves continuously while physical crouch and actor feet change immediately only through original input (1.213968ms)\n\u2714 30, 60 and 120 Hz produce the same crouch and standing response for equal simulated time (9.785845ms)\n\u2714 stance remains bounded and settles without bobbing, overshoot or changing walking positions (3.254748ms)\n\u2714 render reads and duplicate reads do not advance stance animation (1.375232ms)\n\u2714 pause freezes a mid-transition camera and unpause resumes without a height jump (0.71324ms)\n\u2714 menu, stale owner, graphics context loss, completion and hidden document do not advance stance (2.677924ms)\n\u2714 invalid or negative time cannot advance or poison the camera (0.566457ms)\n\u2714 a delayed frame has bounded easing without snapping directly to crouch (1.124302ms)\n\u2714 large checkpoint/vertical transitions reset the presentation to the saved current posture (1.097482ms)\n\u2714 fresh actor and explicit reset cannot carry an old stance animation into a new chapter (0.647751ms)\n\u2714 river underwater/boat eye heights remain owned by the original river system (0.542411ms)\n\u2714 flight and parachute camera heights are returned unchanged (0.529211ms)\n\u2714 private stance cache never changes actor, saved state, flags, routes, crew or physics (1.515324ms)\n\u2714 legacy pointer lock applies event deltas directly without writing aircraft mouse accumulators (0.74002ms)\n\u2714 event partitioning does not change the final horizontal look angle (0.956268ms)\n\u2714 sensitivity is respected, nonfinite event deltas ignored and pitch constrained to existing legacy limits (0.509842ms)\n\u2714 flight, POW, unlocked, paused, menu, stale and hidden input cannot change legacy look (3.785972ms)\n\u2714 declared App mouse-lock flag without actual browser pointer lock never rotates the view (0.537314ms)\n\u2714 installation is idempotent and pointer-lock loss/blur flush only ground flight accumulators (0.612297ms)\n\u2714 switching from eased keyboard look to the mouse starts at the current visible pitch (0.530493ms)\n\u2714 legacy right drag uses visible pitch, sensitivity and exact touch deltas while retaining aim after release (0.930899ms)\n\u2714 touch aiming leaves mouse, left stick, buttons, POW, held encounters and inactive games to their original controls (5.021032ms)\n\u2714 pause, menu, blur, hidden tab and graphics loss cancel held drags without a resumed movement jump (2.698746ms)\n\u2714 checkpoint owner changes and lost capture cannot transfer held touch input to another actor (0.564825ms)\n\u2714 a second finger can operate another control without replacing the first look pointer (0.553408ms)\n\u2714 every supplied photographic atlas remains byte-identical to the original project baseline (43.743996ms)\n\u2714 idle, moving, hurt and alerted actors retain their own supplied photographic identity (0.984391ms)\n\u2714 camera direction may change a source pose but never switches species, crops a frame or mutates AI (0.522071ms)\n\u2714 all 48 source cells preserve original aspect and put the photographed soles on the requested ground (1.315191ms)\n\u2714 idle cattle do not alternate grazing and standing photographs just because time passes (0.275787ms)\n\u2714 the damaged frontal NVA pose uses the complete restored figure with its own one-cell source geometry (0.195145ms)\n\u2139 tests 85\n\u2139 suites 0\n\u2139 pass 85\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 211.319552\n",
+  "powAILog": "PASS A* detours a thin wall; every movement sweep stays clear\nPASS A* permits a clear doorway and rejects one narrower than the actor\nPASS a large frame cannot tunnel an actor through a wall\nPASS sustained visible close armed contact recaptures once; dead, civilian and stunned actors do not\nPASS wall-separated close guards cannot see or grab the player\nPASS cell noise crosses walls as a remembered investigation, without sight or capture\nPASS civilian flees and reports once to a nearby guard after a delay\nPASS pursuit remembers the final sight point, searches, and deescalates without tracking hidden relocation\nPASS visible bodies trigger local awareness once; wall-hidden bodies do not\nPASS paths and memory survive JSON roundtrip; planning retries and work stay bounded\nPASS mobile simulation caps actor work and noise storage\nPASS explicit AI snapshots restore serializable patrol memory and noise\nPASS river observers retain their roster, remain on dry banks, and cannot see a submerged swimmer at range\nPASS elevated navigation requires floor support and never plans across open air\nPASS actual core compound waypoints and a full patrol round remain collision-safe, including the roof\nPASS a remote stone impact during cell play draws investigation to the impact without a cell inspection\nPASS a noise inside the occupied cell retains the existing physical door inspection\n17 deterministic POW AI simulation tests passed. Browser/GPU/iPhone behavior is not tested here.\n",
+  "preservationLog": "PASS: exact original photograph hashes, historical missions, complete aircraft physics, A-6A geometry/markings, original atlases and JavaScript syntax\n"
+}

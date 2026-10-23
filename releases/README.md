@@ -1,3 +1,11 @@
+# Photo sprites and capture transition — latest game
+
+[Download complete Netlify ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/sprite-capture-repair/releases/Intruder_Yankee_Station_Photo_Sprites_Capture_Repair.zip) (GitHub sign-in required). [Report/deployment](../docs/PHOTO_SPRITES_CAPTURE_REPAIR_REPORT.md) · [Screenshots](sprite-capture-screenshots/).
+
+Restores supplied farmer/VC/NVA/guard/cattle identities and proportions, repairs damaged NVA/aviator cutouts, and corrects washed-out sprite colors. Capture keeps the ground view, fades through custody/transfer, then reveals confinement. Includes all previous missions/equipment. 85 domain, 17 AI, 105 selected source-browser and 17 packaged checks pass. Actual iPhone Safari untested. Extract and upload the folder containing `index.html`, `assets/` and `_headers` to Netlify Deploys. The live site has not been redeployed.
+
+Earlier releases follow unchanged.
+
 # Orange day smoke / red night flare — latest game
 
 [Download complete Netlify ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/day-night-rescue-signal/releases/Intruder_Yankee_Station_Day_Night_Rescue_Signal.zip) (GitHub sign-in required). [Report/deployment instructions](../docs/DAY_NIGHT_RESCUE_SIGNAL_REPORT.md) · [Screenshots](day-night-signal-screenshots/).
