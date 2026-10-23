@@ -1,0 +1,26 @@
+{
+  "preparation": "User-supplied photographs, background-only transparent cutouts prepared with image editing tool. Originals retained byte-for-byte; runtime derivatives are not claimed pixel-identical. No historical tribute photographs altered.",
+  "assets": [
+    {
+      "mode": "fists",
+      "original": "reference_media/firstperson/fists-original.jpg",
+      "originalSHA256": "1c098a3690ae6bcab66c390b5cf4abda4cd88ff211b076651329b0fb2cf6859c",
+      "runtime": "assets/firstperson/fists.png",
+      "runtimeSHA256": "b6b8de2921eaecca80fd25216ae96fe89c6d2dbead1f1619a94a69cf54253060"
+    },
+    {
+      "mode": "pistol",
+      "original": "reference_media/firstperson/pistol-original.jpg",
+      "originalSHA256": "a1b256ebbb671242e530af22e5a5f204d5a42f12aee9c56fb6c0d055127b2c47",
+      "runtime": "assets/firstperson/pistol.png",
+      "runtimeSHA256": "c0474f6d5b6e273610f209d7408d406a018e4c2cfdb1e134f0bb5b7a0829c869"
+    },
+    {
+      "mode": "knife",
+      "original": "reference_media/firstperson/knife-original.jpg",
+      "originalSHA256": "0800f1000b651391fe4d21e502b64b8c67573b438f3c7858b66c1a34f7fa9b4d",
+      "runtime": "assets/firstperson/knife.png",
+      "runtimeSHA256": "7acfab7a47eba36793654633157903083c08d2ba3fb98e7d1489b9a339df03b9"
+    }
+  ]
+}

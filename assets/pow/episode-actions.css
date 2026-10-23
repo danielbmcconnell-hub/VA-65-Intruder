@@ -1,10 +1,10 @@
-/* Additive, original interaction illustrations. Historical photographs and the
-   existing first-person artwork are never altered or re-encoded. */
+/* Interaction illustrations share the supplied transparent photographic fists.
+   CSS crops empty padding/low sleeves; source and runtime pixels stay intact. */
 #powEpisodeActions{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;contain:layout style}
 #powEpisodeActions[hidden],#powEpisodeActions [hidden]{display:none!important}
 .episode-action-view{position:absolute;bottom:-72px;left:50%;width:min(410px,52vw);aspect-ratio:600/520;transform:translateX(-50%);pointer-events:none}
 .episode-action-hand{position:absolute;inset:0;transform-origin:50% 95%;will-change:transform}
-.episode-action-hand img{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom;user-select:none;-webkit-user-drag:none}
+.episode-action-hand img{position:absolute;bottom:-25%;display:block;width:100%;height:auto;object-fit:contain;object-position:center bottom;user-select:none;-webkit-user-drag:none}
 .episode-action-left{clip-path:polygon(0 0,50% 0,50% 100%,0 100%)}
 .episode-action-right{clip-path:polygon(50% 0,100% 0,100% 100%,50% 100%)}
 .episode-action-tool{position:absolute;left:50%;top:28%;width:31%;height:44%;object-fit:contain;transform-origin:50% 88%;filter:drop-shadow(1px 3px 3px rgba(0,0,0,.5));will-change:transform}

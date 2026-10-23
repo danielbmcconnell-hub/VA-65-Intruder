@@ -10,8 +10,8 @@ body.pow-active #btnRadio,body.pow-active #btnSmoke,body.pow-active #btnPistol,b
 .pow-guide{margin-top:4px;border-top:1px solid #5f6255;padding-top:5px;font-size:12px;line-height:1.4}
 #powHUD .pow-guide button{padding:3px 8px;min-height:30px;font-size:11px;margin-top:5px}
 .pow-reticle{position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-3px;border:1px solid #eadbb9;border-radius:50%;box-shadow:0 0 2px #000;pointer-events:none}
-.pow-work-hands{position:absolute;left:50%;bottom:0;width:min(360px,38vw);opacity:.90;pointer-events:none;will-change:transform}
-.pow-work-hands img{display:block;width:100%;max-height:34vh;object-fit:contain;filter:drop-shadow(1px 2px 2px #000)}
+.pow-work-hands{position:absolute;left:50%;bottom:0;width:min(360px,38vw);height:28vh;overflow:hidden;pointer-events:none;will-change:transform}
+.pow-work-hands img{position:absolute;bottom:-12vh;display:block;width:100%;height:auto;object-fit:contain;filter:drop-shadow(1px 2px 2px #000)}
 #powHUD [data-episode-throw]{position:absolute;right:143px;bottom:0;white-space:nowrap;font-size:12px;min-width:135px}
 @media(orientation:portrait) and (max-width:680px){#powHUD [data-episode-throw]{position:fixed;right:10px;bottom:12%;min-width:108px}}
 .pow-tools{position:absolute;right:max(10px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;max-width:40vw;pointer-events:auto}
