@@ -48,6 +48,16 @@ test('invalid or sparse coordinates/motion cannot emit nonfinite render instance
   assert.equal(output.length, 1); finiteDescriptor(output[0]);
 });
 
+test('restored unwarped source photographs retain contact shadows without legacy figure motion', () => {
+  const M=moduleUnderTest(),g=game();
+  const photos=['farmer','female_vc','militia','nva'].map((photoName,i)=>({
+    p:[i+1,0,0],photoName,sourcePhotograph:true,owner:{kind:photoName,alive:true},motion:null
+  }));
+  const before=JSON.stringify(photos),result=M.collect(g,photos,2);
+  assert.equal(result.length,4);result.forEach(finiteDescriptor);
+  assert.equal(JSON.stringify(photos),before);
+});
+
 test('quality limits select only the nearest cores and cap terrain work at four samples each', () => {
   for (const [quality, count] of [[0, 12], [1, 18], [2, 24], [undefined, 18]]) {
     const M = moduleUnderTest(), g = game(); let samples = 0;

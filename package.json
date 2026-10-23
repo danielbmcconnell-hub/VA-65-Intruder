@@ -28,7 +28,9 @@
     "test:movement": "node --test tests/ground-view.cjs tests/equipment-view.cjs tests/ground-combat.cjs tests/terrain-shadows.cjs && node tests/run-browser.cjs --suite=equipment-view && node tests/run-browser.cjs --suite=ground-combat && node tests/run-browser.cjs --suite=terrain-shadows && node tests/run-browser.cjs --suite=ground-touch",
     "test:bn-polish": "node --test tests/bn-target-polish.cjs tests/strike-sensory.cjs tests/guard-motion.cjs tests/near-ground.cjs tests/flight-audio-focus.cjs && node tests/run-browser.cjs --suite=bn-target-polish && node tests/run-browser.cjs --suite=strike-sensory && node tests/run-browser.cjs --suite=guard-motion && node tests/run-browser.cjs --suite=near-ground && node tests/run-browser.cjs --suite=flight-audio-focus",
     "test:radio": "node tests/radio-view-browser.cjs",
-    "test:signal": "node tests/signal-view-browser.cjs"
+    "test:signal": "node tests/signal-view-browser.cjs",
+    "test:photo-sprites": "node --test tests/photographic-sprites.cjs && node tests/photographic-sprites-browser.cjs",
+    "test:capture": "node --test tests/capture-transition.cjs && node tests/capture-transition-browser.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

@@ -6,6 +6,8 @@ fs.mkdirSync(site,{recursive:true});
 // Explicit runtime allowlist. Never deploy the checkout, archive, reference_media,
 // test screenshots, Git history, node_modules or development tooling.
 const allow=['index.html','assets/atlas-metadata.js','assets/figures-original.png'];
+allow.push('assets/render/photographic-sprites.js','assets/survival/capture-transition.js','assets/survival/capture-transition.css');
+allow.push('assets/sprites/nva-repaired.png','assets/sprites/aviator-repaired.png','assets/sprites/nva-front-repaired.png','assets/sprites/atlas-metadata.js');
 for(const name of ['fists','pistol','knife','radio','smoke-day','smoke-night'])allow.push('assets/firstperson/'+name+'.png');
 for(const directory of ['photos','processed'])for(const name of fs.readdirSync(path.join(root,'assets',directory)))if(/\.(jpg|jpeg|png|webp)$/.test(name))allow.push('assets/'+directory+'/'+name);
 allow.push('assets/history/manifest.json');
@@ -31,5 +33,5 @@ const files=[...allow,'_headers'].map(file=>({file,sha256:sha(fs.readFileSync(pa
 const metadata={commit:cp.execFileSync('git',['rev-parse','HEAD'],{cwd:root}).toString().trim(),entrySHA256:sha(fs.readFileSync(path.join(site,'index.html'))),files};
 fs.writeFileSync(path.join(root,'dist/build-manifest.json'),JSON.stringify(metadata,null,2)+'\n');
 // Python's standard-library zipper makes packaging portable in this cloud image.
-cp.execFileSync('python3',['-c',"import pathlib,zipfile; p=pathlib.Path('dist/site'); z=zipfile.ZipFile('dist/Intruder_Yankee_Station_Day_Night_Rescue_Signal.zip','w',zipfile.ZIP_DEFLATED); [z.write(f,f.relative_to(p)) for f in sorted(p.rglob('*')) if f.is_file()]; z.close()"],{cwd:root});
-console.log('Built runtime-only Netlify folder and ZIP: dist/site, dist/Intruder_Yankee_Station_Day_Night_Rescue_Signal.zip ('+allow.length+' game files)');
+cp.execFileSync('python3',['-c',"import pathlib,zipfile; p=pathlib.Path('dist/site'); z=zipfile.ZipFile('dist/Intruder_Yankee_Station_Photo_Sprites_Capture_Repair.zip','w',zipfile.ZIP_DEFLATED); [z.write(f,f.relative_to(p)) for f in sorted(p.rglob('*')) if f.is_file()]; z.close()"],{cwd:root});
+console.log('Built runtime-only Netlify folder and ZIP: dist/site, dist/Intruder_Yankee_Station_Photo_Sprites_Capture_Repair.zip ('+allow.length+' game files)');

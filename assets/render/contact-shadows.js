@@ -25,7 +25,10 @@
     s.time = now; s.samples = 0; s.count = 0; return s;
   }
   function supported(sprite) {
-    if (!sprite || !sprite.useCleanFigure || !point(sprite.p) || !Array.isArray(sprite.motion) || ![0, 1, 2, 3].every(i => Number.isFinite(sprite.motion[i]))) return false;
+    if (!sprite || !point(sprite.p)) return false;
+    const originalPhoto = sprite.sourcePhotograph && PHOTOS.has(sprite.photoName);
+    const legacyFigure = sprite.useCleanFigure && Array.isArray(sprite.motion) && [0, 1, 2, 3].every(i => Number.isFinite(sprite.motion[i]));
+    if (!originalPhoto && !legacyFigure) return false;
     const actor = sprite.owner;
     if (actor) return KINDS.has(actor.kind) && actor.alive !== false;
     return PHOTOS.has(sprite.photoName);

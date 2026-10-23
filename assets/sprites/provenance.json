@@ -1,0 +1,30 @@
+{
+  "originalsPreserved": true,
+  "repairs": [
+    {
+      "source": "assets/nva.webp",
+      "sourceSHA256": "1f26ecf757d3b49ca6e05a3ff6b2f70acae4a663999e0caf16b2923e39a769fa",
+      "derivative": "assets/sprites/nva-repaired.png",
+      "derivativeSHA256": "dbed8b08b9b4f7ec8d3eb3fcc0a960802a9ddc36fe738f8b2333ff31b769e265",
+      "method": "Image editing tool: restore missing uniform/legs and remove incorrect rectangular alpha holes; preserve supplied identity, clothing, poses and 8 by 6 atlas arrangement",
+      "pixelIdentical": false
+    },
+    {
+      "source": "assets/aviator.webp",
+      "sourceSHA256": "eecd1410d06586a24c4b9984ac1d69e028f726ce4c501eac1520d4f1d5d0e942",
+      "derivative": "assets/sprites/aviator-repaired.png",
+      "derivativeSHA256": "1793498a61ae988c5d9bb06d3bc6468ccf28036114352d1edaa657f8aee89748",
+      "method": "Image editing tool: restore missing uniform/legs and remove incorrect rectangular alpha holes; preserve supplied identity, clothing, poses and 8 by 6 atlas arrangement",
+      "pixelIdentical": false
+    },
+    {
+      "source": "assets/nva.webp",
+      "sourceSHA256": "1f26ecf757d3b49ca6e05a3ff6b2f70acae4a663999e0caf16b2923e39a769fa",
+      "derivative": "assets/sprites/nva-front-repaired.png",
+      "derivativeSHA256": "d4b6c925840bf8112676c5eb681ef61f3f6b7a2b6b66614a279ba939fd50e260",
+      "method": "Image editing tool: reconstruct full standing frontal soldier from damaged top-left photographic reference, including both complete legs/boots. Used for relaxed frontal pose only. This includes generated reconstruction of missing details.",
+      "pixelIdentical": false
+    }
+  ],
+  "limitations": "Edited derivatives approximate missing source details and are not exact reconstructions of lost pixels. Source atlas contains no independently filmed walking sequence. Frame/camera selection remains limited by supplied pose coverage."
+}

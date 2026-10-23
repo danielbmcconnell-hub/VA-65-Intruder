@@ -10,7 +10,7 @@
 }
 </style>
 </head><body>
-<title>Intruder: Yankee Station — B/N Immersion &amp; Visual Polish · Photographic Equipment, Radio &amp; Rescue Signal</title>
+<title>Intruder: Yankee Station — B/N Immersion &amp; Visual Polish · Restored Photo Sprites &amp; Capture Transition</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Share+Tech+Mono&display=swap">
@@ -836,6 +836,7 @@ body.desktop #hudbar{display:flex}
 
 <link rel="stylesheet" href="assets/pow/core.css">
 <script src="assets/atlas-metadata.js"></script>
+<script src="assets/sprites/atlas-metadata.js"></script>
 <script src="assets/survival/ammunition.js"></script>
 <script src="assets/pow/core.js"></script>
 <script src="assets/pow/ai.js"></script>
@@ -870,11 +871,14 @@ body.desktop #hudbar{display:flex}
 <script src="assets/flight/visual-materials.js"></script>
 <script src="assets/flight/airframe-feedback.js"></script>
 <script src="assets/render/sprite-layers.js"></script>
+<script src="assets/render/photographic-sprites.js"></script>
 <script src="assets/render/contact-shadows.js"></script>
 <script src="assets/render/quality-policy.js"></script>
 <script src="assets/survival/ground-view.js"></script>
 <script src="assets/survival/equipment-view.js"></script>
 <script src="assets/survival/ground-combat.js"></script>
+<script src="assets/survival/capture-transition.js"></script>
+<link rel="stylesheet" href="assets/survival/capture-transition.css">
 <script src="assets/render/terrain-shadows.js"></script>
 <script src="assets/render/near-ground.js"></script>
 <script src="assets/willard/interceptor.js"></script>
@@ -3308,7 +3312,7 @@ class Renderer {
       uniform sampler2D uTex; uniform vec3 uCam;
       uniform highp sampler2DArray uSpriteLayers;
       uniform float uUseSpriteLayers;
-      uniform vec2 uTexel; uniform float uAlphaPass, uPremultiplied;
+      uniform vec2 uTexel; uniform float uAlphaPass, uPremultiplied, uPhotoExposure;
       out vec4 o;
       void main(){
         // Clamp to the actual texture's pixel centres, including resized atlases.
@@ -3322,7 +3326,10 @@ class Renderer {
         if (t.a <= 1.0 / 255.0) discard;
         if (uAlphaPass < 0.5 ? t.a < 0.98 : t.a >= 0.98) discard;
         vec3 rgb = uPremultiplied > 0.5 ? t.rgb / max(t.a, 1.0 / 255.0) : t.rgb;
-        vec3 alb = rgb * vTint;
+        // Photographs are sRGB. The world compositor applies the display
+        // transfer once, so decode here before lighting to avoid pale faces
+        // and grey uniforms from applying that transfer twice.
+        vec3 alb = pow(max(rgb,vec3(0.0)),vec3(2.2)) * vTint;
         /* Lit as a vertical surface: it sees half the sky, some bounce
            off the ground, and the sun according to which way it is
            turned relative to it. The painted shading in the sprite
@@ -3333,7 +3340,10 @@ class Renderer {
         vec3 shaded = alb * (hemi + uSunCol * (0.30 + 0.62 * side) * vis);
         // Preserve the original photograph's midtone detail.
         // The previous full terrain lighting washed uniforms to pale patches.
-        vec3 col = mix(alb * vec3(0.91), shaded, 0.44);
+        float daylight=clamp(length(uSunCol)*0.65,0.0,1.0);
+        vec3 photoFill=mix(vec3(0.035,0.045,0.060),vec3(0.91),daylight);
+        vec3 col = mix(alb * photoFill, shaded, 0.44);
+        col /= max(1.0,uPhotoExposure);
         col += alb * fireLight(vW, vec3(0.0, 1.0, 0.0));
         float alpha = uAlphaPass < 0.5 ? 1.0 : t.a;
         if(uEpisodeOn > 0.5) {
@@ -3948,6 +3958,7 @@ class Renderer {
     gl.uniform1i(p.u.uTex, 0);
     gl.uniform2f(p.u.uTexel, 1 / T.w, 1 / T.h);
     gl.uniform1f(p.u.uPremultiplied, T.premultiplied ? 1 : 0);
+    gl.uniform1f(p.u.uPhotoExposure,Math.max(1,this.atm&&this.atm.exposure||1));
     SpriteLayers.bind(gl,p,T);
     gl.uniform1f(p.u.uVegetation,vegetationSubset===true?1:0);
     gl.uniform1f(p.u.uBreezeTime,this.time||0);
@@ -11236,6 +11247,9 @@ const App = {
       catch (e) { /* no sprites; the mesh figures still draw */ }
       // Photographic character atlases: load independently, retain original fallback.
       const renderer = this.rend;
+      const nvaFront=new Image();
+      nvaFront.onload=()=>{if(this.rend===renderer&&!renderer.gl.isContextLost())renderer.texFromCanvas('photo_nva_front',nvaFront);};
+      nvaFront.src='assets/sprites/nva-front-repaired.png';
       for (const name of ['nva','female_vc','militia','farmer','cow','aviator','vegetation']) {
         const im = new Image();
         im.onload = () => { if (this.rend !== renderer || renderer.gl.isContextLost()) return;
@@ -11255,11 +11269,13 @@ const App = {
             renderer.texFromCanvas('photo_'+name, source);
           } catch(err) { console.warn('Sprite texture',name,err); }
         };
+        const photoPaths=['assets/processed/'+name+'.webp','assets/'+name+'.webp'];
+        if(name==='nva'||name==='aviator')photoPaths.unshift('assets/sprites/'+name+'-repaired.png');
         im.onerror = () => {
-          if (im.src.includes('/processed/')) im.src = 'assets/'+name+'.webp';
+          if(photoPaths.length)im.src=photoPaths.shift();
           else console.warn('Photographic atlas failed to load:',name);
         };
-        im.src = 'assets/processed/'+name+'.webp';
+        im.src=photoPaths.shift();
       }
 
       /* The real figures are cut out of a photograph, and that sheet is
@@ -15913,6 +15929,7 @@ class Game {
       // drop the ones that have been left a long way behind
       if (Math.hypot(c.p[0] - e.p[0], c.p[2] - e.p[2]) > 1100) { herd.splice(i, 1); continue; }
       if (!c.alive) continue;
+      const previousX=c.p[0],previousZ=c.p[2];
       c.t += dt;
       c.graze -= dt;
       if (c.graze <= 0) {
@@ -15935,6 +15952,7 @@ class Game {
         c.p[0] += Math.sin(c.yaw) * 1.5 * dt;
         c.p[2] += -Math.cos(c.yaw) * 1.5 * dt;
       }
+      c.ph=(c.ph||0)+Math.hypot(c.p[0]-previousX,c.p[2]-previousZ)*TAU/1.6;
     }
   }
 
@@ -15983,8 +16001,8 @@ class Game {
     const sight=GroundCombat.target(this,e,{
       floorAt:p=>this.pow?p[1]:e.camp?this.campY:Math.max(terrainH(p[0],p[2]),0),
       eyeHeight:typeof GroundView!=='undefined'?GroundView.eyeHeight(this,eyeHeight):eyeHeight,
-      bodyHeight:o=>{const pose=typeof POW!=='undefined'&&POW.FigureMotion?POW.FigureMotion.pose(o,this):null;
-        return 1.76*(pose&&pose.enabled?pose.heightRatio:1);},
+      bodyHeight:o=>{const pose=PhotoSprites.describe(o,{camera:this.rend.eye});
+        return pose?pose.h:1.76;},
       lineOfSight:o=>this._groundLineOfSight(e.p,o.p,e)
     });
     const closest=sight?sight.actor:null,cd=sight?sight.distance:1e9,cIsCow=!!(sight&&sight.isCow);
@@ -17504,60 +17522,21 @@ class Game {
     const groups = {};
     const sprites = [];
     let vegetationSprites = 0;
-    const photoActor = {
-      farmer:'farmer', farmerC:'farmer', villager:'farmer', villagerC:'farmer',
-      militia:'militia', vc:'militia', vcFem:'female_vc',
-      soldier:'nva', sentry:'nva', guard:'nva', guardAim:'nva'
-    };
     const push = (mesh, p, rot, s, tint) => {
-      const photo = photoActor[mesh];
+      const photo = PhotoSprites.identity({kind:mesh});
       if (photo) {
         if (this.evade && !this.evade.camp &&
             Math.hypot(p[0]-this.evade.p[0],p[2]-this.evade.p[2]) < 250)
           return; // living, targetable NPCs replace frozen clutter in this area
-        // When the camera is airborne there may be thousands of inhabitants
-        // in cached terrain cells. Cull by distance *before* sprite upload.
         const range = this.evade ? 500 : 1350;
-        const dx = p[0] - R.eye[0], dz = p[2] - R.eye[2];
-        if (dx * dx + dz * dz > range * range) return;
-        const facing = rot ? rot[0] : 0;
-        const toCam = Math.atan2(R.eye[0]-p[0], -(R.eye[2]-p[2]));
-        const angle = Math.atan2(Math.sin(facing-toCam), Math.cos(facing-toCam));
-        // The source atlases have front/side/back in row 0, walking row 1,
-        // running row 2, and farmer bending/working in row 3.
-        const front = Math.abs(angle) < Math.PI/3;
-        const back = Math.abs(angle) > 2*Math.PI/3;
-        const dirCell = front ? 0 : back ? (photo==='farmer'?2:3) : 1;
-        const seed = Math.abs(Math.floor(p[0]*17.31 + p[2]*41.73));
-        const isFieldWorker = mesh === 'farmer' || mesh === 'farmerC';
-        const working = isFieldWorker && (seed % 5 < 3);
-        const frame = working ? 24 + (seed % 4) : dirCell;
-        // Physical size from world meshes, not arbitrary texture pixels.
-        const scale = (s && s[1]) || 1;
-        const worldH = 1.76 * scale;
-        const hasPhoto = R.textures && R.textures['photo_'+photo];
-        const hasPainted = R.textures && R.textures.people;
-        if (hasPhoto || hasPainted) {
-          const actor = { p:[p[0],p[1],p[2]], h:worldH,
-            w:0.94 * ((s && s[0]) || 1),
-            flip: !front && !back && angle>0 };
-          if (hasPhoto) {
-            actor.photoName = photo;
-            actor.photoFrame = frame;
-            if(photo==='nva') {actor.useCleanFigure=true;actor.cell=sprCell(mesh==='guardAim'?'guardAim':'guard',facing,R.eye[0],R.eye[2],p[0],p[2]);actor.cols=SPR.cols;actor.rows=SPR.rows;}
-          } else {
-            // Painted photographic fallback is still preferable to the
-            // original faceted primitive. Use its 7x8 kind/direction atlas.
-            const oldKind = isFieldWorker ? 'farmer' :
-              (mesh === 'villager' || mesh === 'villagerC') ? 'villager' :
-              photo === 'nva' ? 'guard' : photo === 'female_vc' ? 'vcFem' : 'militia';
-            actor.cell = sprCell(oldKind,facing,R.eye[0],R.eye[2],p[0],p[2]);
-            actor.cols = SPR.cols; actor.rows = SPR.rows;
-          }
-          sprites.push(actor);
-        }
-        // Deliberately do NOT fall back to the old blocky human mesh.
-        // While a photograph decodes the human can momentarily disappear.
+        if ((p[0]-R.eye[0])**2+(p[2]-R.eye[2])**2 > range*range) return;
+        const seed = Math.abs(Math.floor(p[0]*17.31+p[2]*41.73));
+        const descriptor = PhotoSprites.describe({kind:mesh,p,face:rot?rot[0]:0},
+          {camera:R.eye,height:(photo==='cow'?1.42:1.76)*((s&&s[1])||1),
+            working:(mesh==='farmer'||mesh==='farmerC')&&seed%5<3,phase:seed%5});
+        if(R.textures && R.textures['photo_'+photo])
+          sprites.push({...descriptor,p:p.slice(),sourcePhotograph:true});
+        // Wait for the correct atlas rather than substituting another person.
         return;
       }
       /* PHOTOGRAPHIC FOLIAGE — limited to close ground-level encounters.
@@ -17643,152 +17622,12 @@ class Game {
     /* People from the terrain and the search party share one billboard pass.
        `sprites` was initialized before World.clutter() above. */
     if (this.evade) for (const sc of this.evade.searchers.concat(this.evade.locals || [])) {
-      /* The dead stay where they fell. They used to be skipped by the
-         renderer the instant they died, so a man you had just shot
-         simply was not there any more — which made the revolver feel
-         like a delete key rather than a thing you had done. */
-      if (!sc.alive && sc.alive !== undefined) {
-        if (sc.downAt === undefined) continue;
-        const gy0 = this.pow ? sc.p[1] : this.evade.camp ? this.campY : Math.max(terrainH(sc.p[0], sc.p[2]), 0);
-        const fall = clamp((this.t - sc.downAt) / 0.75, 0, 1);
-        if (fall < 1 && typeof sprCell === 'function'
-            && this.rend.textures && this.rend.textures.people
-            && SPR.index && SPR.index.falling !== undefined) {
-          /* The fall itself, photographed: off his feet, head back,
-             the rifle still in his hand. He drops through it, so the
-             sprite sinks as the three quarters of a second run out
-             and the body underneath takes over without a cut. */
-          const cellF = sprCell('falling', sc.fallA !== undefined ? sc.fallA + PI : (sc.face || 0),
-            this.rend.eye[0], this.rend.eye[2], sc.p[0], sc.p[2]);
-          if (cellF >= 0) {
-            const e2 = fall * fall;                 // he accelerates into the ground
-            sprites.push({ p: [sc.p[0], gy0 - e2 * 1.24, sc.p[2]],
-                           h: 1.76, w: 1.42, cell: cellF,
-                           cols: SPR.cols, rows: SPR.rows });
-          }
-        }
-        /* And the body, fading up underneath him as he lands. */
-        if (fall > 0.45) {
-          push('body', [sc.p[0], gy0 + 0.02, sc.p[2]],
-               [(sc.fallA !== undefined ? sc.fallA : (sc.face || 0)) + PI, 0, 0],
-               [1, 1, 1], [0.86, 0.84, 0.80, 0]);
-        }
-        continue;
-      }
-      const gy = this.pow ? sc.p[1] : this.evade.camp ? this.campY : Math.max(terrainH(sc.p[0], sc.p[2]), 0);
-      const face = sc.face !== undefined ? sc.face
-        : Math.atan2(sc.goal[0] - sc.p[0], -(sc.goal[2] - sc.p[2]));
-      /* Who is looking for you. In the camp they are soldiers; on the
-         riverbank at dawn they are mostly not soldiers at all, which is
-         the whole point of the riverbank. */
-      const mdl = this.evade.camp && !this.pow ? 'sentry'
-        : this.evade.river ? (((sc.p[0] * 7919) | 0) % 5 < 3 ? 'villagerC' : 'farmerC')
-        : 'militia';
-      /* A walk. The instances all share one mesh so the legs cannot
-         swing, but a man walking rises and falls about three
-         centimetres a pace and rolls a little onto each foot, and
-         putting that back stops them sliding across the ground like
-         chess pieces — which is the thing the eye objects to, far more
-         than the geometry. */
-      /* ---- the walk ----
-         These men were inanimate, and for two reasons. The cadence was
-         driven off a flag that was only true in the prison yard or
-         once somebody had seen you, so a farmer crossing his own field
-         — which is most of the people in the game — slid across the
-         ground perfectly rigid, like a chess piece. And the one piece
-         of movement that did run was three and a half centimetres of
-         bob, which is invisible, while the `lean` sitting next to it
-         was computed and then thrown away.
-
-         A sprite cannot swing its legs. What it can do is what the eye
-         actually reads at thirty metres: the head rises and falls
-         about five centimetres a pace, the body sways over whichever
-         foot is down, and the shoulders narrow and widen as the torso
-         turns into the stride. The cadence comes off distance covered,
-         not off the clock, so a man walking and a man running have
-         different step rates and neither of them trots on the spot. */
-      /* The cadence and the speed are set by the simulation when it
-         moves him (see stepEvade); the renderer only reads them. */
-      if (!isFinite(sc.ph)) sc.ph = 0;
-      if (!isFinite(sc.spd)) sc.spd = 0;
-      const moving = sc.spd > 0.25;
-      const gait = moving ? clamp(sc.spd / 2.2, 0.45, 1.5) * (Number.isFinite(sc.motionBlend)?sc.motionBlend:1) : 0;
-      let bob = moving ? Math.abs(Math.sin(sc.ph)) * 0.052 * gait : 0;
-      let lean = moving ? Math.sin(sc.ph) * 0.030 * gait : 0;   // sway over the planted foot
-      let wob = moving ? 1 + Math.cos(sc.ph * 2) * 0.035 * gait : 1;
-      /* And standing still is not being a statue either: he shifts his
-         weight and looks about, slowly. */
-      if (!moving) {
-        const idle = this.t * 0.7 + (sc.p[0] * 0.37);
-        bob = Math.sin(idle) * 0.012;
-        lean = Math.sin(idle * 0.63) * 0.014;
-      }
-      /* Hit and still up: doubled over, and for the first second of it
-         rocked back on his heels by the shot. */
-      if (sc.hurt) { bob -= 0.16; lean += 0.05; }
-      if (sc.flinch) {
-        const ft = this.t - sc.flinch;
-        if (ft < 0.55) { bob -= (1 - ft / 0.55) * 0.10; }
-      }
-      // the sway is across his line of travel, not along it
-      const swx = Math.cos(face) * lean, swz = Math.sin(face) * lean;
-      /* Painted, if the sheet built. The mesh is kept as the fallback
-         so a browser that cannot make the texture still has people in
-         it rather than an empty camp. */
-      /* A guard who has seen you brings the rifle up, and the sheet has
-         that cell. It is the clearest signal in the yard that the thing
-         you were avoiding has happened. */
-      /* His kind is decided when he is made and stays with him. It
-         used to be worked out here from a hash of his coordinates,
-         which meant a man changed from a farmer into a soldier and
-         back as he walked across a field. The only thing still decided
-         at draw time is whether his rifle is up, which depends on
-         whether he has seen you — and a farmer has no rifle to raise. */
-      /* And close in, a soldier who has seen you is not standing there
-         aiming: he is coming at you, shouting, with the rifle across
-         him. That is the last thing a lot of these men saw and it is
-         the one moment the sheet did not have a cell for. */
-      const dpl = Math.hypot(sc.p[0] - this.evade.p[0], sc.p[2] - this.evade.p[2]);
-      const closing = sc.seen && dpl < 15
-        && ((this.evade.camp && !this.pow) || sc.armed) && !sc.flee;
-      const kind = this.evade.handsUp && sc.armed && dpl<13 ? 'guardAim' : closing ? 'charge'
-        : this.evade.camp && !this.pow ? (sc.seen ? 'guardAim' : 'guard')
-        : sc.kind ? ((sc.seen && sc.armed) ? 'guardAim'
-                     : sc.kind === 'nva' ? 'guard' : sc.kind)
-        : this.evade.river ? (((sc.p[0] * 7919) | 0) % 5 < 3 ? 'villager' : 'farmer')
-        : (sc.seen ? 'guardAim' : 'vc');
-      let cell = (typeof sprCell === 'function')
-        ? sprCell(kind, face, this.rend.eye[0], this.rend.eye[2], sc.p[0], sc.p[2]) : -1;
-      // Photo sprite direction is relative to the camera, not the map's north.
-      const camHeading = Math.atan2(this.rend.eye[0]-sc.p[0], -(this.rend.eye[2]-sc.p[2]));
-      const angleToCam = Math.atan2(Math.sin(face-camHeading),Math.cos(face-camHeading));
-      const idlePose = Math.abs(angleToCam)<PI/3 ? 0 :
-                       Math.abs(angleToCam)>2*PI/3 ? (['farmer','villager'].includes(sc.kind)?2:3) : 1;
-      const photographMotion=POW.FigureMotion ? POW.FigureMotion.pose(sc,this) : null;
-      const usePhotographMotion=photographMotion && photographMotion.enabled && photographMotion.visible && Number.isFinite(photographMotion.cell) && photographMotion.cell>=0;
-      if(usePhotographMotion)cell=photographMotion.cell;
-      if (cell >= 0 && this.rend.textures && this.rend.textures.people) {
-        sprites.push({ p: [sc.p[0] + (usePhotographMotion?0:swx), gy, sc.p[2] + (usePhotographMotion?0:swz)],
-                       h: usePhotographMotion ? 1.76*photographMotion.heightRatio : 1.76 + bob * .60, w: usePhotographMotion ? .96 : 0.96 * wob,
-                       cell: cell, cols: SPR.cols, rows: SPR.rows,
-                       useCleanFigure: usePhotographMotion || !!this.pow || (this.evade.camp && !this.pow) || sc.kind==='nva', owner:sc,
-                       motion: usePhotographMotion ? [photographMotion.phase,photographMotion.stride,photographMotion.turn,photographMotion.anchorBottom] : null,
-                       photoName: this.evade.camp && !this.pow ? 'nva'
-                         : sc.kind === 'nva' ? 'nva'
-                         : (sc.kind === 'vc' || sc.kind === 'vcFem') ? 'female_vc'
-                         : (sc.kind === 'farmer' || sc.kind === 'villager' ||
-                            (this.evade.river && !sc.armed)) ? 'farmer'
-                         : 'militia',
-                       photoFrame: (sc.hurt || (sc.flinch && this.t-sc.flinch < 0.45))
-                         ? 16
-                         : sc.seen && sc.armed ? 16
-                         : moving ? 8 + (Math.floor(sc.ph*1.27)%8+8)%8
-                         : idlePose,
-                       flip: moving && angleToCam>0 });
-      } else {
-        push(mdl, [sc.p[0], gy + bob, sc.p[2]], [face, 0, lean], [1, 1, 1],
-          [1, 1, 1, sc.lamp && this.evade.camp ? 0.06 : 0]);
-      }
+      if(sc.alive===false && sc.downAt===undefined)continue;
+      const gy=this.pow?sc.p[1]:this.evade.camp?this.campY:Math.max(terrainH(sc.p[0],sc.p[2]),0);
+      const face=Number.isFinite(sc.face)?sc.face:sc.goal?Math.atan2(sc.goal[0]-sc.p[0],-(sc.goal[2]-sc.p[2])):0;
+      const descriptor=PhotoSprites.describe({...sc,face},{camera:R.eye,moving:(sc.spd||0)>.25});
+      if(descriptor && R.textures && R.textures['photo_'+descriptor.photoName])
+        sprites.push({...descriptor,p:[sc.p[0],gy,sc.p[2]],owner:sc,sourcePhotograph:true});
     }
     /* ---- the ejection, drawn ----
        The seats on their rockets, and the canopy: streaming first, then
@@ -17837,17 +17676,10 @@ class Game {
        man is, and meant to be. */
     if (this.evade && this.evade.cattle) for (const c of this.evade.cattle) {
       const gy = Math.max(terrainH(c.p[0], c.p[2]), 0);
-      const head = c.alive && (c.walk || 0) <= 0 ? -0.30 : 0;   // grazing, head down
-      if (this.rend.textures && this.rend.textures.photo_cow) {
-        const action = !c.alive ? 5 : (c.walk || 0)>0 ? 1 : head < 0 ? 4 : 0;
-        const fr = Math.floor((c.t || this.t)*(c.walk>0 ? 5.5 : 2.1))%8;
-        sprites.push({p:[c.p[0],gy,c.p[2]], h:c.alive?1.42:0.70,
-          w:c.alive?2.1:2.45, photoName:'cow', photoFrame:action*8+fr, owner:c});
-      } else {
-        push('cow', [c.p[0], gy, c.p[2]],
-             [c.yaw, c.alive ? head : 0, c.alive ? 0 : 1.48],
-             [1, 1, 1], [1, 1, 1, 0]);
-      }
+      const descriptor=PhotoSprites.describe({...c,kind:'cow'},
+        {camera:R.eye,moving:(c.walk||0)>0,phase:c.ph||0});
+      if(R.textures && R.textures.photo_cow)
+        sprites.push({...descriptor,p:[c.p[0],gy,c.p[2]],owner:c,sourcePhotograph:true});
     }
 
     /* The rescue package, drawn. */
@@ -18004,13 +17836,14 @@ class Game {
       };
       for (const s of this._sprites) {
         const nm=s.photoName;
-        if(s.useCleanFigure)fallback.push(anchored({...s,flip:false},'people',s.cell,SPR.cols,SPR.rows));
-        else if(nm&&R.textures&&R.textures['photo_'+nm])
-          (groups[nm] ||= []).push(anchored(s,nm,s.photoFrame||0,8,6));
+        if(nm&&R.textures&&R.textures['photo_'+nm])
+          {const texture=s.textureName&&R.textures[s.textureName]?s.textureName:'photo_'+nm;
+          const descriptor=s.textureName&&!R.textures[s.textureName]?{...s,photoVariant:null,photoFrame:1}:s;
+          (groups[texture] ||= []).push(s.sourcePhotograph?PhotoSprites.anchor(descriptor):anchored(s,nm,s.photoFrame||0,8,6));}
         else fallback.push(s);
       }
       if (fallback.length) R.drawSprites('people', fallback);
-      for (const [name, list] of Object.entries(groups)) R.drawSprites('photo_'+name, list);
+      for (const [name, list] of Object.entries(groups)) R.drawSprites(name, list);
     }
     if(this.willard && !this.evade && !this.chute && this.willard.enemy)WillardSprites.draw(R,this.willard.enemy,{dt,light:.78});
     /* The see-through pass: canopy perspex, and the rotor discs, which
@@ -18308,6 +18141,7 @@ App.frame = function(now) {
 /* Milestone 2: additive first-person POW chapters using the existing renderer. */
 POW.ctx = { Game, App, MB, terrainH, Store, clamp, PI, TAU, firstPersonArt:FIRSTPERSON_ART,photoAtlas:PHOTO_ATLAS };
 if(POW.FigureMotion)POW.FigureMotion.configure({metadata:PHOTO_ATLAS.people});
+PhotoSprites.configure(PHOTO_ATLAS);
 POW.install();
 FlightCoach.install({Game,App,Store});
 FlightStrikeBoard.install({App,Store});
@@ -18358,6 +18192,7 @@ Game.prototype.captured = function() {
   this.pow.stats.recaptures=(this.pow.stats.recaptures || 0)+1;
   return POW.begin(this,'solitary');
 };
+CaptureTransition.install({Game,App});
 App.startPOW = function(saved,chapter) {
   const savedId=FlightSortieCheckpoint.missionId(saved);
   const mission=savedId==='free'?{...MISSIONS[0],id:'free',title:'Free Flight',free:true}:MISSIONS.find(m=>m.id===savedId)||MISSIONS.find(m=>m.escape);
