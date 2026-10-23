@@ -27,7 +27,10 @@ const server=http.createServer((req,res)=>{
    await page.goto(target,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.App);await page.click('#bootGo');await page.locator('#readyBody .mcard').first().click();await page.getByRole('button',{name:'Man Aircraft',exact:true}).click();
    await page.waitForFunction(()=>App.game&&document.getElementById('loader').style.display==='none',null,{timeout:60000});
    await page.waitForFunction(()=>FIGIMG&&['aviator','cow','farmer','female_vc','militia','nva','vegetation'].every(n=>App.rend.textures['photo_'+n]),null,{timeout:30000});
-   await page.evaluate(()=>{App.game.paused=true;App.screen='build-test';for(const id of ['teach','teachPeek','legend'])document.getElementById(id)?.classList.remove('on')});
+   // Drive original flight explicitly below. Unattended live frames during
+   // slow software-GPU UI assertions can crash the pilot-seat aircraft or
+   // open a timed teaching overlay between visibility and geometry reads.
+   await page.evaluate(()=>{window.__packagedFixedClock=true;App.game.paused=true;App.screen='build-test';for(const id of ['teach','teachPeek','legend'])document.getElementById(id)?.classList.remove('on')});
    const cdp=opts.hasTouch?await ctx.newCDPSession(page):null;
    if(cdp){const b=await page.locator('#pickle').boundingBox();assert.ok(b);await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:b.x+b.width/2,y:b.y+b.height/2}]});assert.equal(await page.evaluate(()=>App.gctl.commit),1)}else await page.keyboard.down('Space');
    const observed=await page.evaluate(()=>{const G=App.game;G.paused=false;for(let i=0;i<240;i++)G.update(1/60);G.paused=true;G.render(1/60);G.syncControls();return {mission:G.mis.id,quality:App.set.quality,shadowSize:G.rend.shadowSize,alive:G.ac.alive,onDeck:G.ac.onDeck,phase:G.phase,finite:[...G.ac.p,...G.ac.v].every(Number.isFinite),gpuError:G.rend.gl.getError(),webgl:G.rend.gl.getParameter(G.rend.gl.VERSION)}});
@@ -60,7 +63,8 @@ const server=http.createServer((req,res)=>{
    console.log('PASS '+name+' exact packaged native guidance toggle and stable target');
    await page.locator('#teach').dispatchEvent('click');await page.screenshot({path:path.join(root,'test-results','build-'+name+'-flight.png'),timeout:90000});
    checks.push({name:name+' packaged flight launches and renders with fresh default settings',passed:true,observed,errors,missing});console.log('PASS '+name+' packaged flight: default quality '+observed.quality+', '+observed.photosDecoded+' images decoded');
-   await page.evaluate(()=>App.show('ready'));
+   // Resume the native scheduler for the real chapter's queued startup.
+   await page.evaluate(()=>{window.__packagedFixedClock=false;App.show('ready');requestAnimationFrame(t=>App.frame(t))});
    await page.locator('#powChapter [data-pow-chapter="escape"]').click();
    await page.waitForFunction(()=>App.game?.pow?.stage==='cell'&&document.getElementById('loader').style.display==='none',null,{timeout:90000});
    const pow=await page.evaluate(async()=>{
