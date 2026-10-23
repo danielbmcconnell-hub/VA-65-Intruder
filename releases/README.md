@@ -1,3 +1,11 @@
+# Left-hand survival radio photograph — latest game
+
+[Download complete Netlify ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/survival-radio-photo/releases/Intruder_Yankee_Station_Survival_Radio.zip) (GitHub sign-in required). [Report/deployment instructions](../docs/SURVIVAL_RADIO_REPORT.md) · [Screenshots](survival-radio-screenshots/).
+
+Press **R** or tap **Radio** on foot: your supplied radio photograph appears in the left hand during accepted transmissions, with right-hand equipment retained. All existing missions and previous photographic equipment included. 32 domain tests,35 selected source-browser checks and17 packaged checks passed. Physical iPhone Safari untested. Extract the ZIP, upload the folder containing `index.html`, `assets/` and `_headers` to Netlify **Deploys**; confirm tab title ends **Photographic Equipment & Radio**. Live site not yet updated.
+
+Source `1bd3e76580e77ef8fa90ae13da955d5be6411325`. Earlier releases follow unchanged.
+
 # Photographic fists, revolver and knife — latest game
 
 [Download complete Netlify ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/photographic-equipment/releases/Intruder_Yankee_Station_Photographic_Equipment.zip) (sign in to GitHub). [Report and deployment instructions](../docs/PHOTOGRAPHIC_EQUIPMENT_REPORT.md) · [Screenshots](photographic-equipment-screenshots/) · [Test evidence](Intruder_Yankee_Station_Photographic_Equipment_Evidence.zip).

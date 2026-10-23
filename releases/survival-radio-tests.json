@@ -1,0 +1,2940 @@
+{
+  "summary": {
+    "recordedAt": "2026-10-23T16:31:35.092297+00:00",
+    "branch": "survival-radio-photo",
+    "sourceCommit": "1bd3e76580e77ef8fa90ae13da955d5be6411325",
+    "entrySHA256": "0415ce67186df9736f0cdf1da5e8d6f88519e8a461e47e5077d63b4bd53272d6",
+    "passed": true,
+    "domainChecks": 32,
+    "radioBrowserChecks": 14,
+    "equipmentBrowserChecks": 21,
+    "packagedChecks": 17,
+    "runtimeFiles": 158,
+    "physicalWindowsTested": false,
+    "actualIPhoneSafariTested": false,
+    "netlifyDeployed": false,
+    "fullBrowserRegistryRun": false,
+    "preservedEarlierZIPs": 30,
+    "playable": {
+      "file": "Intruder_Yankee_Station_Survival_Radio.zip",
+      "bytes": 38444518,
+      "sha256": "ef4a8ae79b054805ad24a132715a4ba98ac40f283c88d6bc379cd02713d00810"
+    },
+    "screenshots": [
+      "radio-view/desktop-native-transmission-fists.png",
+      "radio-view/desktop-native-transmission-revolver.png",
+      "radio-view/iphone-layout-chromium-native-transmission-fists.png",
+      "radio-view/iphone-layout-chromium-native-transmission-revolver.png"
+    ]
+  },
+  "radio": {
+    "suite": "radio-view",
+    "passed": true,
+    "checks": [
+      {
+        "layout": "desktop",
+        "name": "Native radio transmission displays the opaque photographic radio in the left hand with transparent background",
+        "passed": true,
+        "actual": {
+          "before": {
+            "t": 0.016666666666666666,
+            "lastTx": -99,
+            "radio": 0,
+            "queued": false,
+            "rounds": 6,
+            "visible": false,
+            "source": null,
+            "transform": "",
+            "radioActive": "false",
+            "weaponSource": "assets/firstperson/fists.png",
+            "weaponClip": "none",
+            "paused": false,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0
+            },
+            "screen": {
+              "width": 1280,
+              "height": 720
+            }
+          },
+          "first": {
+            "t": 0.08333333333333333,
+            "lastTx": 0.03333333333333333,
+            "radio": 0.34,
+            "queued": false,
+            "rounds": 6,
+            "visible": true,
+            "source": "assets/firstperson/radio.png",
+            "transform": "translateY(13.097px)",
+            "radioActive": "true",
+            "weapon": "fists",
+            "weaponSource": "assets/firstperson/fists.png",
+            "weaponClip": "inset(0px 0px 0px 50%)",
+            "paused": false,
+            "bounds": {
+              "x": 339.6796875,
+              "y": 201.609375,
+              "width": 255.015625,
+              "height": 554.390625
+            },
+            "screen": {
+              "width": 1280,
+              "height": 720
+            }
+          },
+          "photo": {
+            "width": 851,
+            "height": 1847,
+            "clear": 0.7175290447812281,
+            "solid": 0.2672959676090487,
+            "opacity": 1,
+            "pointerEvents": "none",
+            "bounds": {
+              "x": 339.6796875,
+              "y": 201.609375,
+              "width": 255.015625,
+              "height": 554.390625
+            },
+            "screen": {
+              "width": 1280,
+              "height": 720
+            }
+          }
+        }
+      },
+      {
+        "layout": "desktop",
+        "name": "Original cooldown queues a second native call and restarts artwork only when that call is accepted",
+        "passed": true,
+        "actual": {
+          "first": {
+            "t": 0.08333333333333333,
+            "lastTx": 0.03333333333333333,
+            "radio": 0.34,
+            "queued": false,
+            "rounds": 6,
+            "visible": true,
+            "source": "assets/firstperson/radio.png",
+            "transform": "translateY(13.097px)",
+            "radioActive": "true",
+            "weapon": "fists",
+            "weaponSource": "assets/firstperson/fists.png",
+            "weaponClip": "inset(0px 0px 0px 50%)",
+            "paused": false,
+            "bounds": {
+              "x": 339.6796875,
+              "y": 201.609375,
+              "width": 255.015625,
+              "height": 554.390625
+            },
+            "screen": {
+              "width": 1280,
+              "height": 720
+            }
+          },
+          "queued": {
+            "t": 0.4833333333333333,
+            "lastTx": 0.03333333333333333,
+            "radio": 0.34,
+            "queued": true,
+            "rounds": 6,
+            "visible": true,
+            "source": "assets/firstperson/radio.png",
+            "transform": "translateY(0.634px)",
+            "radioActive": "true",
+            "weapon": "fists",
+            "weaponSource": "assets/firstperson/fists.png",
+            "weaponClip": "inset(0px 0px 0px 50%)",
+            "paused": false,
+            "bounds": {
+              "x": 339.6796875,
+              "y": 201.609375,
+              "width": 255.015625,
+              "height": 554.390625
+            },
+            "screen": {
+              "width": 1280,
+              "height": 720
+            }
+          },
+          "second": {
+            "t": 1.5333333333333317,
+            "lastTx": 1.2333333333333338,
+            "radio": 0.68,
+            "queued": false,
+            "rounds": 6,
+            "visible": true,
+            "source": "assets/firstperson/radio.png",
+            "transform": "translateY(0.509px)",
+            "radioActive": "true",
+            "weapon": "fists",
+            "weaponSource": "assets/firstperson/fists.png",
+            "weaponClip": "inset(0px 0px 0px 50%)",
+            "paused": false,
+            "bounds": {
+              "x": 339.6796875,
+              "y": 201.609375,
+              "width": 255.015625,
+              "height": 554.390625
+            },
+            "screen": {
+              "width": 1280,
+              "height": 720
+            }
+          }
+        }
+      },
+      {
+        "layout": "desktop",
+        "name": "The left-hand radio keeps the existing right-hand revolver and does not spend ammunition",
+        "passed": true,
+        "actual": {
+          "t": 1.7999999999999974,
+          "lastTx": 1.2333333333333338,
+          "radio": 0.68,
+          "queued": false,
+          "rounds": 6,
+          "visible": true,
+          "source": "assets/firstperson/radio.png",
+          "transform": "translateY(0.645px)",
+          "radioActive": "true",
+          "weapon": "pistol",
+          "weaponSource": "assets/firstperson/pistol.png",
+          "weaponClip": "none",
+          "paused": false,
+          "bounds": {
+            "x": 339.6796875,
+            "y": 201.609375,
+            "width": 255.015625,
+            "height": 554.390625
+          },
+          "screen": {
+            "width": 1280,
+            "height": 720
+          }
+        }
+      },
+      {
+        "layout": "desktop",
+        "name": "Pause freezes the accepted transmission clock and photo pose instead of expiring on wall time",
+        "passed": true,
+        "actual": {
+          "pausedA": {
+            "t": 1.7999999999999974,
+            "lastTx": 1.2333333333333338,
+            "radio": 0.68,
+            "queued": false,
+            "rounds": 6,
+            "visible": true,
+            "source": "assets/firstperson/radio.png",
+            "transform": "translateY(0.645px)",
+            "radioActive": "true",
+            "weapon": "pistol",
+            "weaponSource": "assets/firstperson/pistol.png",
+            "weaponClip": "none",
+            "paused": true,
+            "bounds": {
+              "x": 339.6796875,
+              "y": 201.609375,
+              "width": 255.015625,
+              "height": 554.390625
+            },
+            "screen": {
+              "width": 1280,
+              "height": 720
+            }
+          },
+          "pausedB": {
+            "t": 1.7999999999999974,
+            "lastTx": 1.2333333333333338,
+            "radio": 0.68,
+            "queued": false,
+            "rounds": 6,
+            "visible": true,
+            "source": "assets/firstperson/radio.png",
+            "transform": "translateY(0.645px)",
+            "radioActive": "true",
+            "weapon": "pistol",
+            "weaponSource": "assets/firstperson/pistol.png",
+            "weaponClip": "none",
+            "paused": true,
+            "bounds": {
+              "x": 339.6796875,
+              "y": 201.609375,
+              "width": 255.015625,
+              "height": 554.390625
+            },
+            "screen": {
+              "width": 1280,
+              "height": 720
+            }
+          }
+        }
+      },
+      {
+        "layout": "desktop",
+        "name": "Releasing input lets transmission artwork expire in simulation time without further calls or weapon changes",
+        "passed": true,
+        "actual": {
+          "t": 4.699999999999988,
+          "lastTx": 1.2333333333333338,
+          "radio": 0.68,
+          "queued": false,
+          "rounds": 6,
+          "visible": false,
+          "source": "assets/firstperson/radio.png",
+          "transform": "translateY(0.645px)",
+          "radioActive": "false",
+          "weapon": "pistol",
+          "weaponSource": "assets/firstperson/pistol.png",
+          "weaponClip": "none",
+          "paused": false,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "screen": {
+            "width": 1280,
+            "height": 720
+          }
+        }
+      },
+      {
+        "layout": "desktop",
+        "name": "New ground actors, Ready Room, surrender and explicit unavailable-radio/capture boundary fixtures cannot show stale transmission art",
+        "passed": true,
+        "actual": [
+          {
+            "field": "frozen",
+            "visible": false
+          },
+          {
+            "field": "camp",
+            "visible": false
+          },
+          {
+            "field": "river",
+            "visible": false
+          },
+          {
+            "field": "radio",
+            "visible": false
+          },
+          {
+            "field": "doom",
+            "visible": false
+          }
+        ]
+      },
+      {
+        "layout": "desktop",
+        "name": "Actual prison chapter entry keeps its existing interaction hands and never carries the survival radio into captivity",
+        "passed": true,
+        "actual": {
+          "pow": {
+            "stage": "cell",
+            "visible": false,
+            "gl": 0
+          },
+          "missing": []
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "Native radio transmission displays the opaque photographic radio in the left hand with transparent background",
+        "passed": true,
+        "actual": {
+          "before": {
+            "t": 0.016666666666666666,
+            "lastTx": -99,
+            "radio": 0,
+            "queued": false,
+            "rounds": 6,
+            "visible": false,
+            "source": null,
+            "transform": "",
+            "radioActive": "false",
+            "weaponSource": "assets/firstperson/fists.png",
+            "weaponClip": "none",
+            "paused": false,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0
+            },
+            "screen": {
+              "width": 844,
+              "height": 390
+            }
+          },
+          "first": {
+            "t": 0.06666666666666667,
+            "lastTx": 0.03333333333333333,
+            "radio": 0.34,
+            "queued": false,
+            "rounds": 6,
+            "visible": true,
+            "source": "assets/firstperson/radio.png",
+            "transform": "translateY(14.732px)",
+            "radioActive": "true",
+            "weapon": "fists",
+            "weaponSource": "assets/firstperson/fists.png",
+            "weaponClip": "inset(0px 0px 0px 50%)",
+            "paused": false,
+            "bounds": {
+              "x": 255.53125,
+              "y": 109.203125,
+              "width": 145.71875,
+              "height": 316.796875
+            },
+            "screen": {
+              "width": 844,
+              "height": 390
+            }
+          },
+          "photo": {
+            "width": 851,
+            "height": 1847,
+            "clear": 0.7175290447812281,
+            "solid": 0.2672959676090487,
+            "opacity": 1,
+            "pointerEvents": "none",
+            "bounds": {
+              "x": 255.53125,
+              "y": 109.203125,
+              "width": 145.71875,
+              "height": 316.796875
+            },
+            "screen": {
+              "width": 844,
+              "height": 390
+            }
+          }
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "Original cooldown queues a second native call and restarts artwork only when that call is accepted",
+        "passed": true,
+        "actual": {
+          "first": {
+            "t": 0.06666666666666667,
+            "lastTx": 0.03333333333333333,
+            "radio": 0.34,
+            "queued": false,
+            "rounds": 6,
+            "visible": true,
+            "source": "assets/firstperson/radio.png",
+            "transform": "translateY(14.732px)",
+            "radioActive": "true",
+            "weapon": "fists",
+            "weaponSource": "assets/firstperson/fists.png",
+            "weaponClip": "inset(0px 0px 0px 50%)",
+            "paused": false,
+            "bounds": {
+              "x": 255.53125,
+              "y": 109.203125,
+              "width": 145.71875,
+              "height": 316.796875
+            },
+            "screen": {
+              "width": 844,
+              "height": 390
+            }
+          },
+          "queued": {
+            "t": 0.4666666666666666,
+            "lastTx": 0.03333333333333333,
+            "radio": 0.34,
+            "queued": true,
+            "rounds": 6,
+            "visible": true,
+            "source": "assets/firstperson/radio.png",
+            "transform": "translateY(0.626px)",
+            "radioActive": "true",
+            "weapon": "fists",
+            "weaponSource": "assets/firstperson/fists.png",
+            "weaponClip": "inset(0px 0px 0px 50%)",
+            "paused": false,
+            "bounds": {
+              "x": 255.53125,
+              "y": 109.203125,
+              "width": 145.71875,
+              "height": 316.796875
+            },
+            "screen": {
+              "width": 844,
+              "height": 390
+            }
+          },
+          "second": {
+            "t": 1.516666666666665,
+            "lastTx": 1.2333333333333338,
+            "radio": 0.68,
+            "queued": false,
+            "rounds": 6,
+            "visible": true,
+            "source": "assets/firstperson/radio.png",
+            "transform": "translateY(0.488px)",
+            "radioActive": "true",
+            "weapon": "fists",
+            "weaponSource": "assets/firstperson/fists.png",
+            "weaponClip": "inset(0px 0px 0px 50%)",
+            "paused": false,
+            "bounds": {
+              "x": 255.53125,
+              "y": 109.203125,
+              "width": 145.71875,
+              "height": 316.796875
+            },
+            "screen": {
+              "width": 844,
+              "height": 390
+            }
+          }
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "The left-hand radio keeps the existing right-hand revolver and does not spend ammunition",
+        "passed": true,
+        "actual": {
+          "t": 1.7833333333333308,
+          "lastTx": 1.2333333333333338,
+          "radio": 0.68,
+          "queued": false,
+          "rounds": 6,
+          "visible": true,
+          "source": "assets/firstperson/radio.png",
+          "transform": "translateY(0.648px)",
+          "radioActive": "true",
+          "weapon": "pistol",
+          "weaponSource": "assets/firstperson/pistol.png",
+          "weaponClip": "none",
+          "paused": false,
+          "bounds": {
+            "x": 255.53125,
+            "y": 109.203125,
+            "width": 145.71875,
+            "height": 316.796875
+          },
+          "screen": {
+            "width": 844,
+            "height": 390
+          }
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "Pause freezes the accepted transmission clock and photo pose instead of expiring on wall time",
+        "passed": true,
+        "actual": {
+          "pausedA": {
+            "t": 1.7833333333333308,
+            "lastTx": 1.2333333333333338,
+            "radio": 0.68,
+            "queued": false,
+            "rounds": 6,
+            "visible": true,
+            "source": "assets/firstperson/radio.png",
+            "transform": "translateY(0.648px)",
+            "radioActive": "true",
+            "weapon": "pistol",
+            "weaponSource": "assets/firstperson/pistol.png",
+            "weaponClip": "none",
+            "paused": true,
+            "bounds": {
+              "x": 255.53125,
+              "y": 109.203125,
+              "width": 145.71875,
+              "height": 316.796875
+            },
+            "screen": {
+              "width": 844,
+              "height": 390
+            }
+          },
+          "pausedB": {
+            "t": 1.7833333333333308,
+            "lastTx": 1.2333333333333338,
+            "radio": 0.68,
+            "queued": false,
+            "rounds": 6,
+            "visible": true,
+            "source": "assets/firstperson/radio.png",
+            "transform": "translateY(0.648px)",
+            "radioActive": "true",
+            "weapon": "pistol",
+            "weaponSource": "assets/firstperson/pistol.png",
+            "weaponClip": "none",
+            "paused": true,
+            "bounds": {
+              "x": 255.53125,
+              "y": 109.203125,
+              "width": 145.71875,
+              "height": 316.796875
+            },
+            "screen": {
+              "width": 844,
+              "height": 390
+            }
+          }
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "Releasing input lets transmission artwork expire in simulation time without further calls or weapon changes",
+        "passed": true,
+        "actual": {
+          "t": 4.683333333333321,
+          "lastTx": 1.2333333333333338,
+          "radio": 0.68,
+          "queued": false,
+          "rounds": 6,
+          "visible": false,
+          "source": "assets/firstperson/radio.png",
+          "transform": "translateY(0.648px)",
+          "radioActive": "false",
+          "weapon": "pistol",
+          "weaponSource": "assets/firstperson/pistol.png",
+          "weaponClip": "none",
+          "paused": false,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "screen": {
+            "width": 844,
+            "height": 390
+          }
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "New ground actors, Ready Room, surrender and explicit unavailable-radio/capture boundary fixtures cannot show stale transmission art",
+        "passed": true,
+        "actual": [
+          {
+            "field": "frozen",
+            "visible": false
+          },
+          {
+            "field": "camp",
+            "visible": false
+          },
+          {
+            "field": "river",
+            "visible": false
+          },
+          {
+            "field": "radio",
+            "visible": false
+          },
+          {
+            "field": "doom",
+            "visible": false
+          }
+        ]
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "Actual prison chapter entry keeps its existing interaction hands and never carries the survival radio into captivity",
+        "passed": true,
+        "actual": {
+          "pow": {
+            "stage": "cell",
+            "visible": false,
+            "gl": 0
+          },
+          "missing": []
+        }
+      }
+    ],
+    "screenshots": [
+      "radio-view/desktop-native-transmission-fists.png",
+      "radio-view/desktop-native-transmission-revolver.png",
+      "radio-view/iphone-layout-chromium-native-transmission-fists.png",
+      "radio-view/iphone-layout-chromium-native-transmission-revolver.png"
+    ],
+    "sourceHashes": [
+      {
+        "layout": "desktop",
+        "index": "0415ce67186df9736f0cdf1da5e8d6f88519e8a461e47e5077d63b4bd53272d6"
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "index": "0415ce67186df9736f0cdf1da5e8d6f88519e8a461e47e5077d63b4bd53272d6"
+      }
+    ],
+    "browserErrors": [],
+    "scope": "Actual Chromium/SwiftShader WebGL2 desktop1280x720 and simulated iPhone landscape844x390DPR3. Trusted keyboard/native touch radio buttons; original radio progress/cooldown/queued calls; actual game update/pause; genuine POW entry. Explicit isolated dry-ground initialization and field-based unavailability boundary fixtures. No direct setting of accepted lastTx/radio progress; no replacement gameplay methods. Physical Windows/iPhone Safari and hardware FPS are not tested."
+  },
+  "equipment": {
+    "suite": "equipment-view",
+    "passed": true,
+    "checks": [
+      {
+        "layout": "desktop",
+        "name": "All three supplied photographic cutouts decode with transparent backgrounds and solid interiors",
+        "passed": true,
+        "actual": {
+          "photographs": [
+            {
+              "mode": "fists",
+              "src": "assets/firstperson/fists.png",
+              "width": 1086,
+              "height": 1449,
+              "transparentFraction": 0.7866096768330734,
+              "opaqueFraction": 0.2078444904531861,
+              "solidInteriorFraction": 0.9928253430957724,
+              "topCorners": [
+                0,
+                0
+              ]
+            },
+            {
+              "mode": "pistol",
+              "src": "assets/firstperson/pistol.png",
+              "width": 1122,
+              "height": 1402,
+              "transparentFraction": 0.6883431105550767,
+              "opaqueFraction": 0.3054733370458805,
+              "solidInteriorFraction": 0.993928376053798,
+              "topCorners": [
+                0,
+                0
+              ]
+            },
+            {
+              "mode": "knife",
+              "src": "assets/firstperson/knife.png",
+              "width": 1182,
+              "height": 1330,
+              "transparentFraction": 0.7882479040240195,
+              "opaqueFraction": 0.20473964098062414,
+              "solidInteriorFraction": 0.9913197250158501,
+              "topCorners": [
+                0,
+                0
+              ]
+            }
+          ],
+          "fistVisual": {
+            "source": "assets/firstperson/fists.png",
+            "mode": "fists",
+            "decoded": true,
+            "opacity": 1,
+            "reticleAlpha": 0,
+            "image": {
+              "x": 121.6015625,
+              "y": -201.015625,
+              "width": 1036.796875,
+              "height": 1383.34375
+            },
+            "viewport": {
+              "x": 121.6015625,
+              "y": 403.203125,
+              "width": 1036.796875,
+              "height": 316.796875
+            },
+            "screen": {
+              "width": 1280,
+              "height": 720
+            }
+          }
+        }
+      },
+      {
+        "layout": "desktop",
+        "name": "Native forward movement drives the existing equipment art by real resolved distance",
+        "passed": true,
+        "actual": {
+          "before": {
+            "active": true,
+            "clock": 0,
+            "phase": 0,
+            "gait": 0,
+            "amplitude": 0,
+            "speed": 0,
+            "distance": 0,
+            "steps": 0,
+            "mode": "fists",
+            "action": null,
+            "actionAge": 1,
+            "pulses": 0,
+            "reduced": false,
+            "drawAge": 0.2,
+            "x": 0,
+            "y": 0,
+            "rotation": 0,
+            "scale": 1,
+            "transform": "translate(0.000px,0.000px) rotate(0.000deg) scale(1.0000)"
+          },
+          "after": {
+            "active": true,
+            "clock": 0.49999999999999994,
+            "phase": 4.022771080812543,
+            "gait": 0.9975212478233336,
+            "amplitude": 0.9975212478224265,
+            "speed": 2.09999999999809,
+            "distance": 1.049999999999045,
+            "steps": 30,
+            "mode": "fists",
+            "action": null,
+            "actionAge": 1,
+            "pulses": 0,
+            "reduced": false,
+            "drawAge": 0.2,
+            "x": -2.61656128773956,
+            "y": -0.5297752951265562,
+            "rotation": -0.4001799616542857,
+            "scale": 1,
+            "transform": "translate(-2.617px,-0.530px) rotate(-0.400deg) scale(1.0000)"
+          },
+          "displacement": 1.049999999999045
+        }
+      },
+      {
+        "layout": "desktop",
+        "name": "Actual run and crouch inputs change gait smoothly without changing the artwork",
+        "passed": true,
+        "actual": {
+          "firstRun": {
+            "active": true,
+            "clock": 0.5166666666666666,
+            "phase": 4.19596144504902,
+            "gait": 0.9979705693637042,
+            "amplitude": 1.0795417304778696,
+            "speed": 4.30000000000291,
+            "distance": 1.1216666666657602,
+            "steps": 31,
+            "mode": "fists",
+            "action": null,
+            "actionAge": 1,
+            "pulses": 0,
+            "reduced": false,
+            "drawAge": 0.2,
+            "x": -3.1917748772901726,
+            "y": -1.5470770505825844,
+            "rotation": -0.48815380476202647,
+            "scale": 1,
+            "transform": "translate(-3.192px,-1.547px) rotate(-0.488deg) scale(1.0000)"
+          },
+          "run": {
+            "active": true,
+            "clock": 1.016666666666668,
+            "phase": 3.108487064963758,
+            "gait": 0.9999949695443929,
+            "amplitude": 1.449081725758058,
+            "speed": 4.30000000000291,
+            "distance": 3.2716666666672154,
+            "steps": 61,
+            "mode": "fists",
+            "action": null,
+            "actionAge": 1,
+            "pulses": 0,
+            "reduced": false,
+            "drawAge": 0.2,
+            "x": 0.1630773998240415,
+            "y": 4.048542576090882,
+            "rotation": 0.02494124938485341,
+            "scale": 1,
+            "transform": "translate(0.163px,4.049px) rotate(0.025deg) scale(1.0000)"
+          },
+          "firstCrouch": {
+            "active": true,
+            "clock": 1.0333333333333345,
+            "phase": 3.210588826205308,
+            "gait": 0.9999958814112925,
+            "amplitude": 1.2806677810007765,
+            "speed": 1.091999999998734,
+            "distance": 3.2898666666671943,
+            "steps": 62,
+            "mode": "fists",
+            "action": null,
+            "actionAge": 1,
+            "pulses": 0,
+            "reduced": false,
+            "drawAge": 0.2,
+            "x": -0.2686288973239497,
+            "y": 3.178365608287685,
+            "rotation": -0.04108441959072172,
+            "scale": 1,
+            "transform": "translate(-0.269px,3.178px) rotate(-0.041deg) scale(1.0000)"
+          },
+          "crouch": {
+            "active": true,
+            "clock": 1.683333333333332,
+            "phase": 0.9093722074461716,
+            "gait": 0.9999999983124701,
+            "amplitude": 0.520311672196658,
+            "speed": 1.0919999999987526,
+            "distance": 3.9996666666663714,
+            "steps": 101,
+            "mode": "fists",
+            "action": null,
+            "actionAge": 1,
+            "pulses": 0,
+            "reduced": false,
+            "drawAge": 0.2,
+            "x": 0.5865904974202393,
+            "y": -0.15023589197037054,
+            "rotation": 0.08971384078191895,
+            "scale": 1,
+            "transform": "translate(0.587px,-0.150px) rotate(0.090deg) scale(1.0000)"
+          }
+        }
+      },
+      {
+        "layout": "desktop",
+        "name": "A real wall stops both physical travel and the walking presentation",
+        "passed": true,
+        "actual": {
+          "before": {
+            "state": {
+              "active": true,
+              "clock": 3.983333333333324,
+              "phase": 1.7139264236086804,
+              "gait": 8.861904270104211e-11,
+              "amplitude": 0,
+              "speed": 0,
+              "distance": 4.20966666666618,
+              "steps": 239,
+              "mode": "fists",
+              "action": null,
+              "actionAge": 1,
+              "pulses": 0,
+              "reduced": false,
+              "drawAge": 0.2,
+              "x": 0,
+              "y": 0.9271908763810967,
+              "rotation": 0,
+              "scale": 1,
+              "transform": "translate(0.000px,0.927px) rotate(0.000deg) scale(1.0000)"
+            },
+            "transform": "translate(0px, 0.927px) rotate(0deg) scale(1)",
+            "animation": "none",
+            "p": [
+              -7732.308318171608,
+              0,
+              705.0846947767582
+            ],
+            "moving": false,
+            "running": false,
+            "crouch": false,
+            "rounds": 6,
+            "source": "assets/firstperson/fists.png",
+            "weapon": "fists"
+          },
+          "after": {
+            "state": {
+              "active": true,
+              "clock": 4.483333333333323,
+              "phase": 1.7139264236086804,
+              "gait": 2.1966464498929664e-13,
+              "amplitude": 0,
+              "speed": 0,
+              "distance": 4.20966666666618,
+              "steps": 269,
+              "mode": "fists",
+              "action": null,
+              "actionAge": 1,
+              "pulses": 0,
+              "reduced": false,
+              "drawAge": 0.2,
+              "x": 0,
+              "y": 0.31484668980765446,
+              "rotation": 0,
+              "scale": 1,
+              "transform": "translate(0.000px,0.315px) rotate(0.000deg) scale(1.0000)"
+            },
+            "transform": "translate(0px, 0.315px) rotate(0deg) scale(1)",
+            "animation": "none",
+            "p": [
+              -7732.308318171608,
+              0,
+              705.0846947767582
+            ],
+            "moving": false,
+            "running": false,
+            "crouch": false,
+            "rounds": 6,
+            "source": "assets/firstperson/fists.png",
+            "weapon": "fists"
+          }
+        }
+      },
+      {
+        "layout": "desktop",
+        "name": "Actual Pause freezes transforms across real elapsed wall time",
+        "passed": true,
+        "actual": {
+          "before": {
+            "state": {
+              "active": false,
+              "clock": 4.483333333333323,
+              "phase": 1.7139264236086804,
+              "gait": 2.1966464498929664e-13,
+              "amplitude": 0,
+              "speed": 0,
+              "distance": 4.20966666666618,
+              "steps": 269,
+              "mode": "fists",
+              "action": null,
+              "actionAge": 1,
+              "pulses": 0,
+              "reduced": false,
+              "drawAge": 0.2,
+              "x": 0,
+              "y": 0.31484668980765446,
+              "rotation": 0,
+              "scale": 1,
+              "transform": "translate(0.000px,0.315px) rotate(0.000deg) scale(1.0000)"
+            },
+            "transform": "translate(0px, 0.315px) rotate(0deg) scale(1)",
+            "animation": "none",
+            "p": [
+              -7732.308318171608,
+              0,
+              705.0846947767582
+            ],
+            "moving": false,
+            "running": false,
+            "crouch": false,
+            "rounds": 6,
+            "source": "assets/firstperson/fists.png",
+            "weapon": "fists"
+          },
+          "after": {
+            "state": {
+              "active": false,
+              "clock": 4.483333333333323,
+              "phase": 1.7139264236086804,
+              "gait": 2.1966464498929664e-13,
+              "amplitude": 0,
+              "speed": 0,
+              "distance": 4.20966666666618,
+              "steps": 269,
+              "mode": "fists",
+              "action": null,
+              "actionAge": 1,
+              "pulses": 0,
+              "reduced": false,
+              "drawAge": 0.2,
+              "x": 0,
+              "y": 0.31484668980765446,
+              "rotation": 0,
+              "scale": 1,
+              "transform": "translate(0.000px,0.315px) rotate(0.000deg) scale(1.0000)"
+            },
+            "transform": "translate(0px, 0.315px) rotate(0deg) scale(1)",
+            "animation": "none",
+            "p": [
+              -7732.308318171608,
+              0,
+              705.0846947767582
+            ],
+            "moving": false,
+            "running": false,
+            "crouch": false,
+            "rounds": 6,
+            "source": "assets/firstperson/fists.png",
+            "weapon": "fists"
+          }
+        }
+      },
+      {
+        "layout": "desktop",
+        "name": "Original accepted revolver shots spend ammunition and replay simulation-driven recoil while Fire is held",
+        "passed": true,
+        "actual": {
+          "armed": {
+            "active": true,
+            "clock": 4.7499999999999885,
+            "phase": 1.7139264236086804,
+            "gait": 8.954015065889104e-15,
+            "amplitude": 0,
+            "speed": 0,
+            "distance": 4.20966666666618,
+            "steps": 285,
+            "mode": "pistol",
+            "action": null,
+            "actionAge": 1,
+            "pulses": 0,
+            "reduced": false,
+            "drawAge": 0.2,
+            "x": 0,
+            "y": -0.10517847674631146,
+            "rotation": 0,
+            "scale": 1,
+            "transform": "translate(0.000px,-0.105px) rotate(0.000deg) scale(1.0000)"
+          },
+          "pistolVisual": {
+            "source": "assets/firstperson/pistol.png",
+            "mode": "pistol",
+            "decoded": true,
+            "opacity": 1,
+            "reticleAlpha": 0,
+            "image": {
+              "x": 454.5625,
+              "y": 299.3012390136719,
+              "width": 370.875,
+              "height": 463.5937805175781
+            },
+            "viewport": {
+              "x": 454.5625,
+              "y": 299.40625,
+              "width": 370.875,
+              "height": 463.59375
+            },
+            "screen": {
+              "width": 1280,
+              "height": 720
+            }
+          },
+          "first": {
+            "state": {
+              "active": true,
+              "clock": 4.849999999999988,
+              "phase": 1.7139264236086804,
+              "gait": 2.6968975112204528e-15,
+              "amplitude": 0,
+              "speed": 0,
+              "distance": 4.20966666666618,
+              "steps": 291,
+              "mode": "pistol",
+              "action": 4.783333333333322,
+              "actionAge": 0.08333333333333333,
+              "pulses": 1,
+              "reduced": false,
+              "drawAge": 0.2,
+              "x": 1.081419643422266,
+              "y": -9.217881296148914,
+              "rotation": -1.8924843759889658,
+              "scale": 1.0135177455427784,
+              "transform": "translate(1.081px,-9.218px) rotate(-1.892deg) scale(1.0135)"
+            },
+            "transform": "translate(1.081px, -9.218px) rotate(-1.892deg) scale(1.0135)",
+            "animation": "none",
+            "p": [
+              -7732.308318171608,
+              0,
+              705.0846947767582
+            ],
+            "moving": false,
+            "running": false,
+            "crouch": false,
+            "rounds": 5,
+            "source": "assets/firstperson/pistol.png",
+            "weapon": "pistol"
+          },
+          "second": {
+            "state": {
+              "active": true,
+              "clock": 5.8999999999999835,
+              "phase": 1.7139264236086804,
+              "gait": 9.09397949274752e-21,
+              "amplitude": 0,
+              "speed": 0,
+              "distance": 4.20966666666618,
+              "steps": 354,
+              "mode": "pistol",
+              "action": 5.733333333333318,
+              "actionAge": 0.18333333333333215,
+              "pulses": 2,
+              "reduced": false,
+              "drawAge": 0.2,
+              "x": 0.1301844825494348,
+              "y": -1.383358330299,
+              "rotation": -0.2278228444615109,
+              "scale": 1.001627306031868,
+              "transform": "translate(0.130px,-1.383px) rotate(-0.228deg) scale(1.0016)"
+            },
+            "transform": "translate(0.13px, -1.383px) rotate(-0.228deg) scale(1.0016)",
+            "animation": "none",
+            "p": [
+              -7732.308318171608,
+              0,
+              705.0846947767582
+            ],
+            "moving": false,
+            "running": false,
+            "crouch": false,
+            "rounds": 4,
+            "source": "assets/firstperson/pistol.png",
+            "weapon": "pistol"
+          }
+        }
+      },
+      {
+        "layout": "desktop",
+        "name": "Native weapon selection displays the supplied knife and fists without blocking the aiming point",
+        "passed": true,
+        "actual": {
+          "knifeVisual": {
+            "source": "assets/firstperson/knife.png",
+            "mode": "knife",
+            "decoded": true,
+            "opacity": 1,
+            "reticleAlpha": 0,
+            "image": {
+              "x": 570.3671875,
+              "y": 360.0320129394531,
+              "width": 355.265625,
+              "height": 399.9999694824219
+            },
+            "viewport": {
+              "x": 570.3671875,
+              "y": 360,
+              "width": 355.265625,
+              "height": 400
+            },
+            "screen": {
+              "width": 1280,
+              "height": 720
+            }
+          },
+          "selectedFists": {
+            "source": "assets/firstperson/fists.png",
+            "mode": "fists",
+            "decoded": true,
+            "opacity": 1,
+            "reticleAlpha": 0,
+            "image": {
+              "x": 121.6015625,
+              "y": -200.421630859375,
+              "width": 1036.796875,
+              "height": 1383.34375
+            },
+            "viewport": {
+              "x": 121.6015625,
+              "y": 403.203125,
+              "width": 1036.796875,
+              "height": 316.796875
+            },
+            "screen": {
+              "width": 1280,
+              "height": 720
+            }
+          }
+        }
+      },
+      {
+        "layout": "desktop",
+        "name": "Reduced-motion preference suppresses idle and gait movement while original walking continues",
+        "passed": true,
+        "actual": {
+          "before": {
+            "active": true,
+            "clock": 6.8333333333333135,
+            "phase": 1.7139264236086804,
+            "gait": 1.2435285860111117e-25,
+            "amplitude": 0,
+            "speed": 0,
+            "distance": 4.20966666666618,
+            "steps": 410,
+            "mode": "fists",
+            "action": 5.733333333333318,
+            "actionAge": 1,
+            "pulses": 2,
+            "reduced": false,
+            "drawAge": 0.2,
+            "x": 0,
+            "y": 0.9111062855061307,
+            "rotation": 0,
+            "scale": 1,
+            "transform": "translate(0.000px,0.911px) rotate(0.000deg) scale(1.0000)"
+          },
+          "after": {
+            "active": true,
+            "clock": 7.233333333333312,
+            "phase": 4.932143288258713,
+            "gait": 0.9917702529509799,
+            "amplitude": 0.9917702529500779,
+            "speed": 2.09999999999809,
+            "distance": 5.049666666665416,
+            "steps": 434,
+            "mode": "fists",
+            "action": 5.733333333333318,
+            "actionAge": 1,
+            "pulses": 2,
+            "reduced": true,
+            "drawAge": 0.2,
+            "x": 0,
+            "y": 0,
+            "rotation": 0,
+            "scale": 1,
+            "transform": "translate(0.000px,0.000px) rotate(0.000deg) scale(1.0000)"
+          }
+        }
+      },
+      {
+        "layout": "desktop",
+        "name": "POW chapter keeps its own interaction hands and the legacy equipment layer stays hidden",
+        "passed": true,
+        "actual": {
+          "stage": "cell",
+          "equipment": null,
+          "legacyDisplay": "none",
+          "episode": true,
+          "gl": 0,
+          "missing": [],
+          "errors": []
+        }
+      },
+      {
+        "layout": "desktop",
+        "name": "Genuine held bunk work uses both halves of the shared photographic fists",
+        "passed": true,
+        "actual": {
+          "cellWalk": {
+            "distance": 0,
+            "frames": 12,
+            "stage": "cell"
+          },
+          "view": {
+            "active": true,
+            "held": true,
+            "progress": 0.5333333333333333,
+            "phase": 4.800000000000001,
+            "id": "bunk-bracket",
+            "pose": "rummage",
+            "tool": "cloth",
+            "label": "Lift the mat and work the concealed bracket free",
+            "cadence": 0.85,
+            "volume": 0.015
+          },
+          "shared": "assets/firstperson/fists.png",
+          "hands": [
+            {
+              "source": "assets/firstperson/fists.png",
+              "decoded": true,
+              "display": "block",
+              "clip": "polygon(0px 0px, 50% 0px, 50% 100%, 0px 100%)"
+            },
+            {
+              "source": "assets/firstperson/fists.png",
+              "decoded": true,
+              "display": "block",
+              "clip": "polygon(50% 0px, 100% 0px, 100% 100%, 50% 100%)"
+            }
+          ],
+          "legacy": "none",
+          "gl": 0
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "All three supplied photographic cutouts decode with transparent backgrounds and solid interiors",
+        "passed": true,
+        "actual": {
+          "photographs": [
+            {
+              "mode": "fists",
+              "src": "assets/firstperson/fists.png",
+              "width": 1086,
+              "height": 1449,
+              "transparentFraction": 0.7866096768330734,
+              "opaqueFraction": 0.2078444904531861,
+              "solidInteriorFraction": 0.9928253430957724,
+              "topCorners": [
+                0,
+                0
+              ]
+            },
+            {
+              "mode": "pistol",
+              "src": "assets/firstperson/pistol.png",
+              "width": 1122,
+              "height": 1402,
+              "transparentFraction": 0.6883431105550767,
+              "opaqueFraction": 0.3054733370458805,
+              "solidInteriorFraction": 0.993928376053798,
+              "topCorners": [
+                0,
+                0
+              ]
+            },
+            {
+              "mode": "knife",
+              "src": "assets/firstperson/knife.png",
+              "width": 1182,
+              "height": 1330,
+              "transparentFraction": 0.7882479040240195,
+              "opaqueFraction": 0.20473964098062414,
+              "solidInteriorFraction": 0.9913197250158501,
+              "topCorners": [
+                0,
+                0
+              ]
+            }
+          ],
+          "fistVisual": {
+            "source": "assets/firstperson/fists.png",
+            "mode": "fists",
+            "decoded": true,
+            "opacity": 1,
+            "reticleAlpha": 0,
+            "image": {
+              "x": 141.203125,
+              "y": -108.875,
+              "width": 561.59375,
+              "height": 749.296875
+            },
+            "viewport": {
+              "x": 141.203125,
+              "y": 218.40625,
+              "width": 561.59375,
+              "height": 171.59375
+            },
+            "screen": {
+              "width": 844,
+              "height": 390
+            }
+          }
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "Native forward movement drives the existing equipment art by real resolved distance",
+        "passed": true,
+        "actual": {
+          "before": {
+            "active": true,
+            "clock": 0,
+            "phase": 0,
+            "gait": 0,
+            "amplitude": 0,
+            "speed": 0,
+            "distance": 0,
+            "steps": 0,
+            "mode": "fists",
+            "action": null,
+            "actionAge": 1,
+            "pulses": 0,
+            "reduced": false,
+            "drawAge": 0.2,
+            "x": 0,
+            "y": 0,
+            "rotation": 0,
+            "scale": 1,
+            "transform": "translate(0.000px,0.000px) rotate(0.000deg) scale(1.0000)"
+          },
+          "after": {
+            "active": true,
+            "clock": 0.49999999999999994,
+            "phase": 4.02277108082561,
+            "gait": 0.9975212478233336,
+            "amplitude": 0.9975212478233336,
+            "speed": 2.1000000000049113,
+            "distance": 1.0500000000024556,
+            "steps": 30,
+            "mode": "fists",
+            "action": null,
+            "actionAge": 1,
+            "pulses": 0,
+            "reduced": false,
+            "drawAge": 0.2,
+            "x": -2.616561287770136,
+            "y": -0.5297752951986977,
+            "rotation": -0.400179961658962,
+            "scale": 1,
+            "transform": "translate(-2.617px,-0.530px) rotate(-0.400deg) scale(1.0000)"
+          },
+          "displacement": 1.0500000000024556
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "Actual run and crouch inputs change gait smoothly without changing the artwork",
+        "passed": true,
+        "actual": {
+          "firstRun": {
+            "active": true,
+            "clock": 0.5166666666666666,
+            "phase": 4.195961445062087,
+            "gait": 0.9979705693637042,
+            "amplitude": 1.0795417304786123,
+            "speed": 4.30000000000291,
+            "distance": 1.1216666666691708,
+            "steps": 31,
+            "mode": "fists",
+            "action": null,
+            "actionAge": 1,
+            "pulses": 0,
+            "reduced": false,
+            "drawAge": 0.2,
+            "x": -3.1917748773160506,
+            "y": -1.5470770506514877,
+            "rotation": -0.48815380476598424,
+            "scale": 1,
+            "transform": "translate(-3.192px,-1.547px) rotate(-0.488deg) scale(1.0000)"
+          },
+          "run": {
+            "active": true,
+            "clock": 1.016666666666668,
+            "phase": 3.108487064976825,
+            "gait": 0.9999949695443929,
+            "amplitude": 1.44908172575806,
+            "speed": 4.30000000000291,
+            "distance": 3.271666666670626,
+            "steps": 61,
+            "mode": "fists",
+            "action": null,
+            "actionAge": 1,
+            "pulses": 0,
+            "reduced": false,
+            "drawAge": 0.2,
+            "x": 0.16307739975969812,
+            "y": 4.048542576097903,
+            "rotation": 0.02494124937501265,
+            "scale": 1,
+            "transform": "translate(0.163px,4.049px) rotate(0.025deg) scale(1.0000)"
+          },
+          "firstCrouch": {
+            "active": true,
+            "clock": 1.0333333333333345,
+            "phase": 3.210588826218375,
+            "gait": 0.9999958814112925,
+            "amplitude": 1.280667781000778,
+            "speed": 1.091999999998734,
+            "distance": 3.289866666670605,
+            "steps": 62,
+            "mode": "fists",
+            "action": null,
+            "actionAge": 1,
+            "pulses": 0,
+            "reduced": false,
+            "drawAge": 0.2,
+            "x": -0.26862889737474366,
+            "y": 3.178365608276153,
+            "rotation": -0.04108441959849021,
+            "scale": 1,
+            "transform": "translate(-0.269px,3.178px) rotate(-0.041deg) scale(1.0000)"
+          },
+          "crouch": {
+            "active": true,
+            "clock": 1.683333333333332,
+            "phase": 0.9093722074592385,
+            "gait": 0.9999999983124701,
+            "amplitude": 0.520311672196658,
+            "speed": 1.0919999999987526,
+            "distance": 3.999666666669782,
+            "steps": 101,
+            "mode": "fists",
+            "action": null,
+            "actionAge": 1,
+            "pulses": 0,
+            "reduced": false,
+            "drawAge": 0.2,
+            "x": 0.5865904974262055,
+            "y": -0.15023589198587958,
+            "rotation": 0.08971384078283144,
+            "scale": 1,
+            "transform": "translate(0.587px,-0.150px) rotate(0.090deg) scale(1.0000)"
+          }
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "A real wall stops both physical travel and the walking presentation",
+        "passed": true,
+        "actual": {
+          "before": {
+            "state": {
+              "active": true,
+              "clock": 3.983333333333324,
+              "phase": 1.7139264236243599,
+              "gait": 8.861904270104211e-11,
+              "amplitude": 0,
+              "speed": 0,
+              "distance": 4.209666666670273,
+              "steps": 239,
+              "mode": "fists",
+              "action": null,
+              "actionAge": 1,
+              "pulses": 0,
+              "reduced": false,
+              "drawAge": 0.2,
+              "x": 0,
+              "y": 0.9271908763810967,
+              "rotation": 0,
+              "scale": 1,
+              "transform": "translate(0.000px,0.927px) rotate(0.000deg) scale(1.0000)"
+            },
+            "transform": "translate(0px, 0.927px) rotate(0deg) scale(1)",
+            "animation": "none",
+            "p": [
+              -8096.544692488747,
+              0,
+              1671.7947842902827
+            ],
+            "moving": false,
+            "running": false,
+            "crouch": false,
+            "rounds": 6,
+            "source": "assets/firstperson/fists.png",
+            "weapon": "fists"
+          },
+          "after": {
+            "state": {
+              "active": true,
+              "clock": 4.483333333333323,
+              "phase": 1.7139264236243599,
+              "gait": 2.1966464498929664e-13,
+              "amplitude": 0,
+              "speed": 0,
+              "distance": 4.209666666670273,
+              "steps": 269,
+              "mode": "fists",
+              "action": null,
+              "actionAge": 1,
+              "pulses": 0,
+              "reduced": false,
+              "drawAge": 0.2,
+              "x": 0,
+              "y": 0.31484668980765446,
+              "rotation": 0,
+              "scale": 1,
+              "transform": "translate(0.000px,0.315px) rotate(0.000deg) scale(1.0000)"
+            },
+            "transform": "translate(0px, 0.315px) rotate(0deg) scale(1)",
+            "animation": "none",
+            "p": [
+              -8096.544692488747,
+              0,
+              1671.7947842902827
+            ],
+            "moving": false,
+            "running": false,
+            "crouch": false,
+            "rounds": 6,
+            "source": "assets/firstperson/fists.png",
+            "weapon": "fists"
+          }
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "Actual Pause freezes transforms across real elapsed wall time",
+        "passed": true,
+        "actual": {
+          "before": {
+            "state": {
+              "active": false,
+              "clock": 4.483333333333323,
+              "phase": 1.7139264236243599,
+              "gait": 2.1966464498929664e-13,
+              "amplitude": 0,
+              "speed": 0,
+              "distance": 4.209666666670273,
+              "steps": 269,
+              "mode": "fists",
+              "action": null,
+              "actionAge": 1,
+              "pulses": 0,
+              "reduced": false,
+              "drawAge": 0.2,
+              "x": 0,
+              "y": 0.31484668980765446,
+              "rotation": 0,
+              "scale": 1,
+              "transform": "translate(0.000px,0.315px) rotate(0.000deg) scale(1.0000)"
+            },
+            "transform": "translate(0px, 0.315px) rotate(0deg) scale(1)",
+            "animation": "none",
+            "p": [
+              -8096.544692488747,
+              0,
+              1671.7947842902827
+            ],
+            "moving": false,
+            "running": false,
+            "crouch": false,
+            "rounds": 6,
+            "source": "assets/firstperson/fists.png",
+            "weapon": "fists"
+          },
+          "after": {
+            "state": {
+              "active": false,
+              "clock": 4.483333333333323,
+              "phase": 1.7139264236243599,
+              "gait": 2.1966464498929664e-13,
+              "amplitude": 0,
+              "speed": 0,
+              "distance": 4.209666666670273,
+              "steps": 269,
+              "mode": "fists",
+              "action": null,
+              "actionAge": 1,
+              "pulses": 0,
+              "reduced": false,
+              "drawAge": 0.2,
+              "x": 0,
+              "y": 0.31484668980765446,
+              "rotation": 0,
+              "scale": 1,
+              "transform": "translate(0.000px,0.315px) rotate(0.000deg) scale(1.0000)"
+            },
+            "transform": "translate(0px, 0.315px) rotate(0deg) scale(1)",
+            "animation": "none",
+            "p": [
+              -8096.544692488747,
+              0,
+              1671.7947842902827
+            ],
+            "moving": false,
+            "running": false,
+            "crouch": false,
+            "rounds": 6,
+            "source": "assets/firstperson/fists.png",
+            "weapon": "fists"
+          }
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "Original accepted revolver shots spend ammunition and replay simulation-driven recoil while Fire is held",
+        "passed": true,
+        "actual": {
+          "armed": {
+            "active": true,
+            "clock": 4.7499999999999885,
+            "phase": 1.7139264236243599,
+            "gait": 8.954015065889104e-15,
+            "amplitude": 0,
+            "speed": 0,
+            "distance": 4.209666666670273,
+            "steps": 285,
+            "mode": "pistol",
+            "action": null,
+            "actionAge": 1,
+            "pulses": 0,
+            "reduced": false,
+            "drawAge": 0.2,
+            "x": 0,
+            "y": -0.10517847674631146,
+            "rotation": 0,
+            "scale": 1,
+            "transform": "translate(0.000px,-0.105px) rotate(0.000deg) scale(1.0000)"
+          },
+          "pistolVisual": {
+            "source": "assets/firstperson/pistol.png",
+            "mode": "pistol",
+            "decoded": true,
+            "opacity": 1,
+            "reticleAlpha": 0,
+            "image": {
+              "x": 313.125,
+              "y": 160.70748901367188,
+              "width": 217.75,
+              "height": 272.1875
+            },
+            "viewport": {
+              "x": 313.125,
+              "y": 160.8125,
+              "width": 217.75,
+              "height": 272.1875
+            },
+            "screen": {
+              "width": 844,
+              "height": 390
+            }
+          },
+          "first": {
+            "state": {
+              "active": true,
+              "clock": 4.849999999999988,
+              "phase": 1.7139264236243599,
+              "gait": 2.6968975112204528e-15,
+              "amplitude": 0,
+              "speed": 0,
+              "distance": 4.209666666670273,
+              "steps": 291,
+              "mode": "pistol",
+              "action": 4.783333333333322,
+              "actionAge": 0.08333333333333333,
+              "pulses": 1,
+              "reduced": false,
+              "drawAge": 0.2,
+              "x": 1.081419643422266,
+              "y": -9.217881296148914,
+              "rotation": -1.8924843759889658,
+              "scale": 1.0135177455427784,
+              "transform": "translate(1.081px,-9.218px) rotate(-1.892deg) scale(1.0135)"
+            },
+            "transform": "translate(1.081px, -9.218px) rotate(-1.892deg) scale(1.0135)",
+            "animation": "none",
+            "p": [
+              -8096.544692488747,
+              0,
+              1671.7947842902827
+            ],
+            "moving": false,
+            "running": false,
+            "crouch": false,
+            "rounds": 5,
+            "source": "assets/firstperson/pistol.png",
+            "weapon": "pistol"
+          },
+          "second": {
+            "state": {
+              "active": true,
+              "clock": 5.8999999999999835,
+              "phase": 1.7139264236243599,
+              "gait": 9.09397949274752e-21,
+              "amplitude": 0,
+              "speed": 0,
+              "distance": 4.209666666670273,
+              "steps": 354,
+              "mode": "pistol",
+              "action": 5.733333333333318,
+              "actionAge": 0.18333333333333215,
+              "pulses": 2,
+              "reduced": false,
+              "drawAge": 0.2,
+              "x": 0.1301844825494348,
+              "y": -1.383358330299,
+              "rotation": -0.2278228444615109,
+              "scale": 1.001627306031868,
+              "transform": "translate(0.130px,-1.383px) rotate(-0.228deg) scale(1.0016)"
+            },
+            "transform": "translate(0.13px, -1.383px) rotate(-0.228deg) scale(1.0016)",
+            "animation": "none",
+            "p": [
+              -8096.544692488747,
+              0,
+              1671.7947842902827
+            ],
+            "moving": false,
+            "running": false,
+            "crouch": false,
+            "rounds": 4,
+            "source": "assets/firstperson/pistol.png",
+            "weapon": "pistol"
+          }
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "Native weapon selection displays the supplied knife and fists without blocking the aiming point",
+        "passed": true,
+        "actual": {
+          "knifeVisual": {
+            "source": "assets/firstperson/knife.png",
+            "mode": "knife",
+            "decoded": true,
+            "opacity": 1,
+            "reticleAlpha": 0,
+            "image": {
+              "x": 376.125,
+              "y": 195.03199768066406,
+              "width": 208.75,
+              "height": 234.99998474121094
+            },
+            "viewport": {
+              "x": 376.125,
+              "y": 195,
+              "width": 208.75,
+              "height": 235
+            },
+            "screen": {
+              "width": 844,
+              "height": 390
+            }
+          },
+          "selectedFists": {
+            "source": "assets/firstperson/fists.png",
+            "mode": "fists",
+            "decoded": true,
+            "opacity": 1,
+            "reticleAlpha": 0,
+            "image": {
+              "x": 141.203125,
+              "y": -108.281005859375,
+              "width": 561.59375,
+              "height": 749.296875
+            },
+            "viewport": {
+              "x": 141.203125,
+              "y": 218.40625,
+              "width": 561.59375,
+              "height": 171.59375
+            },
+            "screen": {
+              "width": 844,
+              "height": 390
+            }
+          }
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "Reduced-motion preference suppresses idle and gait movement while original walking continues",
+        "passed": true,
+        "actual": {
+          "before": {
+            "active": true,
+            "clock": 6.8333333333333135,
+            "phase": 1.7139264236243599,
+            "gait": 1.2435285860111117e-25,
+            "amplitude": 0,
+            "speed": 0,
+            "distance": 4.209666666670273,
+            "steps": 410,
+            "mode": "fists",
+            "action": 5.733333333333318,
+            "actionAge": 1,
+            "pulses": 2,
+            "reduced": false,
+            "drawAge": 0.2,
+            "x": 0,
+            "y": 0.9111062855061307,
+            "rotation": 0,
+            "scale": 1,
+            "transform": "translate(0.000px,0.911px) rotate(0.000deg) scale(1.0000)"
+          },
+          "after": {
+            "active": true,
+            "clock": 7.233333333333312,
+            "phase": 4.93214328828485,
+            "gait": 0.9917702529509799,
+            "amplitude": 0.9917702529509799,
+            "speed": 2.1000000000049113,
+            "distance": 5.049666666672238,
+            "steps": 434,
+            "mode": "fists",
+            "action": 5.733333333333318,
+            "actionAge": 1,
+            "pulses": 2,
+            "reduced": true,
+            "drawAge": 0.2,
+            "x": 0,
+            "y": 0,
+            "rotation": 0,
+            "scale": 1,
+            "transform": "translate(0.000px,0.000px) rotate(0.000deg) scale(1.0000)"
+          }
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "Native CDP touch stick drives the same measured gait and releases cleanly",
+        "passed": true,
+        "actual": {
+          "before": {
+            "active": true,
+            "clock": 7.233333333333312,
+            "phase": 4.93214328828485,
+            "gait": 0.9917702529509799,
+            "amplitude": 0.9917702529509799,
+            "speed": 2.1000000000049113,
+            "distance": 5.049666666672238,
+            "steps": 434,
+            "mode": "fists",
+            "action": 5.733333333333318,
+            "actionAge": 1,
+            "pulses": 2,
+            "reduced": true,
+            "drawAge": 0.2,
+            "x": 0,
+            "y": 0,
+            "rotation": 0,
+            "scale": 1,
+            "transform": "translate(0.000px,0.000px) rotate(0.000deg) scale(1.0000)"
+          },
+          "after": {
+            "active": true,
+            "clock": 7.433333333333311,
+            "phase": 6.167040457276647,
+            "gait": 0.9992534141916233,
+            "amplitude": 0.7877924730944729,
+            "speed": 1.611627906972899,
+            "distance": 5.371992248066817,
+            "steps": 446,
+            "mode": "fists",
+            "action": 5.733333333333318,
+            "actionAge": 1,
+            "pulses": 2,
+            "reduced": true,
+            "drawAge": 0.2,
+            "x": 0,
+            "y": 0,
+            "rotation": 0,
+            "scale": 1,
+            "transform": "translate(0.000px,0.000px) rotate(0.000deg) scale(1.0000)"
+          },
+          "released": {
+            "pitch": 0,
+            "roll": 0
+          }
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "POW chapter keeps its own interaction hands and the legacy equipment layer stays hidden",
+        "passed": true,
+        "actual": {
+          "stage": "cell",
+          "equipment": null,
+          "legacyDisplay": "none",
+          "episode": true,
+          "gl": 0,
+          "missing": [],
+          "errors": []
+        }
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "name": "Genuine held bunk work uses both halves of the shared photographic fists",
+        "passed": true,
+        "actual": {
+          "cellWalk": {
+            "distance": 0,
+            "frames": 12,
+            "stage": "cell"
+          },
+          "view": {
+            "active": true,
+            "held": true,
+            "progress": 0.5333333333333333,
+            "phase": 4.800000000000001,
+            "id": "bunk-bracket",
+            "pose": "rummage",
+            "tool": "cloth",
+            "label": "Lift the mat and work the concealed bracket free",
+            "cadence": 0.85,
+            "volume": 0.015
+          },
+          "shared": "assets/firstperson/fists.png",
+          "hands": [
+            {
+              "source": "assets/firstperson/fists.png",
+              "decoded": true,
+              "display": "block",
+              "clip": "polygon(0px 0px, 50% 0px, 50% 100%, 0px 100%)"
+            },
+            {
+              "source": "assets/firstperson/fists.png",
+              "decoded": true,
+              "display": "block",
+              "clip": "polygon(50% 0px, 100% 0px, 100% 100%, 50% 100%)"
+            }
+          ],
+          "legacy": "none",
+          "gl": 0
+        }
+      }
+    ],
+    "screenshots": [
+      "equipment-view/desktop-native-fists-idle.png",
+      "equipment-view/desktop-native-crouch-art.png",
+      "equipment-view/desktop-native-revolver-recoil.png",
+      "equipment-view/desktop-native-knife-idle.png",
+      "equipment-view/desktop-native-fists-selected.png",
+      "equipment-view/desktop-pow-searching-bunk-photographic-hands.png",
+      "equipment-view/iphone-layout-chromium-native-fists-idle.png",
+      "equipment-view/iphone-layout-chromium-native-crouch-art.png",
+      "equipment-view/iphone-layout-chromium-native-revolver-recoil.png",
+      "equipment-view/iphone-layout-chromium-native-knife-idle.png",
+      "equipment-view/iphone-layout-chromium-native-fists-selected.png",
+      "equipment-view/iphone-layout-chromium-pow-searching-bunk-photographic-hands.png"
+    ],
+    "sourceHashes": [
+      {
+        "layout": "desktop",
+        "index": "0415ce67186df9736f0cdf1da5e8d6f88519e8a461e47e5077d63b4bd53272d6",
+        "equipment": "5ee3b7a510ba5422782bc211fa56d08405c646625ca44bd25eef158475da79e0"
+      },
+      {
+        "layout": "iphone-layout-chromium",
+        "index": "0415ce67186df9736f0cdf1da5e8d6f88519e8a461e47e5077d63b4bd53272d6",
+        "equipment": "5ee3b7a510ba5422782bc211fa56d08405c646625ca44bd25eef158475da79e0"
+      }
+    ],
+    "browserErrors": [],
+    "scope": "Actual Chromium/SwiftShader WebGL2 desktop1280x720 and simulated iPhone landscape844x390DPR3. Trusted keyboard/CDP touch, original ground/weapon/collision methods with the supplied photographic equipment cutouts. Canvas alpha/interior sampling, native weapon selection and original-cell walking/unfinished bunk work verify the shared POW fists. Explicit dry-ground/real-wall/isolated-encounter fixtures; direct ground initialization, not a new ejection or full mission-completion claim. App.frame scheduling alone is suspended for deterministic stepping. No physical Windows/iPhone Safari or hardware-FPS claim.",
+    "target": "http://127.0.0.1:37439/",
+    "recordedAt": "2026-10-23T16:25:34.699Z"
+  },
+  "packaged": {
+    "scope": "Runtime deployment folder byte checks and actual Chromium WebGL2 flight smoke; physical devices not tested",
+    "sourceSha256": "0415ce67186df9736f0cdf1da5e8d6f88519e8a461e47e5077d63b4bd53272d6",
+    "checks": [
+      {
+        "name": "All 158 packaged runtime files served with exact hashes",
+        "passed": true
+      },
+      {
+        "name": "desktop packaged B/N worksheet opens through native input and keeps flight controls exposed",
+        "passed": true,
+        "observed": {
+          "modules": {
+            "ammunition": true,
+            "board": true,
+            "effects": true,
+            "sortie": true
+          },
+          "panel": {
+            "x": 86,
+            "y": 120,
+            "width": 360,
+            "height": 490
+          }
+        },
+        "errors": [],
+        "missing": []
+      },
+      {
+        "name": "desktop packaged flight guidance toggles through native input without moving its target",
+        "passed": true,
+        "observed": {
+          "before": {
+            "x": 914,
+            "y": 72,
+            "width": 160,
+            "height": 44
+          },
+          "after": {
+            "x": 914,
+            "y": 72,
+            "width": 160,
+            "height": 44
+          }
+        },
+        "errors": [],
+        "missing": []
+      },
+      {
+        "name": "desktop packaged flight launches and renders with fresh default settings",
+        "passed": true,
+        "observed": {
+          "mission": "m1",
+          "quality": 2,
+          "shadowSize": 4096,
+          "alive": true,
+          "onDeck": false,
+          "phase": "airborne",
+          "finite": true,
+          "gpuError": 0,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "photosDecoded": 18
+        },
+        "errors": [],
+        "missing": []
+      },
+      {
+        "name": "desktop packaged native-resolution photographic arrays and ground/policy modules use complete GPU resources",
+        "passed": true,
+        "observed": {
+          "title": "Intruder: Yankee Station \u2014 B/N Immersion & Visual Polish \u00b7 Photographic Equipment & Radio",
+          "modules": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "layers": [
+            {
+              "name": "people",
+              "layers": 72,
+              "width": 192,
+              "height": 384,
+              "array": true,
+              "proxy": true
+            },
+            {
+              "name": "photo_vegetation",
+              "layers": 48,
+              "width": 192,
+              "height": 256,
+              "array": true,
+              "proxy": true
+            }
+          ],
+          "arrays": {
+            "uploads": 2,
+            "liveArrays": 2,
+            "bytes": 40893696,
+            "fallbackReady": false,
+            "failures": 0,
+            "lastFailure": null
+          },
+          "ground": {
+            "active": false,
+            "height": 1.68,
+            "target": 1.68,
+            "steps": 0,
+            "pointerLocked": false,
+            "touchPitchHeld": false
+          },
+          "policy": {
+            "requested": 2,
+            "effective": 2,
+            "requestedLabel": "High",
+            "effectiveLabel": "High",
+            "adaptive": false,
+            "samples": 0,
+            "warmup": 0,
+            "changes": 0,
+            "notices": 0,
+            "average": null,
+            "longFrames": 0,
+            "reason": "inactive"
+          }
+        }
+      },
+      {
+        "name": "desktop packaged Ready Room prison entry, tutorial, checkpoint and historical photographs",
+        "passed": true,
+        "observed": {
+          "stage": "cell",
+          "solids": 47,
+          "checkpoint": "cell",
+          "savedSortie": "m11",
+          "restoredSortie": "m11",
+          "ammunition": {
+            "version": 1,
+            "bulletsExpended": 0,
+            "pistolShots": 0,
+            "narrativeRoundsExpended": 0,
+            "roundsAcquired": 0
+          },
+          "historicalPhotos": 8,
+          "riverLoaded": true,
+          "captivityLoaded": true,
+          "m21Loaded": true,
+          "m22Loaded": true,
+          "m23Loaded": true,
+          "m23Scene": 1,
+          "m23Pebbles": 3,
+          "guidanceChapter": "escape",
+          "gpuError": 0,
+          "cameraHeight": 1.6799999999999997
+        },
+        "errors": [],
+        "missing": []
+      },
+      {
+        "name": "desktop packaged Willard mission launches through native input and renders the supplied world-space interceptor",
+        "passed": true,
+        "observed": {
+          "mission": "willard",
+          "alive": true,
+          "phase": "contact",
+          "rear": true,
+          "rightSeat": false,
+          "checkpointValid": true,
+          "artwork": {
+            "status": "ready",
+            "error": null,
+            "draws": 2,
+            "uploads": 1,
+            "atlasFrames": 54,
+            "atlasSize": [
+              4096,
+              3584
+            ],
+            "last": {
+              "name": "front",
+              "mode": "end-reference",
+              "size": 10.603354838709679,
+              "angle": -0.36436548887302833,
+              "heading": -2.431823226498171,
+              "sourceHeading": 0,
+              "elevation": 0.0002406887103548219,
+              "bank": 0.363958115219028,
+              "distance": 3062.0821635673774,
+              "noseScreen": [
+                -0.02659106681077602,
+                -0.030951234471114218
+              ],
+              "worldPosition": [
+                -65132.45132125014,
+                821.7897773680297,
+                18301.103748158555
+              ],
+              "flip": false,
+              "limitedAspect": true,
+              "ndc": [
+                0.04782994724177545,
+                0.07279910883260779,
+                0.9992551257691974
+              ],
+              "clipW": 3057.1135667551316,
+              "widthPixels": 2.4505768811162936,
+              "visible": true,
+              "blend": 1,
+              "previousFrame": "front",
+              "frames": [
+                "front",
+                "front"
+              ],
+              "alphaDepthPass": true,
+              "worldMetres": true
+            }
+          },
+          "immersion": {
+            "nightContrast": 1,
+            "meshes": true,
+            "chart": true,
+            "rasterCPU": true
+          },
+          "gpuError": 0
+        },
+        "errors": [],
+        "missing": []
+      },
+      {
+        "name": "desktop packaged native terrain route and manual override preserve aircraft position, navigation fixes and score",
+        "passed": true,
+        "observed": {
+          "route": {
+            "choice": "terrain",
+            "following": true,
+            "leg": 0,
+            "route": {
+              "id": "terrain",
+              "label": "LOW TERRAIN DOGLEG",
+              "clearance": 320,
+              "points": [
+                {
+                  "p": [
+                    -1666.2673895955613,
+                    4.935678235394595,
+                    1520.4316481708743
+                  ],
+                  "label": "COAST-IN"
+                },
+                {
+                  "p": [
+                    -2585.1186544992865,
+                    1.4398020556681892,
+                    -201.43606189144043
+                  ],
+                  "label": "LOW TERRAIN CORNER 1"
+                },
+                {
+                  "p": [
+                    -4111.769039987898,
+                    20.299101000084235,
+                    1014.4811468271004
+                  ],
+                  "label": "CHECKPOINT"
+                },
+                {
+                  "p": [
+                    -5799.635251296193,
+                    15.641339343839348,
+                    2376.957520750004
+                  ],
+                  "label": "LOW TERRAIN CORNER 2"
+                },
+                {
+                  "p": [
+                    -7234.436734152581,
+                    15.34523956501649,
+                    750.1265763776532
+                  ],
+                  "label": "INITIAL POINT"
+                }
+              ],
+              "length": 19393.701745773706,
+              "maxTerrain": 35.925474101656455
+            },
+            "status": "Lower dogleg: 320 m clearance, more observation and tighter terrain margins. Fix the ORIGINAL chart checkpoints.",
+            "next": {
+              "p": [
+                -1666.2673895955613,
+                4.935678235394595,
+                1520.4316481708743
+              ],
+              "label": "COAST-IN",
+              "distance": 5149.332685065312,
+              "bearing": -1.6566488868511073
+            },
+            "guns": [
+              {
+                "mode": "unaware",
+                "confidence": 0,
+                "visible": false,
+                "checkedAt": -100,
+                "lastSeen": -100,
+                "lastPosition": null
+              },
+              {
+                "mode": "unaware",
+                "confidence": 0,
+                "visible": false,
+                "checkedAt": -100,
+                "lastSeen": -100,
+                "lastPosition": null
+              },
+              {
+                "mode": "unaware",
+                "confidence": 0,
+                "visible": false,
+                "checkedAt": -100,
+                "lastSeen": -100,
+                "lastPosition": null
+              },
+              {
+                "mode": "unaware",
+                "confidence": 0,
+                "visible": false,
+                "checkedAt": -100,
+                "lastSeen": -100,
+                "lastPosition": null
+              },
+              {
+                "mode": "unaware",
+                "confidence": 0,
+                "visible": false,
+                "checkedAt": -100,
+                "lastSeen": -100,
+                "lastPosition": null
+              }
+            ]
+          },
+          "materials": true,
+          "feedback": {
+            "active": true,
+            "alert": null,
+            "source": null,
+            "sourceCount": 0,
+            "impacts": 0,
+            "emitted": 0,
+            "mix": {
+              "speechFocus": false,
+              "leaseSeconds": 0.35,
+              "reason": ""
+            }
+          },
+          "p": [
+            3464.0999531422735,
+            746.1328251842725,
+            1078.8911290210908
+          ],
+          "clearance": 320,
+          "fixes": 0,
+          "score": {
+            "hits": 0,
+            "misses": 0,
+            "cep": [],
+            "dropped": 0,
+            "killed": 0,
+            "total": 5,
+            "damage": 0,
+            "discipline": true
+          },
+          "focus": ""
+        }
+      },
+      {
+        "name": "desktop packaged guided Dixie native briefing, airborne practice, scene, chart and original intervalometer",
+        "passed": true,
+        "observed": {
+          "mission": "m2",
+          "rightSeat": true,
+          "airborne": true,
+          "view": {
+            "phase": "navigation",
+            "title": "I \u00b7 COAST-IN",
+            "objective": "Work the next charted fix. The pilot flies; you correct the navigation.",
+            "tutorial": true,
+            "look": true,
+            "targetArea": [
+              -7492.728808052208,
+              44.979431994405715,
+              2021.880887113411
+            ],
+            "nextFix": {
+              "label": "COAST-IN",
+              "p": [
+                -1666.2673895955613,
+                4.935678235394595,
+                1520.4316481708743
+              ],
+              "hint": "the shoreline \u2014 the hard edge where the sea stops returning and the land starts"
+            },
+            "readiness": null,
+            "checkpointLabel": null,
+            "retries": 0,
+            "ripple": 4,
+            "bombs": 12,
+            "assessment": null,
+            "observed": false,
+            "elapsed": 0.016666666666666666
+          },
+          "meshes": true,
+          "chart": true,
+          "p": [
+            3464.0999531422735,
+            746.1328251842725,
+            1078.8911290210908
+          ],
+          "bombs": 12,
+          "score": {
+            "hits": 0,
+            "misses": 0,
+            "cep": [],
+            "dropped": 0,
+            "killed": 0,
+            "total": 5,
+            "damage": 0,
+            "discipline": true
+          },
+          "gpuError": 0,
+          "focused": ""
+        },
+        "errors": [],
+        "missing": []
+      },
+      {
+        "name": "iphone-layout-chromium packaged B/N worksheet opens through native input and keeps flight controls exposed",
+        "passed": true,
+        "observed": {
+          "modules": {
+            "ammunition": true,
+            "board": true,
+            "effects": true,
+            "sortie": true
+          },
+          "panel": {
+            "x": 130,
+            "y": 94,
+            "width": 285,
+            "height": 215
+          }
+        },
+        "errors": [],
+        "missing": []
+      },
+      {
+        "name": "iphone-layout-chromium packaged flight guidance toggles through native input without moving its target",
+        "passed": true,
+        "observed": {
+          "before": {
+            "x": 513,
+            "y": 46,
+            "width": 160,
+            "height": 44
+          },
+          "after": {
+            "x": 513,
+            "y": 46,
+            "width": 160,
+            "height": 44
+          }
+        },
+        "errors": [],
+        "missing": []
+      },
+      {
+        "name": "iphone-layout-chromium packaged flight launches and renders with fresh default settings",
+        "passed": true,
+        "observed": {
+          "mission": "m1",
+          "quality": 1,
+          "shadowSize": 2048,
+          "alive": true,
+          "onDeck": false,
+          "phase": "airborne",
+          "finite": true,
+          "gpuError": 0,
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "photosDecoded": 18
+        },
+        "errors": [],
+        "missing": []
+      },
+      {
+        "name": "iphone-layout-chromium packaged native-resolution photographic arrays and ground/policy modules use complete GPU resources",
+        "passed": true,
+        "observed": {
+          "title": "Intruder: Yankee Station \u2014 B/N Immersion & Visual Polish \u00b7 Photographic Equipment & Radio",
+          "modules": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "layers": [
+            {
+              "name": "people",
+              "layers": 72,
+              "width": 192,
+              "height": 384,
+              "array": true,
+              "proxy": true
+            },
+            {
+              "name": "photo_vegetation",
+              "layers": 48,
+              "width": 192,
+              "height": 256,
+              "array": true,
+              "proxy": true
+            }
+          ],
+          "arrays": {
+            "uploads": 2,
+            "liveArrays": 2,
+            "bytes": 40893696,
+            "fallbackReady": false,
+            "failures": 0,
+            "lastFailure": null
+          },
+          "ground": {
+            "active": false,
+            "height": 1.68,
+            "target": 1.68,
+            "steps": 0,
+            "pointerLocked": false,
+            "touchPitchHeld": false
+          },
+          "policy": {
+            "requested": 1,
+            "effective": 1,
+            "requestedLabel": "Medium",
+            "effectiveLabel": "Medium",
+            "adaptive": false,
+            "samples": 0,
+            "warmup": 0,
+            "changes": 0,
+            "notices": 0,
+            "average": null,
+            "longFrames": 0,
+            "reason": "inactive"
+          }
+        }
+      },
+      {
+        "name": "iphone-layout-chromium packaged Ready Room prison entry, tutorial, checkpoint and historical photographs",
+        "passed": true,
+        "observed": {
+          "stage": "cell",
+          "solids": 47,
+          "checkpoint": "cell",
+          "savedSortie": "m11",
+          "restoredSortie": "m11",
+          "ammunition": {
+            "version": 1,
+            "bulletsExpended": 0,
+            "pistolShots": 0,
+            "narrativeRoundsExpended": 0,
+            "roundsAcquired": 0
+          },
+          "historicalPhotos": 8,
+          "riverLoaded": true,
+          "captivityLoaded": true,
+          "m21Loaded": true,
+          "m22Loaded": true,
+          "m23Loaded": true,
+          "m23Scene": 1,
+          "m23Pebbles": 3,
+          "guidanceChapter": "escape",
+          "gpuError": 0,
+          "cameraHeight": 1.6799999999999997
+        },
+        "errors": [],
+        "missing": []
+      },
+      {
+        "name": "iphone-layout-chromium packaged Willard mission launches through native input and renders the supplied world-space interceptor",
+        "passed": true,
+        "observed": {
+          "mission": "willard",
+          "alive": true,
+          "phase": "contact",
+          "rear": true,
+          "rightSeat": false,
+          "checkpointValid": true,
+          "artwork": {
+            "status": "ready",
+            "error": null,
+            "draws": 2,
+            "uploads": 1,
+            "atlasFrames": 54,
+            "atlasSize": [
+              4096,
+              3584
+            ],
+            "last": {
+              "name": "front",
+              "mode": "end-reference",
+              "size": 10.603354838709679,
+              "angle": -0.6391739058057121,
+              "heading": -2.3578166242406424,
+              "sourceHeading": 0,
+              "elevation": 0.014289267180386258,
+              "bank": 0.6389672642114095,
+              "distance": 3065.302474259584,
+              "noseScreen": [
+                -0.030840529567487555,
+                -0.030940747167928877
+              ],
+              "worldPosition": [
+                -65192.987428929846,
+                821.7943586159828,
+                18301.10875418532
+              ],
+              "flip": false,
+              "limitedAspect": true,
+              "ndc": [
+                0.0572765647704479,
+                0.07280197461099298,
+                0.9992551270387751
+              ],
+              "clipW": 3057.1185114503787,
+              "widthPixels": 1.7528403979129568,
+              "visible": true,
+              "blend": 1,
+              "previousFrame": "front",
+              "frames": [
+                "front",
+                "front"
+              ],
+              "alphaDepthPass": true,
+              "worldMetres": true
+            }
+          },
+          "immersion": {
+            "nightContrast": 1,
+            "meshes": true,
+            "chart": true,
+            "rasterCPU": true
+          },
+          "gpuError": 0
+        },
+        "errors": [],
+        "missing": []
+      },
+      {
+        "name": "iphone-layout-chromium packaged native terrain route and manual override preserve aircraft position, navigation fixes and score",
+        "passed": true,
+        "observed": {
+          "route": {
+            "choice": "terrain",
+            "following": true,
+            "leg": 0,
+            "route": {
+              "id": "terrain",
+              "label": "LOW TERRAIN DOGLEG",
+              "clearance": 320,
+              "points": [
+                {
+                  "p": [
+                    -1597.8966070548322,
+                    6.411691536021473,
+                    1669.8391126038016
+                  ],
+                  "label": "COAST-IN"
+                },
+                {
+                  "p": [
+                    -2472.9250553781167,
+                    2.208910207417324,
+                    -128.04916100884634
+                  ],
+                  "label": "LOW TERRAIN CORNER 1"
+                },
+                {
+                  "p": [
+                    -4146.737162300982,
+                    20.758558307732272,
+                    965.765293314811
+                  ],
+                  "label": "CHECKPOINT"
+                },
+                {
+                  "p": [
+                    -5727.506623570559,
+                    12.86521092194402,
+                    2388.0535494087912
+                  ],
+                  "label": "LOW TERRAIN CORNER 2"
+                },
+                {
+                  "p": [
+                    -7157.3772017068995,
+                    24.815198695236692,
+                    814.1392878032186
+                  ],
+                  "label": "INITIAL POINT"
+                }
+              ],
+              "length": 19131.913179072068,
+              "maxTerrain": 36.06093060431651
+            },
+            "status": "Lower dogleg: 320 m clearance, more observation and tighter terrain margins. Fix the ORIGINAL chart checkpoints.",
+            "next": {
+              "p": [
+                -1597.8966070548322,
+                6.411691536021473,
+                1669.8391126038016
+              ],
+              "label": "COAST-IN",
+              "distance": 4877.332685016158,
+              "bearing": -1.6654016308832744
+            },
+            "guns": [
+              {
+                "mode": "unaware",
+                "confidence": 0,
+                "visible": false,
+                "checkedAt": -100,
+                "lastSeen": -100,
+                "lastPosition": null
+              },
+              {
+                "mode": "unaware",
+                "confidence": 0,
+                "visible": false,
+                "checkedAt": -100,
+                "lastSeen": -100,
+                "lastPosition": null
+              },
+              {
+                "mode": "unaware",
+                "confidence": 0,
+                "visible": false,
+                "checkedAt": -100,
+                "lastSeen": -100,
+                "lastPosition": null
+              },
+              {
+                "mode": "unaware",
+                "confidence": 0,
+                "visible": false,
+                "checkedAt": -100,
+                "lastSeen": -100,
+                "lastPosition": null
+              },
+              {
+                "mode": "unaware",
+                "confidence": 0,
+                "visible": false,
+                "checkedAt": -100,
+                "lastSeen": -100,
+                "lastPosition": null
+              }
+            ]
+          },
+          "materials": true,
+          "feedback": {
+            "active": true,
+            "alert": null,
+            "source": null,
+            "sourceCount": 0,
+            "impacts": 0,
+            "emitted": 0,
+            "mix": {
+              "speechFocus": false,
+              "leaseSeconds": 0.35,
+              "reason": ""
+            }
+          },
+          "p": [
+            3257.625889668517,
+            747.5448323813403,
+            1209.1055625552171
+          ],
+          "clearance": 320,
+          "fixes": 0,
+          "score": {
+            "hits": 0,
+            "misses": 0,
+            "cep": [],
+            "dropped": 0,
+            "killed": 0,
+            "total": 5,
+            "damage": 0,
+            "discipline": true
+          },
+          "focus": ""
+        }
+      },
+      {
+        "name": "iphone-layout-chromium packaged guided Dixie native briefing, airborne practice, scene, chart and original intervalometer",
+        "passed": true,
+        "observed": {
+          "mission": "m2",
+          "rightSeat": true,
+          "airborne": true,
+          "view": {
+            "phase": "navigation",
+            "title": "I \u00b7 COAST-IN",
+            "objective": "Work the next charted fix. The pilot flies; you correct the navigation.",
+            "tutorial": true,
+            "look": true,
+            "targetArea": [
+              -7690.5295273470865,
+              44.390860380073164,
+              2247.960292436338
+            ],
+            "nextFix": {
+              "label": "COAST-IN",
+              "p": [
+                -1597.8966070548322,
+                6.411691536021473,
+                1669.8391126038016
+              ],
+              "hint": "the shoreline \u2014 the hard edge where the sea stops returning and the land starts"
+            },
+            "readiness": null,
+            "checkpointLabel": null,
+            "retries": 0,
+            "ripple": 4,
+            "bombs": 12,
+            "assessment": null,
+            "observed": false,
+            "elapsed": 0.016666666666666666
+          },
+          "meshes": true,
+          "chart": true,
+          "p": [
+            3257.625889668517,
+            747.5448323813403,
+            1209.1055625552171
+          ],
+          "bombs": 12,
+          "score": {
+            "hits": 0,
+            "misses": 0,
+            "cep": [],
+            "dropped": 0,
+            "killed": 0,
+            "total": 5,
+            "damage": 0,
+            "discipline": true
+          },
+          "gpuError": 0,
+          "focused": ""
+        },
+        "errors": [],
+        "missing": []
+      }
+    ],
+    "recordedAt": "2026-10-23T16:31:20.217Z"
+  },
+  "domainLog": "\u2714 remaining HUD reads do not create counters, mutate inventory or touch aircraft ordnance (4.615863ms)\n\u2714 one real accepted trigger shot spends one round even when it hits nothing (2.069534ms)\n\u2714 trigger debounce and the actual pistol cooldown cannot spend or count extra rounds (1.419369ms)\n\u2714 held attack exhausts the original finite six rounds then dry fires without increasing expenditure (1.561903ms)\n\u2714 a holstered pistol, fists, knife and hands-up state spend no bullets (4.915292ms)\n\u2714 a real hit and a shot blocked by actual weapon LOS each cost exactly one round (3.239819ms)\n\u2714 duplicate notification of the same accepted physical shot is ignored (1.25343ms)\n\u2714 invalid, unaccepted and replenishment deltas cannot be registered as physical shots (1.282143ms)\n\u2714 actual first-contact consumption counts the limited delta separately from trigger shots (1.455954ms)\n\u2714 actual first-contact replenishment counts only available inventory capacity and never unspends bullets (1.652799ms)\n\u2714 capture, recapture and rescue replacing the evader cannot reset sortie expenditure or grant equipment (1.752158ms)\n\u2714 saved ledger restores into a fresh game while leaving confiscated inventory and mission score intact (2.633951ms)\n\u2714 missing and corrupt old checkpoints do not wipe an existing ledger (1.413791ms)\n\u2714 a new World score begins a new sortie and read-only legacy values are sanitized (2.285077ms)\n\u2714 existing equipment art and simulation-driven phase use actual distance, not the movement flag (3.82733ms)\n\u2714 equal movement at30/60/120Hz has equal phase, pose and exponential start response (4.847991ms)\n\u2714 collision-blocked movement damps the old gait instead of continuing a wall-clock walk cycle (1.727251ms)\n\u2714 walk, run and crouch remain smoothly bounded and stop continuously (2.098507ms)\n\u2714 render reads do not advance simulation, gait, recoil or idle time (1.542714ms)\n\u2714 pause and resume freeze an unfinished pose and continue without a wall-clock jump (0.988302ms)\n\u2714 menu, held encounter, legacy solitary, hidden document and graphics loss cannot advance the presentation cache (3.470676ms)\n\u2714 a stale game cannot animate over the current owner and its cache is discarded (0.706439ms)\n\u2714 checkpoint/new actor replaces gait and action state without retaining a prior pulse (0.866699ms)\n\u2714 teleports do not create fast footsteps, large hand swings or catch-up pulses (0.771707ms)\n\u2714 timestamp zero is a genuine accepted attack and repeat renders do not replay it (1.916645ms)\n\u2714 a second accepted action timestamp replays the attack while unchanged held input does not (1.436665ms)\n\u2714 pistol recoil is distinct from a melee thrust while ammo and weapon state remain authoritative (2.410906ms)\n\u2714 mode changes lower and raise only the existing art without setting an attack (1.235152ms)\n\u2714 prefers-reduced-motion suppresses idle and walking transforms and limits active attack amplitude (1.735934ms)\n\u2714 POW, flight, raised hands and frozen captivity keep the legacy layer out of the way (2.067531ms)\n\u2714 invalid time is ignored and a delayed step is bounded without creating timers (0.787582ms)\n\u2714 presentation reads and writes do not mutate gameplay, coordinates, saved fields or original image data (1.40655ms)\n\u2139 tests 32\n\u2139 suites 0\n\u2139 pass 32\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 92.706202\n",
+  "preservationLog": "PASS: exact original photograph hashes, historical missions, complete aircraft physics, A-6A geometry/markings, original atlases and JavaScript syntax\n"
+}
