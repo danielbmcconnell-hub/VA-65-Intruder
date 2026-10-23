@@ -1,3 +1,11 @@
+# Orange day smoke / red night flare — latest game
+
+[Download complete Netlify ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/day-night-rescue-signal/releases/Intruder_Yankee_Station_Day_Night_Rescue_Signal.zip) (GitHub sign-in required). [Report/deployment instructions](../docs/DAY_NIGHT_RESCUE_SIGNAL_REPORT.md) · [Screenshots](day-night-signal-screenshots/).
+
+Press **G** or tap **Smoke** when rescue is ready. The supplied left-hand signal photo shows orange smoke by day and a red flame at night, with matching world effects. All previous missions, photographic weapons and radio included. 32 domain, 36 selected source-browser and 17 packaged checks passed. Physical iPhone Safari untested. Extract the ZIP and upload the folder containing `index.html`, `assets/` and `_headers` to Netlify **Deploys**; tab title ends **Rescue Signal**. The live site has not yet been updated.
+
+Source `fc082e6084be9e224264588c7f806debcd4e8be1`. Earlier releases follow unchanged.
+
 # Left-hand survival radio photograph — latest game
 
 [Download complete Netlify ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/survival-radio-photo/releases/Intruder_Yankee_Station_Survival_Radio.zip) (GitHub sign-in required). [Report/deployment instructions](../docs/SURVIVAL_RADIO_REPORT.md) · [Screenshots](survival-radio-screenshots/).
