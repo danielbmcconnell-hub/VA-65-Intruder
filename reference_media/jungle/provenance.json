@@ -1,0 +1,213 @@
+{
+  "recordedAt": "2026-10-23T20:11:27.339711+00:00",
+  "status": "Reference originals only; gameplay integration pending.",
+  "source": "Images attached by the user in this project conversation.",
+  "preservation": "Copied byte-for-byte without resizing, re-encoding, alpha edits, watermark removal or metadata edits.",
+  "identification": "Category names follow user-provided subject grouping and a visual check of the first image in each group. Exact species, subspecies and authenticity are not independently verified.",
+  "location": "No exact location or Vietnam origin has been independently verified from these photographs.",
+  "rights": "Some originals contain photographer credits, copyright notices or stock-provider watermarks. They are retained as supplied. Their license and publication rights have not been verified. This archive does not grant rights or approve public deployment.",
+  "runtime": "These originals are excluded by the existing explicit runtime package allowlist; no new wildlife hazard or scenery implementation is claimed.",
+  "count": 20,
+  "files": [
+    {
+      "file": "reference_media/jungle/forest-references/1-Photo-1.jpg",
+      "category": "forest-references",
+      "sourceAttachmentGroup": "102A3288-3DD0-45FB-8478-908E01172D34",
+      "sourceFilename": "1-Photo-1.jpg",
+      "bytes": 205147,
+      "sha256": "cff774a79b82aaf491e7a9af3a81badca86b3bf55d3e7e718d8f920f8ab400e5",
+      "width": 700,
+      "height": 466
+    },
+    {
+      "file": "reference_media/jungle/forest-references/2-Photo-2.jpg",
+      "category": "forest-references",
+      "sourceAttachmentGroup": "102A3288-3DD0-45FB-8478-908E01172D34",
+      "sourceFilename": "2-Photo-2.jpg",
+      "bytes": 130627,
+      "sha256": "11a63ff99320e35afebd55491a003c269110201c27b37606e9a6ae050c19bfe6",
+      "width": 730,
+      "height": 420
+    },
+    {
+      "file": "reference_media/jungle/forest-references/3-Photo-3.jpg",
+      "category": "forest-references",
+      "sourceAttachmentGroup": "102A3288-3DD0-45FB-8478-908E01172D34",
+      "sourceFilename": "3-Photo-3.jpg",
+      "bytes": 77775,
+      "sha256": "17c7acb519ed0a5675c91a44def1e9e01056e7f51c2aedc2abf48e4959a98aa4",
+      "width": 547,
+      "height": 365
+    },
+    {
+      "file": "reference_media/jungle/forest-references/4-Photo-4.jpg",
+      "category": "forest-references",
+      "sourceAttachmentGroup": "102A3288-3DD0-45FB-8478-908E01172D34",
+      "sourceFilename": "4-Photo-4.jpg",
+      "bytes": 154481,
+      "sha256": "f402f4a59df60866652f00bcae65003195e4c3879ed61d653c590b19f51c5c42",
+      "width": 743,
+      "height": 413
+    },
+    {
+      "file": "reference_media/jungle/forest-references/5-Photo-5.jpg",
+      "category": "forest-references",
+      "sourceAttachmentGroup": "102A3288-3DD0-45FB-8478-908E01172D34",
+      "sourceFilename": "5-Photo-5.jpg",
+      "bytes": 209879,
+      "sha256": "40b30ae70eb50e71f2c4e20daed2349e07933b96a50d7cd04308d98b3f1bd33f",
+      "width": 612,
+      "height": 433
+    },
+    {
+      "file": "reference_media/jungle/forest-references/6-Photo-6.jpg",
+      "category": "forest-references",
+      "sourceAttachmentGroup": "102A3288-3DD0-45FB-8478-908E01172D34",
+      "sourceFilename": "6-Photo-6.jpg",
+      "bytes": 129734,
+      "sha256": "13cc0e2d4187cad313025daf4e31a9bd33c234e5e19a895b9ca38fe84cec2a9d",
+      "width": 640,
+      "height": 480
+    },
+    {
+      "file": "reference_media/jungle/forest-references/7-Photo-7.jpg",
+      "category": "forest-references",
+      "sourceAttachmentGroup": "102A3288-3DD0-45FB-8478-908E01172D34",
+      "sourceFilename": "7-Photo-7.jpg",
+      "bytes": 135573,
+      "sha256": "68518318553f355401b639188af0e7e935a2f6cb97927b835fb5622e0e9b257b",
+      "width": 540,
+      "height": 360
+    },
+    {
+      "file": "reference_media/jungle/forest-references/8-Photo-8.jpg",
+      "category": "forest-references",
+      "sourceAttachmentGroup": "102A3288-3DD0-45FB-8478-908E01172D34",
+      "sourceFilename": "8-Photo-8.jpg",
+      "bytes": 154005,
+      "sha256": "dccf871ea8f131a4efe5c791ba97432cdfc196ee02864b6539e207f3386ceeb0",
+      "width": 540,
+      "height": 360
+    },
+    {
+      "file": "reference_media/jungle/forest-references/9-Photo-9.jpg",
+      "category": "forest-references",
+      "sourceAttachmentGroup": "102A3288-3DD0-45FB-8478-908E01172D34",
+      "sourceFilename": "9-Photo-9.jpg",
+      "bytes": 111328,
+      "sha256": "dcf01dc4efc9de60fb5f0dc7b0b16751159a980c6394c5bf942de45254019442",
+      "width": 547,
+      "height": 365
+    },
+    {
+      "file": "reference_media/jungle/forest-references/10-Photo-10.jpg",
+      "category": "forest-references",
+      "sourceAttachmentGroup": "102A3288-3DD0-45FB-8478-908E01172D34",
+      "sourceFilename": "10-Photo-10.jpg",
+      "bytes": 104492,
+      "sha256": "e1a800d7a55b9d5f7bdd3dc607a00437044a9a49d4b86651a8ab4f451d5591ae",
+      "width": 588,
+      "height": 393
+    },
+    {
+      "file": "reference_media/jungle/river-and-swamp-references/1-Photo-1.jpg",
+      "category": "river-and-swamp-references",
+      "sourceAttachmentGroup": "5FDCB312-A084-4AD7-9880-93C120DF846E",
+      "sourceFilename": "1-Photo-1.jpg",
+      "bytes": 111670,
+      "sha256": "4f7bbd03c22a15afe2d2954a0da45075daea33d6f8ae5929308ff0deede479f0",
+      "width": 452,
+      "height": 678
+    },
+    {
+      "file": "reference_media/jungle/river-and-swamp-references/2-Photo-2.jpg",
+      "category": "river-and-swamp-references",
+      "sourceAttachmentGroup": "5FDCB312-A084-4AD7-9880-93C120DF846E",
+      "sourceFilename": "2-Photo-2.jpg",
+      "bytes": 92708,
+      "sha256": "3a29f308451a16d2f84a02ef48a809edb2b0a8f2c91175eeca30b039a9a7ada1",
+      "width": 588,
+      "height": 330
+    },
+    {
+      "file": "reference_media/jungle/river-and-swamp-references/3-Photo-3.jpg",
+      "category": "river-and-swamp-references",
+      "sourceAttachmentGroup": "5FDCB312-A084-4AD7-9880-93C120DF846E",
+      "sourceFilename": "3-Photo-3.jpg",
+      "bytes": 45423,
+      "sha256": "d10310ec0bc9c8b03a34b61a6dab0608e7ebd9db3d154bf99aa190aa99119725",
+      "width": 389,
+      "height": 280
+    },
+    {
+      "file": "reference_media/jungle/river-and-swamp-references/4-Photo-4.jpg",
+      "category": "river-and-swamp-references",
+      "sourceAttachmentGroup": "5FDCB312-A084-4AD7-9880-93C120DF846E",
+      "sourceFilename": "4-Photo-4.jpg",
+      "bytes": 101226,
+      "sha256": "a085feeaf7f037afaff9791077485038e4933d606f5f3005acaf7249038a644f",
+      "width": 588,
+      "height": 441
+    },
+    {
+      "file": "reference_media/jungle/river-and-swamp-references/5-Photo-5.jpg",
+      "category": "river-and-swamp-references",
+      "sourceAttachmentGroup": "5FDCB312-A084-4AD7-9880-93C120DF846E",
+      "sourceFilename": "5-Photo-5.jpg",
+      "bytes": 120874,
+      "sha256": "67f2aa906aa9ccc556bc2c58b3edc448b4610b279c5a1bf656d80527cc819c9d",
+      "width": 588,
+      "height": 441
+    },
+    {
+      "file": "reference_media/jungle/river-and-swamp-references/6-Photo-6.jpg",
+      "category": "river-and-swamp-references",
+      "sourceAttachmentGroup": "5FDCB312-A084-4AD7-9880-93C120DF846E",
+      "sourceFilename": "6-Photo-6.jpg",
+      "bytes": 89177,
+      "sha256": "f64bd353881fbd37057110bed4d39e9c7063fccb587ababaa8246fce69ea2fb6",
+      "width": 588,
+      "height": 393
+    },
+    {
+      "file": "reference_media/jungle/river-and-swamp-references/7-Photo-7.jpg",
+      "category": "river-and-swamp-references",
+      "sourceAttachmentGroup": "5FDCB312-A084-4AD7-9880-93C120DF846E",
+      "sourceFilename": "7-Photo-7.jpg",
+      "bytes": 70354,
+      "sha256": "114ea3d38bff5808987afe0f1c9ecb6fa0a63542540d15dee5eb2e62e6438f61",
+      "width": 547,
+      "height": 365
+    },
+    {
+      "file": "reference_media/jungle/river-and-swamp-references/8-Photo-8.jpg",
+      "category": "river-and-swamp-references",
+      "sourceAttachmentGroup": "5FDCB312-A084-4AD7-9880-93C120DF846E",
+      "sourceFilename": "8-Photo-8.jpg",
+      "bytes": 124158,
+      "sha256": "a68404d1be8718aa11926f3e86bfae0c219cfda29eafb43864df1c7c18126454",
+      "width": 547,
+      "height": 365
+    },
+    {
+      "file": "reference_media/jungle/river-and-swamp-references/9-Photo-9.jpg",
+      "category": "river-and-swamp-references",
+      "sourceAttachmentGroup": "5FDCB312-A084-4AD7-9880-93C120DF846E",
+      "sourceFilename": "9-Photo-9.jpg",
+      "bytes": 165947,
+      "sha256": "d5dd7df34adb05326ab06d38a8057d63afbbda7d0e3103817177bb6b793e894a",
+      "width": 612,
+      "height": 408
+    },
+    {
+      "file": "reference_media/jungle/river-and-swamp-references/10-Photo-10.jpg",
+      "category": "river-and-swamp-references",
+      "sourceAttachmentGroup": "5FDCB312-A084-4AD7-9880-93C120DF846E",
+      "sourceFilename": "10-Photo-10.jpg",
+      "bytes": 214586,
+      "sha256": "7358a909df8964491322c14b3964cd60d64a505ccef2962fac22a4a667041a89",
+      "width": 800,
+      "height": 532
+    }
+  ]
+}
