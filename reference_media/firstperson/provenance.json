@@ -28,6 +28,22 @@
       "originalSHA256": "d9abfebe21caf3d4e9b26312de81b97f5aeb1c18b6a1d05c92f04869206a90a1",
       "runtime": "assets/firstperson/radio.png",
       "runtimeSHA256": "9242c9ae04e0dce37368d1a79879f02afb4db2c3b620cc6e966601c696314a09"
+    },
+    {
+      "mode": "smoke-day",
+      "original": "reference_media/firstperson/smoke-original.jpg",
+      "originalSHA256": "dfd8cb37714bae2a535f3e9a555f7d9247b2eeae5308b04dc92ac49eb964df1d",
+      "runtime": "assets/firstperson/smoke-day.png",
+      "runtimeSHA256": "ea127969787207dd6d811caa1cb37cdc74e70bee733172d52f3f1c22a2dca864",
+      "preparation": "Background removed; night variant replaces orange smoke with red signal flame while retaining supplied hand and canister."
+    },
+    {
+      "mode": "smoke-night",
+      "original": "reference_media/firstperson/smoke-original.jpg",
+      "originalSHA256": "dfd8cb37714bae2a535f3e9a555f7d9247b2eeae5308b04dc92ac49eb964df1d",
+      "runtime": "assets/firstperson/smoke-night.png",
+      "runtimeSHA256": "a60f0a5e74d11e9ccab5cf4e663b73d00d93ba05169c240bc8a005568a247c43",
+      "preparation": "Background removed; night variant replaces orange smoke with red signal flame while retaining supplied hand and canister."
     }
   ]
 }

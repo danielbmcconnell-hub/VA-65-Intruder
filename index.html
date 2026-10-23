@@ -10,7 +10,7 @@
 }
 </style>
 </head><body>
-<title>Intruder: Yankee Station — B/N Immersion &amp; Visual Polish · Photographic Equipment &amp; Radio</title>
+<title>Intruder: Yankee Station — B/N Immersion &amp; Visual Polish · Photographic Equipment, Radio &amp; Rescue Signal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Share+Tech+Mono&display=swap">
@@ -623,7 +623,12 @@ body.desktop #hudbar{display:flex}
  transform:translateX(-50%);overflow:hidden;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
 #radioArt{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom;
  transform-origin:center bottom;user-select:none;-webkit-user-drag:none}
-#weaponViewport[data-radio-active=true][data-weapon=fists] img{clip-path:inset(0 0 0 50%)}
+#weaponViewport[data-radio-active=true][data-weapon=fists] img,
+#weaponViewport[data-signal-active=true][data-weapon=fists] img{clip-path:inset(0 0 0 50%)}
+#signalViewport{display:none;position:absolute;pointer-events:none;z-index:8;left:0;bottom:-8vh;
+ width:84vh;height:56vh;overflow:hidden;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25))}
+#signalArt{display:block;width:100%;height:100%;object-fit:contain;object-position:left bottom;
+ transform-origin:25% 100%;user-select:none;-webkit-user-drag:none}
 @media(max-height:470px){body.onfoot #fcol{bottom:calc(91px + env(safe-area-inset-bottom,0px));gap:3px}body.onfoot #fcol .sbtn{height:28px;min-height:28px;width:54px;font-size:8.5px}}
 
 </style>
@@ -722,6 +727,7 @@ body.desktop #hudbar{display:flex}
     <canvas id="hud"></canvas>
     <div id="weaponViewport" aria-hidden="true"><img id="weaponArt" alt=""></div>
     <div id="radioViewport" aria-hidden="true"><img id="radioArt" alt="" draggable="false"></div>
+    <div id="signalViewport" aria-hidden="true"><img id="signalArt" alt="" draggable="false"></div>
 
     <button class="tc sbtn" id="pauseBtn" aria-label="Pause">| |</button>
     <div class="tc" id="stick"><div class="xh"></div><div class="knob"></div></div>
@@ -15183,8 +15189,9 @@ class Game {
       if (e.smokeWant || this.app.keys.KeyG || (this.app.gctl && this.app.gctl.smoke)) {
         e.smokeWant=0; e.smoke = [e.p[0], gy(e.p[0], e.p[2]), e.p[2]];
         e.pickup = [e.p[0], e.p[2]];
-        A.radio('CREW', 'Smoke is out. Green smoke.', '');
-        /* And a column of green smoke over a paddy field tells the
+        e.signalT=this.t; e.signalNight=!!this.atm.night;
+        A.radio('CREW', e.signalNight?'Red flare is burning.':'Orange smoke is out.', '');
+        /* And a visible rescue signal over a paddy field tells the
            other side exactly the same thing it tells the helicopter.
            Everybody within a mile who has a rifle starts walking
            toward it, which is why the last two minutes of a rescue
@@ -15201,17 +15208,28 @@ class Game {
             goal: [e.p[0], 0, e.p[2]], seen: 1, sus: 1.2, alive: true,
             kind: kd, armed: true, fireT: this.t + 4 + Math.random() * 10 });
         }
-        A.radio('SANDY', 'That smoke has brought them out. We will keep their heads down — move.', 'warn');
+        A.radio('SANDY', 'That signal has brought them out. We will keep their heads down — move.', 'warn');
       }
     }
     if (e.smoke) {
       e._sm = (e._sm || 0) + dt;
       if (e._sm > 0.05) {
         e._sm = 0;
-        this.world.fx.smoke([e.smoke[0] + rnd(-1.2, 1.2), e.smoke[1] + 0.6,
-                             e.smoke[2] + rnd(-1.2, 1.2)],
-          [0.14, 0.52, 0.20], rnd(2.4, 4.4), rnd(3.4, 5.6),
-          [rnd(-1.4, 1.4), rnd(3.4, 6.0), rnd(-1.4, 1.4)], 1.7);
+        const night=e.signalNight===undefined?!!this.atm.night:e.signalNight;
+        if(night){
+          // A compact luminous flame, rather than a red-painted smoke cloud.
+          // Existing bounded additive particles supply the core and red bloom.
+          const p=[e.smoke[0],e.smoke[1]+.65,e.smoke[2]];
+          this.world.fx.glow(p,[1,.025,.012],.62,.28,[0,1.4,0],0);
+          this.world.fx.streak(p,[0,1.2,0],[1,.025,.012],.22,.32,0,1.25);
+          this.world.fx.glow([p[0],p[1]+.12,p[2]],[1,.16,.055],.15,.16,[0,2.3,0],0);
+          this.world.fx.smoke(p,[.18,.13,.13],.3,1.2,[0,1.2,0],.5);
+        }else{
+          this.world.fx.smoke([e.smoke[0] + rnd(-1.2, 1.2), e.smoke[1] + 0.6,
+                               e.smoke[2] + rnd(-1.2, 1.2)],
+            [1,.34,.025], rnd(2.4, 4.4), rnd(3.4, 5.6),
+            [rnd(-1.4, 1.4), rnd(3.4, 6.0), rnd(-1.4, 1.4)], 1.7);
+        }
       }
     }
     /* ---- the Jolly ---- */
@@ -15223,7 +15241,7 @@ class Game {
       e.jolly = { p: [e.pickup[0] + Math.sin(brg) * 1750, gy(e.pickup[0], e.pickup[1]) + 120,
                       e.pickup[1] - Math.cos(brg) * 1750],
                   yaw: brg + Math.PI, pitch: 0, roll: 0, hoist: 0, down: 0 };
-      A.radio('JOLLY', 'Jolly six zero, I have your smoke. Coming up on it now.', '');
+      A.radio('JOLLY', 'Jolly six zero, I have your signal. Coming up on it now.', '');
     }
     if (e.jolly) {
       const J = e.jolly;
@@ -18041,11 +18059,28 @@ class Game {
      lived in toggleScope() at first, which only runs when the scope
      is toggled — so the swap never happened and the phone kept
      showing a throttle to someone standing in a paddy field. */
-  _updateRadioView(){
+  _updateSignalView(){
+    const view=document.getElementById('signalViewport'),art=document.getElementById('signalArt');
+    if(!view||!art)return false;
+    const e=this.evade,age=e?this.t-e.signalT:-1,A=this.app;
+    const active=!!(e&&e.smoke&&this.phase==='evade'&&!this.pow&&!e.frozen&&!e.handsUp&&!e.held&&
+      e.doom===undefined&&!e.camp&&!e.river&&e.radio>=1&&!this._solitaryActive&&!this._capturePending&&!this.result&&
+      A.game===this&&A.screen==='game'&&!A.graphicsContextLost&&Number.isFinite(e.signalT)&&e.signalT>=0&&age>=0&&age<8);
+    view.style.display=active?'block':'none';view.dataset.active=String(active);
+    if(active){
+      const mode=e.signalNight?'night':'day',src='assets/firstperson/smoke-'+mode+'.png';
+      view.dataset.mode=mode;
+      if(art.getAttribute('src')!==src)art.src=src;
+      const quiet=EquipmentView.inspect(this)?.reduced;
+      art.style.transform='translateY('+((quiet?0:Math.max(0,1-age/.2)*20+Math.sin(age*2.6)*.5)).toFixed(3)+'px)';
+    }
+    return active;
+  }
+  _updateRadioView(signalActive=false){
     const view=document.getElementById('radioViewport'),art=document.getElementById('radioArt');
     if(!view||!art)return false;
     const e=this.evade,age=e?this.t-e.lastTx:-1,A=this.app;
-    const transmitting=!!(e&&this.phase==='evade'&&!this.pow&&!e.frozen&&!e.handsUp&&!e.held&&
+    const transmitting=!!(!signalActive&&e&&this.phase==='evade'&&!this.pow&&!e.frozen&&!e.handsUp&&!e.held&&
       e.doom===undefined&&!e.camp&&!e.river&&e.radio>=0&&!this._solitaryActive&&!this._capturePending&&!this.result&&
       A.game===this&&A.screen==='game'&&!A.graphicsContextLost&&Number.isFinite(e.lastTx)&&e.lastTx>=0&&age>=0&&age<2.8);
     view.style.display=transmitting?'block':'none';
@@ -18059,10 +18094,12 @@ class Game {
     return transmitting;
   }
   _updateWeaponView(){
-    const transmitting=this._updateRadioView();
+    const signaling=this._updateSignalView();
+    const transmitting=this._updateRadioView(signaling);
     const view=document.getElementById('weaponViewport'),art=document.getElementById('weaponArt');
     if(!view||!art)return;
     view.dataset.radioActive=String(transmitting);
+    view.dataset.signalActive=String(signaling);
     const e=this.evade;
     if(!e || e.frozen || e.handsUp){view.style.display='none';return;}
     view.style.display='block';
