@@ -7,7 +7,7 @@ const path = require('node:path');
 const { createHash } = require('node:crypto');
 
 module.exports = async function photographicSprites(browser, target, evidenceDir) {
-  const out = path.join(evidenceDir, 'photographic-sprites'), checks = [], screenshots = [], errors = [], missing = [];
+  const out = path.join(evidenceDir, 'photographic-sprites'), checks = [], screenshots = [], errors = [], missing = [], sourceHashes = [];
   await fs.mkdir(out, { recursive: true });
   const record = (layout, name, actual) => { checks.push({ layout, name, passed: true, actual }); console.log('PASS photographic-sprites ' + layout + ' ' + name); };
   for (const profile of [
@@ -28,6 +28,7 @@ module.exports = async function photographicSprites(browser, target, evidenceDir
         localStorage.setItem('a6_sawkeys', '1');
       });
       const entry = await page.goto(target, { waitUntil: 'domcontentloaded' }); assert.equal(entry.status(), 200);
+      sourceHashes.push({ layout: name, indexSHA256: createHash('sha256').update(await entry.body()).digest('hex') });
       await page.waitForFunction(() => window.App && window.PhotoSprites);
       await click(page.locator('#bootGo'));
       await click(page.locator('#powChapter [data-pow-chapter="escape"]'));
@@ -137,7 +138,7 @@ module.exports = async function photographicSprites(browser, target, evidenceDir
       await shot('failure').catch(() => {}); await fs.writeFile(path.join(out, name + '-failure.json'), JSON.stringify({ error: String(e), checks, errors, missing }, null, 2)); throw e;
     } finally { await context.close(); }
   }
-  const report = { suite: 'photographic-sprites', passed: true, checks, screenshots, errors, missing, sourceSHA256: createHash('sha256').update(await fs.readFile(path.resolve(__dirname, '../assets/render/photographic-sprites.js'))).digest('hex'), scope: 'Actual Chromium/SwiftShader WebGL2, desktop and iPhone landscape layout emulation. Native Ready Room prison entry; declared mixed-roster countryside and isolated production renderer gallery fixtures. Original photographs and their limitations retained. No physical iPhone Safari, Windows GPU or completed-mission claim.' };
+  const report = { suite: 'photographic-sprites', passed: true, checks, screenshots, errors, missing, sourceHashes, sourceSHA256: createHash('sha256').update(await fs.readFile(path.resolve(__dirname, '../assets/render/photographic-sprites.js'))).digest('hex'), scope: 'Actual Chromium/SwiftShader WebGL2, desktop and iPhone landscape layout emulation. Native Ready Room prison entry; declared mixed-roster countryside and isolated production renderer gallery fixtures. Original photographs retained; repaired NVA and aviator derivatives are not pixel-identical originals. Gallery PNGs read linear light before the normal display compositor. No physical iPhone Safari, Windows GPU or completed-mission claim.' };
   await fs.writeFile(path.join(out, 'results.json'), JSON.stringify(report, null, 2) + '\n'); return report;
 };
 
