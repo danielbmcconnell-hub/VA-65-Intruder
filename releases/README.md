@@ -1,3 +1,16 @@
+# B/N Immersion & Visual Polish — latest playable game
+
+- [Download the complete Netlify ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/bn-immersion-polish/releases/Intruder_Yankee_Station_BN_Immersion_Polish.zip) — 34.8 MB, all twelve missions. Sign into private GitHub.
+- [Evidence ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/bn-immersion-polish/releases/Intruder_Yankee_Station_BN_Immersion_Polish_Evidence.zip), [screenshots](bn-polish-screenshots/), [test report](../docs/BN_IMMERSION_POLISH_REPORT.md), [play/deploy guide](../docs/BN_IMMERSION_POLISH_PLAY_GUIDE.md), [summary](bn-polish-summary.json), [runtime hashes](bn-polish-build-manifest.json).
+
+Adds zoomable B/N charts, public-landmark correlation, live ASQ guidance, typed fuel/ammunition aftermath, authored photographic guard movement, nearby terrain agreement and speech-aware engine mixing. Near-ground correction is local; photographic source detail remains limited. Preserves original photographs, flight physics, missions and rooftop escape rope.
+
+**905 domain checks in 53 suites; 225 source-browser checks in 14 selected suites; 17 packaged-build checks.** The complete 45-suite source-browser registry was not rerun. Physical Windows/iPhone Safari and hardware FPS remain untested.
+
+On Windows: download, **Extract All**, then upload the extracted folder containing `index.html`, `assets/` and `_headers` through your existing Netlify project's **Deploys** page. The [live game](https://steady-croquembouche-46c1a0.netlify.app/) has not been redeployed. After upload, confirm tab title **B/N Immersion & Visual Polish**. Git-connected deployment: branch `bn-immersion-polish`, build `npm run build`, publish `dist/site`. Keep the same origin/browser/device for existing local saves.
+
+Source `240354442f5d3806d0f3cdeb4277c7a350ffdad3`. ZIP SHA256 `3834cdacd51bfc5933a5f444c4954e9961f34e254e1c7d525260906de2b4388c`. Preserves complete ancestry and 26 earlier release archives. Previous delivery follows.
+
 # Movement & Combat Polish — latest playable game
 
 - [Download the complete Netlify ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/movement-combat-polish/releases/Intruder_Yankee_Station_Movement_Combat_Polish.zip) — 34.8 MB, all twelve missions. Sign into private GitHub.
