@@ -1,3 +1,11 @@
+# Photographic fists, revolver and knife — latest game
+
+[Download complete Netlify ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/photographic-equipment/releases/Intruder_Yankee_Station_Photographic_Equipment.zip) (sign in to GitHub). [Report and deployment instructions](../docs/PHOTOGRAPHIC_EQUIPMENT_REPORT.md) · [Screenshots](photographic-equipment-screenshots/) · [Test evidence](Intruder_Yankee_Station_Photographic_Equipment_Evidence.zip).
+
+Uses the3 supplied photographs with transparent backgrounds, solid hands, separate framing and existing gameplay animation. Complete157-file game;47 domain tests,21 selected source-browser checks and17 packaged checks passed. Physical Windows/iPhone Safari untested. The live Netlify site has not been updated: extract the ZIP and upload the folder containing `index.html`, `assets/` and `_headers` through Netlify **Deploys**. Tab title ends **Photographic Equipment**.
+
+Source `e15439512ecf935ee356ea26d7f313b05f384870`. Previous builds remain below.
+
 # B/N Immersion & Visual Polish — latest playable game
 
 - [Download the complete Netlify ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/bn-immersion-polish/releases/Intruder_Yankee_Station_BN_Immersion_Polish.zip) — 34.8 MB, all twelve missions. Sign into private GitHub.
