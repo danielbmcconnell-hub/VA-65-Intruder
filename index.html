@@ -10,7 +10,7 @@
 }
 </style>
 </head><body>
-<title>Intruder: Yankee Station — B/N Immersion &amp; Visual Polish · Restored Photo Sprites &amp; Capture Transition</title>
+<title>Intruder: Yankee Station — B/N Immersion &amp; Visual Polish · Complete High-Resolution Photographs</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Share+Tech+Mono&display=swap">
@@ -871,6 +871,7 @@ body.desktop #hudbar{display:flex}
 <script src="assets/flight/visual-materials.js"></script>
 <script src="assets/flight/airframe-feedback.js"></script>
 <script src="assets/render/sprite-layers.js"></script>
+<script src="assets/render/photo-cutouts.js"></script>
 <script src="assets/render/photographic-sprites.js"></script>
 <script src="assets/render/contact-shadows.js"></script>
 <script src="assets/render/quality-policy.js"></script>
@@ -11243,14 +11244,12 @@ const App = {
       this.rend.bloomOn = true;
       try { this.rend.texFromCanvas('wear', buildDetailMap(512)); }
       catch (e) { /* surfaces fall back to shader noise */ }
-      try { this.rend.texFromCanvas('people', buildSpriteSheet()); }
-      catch (e) { /* no sprites; the mesh figures still draw */ }
+      // Complete photographic subjects load independently below; no tiny
+      // reconstructed figure/character atlases are allocated on the GPU.
       // Photographic character atlases: load independently, retain original fallback.
       const renderer = this.rend;
-      const nvaFront=new Image();
-      nvaFront.onload=()=>{if(this.rend===renderer&&!renderer.gl.isContextLost())renderer.texFromCanvas('photo_nva_front',nvaFront);};
-      nvaFront.src='assets/sprites/nva-front-repaired.png';
-      for (const name of ['nva','female_vc','militia','farmer','cow','aviator','vegetation']) {
+      PhotoCutouts.load(renderer,{touch:IS_TOUCH,current:()=>this.rend===renderer});
+      for (const name of ['vegetation']) {
         const im = new Image();
         im.onload = () => { if (this.rend !== renderer || renderer.gl.isContextLost()) return;
           try {
@@ -11282,12 +11281,9 @@ const App = {
          a PNG, so it decodes a frame or two after this. Paint the
          fallback sheet first so nothing waits on a decode, then swap
          the photographed one in the moment it lands. */
-      loadFigures(() => {
-        if (!FIGIMG || this.rend !== renderer || renderer.gl.isContextLost()) return;
-        try {
-          renderer.texFromCanvas('people', buildSpriteSheet());
-        } catch (e) { /* keep the sheet we already have */ }
-      });
+      // Keep the original reference image decoded for save/asset diagnostics,
+      // without uploading its damaged/reconstructed low-resolution frames.
+      loadFigures(() => {});
       this.rend.meshFromBuilder('intruder', buildIntruder());
       this.rend.meshFromBuilder('canopy', buildIntruder.glass);
       this._tailOn = null;
@@ -16001,7 +15997,7 @@ class Game {
     const sight=GroundCombat.target(this,e,{
       floorAt:p=>this.pow?p[1]:e.camp?this.campY:Math.max(terrainH(p[0],p[2]),0),
       eyeHeight:typeof GroundView!=='undefined'?GroundView.eyeHeight(this,eyeHeight):eyeHeight,
-      bodyHeight:o=>{const pose=PhotoSprites.describe(o,{camera:this.rend.eye});
+      bodyHeight:o=>{const pose=PhotoSprites.describe(o,{camera:this.rend.eye,renderer:this.rend});
         return pose?pose.h:1.76;},
       lineOfSight:o=>this._groundLineOfSight(e.p,o.p,e)
     });
@@ -17532,9 +17528,9 @@ class Game {
         if ((p[0]-R.eye[0])**2+(p[2]-R.eye[2])**2 > range*range) return;
         const seed = Math.abs(Math.floor(p[0]*17.31+p[2]*41.73));
         const descriptor = PhotoSprites.describe({kind:mesh,p,face:rot?rot[0]:0},
-          {camera:R.eye,height:(photo==='cow'?1.42:1.76)*((s&&s[1])||1),
+          {camera:R.eye,renderer:R,height:(photo==='cow'?1.42:1.76)*((s&&s[1])||1),
             working:(mesh==='farmer'||mesh==='farmerC')&&seed%5<3,phase:seed%5});
-        if(R.textures && R.textures['photo_'+photo])
+        if(descriptor&&descriptor.photoCutout&&R.textures&&R.textures[descriptor.textureName])
           sprites.push({...descriptor,p:p.slice(),sourcePhotograph:true});
         // Wait for the correct atlas rather than substituting another person.
         return;
@@ -17625,9 +17621,13 @@ class Game {
       if(sc.alive===false && sc.downAt===undefined)continue;
       const gy=this.pow?sc.p[1]:this.evade.camp?this.campY:Math.max(terrainH(sc.p[0],sc.p[2]),0);
       const face=Number.isFinite(sc.face)?sc.face:sc.goal?Math.atan2(sc.goal[0]-sc.p[0],-(sc.goal[2]-sc.p[2])):0;
-      const descriptor=PhotoSprites.describe({...sc,face},{camera:R.eye,moving:(sc.spd||0)>.25});
-      if(descriptor && R.textures && R.textures['photo_'+descriptor.photoName])
-        sprites.push({...descriptor,p:[sc.p[0],gy,sc.p[2]],owner:sc,sourcePhotograph:true});
+      const descriptor=PhotoSprites.describe({...sc,face},{camera:R.eye,renderer:R,moving:(sc.spd||0)>.25});
+      if(descriptor && descriptor.photoCutout && R.textures && R.textures[descriptor.textureName]){
+        const fall=sc.alive===false&&descriptor.photoPendingPose==='fallen'?clamp((this.t-sc.downAt)/.75,0,1):0;
+        // Briefly lower the complete same-person photograph while its actual
+        // prone photograph loads; never substitute an upright corpse or mesh.
+        if(fall<1)sprites.push({...descriptor,p:[sc.p[0],gy-fall*fall*descriptor.h,sc.p[2]],owner:sc,sourcePhotograph:true});
+      }
     }
     /* ---- the ejection, drawn ----
        The seats on their rockets, and the canopy: streaming first, then
@@ -17677,9 +17677,10 @@ class Game {
     if (this.evade && this.evade.cattle) for (const c of this.evade.cattle) {
       const gy = Math.max(terrainH(c.p[0], c.p[2]), 0);
       const descriptor=PhotoSprites.describe({...c,kind:'cow'},
-        {camera:R.eye,moving:(c.walk||0)>0,phase:c.ph||0});
-      if(R.textures && R.textures.photo_cow)
-        sprites.push({...descriptor,p:[c.p[0],gy,c.p[2]],owner:c,sourcePhotograph:true});
+        {camera:R.eye,renderer:R,moving:(c.walk||0)>0,phase:c.ph||0});
+      if(descriptor&&descriptor.photoCutout&&R.textures&&R.textures[descriptor.textureName]){
+        if(c.alive!==false||descriptor.photoPose==='fallen')sprites.push({...descriptor,p:[c.p[0],gy,c.p[2]],owner:c,sourcePhotograph:true});
+      }
     }
 
     /* The rescue package, drawn. */
@@ -18193,6 +18194,8 @@ Game.prototype.captured = function() {
   return POW.begin(this,'solitary');
 };
 CaptureTransition.install({Game,App});
+const _completePhotoUpdate=Game.prototype.update;
+Game.prototype.update=function(dt){if(PhotoCutouts.guard(this))return;return _completePhotoUpdate.call(this,dt);};
 App.startPOW = function(saved,chapter) {
   const savedId=FlightSortieCheckpoint.missionId(saved);
   const mission=savedId==='free'?{...MISSIONS[0],id:'free',title:'Free Flight',free:true}:MISSIONS.find(m=>m.id===savedId)||MISSIONS.find(m=>m.escape);

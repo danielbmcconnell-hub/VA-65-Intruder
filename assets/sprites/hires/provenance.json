@@ -1,0 +1,322 @@
+{
+  "originalsPreserved": true,
+  "generatedReconstructionOfMissingDetails": true,
+  "limitations": "Restored derivatives approximate lost photographic detail. They are not original higher-resolution camera photographs, nor recorded motion sequences. Standing, aiming and fallen poses are discrete images. Original JPEG/WebP references are unchanged.",
+  "assets": [
+    {
+      "subject": "farmer",
+      "pose": "idle",
+      "file": "assets/sprites/hires/farmer-idle.png",
+      "sha256": "3c07d7d322db60a17645e945a2a5b6866fb765a5db2af585bd5789ecc638f339",
+      "width": 1024,
+      "height": 1536,
+      "bounds": [
+        172,
+        8,
+        874,
+        1512
+      ],
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "reference": "assets/farmer.webp",
+      "method": "Image editing tool: complete, higher-resolution photographic restoration from supplied reference; optional alternate poses derived from restored base",
+      "pixelIdentical": false
+    },
+    {
+      "subject": "farmer",
+      "pose": "fallen",
+      "file": "assets/sprites/hires/farmer-fallen.png",
+      "sha256": "673999867de372899600a983d4be1fb3e6c52bd3c1c0124ea154214e0f130f16",
+      "width": 1536,
+      "height": 1024,
+      "bounds": [
+        28,
+        237,
+        1512,
+        800
+      ],
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "reference": "assets/farmer.webp",
+      "method": "Image editing tool: complete, higher-resolution photographic restoration from supplied reference; optional alternate poses derived from restored base",
+      "pixelIdentical": false
+    },
+    {
+      "subject": "militia",
+      "pose": "idle",
+      "file": "assets/sprites/hires/militia-idle.png",
+      "sha256": "dcae18d4f12a6fa990a854d33ef21262c0cb58573824721d9eafd07092e04ad9",
+      "width": 1024,
+      "height": 1536,
+      "bounds": [
+        224,
+        9,
+        852,
+        1505
+      ],
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "reference": "assets/militia.webp",
+      "method": "Image editing tool: complete, higher-resolution photographic restoration from supplied reference; optional alternate poses derived from restored base",
+      "pixelIdentical": false
+    },
+    {
+      "subject": "militia",
+      "pose": "aim",
+      "file": "assets/sprites/hires/militia-aim.png",
+      "sha256": "462ba1aac380489bee4312b5d4edb650d4b667a567d0ae55304eeb7e91da4e34",
+      "width": 1024,
+      "height": 1536,
+      "bounds": [
+        195,
+        7,
+        999,
+        1502
+      ],
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "reference": "assets/militia.webp",
+      "method": "Image editing tool: complete, higher-resolution photographic restoration from supplied reference; optional alternate poses derived from restored base",
+      "pixelIdentical": false
+    },
+    {
+      "subject": "militia",
+      "pose": "fallen",
+      "file": "assets/sprites/hires/militia-fallen.png",
+      "sha256": "40f6b904c1184b40fc0ee82f9d0e5de5dbbc4b37ca783b3e4840fa286bf41f5e",
+      "width": 1536,
+      "height": 1024,
+      "bounds": [
+        44,
+        245,
+        1504,
+        808
+      ],
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "reference": "assets/militia.webp",
+      "method": "Image editing tool: complete, higher-resolution photographic restoration from supplied reference; optional alternate poses derived from restored base",
+      "pixelIdentical": false
+    },
+    {
+      "subject": "female_vc",
+      "pose": "idle",
+      "file": "assets/sprites/hires/female_vc-idle.png",
+      "sha256": "6500e5a145a0ad55b5307de0b06e8b2a81913e4fcc97f463f096572fb3e1758a",
+      "width": 1024,
+      "height": 1536,
+      "bounds": [
+        147,
+        9,
+        899,
+        1509
+      ],
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "reference": "assets/female_vc.webp",
+      "method": "Image editing tool: complete, higher-resolution photographic restoration from supplied reference; optional alternate poses derived from restored base",
+      "pixelIdentical": false
+    },
+    {
+      "subject": "female_vc",
+      "pose": "aim",
+      "file": "assets/sprites/hires/female_vc-aim.png",
+      "sha256": "4a66c1c4d825d6e3390fb4e6e8ce3e6865d98fa9360952021cd20408dccb21cd",
+      "width": 1024,
+      "height": 1536,
+      "bounds": [
+        96,
+        15,
+        1006,
+        1512
+      ],
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "reference": "assets/female_vc.webp",
+      "method": "Image editing tool: complete, higher-resolution photographic restoration from supplied reference; optional alternate poses derived from restored base",
+      "pixelIdentical": false
+    },
+    {
+      "subject": "female_vc",
+      "pose": "fallen",
+      "file": "assets/sprites/hires/female_vc-fallen.png",
+      "sha256": "b3c21ac5dc5f3acd82a6beb2012272e9c237a5f949c9df0eb57852dd0aeae638",
+      "width": 1536,
+      "height": 1024,
+      "bounds": [
+        15,
+        259,
+        1527,
+        796
+      ],
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "reference": "assets/female_vc.webp",
+      "method": "Image editing tool: complete, higher-resolution photographic restoration from supplied reference; optional alternate poses derived from restored base",
+      "pixelIdentical": false
+    },
+    {
+      "subject": "nva",
+      "pose": "idle",
+      "file": "assets/sprites/hires/nva-idle.png",
+      "sha256": "d4b6c925840bf8112676c5eb681ef61f3f6b7a2b6b66614a279ba939fd50e260",
+      "width": 1024,
+      "height": 1536,
+      "bounds": [
+        203,
+        42,
+        877,
+        1489
+      ],
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "reference": "assets/nva.webp",
+      "method": "Image editing tool: complete, higher-resolution photographic restoration from supplied reference; optional alternate poses derived from restored base",
+      "pixelIdentical": false
+    },
+    {
+      "subject": "nva",
+      "pose": "aim",
+      "file": "assets/sprites/hires/nva-aim.png",
+      "sha256": "2b35a3de2e301a0ceb9bba7f0524a44a94c548e33d0ff5f55ec7693b093ea70b",
+      "width": 1024,
+      "height": 1536,
+      "bounds": [
+        134,
+        39,
+        987,
+        1477
+      ],
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "reference": "assets/nva.webp",
+      "method": "Image editing tool: complete, higher-resolution photographic restoration from supplied reference; optional alternate poses derived from restored base",
+      "pixelIdentical": false
+    },
+    {
+      "subject": "nva",
+      "pose": "fallen",
+      "file": "assets/sprites/hires/nva-fallen.png",
+      "sha256": "e5ce672b95a95b08566449eb134ac594f0529f30425bf6466e6798d5d3f300c3",
+      "width": 1536,
+      "height": 1024,
+      "bounds": [
+        23,
+        239,
+        1519,
+        820
+      ],
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "reference": "assets/nva.webp",
+      "method": "Image editing tool: complete, higher-resolution photographic restoration from supplied reference; optional alternate poses derived from restored base",
+      "pixelIdentical": false
+    },
+    {
+      "subject": "aviator",
+      "pose": "idle",
+      "file": "assets/sprites/hires/aviator-idle.png",
+      "sha256": "786e04eec7cd78cc2d20cf0727e9354703246bf3beb49733caeadcfa1f041b6e",
+      "width": 1024,
+      "height": 1536,
+      "bounds": [
+        233,
+        16,
+        815,
+        1514
+      ],
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "reference": "assets/aviator.webp",
+      "method": "Image editing tool: complete, higher-resolution photographic restoration from supplied reference; optional alternate poses derived from restored base",
+      "pixelIdentical": false
+    },
+    {
+      "subject": "aviator",
+      "pose": "fallen",
+      "file": "assets/sprites/hires/aviator-fallen.png",
+      "sha256": "83cedac329aa10ec4846f7d17c543564b18dd5b82c4121594157a09e6a43de47",
+      "width": 1536,
+      "height": 1024,
+      "bounds": [
+        38,
+        148,
+        1502,
+        904
+      ],
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "reference": "assets/aviator.webp",
+      "method": "Image editing tool: complete, higher-resolution photographic restoration from supplied reference; optional alternate poses derived from restored base",
+      "pixelIdentical": false
+    },
+    {
+      "subject": "cow",
+      "pose": "idle",
+      "file": "assets/sprites/hires/cow-idle.png",
+      "sha256": "ae8a328becf0ced12822a735adeef0c2471daac263e9ea5fc5311c5895786c35",
+      "width": 1536,
+      "height": 1024,
+      "bounds": [
+        15,
+        34,
+        1518,
+        999
+      ],
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "reference": "assets/cow.webp",
+      "method": "Image editing tool: complete, higher-resolution photographic restoration from supplied reference; optional alternate poses derived from restored base",
+      "pixelIdentical": false
+    },
+    {
+      "subject": "cow",
+      "pose": "fallen",
+      "file": "assets/sprites/hires/cow-fallen.png",
+      "sha256": "a446d0edcb69cfca99291dd8cd4cdc5ccfe2985788325ecac087558fb24af52e",
+      "width": 1536,
+      "height": 1024,
+      "bounds": [
+        6,
+        160,
+        1529,
+        883
+      ],
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "reference": "assets/cow.webp",
+      "method": "Image editing tool: complete, higher-resolution photographic restoration from supplied reference; optional alternate poses derived from restored base",
+      "pixelIdentical": false
+    }
+  ]
+}

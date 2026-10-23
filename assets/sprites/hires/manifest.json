@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "subjects": {
+    "farmer": {
+      "height": 1.76,
+      "poses": {
+        "idle": {
+          "file": "farmer-idle.png",
+          "heightRatio": 1
+        },
+        "fallen": {
+          "file": "farmer-fallen.png",
+          "heightRatio": 0.37938
+        }
+      }
+    },
+    "militia": {
+      "height": 1.76,
+      "poses": {
+        "idle": {
+          "file": "militia-idle.png",
+          "heightRatio": 1
+        },
+        "aim": {
+          "file": "militia-aim.png",
+          "heightRatio": 1
+        },
+        "fallen": {
+          "file": "militia-fallen.png",
+          "heightRatio": 0.385616
+        }
+      }
+    },
+    "female_vc": {
+      "height": 1.76,
+      "poses": {
+        "idle": {
+          "file": "female_vc-idle.png",
+          "heightRatio": 1
+        },
+        "aim": {
+          "file": "female_vc-aim.png",
+          "heightRatio": 1
+        },
+        "fallen": {
+          "file": "female_vc-fallen.png",
+          "heightRatio": 0.355159
+        }
+      }
+    },
+    "nva": {
+      "height": 1.76,
+      "poses": {
+        "idle": {
+          "file": "nva-idle.png",
+          "heightRatio": 1
+        },
+        "aim": {
+          "file": "nva-aim.png",
+          "heightRatio": 1
+        },
+        "fallen": {
+          "file": "nva-fallen.png",
+          "heightRatio": 0.388369
+        }
+      }
+    },
+    "aviator": {
+      "height": 1.76,
+      "poses": {
+        "idle": {
+          "file": "aviator-idle.png",
+          "heightRatio": 1
+        },
+        "fallen": {
+          "file": "aviator-fallen.png",
+          "heightRatio": 0.516393
+        }
+      }
+    },
+    "cow": {
+      "height": 1.42,
+      "poses": {
+        "idle": {
+          "file": "cow-idle.png",
+          "heightRatio": 1
+        },
+        "fallen": {
+          "file": "cow-fallen.png",
+          "heightRatio": 0.752199
+        }
+      }
+    }
+  }
+}

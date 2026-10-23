@@ -7,9 +7,21 @@ fs.mkdirSync(site,{recursive:true});
 // test screenshots, Git history, node_modules or development tooling.
 const allow=['index.html','assets/atlas-metadata.js','assets/figures-original.png'];
 allow.push('assets/render/photographic-sprites.js','assets/survival/capture-transition.js','assets/survival/capture-transition.css');
-allow.push('assets/sprites/nva-repaired.png','assets/sprites/aviator-repaired.png','assets/sprites/nva-front-repaired.png','assets/sprites/atlas-metadata.js');
+allow.push('assets/sprites/atlas-metadata.js');
+allow.push('assets/render/photo-cutouts.js','assets/sprites/hires/manifest.json');
+const cutouts=JSON.parse(fs.readFileSync(path.join(root,'assets/sprites/hires/manifest.json')));
+if(cutouts.version!==1||!cutouts.subjects)throw new Error('Invalid complete photographic sprite manifest');
+for(const name of ['farmer','militia','female_vc','nva','aviator','cow']){
+ const subject=cutouts.subjects[name];if(!subject?.poses?.idle)throw new Error('Missing complete photographic sprite '+name);
+ for(const pose of Object.values(subject.poses)){
+  const file=typeof pose==='string'?pose:pose.file;
+  if(!/^[a-z0-9_-]+\.png$/.test(file))throw new Error('Invalid complete photographic sprite filename');
+  const item='assets/sprites/hires/'+file;if(!allow.includes(item))allow.push(item);
+ }
+}
 for(const name of ['fists','pistol','knife','radio','smoke-day','smoke-night'])allow.push('assets/firstperson/'+name+'.png');
-for(const directory of ['photos','processed'])for(const name of fs.readdirSync(path.join(root,'assets',directory)))if(/\.(jpg|jpeg|png|webp)$/.test(name))allow.push('assets/'+directory+'/'+name);
+for(const name of fs.readdirSync(path.join(root,'assets/photos')))if(/\.(jpg|jpeg|png|webp)$/.test(name))allow.push('assets/photos/'+name);
+allow.push('assets/processed/vegetation.webp');
 allow.push('assets/history/manifest.json');
 for(const asset of JSON.parse(fs.readFileSync(path.join(root,'assets/history/manifest.json')))){
  if(!/^[a-z0-9_-]+\.(webp|png)$/.test(asset.file))throw new Error('Invalid historical runtime filename');
@@ -25,7 +37,7 @@ allow.push('assets/flight/sortie-checkpoint.js','assets/flight/route-scene.js','
 for(const name of ['interceptor.js','flak.js','sprites.js','presentation.js','presentation.css','mission.js'])allow.push('assets/willard/'+name);
 for(const name of ['MiG17PF_Willard_Egress_ATLAS.png','MiG17PF_Willard_Egress_ATLAS.json'])allow.push('assets/willard/media/'+name);
 for(const name of fs.readdirSync(path.join(root,'assets/willard/media/sprites')))if(/^[a-zA-Z0-9_+.-]+\.png$/.test(name))allow.push('assets/willard/media/sprites/'+name);
-for(const name of ['aviator','cow','farmer','female_vc','militia','nva','vegetation'])allow.push('assets/'+name+'.webp');
+allow.push('assets/vegetation.webp');
 for(const item of allow){const dst=path.join(site,item);fs.mkdirSync(path.dirname(dst),{recursive:true});fs.copyFileSync(path.join(root,item),dst);}
 fs.writeFileSync(path.join(site,'_headers'),'/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: same-origin\n  Cache-Control: no-cache\n');
 const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
@@ -33,5 +45,5 @@ const files=[...allow,'_headers'].map(file=>({file,sha256:sha(fs.readFileSync(pa
 const metadata={commit:cp.execFileSync('git',['rev-parse','HEAD'],{cwd:root}).toString().trim(),entrySHA256:sha(fs.readFileSync(path.join(site,'index.html'))),files};
 fs.writeFileSync(path.join(root,'dist/build-manifest.json'),JSON.stringify(metadata,null,2)+'\n');
 // Python's standard-library zipper makes packaging portable in this cloud image.
-cp.execFileSync('python3',['-c',"import pathlib,zipfile; p=pathlib.Path('dist/site'); z=zipfile.ZipFile('dist/Intruder_Yankee_Station_Photo_Sprites_Capture_Repair.zip','w',zipfile.ZIP_DEFLATED); [z.write(f,f.relative_to(p)) for f in sorted(p.rglob('*')) if f.is_file()]; z.close()"],{cwd:root});
-console.log('Built runtime-only Netlify folder and ZIP: dist/site, dist/Intruder_Yankee_Station_Photo_Sprites_Capture_Repair.zip ('+allow.length+' game files)');
+cp.execFileSync('python3',['-c',"import pathlib,zipfile; p=pathlib.Path('dist/site'); z=zipfile.ZipFile('dist/Intruder_Yankee_Station_High_Resolution_Photos.zip','w',zipfile.ZIP_DEFLATED); [z.write(f,f.relative_to(p)) for f in sorted(p.rglob('*')) if f.is_file()]; z.close()"],{cwd:root});
+console.log('Built runtime-only Netlify folder and ZIP: dist/site, dist/Intruder_Yankee_Station_High_Resolution_Photos.zip ('+allow.length+' game files)');

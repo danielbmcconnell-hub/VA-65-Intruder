@@ -13,6 +13,7 @@
   function identity(actor) { return actor && IDENTITIES[actor.kind] || null; }
   function describe(actor, options={}) {
     const photoName=identity(actor); if(!photoName)return null;
+    if(root.PhotoCutouts){const complete=root.PhotoCutouts.describe(actor,{...options,photoName});if(complete)return complete;}
     const camera=options.camera || [0,0,0], p=actor.p || [0,0,0];
     const face=finite(actor.face,finite(actor.yaw));
     const heading=Math.atan2(camera[0]-p[0],-(camera[2]-p[2]));
@@ -52,6 +53,7 @@
     return {photoName,photoFrame,flip,h,...(photoVariant?{photoVariant,textureName:'photo_'+photoVariant}:{})};
   }
   function anchor(sprite, atlas=metadata) {
+    if(sprite.photoCutout&&root.PhotoCutouts)return root.PhotoCutouts.anchor(sprite);
     const name=sprite.photoVariant||sprite.photoName, meta=atlas && atlas[name], cols=meta&&meta.cols||8,rows=meta&&meta.rows||6;
     const frame=Math.max(0,Math.min(cols*rows-1,finite(sprite.photoFrame)|0));
     const f=meta && meta.frames[frame];
