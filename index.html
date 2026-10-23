@@ -872,6 +872,7 @@ body.desktop #hudbar{display:flex}
 <script src="assets/flight/airframe-feedback.js"></script>
 <script src="assets/render/sprite-layers.js"></script>
 <script src="assets/render/photo-cutouts.js"></script>
+<script src="assets/render/photo-motion.js"></script>
 <script src="assets/render/photographic-sprites.js"></script>
 <script src="assets/render/contact-shadows.js"></script>
 <script src="assets/render/quality-policy.js"></script>
@@ -17378,6 +17379,7 @@ class Game {
   /* ---------------- render ---------------- */
   render(dt) {
     const R = this.rend, ac = this.ac, W = this.world, A = this.app;
+    PhotoCutouts.beginFrame(R);
     R.surfacePolish = FlightStrikeScene.active(this) || !!this.evade ? 1 : 0;
     FlightStrikeExperience.render(this);
     FlightTacticalApproach.render(this);
@@ -17617,12 +17619,18 @@ class Game {
     }
     /* People from the terrain and the search party share one billboard pass.
        `sprites` was initialized before World.clutter() above. */
-    if (this.evade) for (const sc of this.evade.searchers.concat(this.evade.locals || [])) {
-      if(sc.alive===false && sc.downAt===undefined)continue;
-      const gy=this.pow?sc.p[1]:this.evade.camp?this.campY:Math.max(terrainH(sc.p[0],sc.p[2]),0);
+    const photoActors=this.evade?this.evade.searchers.concat(this.evade.locals||[]).map(actor=>({actor,cow:false}))
+      .concat((this.evade.cattle||[]).map(actor=>({actor,cow:true})))
+      .sort((a,b)=>Math.hypot(a.actor.p[0]-R.eye[0],a.actor.p[2]-R.eye[2])-Math.hypot(b.actor.p[0]-R.eye[0],b.actor.p[2]-R.eye[2])):[];
+    // Allocate high-resolution gait slots to nearby people and cattle first.
+    // Sorting this render-only copy never changes AI or collision iteration.
+    for (const {actor:sc,cow} of photoActors) {
+      if(!cow&&sc.alive===false&&sc.downAt===undefined)continue;
+      const gy=cow?Math.max(terrainH(sc.p[0],sc.p[2]),0):this.pow?sc.p[1]:this.evade.camp?this.campY:Math.max(terrainH(sc.p[0],sc.p[2]),0);
       const face=Number.isFinite(sc.face)?sc.face:sc.goal?Math.atan2(sc.goal[0]-sc.p[0],-(sc.goal[2]-sc.p[2])):0;
-      const descriptor=PhotoSprites.describe({...sc,face},{camera:R.eye,renderer:R,moving:(sc.spd||0)>.25});
+      const descriptor=PhotoSprites.describe({...sc,face,...(cow?{kind:'cow'}:{})},{camera:R.eye,renderer:R,game:this,owner:sc,moving:cow?(sc.walk||0)>0:(sc.spd||0)>.25});
       if(descriptor && descriptor.photoCutout && R.textures && R.textures[descriptor.textureName]){
+        if(cow){if(sc.alive!==false||descriptor.photoPose==='fallen')sprites.push({...descriptor,p:[sc.p[0],gy,sc.p[2]],owner:sc,sourcePhotograph:true});continue;}
         const fall=sc.alive===false&&descriptor.photoPendingPose==='fallen'?clamp((this.t-sc.downAt)/.75,0,1):0;
         // Briefly lower the complete same-person photograph while its actual
         // prone photograph loads; never substitute an upright corpse or mesh.
@@ -17669,18 +17677,6 @@ class Game {
            [1, 1, 1], [0.62, 0.60, 0.56, 0]);
       push('canopy', [w.p[0], w.p[1] - 0.55, w.p[2]], [w.yaw, w.pitch, w.roll],
            [1, 1, 1], [0.62, 0.60, 0.56, 0]);
-    }
-
-    /* The cattle. Alive they stand and graze; shot they lie on their
-       side, which is a bigger and more obvious thing in a field than a
-       man is, and meant to be. */
-    if (this.evade && this.evade.cattle) for (const c of this.evade.cattle) {
-      const gy = Math.max(terrainH(c.p[0], c.p[2]), 0);
-      const descriptor=PhotoSprites.describe({...c,kind:'cow'},
-        {camera:R.eye,renderer:R,moving:(c.walk||0)>0,phase:c.ph||0});
-      if(descriptor&&descriptor.photoCutout&&R.textures&&R.textures[descriptor.textureName]){
-        if(c.alive!==false||descriptor.photoPose==='fallen')sprites.push({...descriptor,p:[c.p[0],gy,c.p[2]],owner:c,sourcePhotograph:true});
-      }
     }
 
     /* The rescue package, drawn. */
@@ -17846,6 +17842,7 @@ class Game {
       if (fallback.length) R.drawSprites('people', fallback);
       for (const [name, list] of Object.entries(groups)) R.drawSprites(name, list);
     }
+    PhotoCutouts.endFrame(R);
     if(this.willard && !this.evade && !this.chute && this.willard.enemy)WillardSprites.draw(R,this.willard.enemy,{dt,light:.78});
     /* The see-through pass: canopy perspex, and the rotor discs, which
        are the same problem — a surface you look through that still
@@ -18178,6 +18175,7 @@ Game.prototype.stepEvade = function(dt) {
   const before=actor&&Array.isArray(actor.p)?actor.p.slice(0,3):null;
   const result=wasPOW?POW.tick(this,dt):_originalStepEvade.call(this,dt);
   if(!wasPOW && POW.FigureMotion)POW.FigureMotion.step(this,dt);
+  PhotoMotion.step(this,dt);
   GroundView.step(this,dt);
   const distance=actor&&actor===this.evade&&actor.moving&&before?Math.hypot(actor.p[0]-before[0],actor.p[2]-before[2]):0;
   EquipmentView.step(this,dt,distance);

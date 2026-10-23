@@ -8,15 +8,23 @@ fs.mkdirSync(site,{recursive:true});
 const allow=['index.html','assets/atlas-metadata.js','assets/figures-original.png'];
 allow.push('assets/render/photographic-sprites.js','assets/survival/capture-transition.js','assets/survival/capture-transition.css');
 allow.push('assets/sprites/atlas-metadata.js');
-allow.push('assets/render/photo-cutouts.js','assets/sprites/hires/manifest.json');
+allow.push('assets/render/photo-cutouts.js','assets/render/photo-motion.js','assets/sprites/hires/manifest.json');
 const cutouts=JSON.parse(fs.readFileSync(path.join(root,'assets/sprites/hires/manifest.json')));
 if(cutouts.version!==1||!cutouts.subjects)throw new Error('Invalid complete photographic sprite manifest');
+function addPhotoFile(file){
+ if(typeof file!=='string'||!/^[a-z0-9_-]+\.(png|webp)$/.test(file))throw new Error('Invalid complete photographic sprite filename');
+ const item='assets/sprites/hires/'+file;if(!allow.includes(item))allow.push(item);
+}
 for(const name of ['farmer','militia','female_vc','nva','aviator','cow']){
  const subject=cutouts.subjects[name];if(!subject?.poses?.idle)throw new Error('Missing complete photographic sprite '+name);
  for(const pose of Object.values(subject.poses)){
-  const file=typeof pose==='string'?pose:pose.file;
-  if(!/^[a-z0-9_-]+\.png$/.test(file))throw new Error('Invalid complete photographic sprite filename');
-  const item='assets/sprites/hires/'+file;if(!allow.includes(item))allow.push(item);
+  addPhotoFile(typeof pose==='string'?pose:pose.file);
+ }
+ for(const [action,clip] of Object.entries(subject.animations||{})){
+  if(!['walk','run'].includes(action)||!Array.isArray(clip.plates)||!clip.plates.length)throw new Error('Invalid photographic motion clip '+name+':'+action);
+  if(!Number.isInteger(clip.cols)||!Number.isInteger(clip.rows)||!Number.isInteger(clip.frames)||clip.cols<1||clip.rows<1||clip.frames<1||clip.frames>clip.plates.length*clip.cols*clip.rows)throw new Error('Invalid photographic motion frame layout '+name+':'+action);
+  if(clip.order&&(!Array.isArray(clip.order)||clip.order.length!==clip.frames||new Set(clip.order).size!==clip.frames||clip.order.some(frame=>!Number.isInteger(frame)||frame<0||frame>=clip.frames)))throw new Error('Invalid photographic motion frame order '+name+':'+action);
+  for(const plate of clip.plates)addPhotoFile(typeof plate==='string'?plate:plate.file);
  }
 }
 for(const name of ['fists','pistol','knife','radio','smoke-day','smoke-night'])allow.push('assets/firstperson/'+name+'.png');
@@ -45,5 +53,5 @@ const files=[...allow,'_headers'].map(file=>({file,sha256:sha(fs.readFileSync(pa
 const metadata={commit:cp.execFileSync('git',['rev-parse','HEAD'],{cwd:root}).toString().trim(),entrySHA256:sha(fs.readFileSync(path.join(site,'index.html'))),files};
 fs.writeFileSync(path.join(root,'dist/build-manifest.json'),JSON.stringify(metadata,null,2)+'\n');
 // Python's standard-library zipper makes packaging portable in this cloud image.
-cp.execFileSync('python3',['-c',"import pathlib,zipfile; p=pathlib.Path('dist/site'); z=zipfile.ZipFile('dist/Intruder_Yankee_Station_High_Resolution_Photos.zip','w',zipfile.ZIP_DEFLATED); [z.write(f,f.relative_to(p)) for f in sorted(p.rglob('*')) if f.is_file()]; z.close()"],{cwd:root});
-console.log('Built runtime-only Netlify folder and ZIP: dist/site, dist/Intruder_Yankee_Station_High_Resolution_Photos.zip ('+allow.length+' game files)');
+cp.execFileSync('python3',['-c',"import pathlib,zipfile; p=pathlib.Path('dist/site'); z=zipfile.ZipFile('dist/Intruder_Yankee_Station_Photographic_Motion.zip','w',zipfile.ZIP_DEFLATED); [z.write(f,f.relative_to(p)) for f in sorted(p.rglob('*')) if f.is_file()]; z.close()"],{cwd:root});
+console.log('Built runtime-only Netlify folder and ZIP: dist/site, dist/Intruder_Yankee_Station_Photographic_Motion.zip ('+allow.length+' game files)');

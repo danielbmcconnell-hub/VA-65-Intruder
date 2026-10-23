@@ -5,7 +5,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
 const {createHash}=require('node:crypto');
 
 module.exports=async function highresSprites(browser,target,evidenceDir){
-  const out=path.join(evidenceDir,'highres-sprites'),checks=[],screenshots=[],errors=[],missing=[],sourceHashes=[];
+  const out=path.join(evidenceDir,'highres-sprites'),checks=[],screenshots=[],errors=[],missing=[],sourceHashes=[],executedModules=[],executedAssets=[],sourceJobs=[];
   await fs.mkdir(out,{recursive:true});
   const profiles=[{name:'desktop',viewport:{width:1280,height:720},deviceScaleFactor:1},
     {name:'iphone-layout-chromium',viewport:{width:844,height:390},deviceScaleFactor:3,isMobile:true,hasTouch:true}]
@@ -15,6 +15,8 @@ module.exports=async function highresSprites(browser,target,evidenceDir){
     const {name,...options}=profile,context=await browser.newContext(options),page=await context.newPage();
     page.setDefaultTimeout(90000);page.on('pageerror',e=>errors.push({layout:name,message:e.message}));
     page.on('response',r=>{if(r.status()>=400&&r.url().includes('/assets/'))missing.push(r.url());});
+    page.on('response',r=>{const module=/\/assets\/render\/(photo-motion|photo-cutouts|photographic-sprites)\.js(?:\?|$)/.exec(r.url());if(module)sourceJobs.push(r.body().then(bytes=>executedModules.push({layout:name,module:module[1],sha256:createHash('sha256').update(bytes).digest('hex')})));});
+    page.on('response',r=>{const asset=/\/assets\/sprites\/hires\/([a-z0-9_]+-(?:idle|aim|fallen)\.png)(?:\?|$)/.exec(r.url());if(asset&&r.status()===200)sourceJobs.push(r.body().then(bytes=>executedAssets.push({layout:name,file:asset[1],sha256:createHash('sha256').update(bytes).digest('hex')})));});
     const click=locator=>profile.hasTouch?locator.tap():locator.click();
     const shot=async label=>{const file=name+'-'+label+'.png';await page.screenshot({path:path.join(out,file),timeout:90000});screenshots.push('highres-sprites/'+file);};
     try{
@@ -40,6 +42,9 @@ module.exports=async function highresSprites(browser,target,evidenceDir){
       const assets=await page.evaluate(async()=>{
         const R=App.rend,gl=R.gl,report=[];
         for(const entry of PhotoCutouts.inspect(R).records){
+          // Gait playback shares a bounded GPU cache with optional aim/fallen
+          // pictures. Reload the exact base pose being probed, one at a time.
+          PhotoCutouts.beginFrame?.(R);if(PhotoCutouts.preparePose)await PhotoCutouts.preparePose(R,entry.subject,entry.pose);
           const im=new Image();im.src=entry.url;await im.decode();const c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;
           const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(im,0,0);const data=ctx.getImageData(0,0,c.width,c.height).data;
           let x0=c.width,y0=c.height,x1=0,y1=0,visible=0,opaque=0,transparent=0;const colors=new Set();
@@ -118,6 +123,7 @@ module.exports=async function highresSprites(browser,target,evidenceDir){
           return {label,distance,canvas:[R.W,R.H],quality:R.quality,colors:colors.size,png,gl:gl.getError(),sprites:sprites.map(s=>({texture:s.textureName,asset:s.photoAsset,cols:s.cols,rows:s.rows,width:s.w,height:s.h}))};
         };
         for(const entry of records){
+          PhotoCutouts.beginFrame?.(R);if(PhotoCutouts.preparePose)await PhotoCutouts.preparePose(R,entry.subject,entry.pose);
           const record=entry,meta=PhotoCutouts.inspect(R),name=record.subject;
           const actor={kind:name,p:[0,0,-3],alive:record.pose!=='fallen',armed:true,seen:record.pose==='aim',crouch:record.pose==='crouch'};
           let d=PhotoSprites.describe(actor,{renderer:R,camera:[0,1,0]});
@@ -141,7 +147,11 @@ module.exports=async function highresSprites(browser,target,evidenceDir){
     }catch(error){await shot('failure').catch(()=>{});await fs.writeFile(path.join(out,name+'-failure.json'),JSON.stringify({error:String(error),checks,errors,missing},null,2));throw error;}
     finally{await context.close();}
   }
-  const report={suite:'highres-sprites',passed:true,checks,screenshots,errors,missing,sourceHashes,
+  await Promise.all(sourceJobs);const runtimeSHA256={},assetSHA256={};
+  for(const entry of executedModules){if(!runtimeSHA256[entry.module])runtimeSHA256[entry.module]=createHash('sha256').update(await fs.readFile(path.resolve(__dirname,'../assets/render/'+entry.module+'.js'))).digest('hex');assert.equal(entry.sha256,runtimeSHA256[entry.module],'Executed runtime changed during the image-quality evidence run');}
+  for(const entry of executedAssets){if(!assetSHA256[entry.file])assetSHA256[entry.file]=createHash('sha256').update(await fs.readFile(path.resolve(__dirname,'../assets/sprites/hires/'+entry.file))).digest('hex');assert.equal(entry.sha256,assetSHA256[entry.file],'Executed source photograph changed during the image-quality evidence run');}
+  const indexSHA256=createHash('sha256').update(await fs.readFile(path.resolve(__dirname,'../index.html'))).digest('hex');for(const source of sourceHashes)assert.equal(source.indexSHA256,indexSHA256,'Executed index changed during the image-quality evidence run');
+  const report={suite:'highres-sprites',passed:true,checks,screenshots,errors,missing,sourceHashes,executedModules,executedAssets,runtimeSHA256,assetSHA256,
     moduleSHA256:createHash('sha256').update(await fs.readFile(path.resolve(__dirname,'../assets/render/photo-cutouts.js'))).digest('hex'),
     scope:'Actual Chromium/SwiftShader WebGL2 desktop high quality and simulated iPhone landscape medium quality at native render-canvas resolution. Native Ready Room prison entry; declared daylight mixed-roster countryside and isolated 3m/8m/18m production-renderer fixtures. All source alpha/colour measurements decode the actual delivered PNGs. New complete photographs reconstruct details from supplied references; they are not pixel-identical originals or photographed gait sequences. No physical iPhone Safari, Windows GPU, hardware FPS or complete-mission claim.'};
   await fs.writeFile(path.join(out,'results.json'),JSON.stringify(report,null,2)+'\n');return report;
