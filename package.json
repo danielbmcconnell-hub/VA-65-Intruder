@@ -26,7 +26,8 @@
     "test:tactical": "node tests/tactical-approach.cjs && node tests/airframe-feedback.cjs && node tests/visual-materials.cjs && node tests/figure-motion.cjs && node tests/run-browser.cjs --suite=tactical-visual",
     "test:refinement": "node --test tests/sprite-layers.cjs tests/ground-view.cjs tests/contact-shadows.cjs tests/quality-policy.cjs && node tests/run-browser.cjs --suite=sprite-layer-upload && node tests/run-browser.cjs --suite=refinement-visual && node tests/run-browser.cjs --suite=ground-view && node tests/run-browser.cjs --suite=quality-policy",
     "test:movement": "node --test tests/ground-view.cjs tests/equipment-view.cjs tests/ground-combat.cjs tests/terrain-shadows.cjs && node tests/run-browser.cjs --suite=equipment-view && node tests/run-browser.cjs --suite=ground-combat && node tests/run-browser.cjs --suite=terrain-shadows && node tests/run-browser.cjs --suite=ground-touch",
-    "test:bn-polish": "node --test tests/bn-target-polish.cjs tests/strike-sensory.cjs tests/guard-motion.cjs tests/near-ground.cjs tests/flight-audio-focus.cjs && node tests/run-browser.cjs --suite=bn-target-polish && node tests/run-browser.cjs --suite=strike-sensory && node tests/run-browser.cjs --suite=guard-motion && node tests/run-browser.cjs --suite=near-ground && node tests/run-browser.cjs --suite=flight-audio-focus"
+    "test:bn-polish": "node --test tests/bn-target-polish.cjs tests/strike-sensory.cjs tests/guard-motion.cjs tests/near-ground.cjs tests/flight-audio-focus.cjs && node tests/run-browser.cjs --suite=bn-target-polish && node tests/run-browser.cjs --suite=strike-sensory && node tests/run-browser.cjs --suite=guard-motion && node tests/run-browser.cjs --suite=near-ground && node tests/run-browser.cjs --suite=flight-audio-focus",
+    "test:radio": "node tests/radio-view-browser.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

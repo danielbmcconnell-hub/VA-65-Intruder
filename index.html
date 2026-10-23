@@ -10,7 +10,7 @@
 }
 </style>
 </head><body>
-<title>Intruder: Yankee Station — B/N Immersion &amp; Visual Polish · Photographic Equipment</title>
+<title>Intruder: Yankee Station — B/N Immersion &amp; Visual Polish · Photographic Equipment &amp; Radio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Share+Tech+Mono&display=swap">
@@ -616,6 +616,14 @@ body.desktop #hudbar{display:flex}
 #weaponViewport[data-weapon=fists]{--fist-width:min(100vw,144vh);width:var(--fist-width);height:44vh;bottom:0}
 #weaponViewport[data-weapon=fists] img{position:absolute;top:calc(14vh - var(--fist-width)*.68);height:auto}
 #weaponViewport[data-weapon=knife]{left:calc(50% + 15vh);bottom:-40px;width:calc(44.4vh + 35.6px);height:calc(50vh + 40px)}
+/* The accepted survival transmission owns the left hand; right-hand equipment
+   remains selected. No extra transmission, timer or rescue state is created. */
+#radioViewport{display:none;position:absolute;pointer-events:none;z-index:8;
+ left:calc(50% - 24vh);bottom:-36px;width:calc(33.12vh + 16.56px);height:calc(72vh + 36px);
+ transform:translateX(-50%);overflow:hidden;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+#radioArt{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom;
+ transform-origin:center bottom;user-select:none;-webkit-user-drag:none}
+#weaponViewport[data-radio-active=true][data-weapon=fists] img{clip-path:inset(0 0 0 50%)}
 @media(max-height:470px){body.onfoot #fcol{bottom:calc(91px + env(safe-area-inset-bottom,0px));gap:3px}body.onfoot #fcol .sbtn{height:28px;min-height:28px;width:54px;font-size:8.5px}}
 
 </style>
@@ -713,6 +721,7 @@ body.desktop #hudbar{display:flex}
     <canvas id="gl"></canvas>
     <canvas id="hud"></canvas>
     <div id="weaponViewport" aria-hidden="true"><img id="weaponArt" alt=""></div>
+    <div id="radioViewport" aria-hidden="true"><img id="radioArt" alt="" draggable="false"></div>
 
     <button class="tc sbtn" id="pauseBtn" aria-label="Pause">| |</button>
     <div class="tc" id="stick"><div class="xh"></div><div class="knob"></div></div>
@@ -18032,9 +18041,28 @@ class Game {
      lived in toggleScope() at first, which only runs when the scope
      is toggled — so the swap never happened and the phone kept
      showing a throttle to someone standing in a paddy field. */
+  _updateRadioView(){
+    const view=document.getElementById('radioViewport'),art=document.getElementById('radioArt');
+    if(!view||!art)return false;
+    const e=this.evade,age=e?this.t-e.lastTx:-1,A=this.app;
+    const transmitting=!!(e&&this.phase==='evade'&&!this.pow&&!e.frozen&&!e.handsUp&&!e.held&&
+      e.doom===undefined&&!e.camp&&!e.river&&e.radio>=0&&!this._solitaryActive&&!this._capturePending&&!this.result&&
+      A.game===this&&A.screen==='game'&&!A.graphicsContextLost&&Number.isFinite(e.lastTx)&&e.lastTx>=0&&age>=0&&age<2.8);
+    view.style.display=transmitting?'block':'none';
+    view.dataset.transmitting=String(transmitting);
+    if(transmitting){
+      if(art.getAttribute('src')!=='assets/firstperson/radio.png')art.src='assets/firstperson/radio.png';
+      const quiet=EquipmentView.inspect(this)?.reduced;
+      const lift=quiet?0:Math.max(0,1-age/.18)*18+Math.sin(age*3)*.65;
+      art.style.transform='translateY('+lift.toFixed(3)+'px)';
+    }
+    return transmitting;
+  }
   _updateWeaponView(){
+    const transmitting=this._updateRadioView();
     const view=document.getElementById('weaponViewport'),art=document.getElementById('weaponArt');
     if(!view||!art)return;
+    view.dataset.radioActive=String(transmitting);
     const e=this.evade;
     if(!e || e.frozen || e.handsUp){view.style.display='none';return;}
     view.style.display='block';

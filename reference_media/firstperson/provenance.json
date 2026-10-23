@@ -21,6 +21,13 @@
       "originalSHA256": "0800f1000b651391fe4d21e502b64b8c67573b438f3c7858b66c1a34f7fa9b4d",
       "runtime": "assets/firstperson/knife.png",
       "runtimeSHA256": "7acfab7a47eba36793654633157903083c08d2ba3fb98e7d1489b9a339df03b9"
+    },
+    {
+      "mode": "radio",
+      "original": "reference_media/firstperson/radio-original.jpg",
+      "originalSHA256": "d9abfebe21caf3d4e9b26312de81b97f5aeb1c18b6a1d05c92f04869206a90a1",
+      "runtime": "assets/firstperson/radio.png",
+      "runtimeSHA256": "9242c9ae04e0dce37368d1a79879f02afb4db2c3b620cc6e966601c696314a09"
     }
   ]
 }
