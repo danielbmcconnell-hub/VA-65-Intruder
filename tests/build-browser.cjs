@@ -43,7 +43,8 @@ const server=http.createServer((req,res)=>{
    const toggle=page.locator('[data-flight-coach-toggle]');await toggle.waitFor({state:'visible'});
    assert.equal(await toggle.getAttribute('aria-pressed'),'false');const before=await toggle.boundingBox();
    if(opts.hasTouch)await toggle.tap();else await toggle.click();
-   await page.waitForFunction(()=>FlightCoach.enabled(App.game)&&!document.getElementById('flightCoachCue').hidden,null,{timeout:30000});
+   await page.evaluate(()=>{const g=App.game;g.update(1/60);g.render(1/60);g.syncControls()});
+   await page.waitForFunction(()=>FlightCoach.enabled(App.game)&&!document.getElementById('flightCoachCue').hidden,null,{polling:50,timeout:30000});
    const after=await toggle.boundingBox();assert.ok(before&&after);assert.ok(Math.abs(before.x-after.x)<.5&&Math.abs(before.width-after.width)<.5,'Visible cue must not shift the native toggle');
    if(opts.hasTouch)await toggle.tap();else await toggle.click();
    assert.equal(await toggle.getAttribute('aria-pressed'),'false');assert.equal(await page.evaluate(()=>FlightCoach.enabled(App.game)),false);
