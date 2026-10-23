@@ -45,8 +45,8 @@
     if (list && list.length >= (type === 'smoke' ? q === 0 ? 620 : 760 : 1100)) return false;
     s.budget--; s.emitted++; fx[type].apply(fx, args); return true;
   }
-  function flash(s, world, p, scale, source, color) {
-    const item = { id: ++s.sequence, p: p.slice(0, 3), born: clock(world), scale, source, color };
+  function flash(s, world, p, scale, source, color, style = 'impact', duration = .8) {
+    const item = { id: ++s.sequence, p: p.slice(0, 3), born: clock(world), scale, source, color, style, duration };
     s.impacts.push(item); if (s.impacts.length > LIMIT.impacts) s.impacts.shift();
     return item;
   }
@@ -107,12 +107,22 @@
     if (!Number.isFinite(queued.at) || clock(world) + 1e-6 < queued.at) return false;
     s.secondarySeen.add(queued);
     const profile = profiles[queued.strikeVisual.kind] || plain, q = quality(world);
-    const item = flash(s, world, queued.p, clamp(queued.mag || 1, .3, 4), 'secondary', [1, .48, .14]);
+    const fuel = profile === profiles.pol || profile === profiles.trucks || profile === profiles.boat,
+      ammunition = profile === profiles.depot || profile === profiles.launcher;
+    // Fuel rolls orange and lingers; ammunition gives a shorter, hotter flash.
+    // These are only the light signatures of a genuinely due World cook-off.
+    const item = flash(s, world, queued.p, clamp(queued.mag || 1, .3, 4), 'secondary',
+      fuel ? [1, .34, .075] : ammunition ? [1, .78, .35] : [1, .48, .14],
+      fuel ? 'fuel' : ammunition ? 'ammunition' : 'secondary', fuel ? 1.15 : ammunition ? .48 : .8);
     const count = q === 0 ? 2 : q === 2 ? 5 : 3;
-    for (let i = 0; i < count; i++) emit(world, 'smoke', [[queued.p[0], queued.p[1] + 5 + i * 11, queued.p[2]],
-      profile.smoke, profile.size * (.65 + i * .15), profile.life, [3, 9 + i * 2, 1], 1.7], q);
+    for (let i = 0; i < count; i++) {
+      const a = noise(item.id, i, 15) * TAU, offset = fuel ? 2 + i * 2.5 : i * 1.5;
+      emit(world, 'smoke', [[queued.p[0] + Math.cos(a) * offset, queued.p[1] + (fuel ? 3 + i * 14 : 5 + i * 9), queued.p[2] + Math.sin(a) * offset],
+        profile.smoke, profile.size * (fuel ? .82 + i * .20 : .65 + i * .15), profile.life,
+        [3 + i * .7, fuel ? 11 + i * 3 : 8 + i * 2, 1 + i * .35], 1.7], q);
+    }
     // Ammunition/rocket cook-offs throw brief upward sparks; fuel billows.
-    if (profile === profiles.depot || profile === profiles.launcher) {
+    if (ammunition) {
       for (let i = 0; i < (q === 0 ? 2 : 5); i++) {
         const a = noise(item.id, i, 7) * TAU;
         emit(world, 'streak', [queued.p, [Math.cos(a) * 16, 30 + noise(item.id, i, 8) * 25, Math.sin(a) * 16],
@@ -124,7 +134,7 @@
   function step(world, dt, opts) {
     if (!world || !Number.isFinite(dt) || dt <= 0) return;
     const s = state(world), q = quality(world, opts), eye = opts && finitePoint(opts.eye) ? opts.eye : null;
-    s.impacts = s.impacts.filter(v => clock(world) - v.born < .95);
+    s.impacts = s.impacts.filter(v => clock(world) - v.born < v.duration + .15);
     for (let i = s.targets.length - 1; i >= 0; i--) {
       const v = s.targets[i], p = v.profile; v.elapsed += dt;
       if (v.target.alive !== false || v.elapsed > (p.dust ? 13 : 90) || (!p.dust && !(v.target.burn > .02))) { s.targets.splice(i, 1); continue; }
@@ -151,8 +161,8 @@
     }) : [];
     for (const f of s.impacts) {
       const age = now - f.born;
-      if (age < 0 || age >= .8) continue;
-      const power = (1 - age / .8) ** 2 * (f.source === 'secondary' ? 2.6 : 2.0);
+      if (age < 0 || age >= f.duration) continue;
+      const power = (1 - age / f.duration) ** 2 * (f.style === 'ammunition' ? 3.1 : f.source === 'secondary' ? 2.6 : 2.0);
       items.push([f.p[0], f.p[1] + 5, f.p[2], power, 55 + f.scale * 21, f.color.slice()]);
     }
     const viewpoint = finitePoint(eye) ? eye : [0, 0, 0];
@@ -168,7 +178,7 @@
   function inspect(world) {
     if (!world) return null; const s = state(world);
     return { targets: s.targets.map(v => ({ id: v.id, kind: v.kind, p: v.p.slice(), elapsed: v.elapsed, smokeBursts: v.emitted })),
-      flashes: s.impacts.map(v => ({ id: v.id, p: v.p.slice(), born: v.born, source: v.source })),
+      flashes: s.impacts.map(v => ({ id: v.id, p: v.p.slice(), born: v.born, source: v.source, style: v.style, duration: v.duration })),
       emitted: s.emitted, queue: Array.isArray(world.secs) ? world.secs.length : 0 };
   }
   root.FlightStrikeEffects = Object.freeze({ impact, destroyed, secondary, step, lights, clearTransient, clear, inspect, limits: LIMIT });

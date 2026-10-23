@@ -84,7 +84,11 @@
     for (const p of roadEnds) { p[1] = ground(p[0], p[2]); road(junction, p); }
     features.push({ id: 'dixie-road-junction', label: 'Three-way road junction', kind: 'road', p: junction, points: [roadEnds[0], junction, roadEnds[1], junction, roadEnds[2]], signature: 'Three pale dirt roads meet southeast of the briefed depot; the short northwest spur leads toward the compound', briefed: true });
     const tower = site(junction[0] + 70, junction[2] - 56, 5, 5, 0, 45);
-    if (tower) add('bnStrikeTower', tower.x, tower.z, { y: tower.y, hx: 5, hz: 5, range: LIMIT.range });
+    if (tower) {
+      add('bnStrikeTower', tower.x, tower.z, { y: tower.y, hx: 5, hz: 5, range: LIMIT.range });
+      features.push({ id: 'dixie-water-tower', label: 'Banded water tower', kind: 'tower', p: [tower.x, tower.y, tower.z],
+        signature: 'A round tank with a pale band on four open, braced legs stands beside the three-way junction; use its offset to compare your chart candidate', briefed: true });
+    }
     hut(junction[0] - 65, junction[2] + 60, .25); hut(junction[0] + 95, junction[2] + 76, -.3);
     // The rows are scenery around the public briefed position. They do not
     // create extra targets, score events or invisible radar identities.
@@ -196,6 +200,10 @@
     meshes.bnStrikeShed = m;
     m = new MB(); foundation(m, 5, 5); for (const x of [-3.4, 3.4]) for (const z of [-3.4, 3.4]) m.box(x, 8, z, .32, 8, .32, iron);
     m.cyl(0, 17, 0, 4.5, 3.3, [.39, .35, .26], 10); m.cyl(0, 20.45, 0, 4.8, .2, iron, 10); for (let y = 3; y < 15; y += 4) m.box(0, y, -3.4, 3.5, .18, .18, iron);
+    // A faded painted band gives the briefed tank a readable silhouette and
+    // visual signature without adding another mesh, target or light source.
+    m.cyl(0, 18.45, 0, 4.52, .24, [.66, .63, .49], 10);
+    m.cyl(0, 15.05, 0, 4.52, .16, [.31, .24, .15], 10);
     for (let y = 1; y < 14; y += .65) m.box(3.47, y, 0, .10, .035, .65, iron);
     for (const x of [2.85, 4.10]) m.box(x, 7.2, 0, .055, 7.2, .055, iron);
     // Thin X-braces, as opposed to a solid slab between the water legs.

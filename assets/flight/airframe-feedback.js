@@ -5,7 +5,8 @@
 (function (root) {
   'use strict';
   const records = new WeakMap(), sounds = [], LIMIT = 2;
-  let context = null, installed = false, ui = null;
+  let context = null, installed = false, ui = null, speechFocus = null, speechOwner = null;
+  const speechBindings = new WeakSet();
   const finite = (n, otherwise = 0) => Number.isFinite(n) ? n : otherwise;
   const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
   const point = p => Array.isArray(p) && p.length >= 3 && p.slice(0, 3).every(Number.isFinite);
@@ -81,11 +82,59 @@
     for (const node of sound.nodes) disconnect(node);
     const index = sounds.indexOf(sound); if (index >= 0) sounds.splice(index, 1);
   }
-  function stop(game) { for (const sound of sounds.slice()) if (!game || sound.game === game) destroy(sound); }
+  function releaseFocus(game) {
+    const owned = speechFocus;
+    if (!owned || game && owned.game !== game) return false;
+    speechFocus = null;
+    // Other intercom calls share Audio2.duckUntil. Restore only the exact
+    // extension we still own; a later/longer original call stays authoritative.
+    if (owned.audio.duckUntil === owned.until) owned.audio.duckUntil = owned.previous;
+    return true;
+  }
+  function stop(game) {
+    for (const sound of sounds.slice()) if (!game || sound.game === game) destroy(sound);
+    releaseFocus(game);
+    if (speechOwner && (!game || speechOwner.game === game)) speechOwner = null;
+  }
   function soundAllowed(game) {
     const app = appOf(game), audio = app && app.audio;
     return !!(active(game) && app && app.set && app.set.sound && audio && audio.on && audio.ctx
       && audio.ctx.state === 'running' && audio.master && audio.noiseBuf);
+  }
+  function speechMix(game) {
+    if (speechFocus && (speechFocus.game !== game || !soundAllowed(speechFocus.game))) releaseFocus();
+    if (!soundAllowed(game)) { releaseFocus(game); return false; }
+    const audio = appOf(game).audio, now = finite(audio.ctx.currentTime);
+    // Native speech bypasses Audio2.voice's noise/intercom path. Observe only
+    // actual browser playback, not captions, pending text or enemy knowledge.
+    // A 350ms rolling lease follows speech without a timer or queued duck.
+    let crewVoice = false;
+    if (root.speechSynthesis && root.speechSynthesis.speaking === true && root.FlightStrikeCrew && typeof root.FlightStrikeCrew.inspect === 'function') {
+      const crew = root.FlightStrikeCrew.inspect(game);
+      crewVoice = !!(crew && crew.active && crew.ownedVoices > 0);
+    }
+    const settings = appOf(game).set, radioEnabled = (settings.voices === undefined ? 2 : settings.voices) >= 2;
+    if (!radioEnabled && speechOwner && speechOwner.game === game) {
+      speechOwner = null;
+      if (!crewVoice) releaseFocus(game);
+    }
+    const radioVoice = radioEnabled && speechOwner && speechOwner.game === game && now < speechOwner.until;
+    if (root.speechSynthesis && root.speechSynthesis.speaking === true && (radioVoice || crewVoice)) {
+      if (speechFocus && audio.duckUntil !== speechFocus.until) speechFocus = null;
+      const until = now + .35, previous = finite(audio.duckUntil);
+      if (previous < until) {
+        if (!speechFocus) speechFocus = { game, audio, previous, until };
+        else speechFocus.until = until;
+        audio.duckUntil = until;
+      }
+    }
+    if (speechFocus && now >= speechFocus.until) releaseFocus(game);
+    return !!(speechFocus && speechFocus.game === game);
+  }
+  function mixView(game) {
+    const owned = speechFocus;
+    return { speechFocus: !!(owned && owned.game === game && owned.audio.duckUntil === owned.until && finite(owned.audio.ctx.currentTime) < owned.until),
+      leaseSeconds: .35, reason: owned && owned.game === game ? 'native-speech' : '' };
   }
   function play(game, severity, observed, type) {
     if (!soundAllowed(game)) return false;
@@ -95,13 +144,15 @@
     const own = node => { nodes.push(node); return node; };
     let sourceNode, gain, sound;
     try {
-      const now = finite(c.currentTime), duration = stress ? .28 : .18;
+      const blast = !stress && /flak|sam|bomb|explosion/i.test(type || '');
+      const cannon = !stress && /aaa|cannon|gun/i.test(type || '');
+      const now = finite(c.currentTime), duration = stress ? .28 : blast ? .42 : cannon ? .15 : .18;
       sourceNode = own(c.createBufferSource()); sourceNode.buffer = audio.noiseBuf;
-      sourceNode.playbackRate.value = stress ? .67 : 1.15 + clamp(severity, 0, 1) * .5;
-      const filter = own(c.createBiquadFilter()); filter.type = 'bandpass'; filter.Q.value = stress ? .8 : .65;
-      filter.frequency.value = stress ? 260 : game.extView ? 1200 : 650;
+      sourceNode.playbackRate.value = stress ? .67 : blast ? .72 + clamp(severity, 0, 1) * .22 : cannon ? 1.4 + clamp(severity, 0, 1) * .5 : 1.15 + clamp(severity, 0, 1) * .5;
+      const filter = own(c.createBiquadFilter()); filter.type = blast ? 'lowpass' : 'bandpass'; filter.Q.value = stress ? .8 : .65;
+      filter.frequency.value = stress ? 260 : blast ? (game.extView ? 720 : 380) : cannon ? (game.extView ? 1650 : 950) : game.extView ? 1200 : 650;
       gain = own(c.createGain()); gain.gain.setValueAtTime(.0001, now);
-      gain.gain.exponentialRampToValueAtTime(stress ? .07 : .16 + clamp(severity, 0, 1) * .25, now + .008);
+      gain.gain.exponentialRampToValueAtTime(stress ? .07 : .16 + clamp(severity, 0, 1) * .25, now + (blast ? .016 : .008));
       gain.gain.exponentialRampToValueAtTime(.0001, now + duration);
       sourceNode.connect(filter); filter.connect(gain);
       if (observed && typeof c.createStereoPanner === 'function') {
@@ -135,12 +186,13 @@
     // supplied by the actual damaging weapon, never guessed from a nearest gun.
     if (observed) s.source = { ...observed, at: clock(game, s), kind: typeof kind === 'string' ? kind.slice(0, 24) : 'impact' };
     issue(game, s, changed, kind, observed); s.previous = now; s.lastHitAt = clock(game, s); s.impacts++;
-    return { played: play(game, severity, observed, 'impact'), direction: observed ? observed.direction : '', pan: observed ? observed.pan : null };
+    return { played: play(game, severity, observed, typeof kind === 'string' ? kind : 'impact'), direction: observed ? observed.direction : '', pan: observed ? observed.pan : null };
   }
   function tick(game, dt) {
     for (const sound of sounds.slice()) if (!active(sound.game) || !soundAllowed(sound.game) || finite(sound.context.currentTime) > sound.end + .1) destroy(sound);
     if (!active(game)) { stop(game); return false; }
     if (!Number.isFinite(dt) || dt < 0) return false;
+    speechMix(game);
     const s = state(game), at = clock(game, s), now = read(game);
     if (at < s.clock) { s.previous = now; s.alert = null; s.source = null; s.lastSoundAt = s.lastStressAt = -Infinity; }
     const changed = changes(s.previous, now), hitIncrease = now.hits > s.previous.hits || now.score > s.previous.score + .00001;
@@ -157,11 +209,11 @@
     return true;
   }
   function view(game) {
-    if (!active(game)) return { active: false, alert: null, source: null, sourceCount: 0, impacts: 0, emitted: 0 };
+    if (!active(game)) return { active: false, alert: null, source: null, sourceCount: 0, impacts: 0, emitted: 0, mix: mixView(game) };
     const s = state(game), at = clock(game, s), alert = s.alert && at >= s.alert.at && at < s.alert.until ? s.alert : null;
     return { active: true, alert: alert ? { ...alert, systems: alert.systems.slice() } : null,
       source: s.source && at >= s.source.at && at - s.source.at <= 1.25 ? { ...s.source } : null,
-      sourceCount: sounds.filter(sound => sound.game === game).length, impacts: s.impacts, emitted: s.emitted };
+      sourceCount: sounds.filter(sound => sound.game === game).length, impacts: s.impacts, emitted: s.emitted, mix: mixView(game) };
   }
   function makeUI() {
     const doc = root.document, host = doc && doc.getElementById('game'); if (!host) return null;
@@ -186,6 +238,16 @@
   function install(ctx) {
     if (!ctx || !ctx.App || installed) return false; context = ctx; installed = true;
     const app = ctx.App;
+    const audio = app.audio;
+    if (audio && typeof audio.speak === 'function' && !speechBindings.has(audio)) {
+      speechBindings.add(audio);
+      const speak = audio.speak;
+      audio.speak = function () {
+        const result = speak.apply(this, arguments), game = app.game;
+        if (result === true && active(game) && this.ctx) speechOwner = { game, until: finite(this.ctx.currentTime) + 20 };
+        return result;
+      };
+    }
     for (const name of ['show', 'pause']) {
       const original = app[name]; if (typeof original !== 'function') continue;
       app[name] = function () {

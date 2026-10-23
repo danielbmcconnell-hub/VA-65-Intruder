@@ -68,6 +68,10 @@
     if (isDead(actor)) return 7;
     if (movement === 'stunned') return 0;
     if (movement === 'running' && actor.armed !== false) return 8;
+    // A guard's real suspicious/observe state is visible before full pursuit.
+    // Civilian rows remain their own photographs, and merely investigating a
+    // sound does not claim the player has been found.
+    if (actor.armed !== false && (movement === 'alert' || movement === 'walking-alert')) return 1;
     if (actor.kind === 'guardAim' || actor.grab > 0 || actor.seen && actor.armed || actor.state === 'pursuit') return 1;
     return 0;
   }
@@ -143,10 +147,14 @@
     const s = entry(actor, game), column = direction(actor, game, s.column);
     const row = clamp(s.row, 0, ROWS - 1) | 0, frame = frameData(row, column), heightRatio = frame.height / (11 / 12);
     const fallen = isDead(actor), stunned = isStunned(actor, game), now = finite(game.t, clock(game));
+    const hitAge = Number.isFinite(actor.flinch) ? now - actor.flinch : -1;
+    const flinchLean = hitAge >= 0 && hitAge < .55 ? -Math.sin(hitAge / .55 * Math.PI) * .65 : 0;
     return { enabled: true, cell: row * COLUMNS + column, frame: row * COLUMNS + column, row, column,
       heightRatio, scale: heightRatio, phase: finite(s.phase), stride: fallen || stunned || game.paused ? 0 : clamp(s.stride, 0, 1),
-      turn: fallen || stunned || game.paused ? 0 : clamp(s.turn + s.idleLean, -1, 1),
+      turn: fallen || stunned || game.paused ? 0 : clamp(s.turn + s.idleLean + flinchLean, -1, 1),
       headingTurn: finite(s.turn), idleLean: finite(s.idleLean), crouch: clamp(s.crouch, 0, 1),
+      flinchLean: fallen || stunned || game.paused ? 0 : flinchLean,
+      intent: fallen ? 'fallen' : stunned ? 'stunned' : s.state === 'alert' || s.state === 'walking-alert' ? 'ready' : s.state === 'running' ? 'pursuit' : s.state === 'investigating' || s.state === 'inspecting' || s.state === 'interaction' ? 'investigate' : 'routine',
       state: fallen ? 'fallen' : stunned ? 'stunned' : s.state, kind: actor.kind,
       visible: !fallen || Number.isFinite(actor.downAt) && now - actor.downAt <= .75,
       anchorBottom: frame.bottom, sourceHeight: frame.height, speed: finite(s.speed), distance: finite(s.distance), teleported: s.teleported,
@@ -165,8 +173,15 @@
     const sourceY = bottom > 0 ? y <= 1 / 12 ? y * bottom * 12 : bottom + (y - 1 / 12) / (11 / 12) * (1 - bottom) : y;
     const visibleY = clamp((sourceY - bottom) / (1 - bottom), 0, 1);
     const leg = 1 - smooth(.20, .54, visibleY), side = smooth(-.04, .04, x) * 2 - 1;
-    const dx = Math.sin(phase) * side * leg * stride * .034 * smooth(0, .07, visibleY) + turn * smooth(.35, .85, visibleY) * .024;
-    const dy = Math.sin(phase * 2) * Math.sin(visibleY * Math.PI) * stride * .006;
+    const swing = Math.sin(phase), planted = smooth(0, .07, visibleY);
+    // Knee travel eases through the planted half-step. A restrained shoulder
+    // counter-swing and unilateral knee rise read as separate body segments,
+    // while the photographed foot line remains a shared, immovable grid row.
+    const legDrive = swing * (.026 + .008 * Math.abs(swing));
+    const shoulder = smooth(.42, .66, visibleY) * (1 - smooth(.82, 1, visibleY));
+    const dx = side * leg * legDrive * stride * planted - swing * shoulder * stride * .010 + turn * smooth(.35, .85, visibleY) * .024;
+    const knee = Math.max(0, side * swing) * (1 - smooth(.12, .48, visibleY)) * planted;
+    const dy = (Math.sin(phase * 2) * Math.sin(visibleY * Math.PI) * .003 + knee * .003) * stride;
     return { x: x + dx, y: sourceY + dy, dx, dy, sourceY };
   }
   function reset(game) { if (game) return games.delete(game); games = new WeakMap(); return true; }

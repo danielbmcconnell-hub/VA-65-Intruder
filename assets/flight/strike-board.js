@@ -32,7 +32,7 @@
   }
   function state(game) {
     let s = states.get(game);
-    if (!s) { s = { open: false, interpretation: 'unknown', notes: [], samples: 0, releaseCount: 0, impacts: 0, lastReleased: releases(game.world.score), lastImpacts: finite(game.world.score && game.world.score.hits) + finite(game.world.score && game.world.score.misses), lastDesignation: null, cursor: null, elapsed: 0, renderWait: 0, chartMark: null, runIn: null, pickMode: 'candidate', comparison: null, comparisons: 0 }; states.set(game, s); }
+    if (!s) { s = { open: false, interpretation: 'unknown', notes: [], samples: 0, releaseCount: 0, impacts: 0, lastReleased: releases(game.world.score), lastImpacts: finite(game.world.score && game.world.score.hits) + finite(game.world.score && game.world.score.misses), lastDesignation: null, cursor: null, elapsed: 0, renderWait: 0, chartMark: null, runIn: null, pickMode: 'candidate', comparison: null, comparisons: 0, zoom: 1, referenceId: null }; states.set(game, s); }
     return s;
   }
   function relative(game, point) {
@@ -85,22 +85,33 @@
     const route = (Array.isArray(w.route) ? w.route : []).filter(c => c && validPoint(c.p)).slice(0, 8).map(c => ({ label: String(c.label || 'Route fix'), hint: String(c.hint || ''), p: c.p.slice(0, 3) }));
     const oap = w.oap && validPoint(w.oap.p) ? { label: String(w.oap.label || 'Offset reference'), p: w.oap.p.slice(0, 3), bearing: finite(w.oap.brg), range: finite(w.oap.rng) } : null;
     const center = supplied && validPoint(supplied.center) ? supplied.center.slice(0, 3) : bp || oap && oap.p.slice() || route.at(-1)?.p.slice() || game.ac.p.slice();
-    const radius = clamp(finite(supplied && supplied.radius, 6000), 2000, 16000);
+    const baseRadius = clamp(finite(supplied && supplied.radius, 6000), 2000, 16000), zoom = state(game).zoom, radius = baseRadius / zoom;
     const sp = typeof w.sysPos === 'function' ? w.sysPos(center) : center;
     const shift = validPoint(sp) ? [sp[0] - center[0], 0, sp[2] - center[2]] : [0, 0, 0];
-    return { title: String(supplied && supplied.title || 'Target-area chart'), center, radius, features, route, briefed: bp, briefedRadius: clamp(finite(w.briefedR, 300), 100, 1200), oap, ownship: [game.ac.p[0] - shift[0], 0, game.ac.p[2] - shift[2]], shift,
+    return { title: String(supplied && supplied.title || 'Target-area chart'), center, radius, baseRadius, zoom, features, route, briefed: bp, briefedRadius: clamp(finite(w.briefedR, 300), 100, 1200), oap, ownship: [game.ac.p[0] - shift[0], 0, game.ac.p[2] - shift[2]], shift,
       note: 'Authored schematic / system navigation, not a satellite map. Chart marks do not slew the radar, identify a target or authorize release.' };
   }
   function chartPixel(c, p) { return [(p[0] - c.center[0]) / (c.radius * 2) + .5, (p[2] - c.center[2]) / (c.radius * 2) + .5]; }
   function pick(game, x, y) {
     if (!flight(game) || game.paused || !Number.isFinite(x) || !Number.isFinite(y) || x < 0 || x > 1 || y < 0 || y > 1) return false;
     const c = chart(game), s = state(game), p = [c.center[0] + (x - .5) * c.radius * 2, 0, c.center[2] + (y - .5) * c.radius * 2];
-    if (s.pickMode === 'run-in') s.runIn = p; else { s.chartMark = p; s.comparison = null; }
+    if (s.pickMode === 'run-in') s.runIn = p; else {
+      s.chartMark = p; s.comparison = null;
+      // Only published chart features can supply a reference. A later mark
+      // retains that reference so the player can measure an observed offset.
+      const width=ui&&ui.canvas&&ui.canvas.clientWidth||280,height=ui&&ui.canvas&&ui.canvas.clientHeight||156;
+      const nearby = c.features.map(f => ({ f, d: Math.hypot((f.p[0]-p[0])*width,(f.p[2]-p[2])*height)/(c.radius*2) })).sort((a,b)=>a.d-b.d)[0];
+      if (nearby && nearby.d <= 18) s.referenceId = nearby.f.id;
+    }
     s.pickMode = 'candidate'; render(game); return true;
   }
   function setPickMode(game, mode) {
     if (!flight(game) || game.paused || !['candidate', 'run-in'].includes(mode)) return false;
     state(game).pickMode = mode; render(game); return true;
+  }
+  function setZoom(game, zoom) {
+    if (!flight(game) || game.paused || ![1, 2, 4].includes(zoom)) return false;
+    state(game).zoom = zoom; render(game); return true;
   }
   function recognition(game) {
     const c = chart(game); if (!c) return null;
@@ -114,7 +125,13 @@
         runIn = { course: d3(course * RAD), lengthNM: length / NM, headingError, crossTrackYd: crossTrack * 1.0936133, remainingNM: remaining / NM, altitudeFt: finite(game.ac.p[1]) * 3.2808399, speedKt: Math.hypot(...(game.ac.v || [0, 0, 0])) * 1.9438445 };
       }
     }
-    return { chart: c, candidate: selected, runInPoint: ip, pickMode: s.pickMode, comparison: s.comparison && { ...s.comparison }, comparisons: s.comparisons, runIn };
+    const reference = c.features.find(f => f.id === s.referenceId) || null;
+    let referenceOffset = null;
+    if (reference && selected) {
+      const dx=selected[0]-reference.p[0],dz=selected[2]-reference.p[2];
+      referenceOffset={ bearing:d3(Math.atan2(dx,-dz)*RAD), rangeYd:Math.hypot(dx,dz)*1.0936133 };
+    }
+    return { chart: c, candidate: selected, runInPoint: ip, pickMode: s.pickMode, comparison: s.comparison && { ...s.comparison }, comparisons: s.comparisons, runIn, reference, referenceOffset, zoom:s.zoom };
   }
   function compare(game) {
     if (!flight(game) || game.paused) return { ok: false, reason: 'Resume flight to compare chart and echo.' };
@@ -163,6 +180,24 @@
       note: 'Player worksheet · reconstructed gameplay guidance, not authentic crew dialogue or an extra target-identification instrument.' };
   }
   function setOpen(game, value) { if (!game || !flight(game)) return false; state(game).open = !!value; render(game); return true; }
+  function attackCue(game, data) {
+    const d=data || snapshot(game);
+    if (!d || !game.strikeExperience || game.mis.id!=='m2') return null;
+    const sol=d.solution, heading=d.designated && d.designated.bearing;
+    let title='CORRELATE THE DEPOT', action='Chart landmark → fresh echo → visual check.', needle=null, mode='search';
+    if (d.step==='egress' || ['egress','recovery'].includes(game.strikeExperience.phase)) { title='BRING THE CREW HOME'; action='TACAN, fuel and damage scan · '+d.stores.bombs+' bombs retained.'; mode='home'; }
+    else if (d.step==='launch') { title='B/N · CHART READY'; action='Review the route while the pilot launches.'; }
+    else if (d.step==='fix') { title='NEXT FIX · '+d.checkpoint.label; action=d.checkpoint.bearing+'° / '+d.checkpoint.rangeNM.toFixed(1)+' NM · slew and LOCK the reference.'; }
+    else if (d.step==='failure') { title='DIANE UNRELIABLE'; action='Use surviving navigation and return.'; mode='warn'; }
+    else if (d.step==='observe') { title='RIPPLE AWAY'; action='Keep egress in mind. LOOK OUT only when safe.'; mode='away'; }
+    else if (d.designated && sol && sol.valid) {
+      const error=sol.azimuthDeg, correction=Math.abs(error);
+      needle=clamp(error/5,-1,1); mode=correction>=.028*RAD?'align':'ready';
+      title=mode==='align'?'STEER '+(error<0?'LEFT ':'RIGHT ')+correction.toFixed(1)+'°':'NEEDLE CENTERED';
+      action=(game.masterArm||game._lastCommit?'CONSENT HELD':'HOLD CONSENT WHEN CLEARED')+' · ASQ '+Math.max(0,sol.releaseSeconds).toFixed(1)+' s';
+    } else if (d.designated) { title='ESTABLISH THE RUN'; action=(heading?heading+'° designation · ':'')+'check heading, height and solution.'; mode='align'; }
+    return {title,action,needle,mode};
+  }
   function interpret(game, value) { if (!flight(game) || game.paused || !choices.some(c => c[0] === value)) return false; state(game).interpretation = value; return true; }
   function mark(game) {
     if (!flight(game) || game.paused) return { ok: false, reason: 'Resume flight before recording a correlation.' };
@@ -232,6 +267,8 @@
     const host = document.getElementById('game'); if (!host) return null;
     const box = el('section'); box.id = 'flightStrikeBoard'; box.hidden = true;
     const toggle = el('button', 'B/N worksheet'); toggle.id = 'flightStrikeBoardToggle'; toggle.type = 'button'; toggle.setAttribute('data-strike-toggle', ''); toggle.setAttribute('aria-expanded', 'false'); toggle.setAttribute('aria-controls', 'flightStrikePanel');
+    const scan=el('div');scan.id='flightStrikeScan';scan.hidden=true;
+    const scanTitle=el('strong'),scanAction=el('span'),needle=el('div'),needleMark=el('i');needle.className='strike-needle';needle.setAttribute('aria-hidden','true');needle.append(needleMark);scan.append(scanTitle,needle,scanAction);
     const panel = el('div'); panel.id = 'flightStrikePanel'; panel.hidden = true;
     const heading = el('strong', 'B/N target correlation');
     const target = el('p'), pattern = el('p'), diagram = el('div'); diagram.className = 'strike-pattern'; diagram.setAttribute('aria-hidden', 'true'); diagram.setAttribute('title', 'Briefed recognition sketch · schematic, not a live map');
@@ -239,10 +276,13 @@
     const chartWrap = el('div'); chartWrap.className = 'strike-chart-wrap';
     const chartTitle = el('strong', 'Target-area chart · north up'), canvas = el('canvas'); canvas.id = 'flightStrikeChart'; canvas.tabIndex = 0; canvas.setAttribute('role', 'img'); canvas.setAttribute('aria-label', 'Target-area chart. Tap to mark a candidate; arrow keys move the mark and Enter compares the radar echo.');
     const chartHint = el('p', 'Tap chart: candidate · select RUN-IN then tap an initial point. Slew the radar independently and COMPARE ECHO.'); chartHint.className = 'strike-chart-hint';
+    const chartZoom=el('button','ZOOM ×1');chartZoom.type='button';chartZoom.setAttribute('data-strike-zoom','');chartZoom.setAttribute('aria-label','Cycle target chart magnification: one, two or four times');
+    const referenceReadout=el('p');referenceReadout.setAttribute('data-strike-reference','');
     const chartActions = el('div'); chartActions.className = 'strike-actions'; const candidate = el('button', 'CANDIDATE'), runIn = el('button', 'RUN-IN'), compareEcho = el('button', 'COMPARE ECHO');
     for (const [button, attr] of [[candidate, 'data-strike-candidate'], [runIn, 'data-strike-run-in'], [compareEcho, 'data-strike-compare']]) { button.type = 'button'; button.setAttribute(attr, ''); chartActions.append(button); }
     const comparison = el('p'), runInReadout = el('p'); comparison.setAttribute('data-strike-comparison', ''); runInReadout.setAttribute('data-strike-run-in-readout', '');
-    chartWrap.append(chartTitle, canvas, chartHint, chartActions, comparison, runInReadout);
+    const chartToolbar=el('div');chartToolbar.className='strike-chart-toolbar';chartToolbar.append(chartTitle,chartZoom);
+    chartWrap.append(chartToolbar, canvas, chartHint, referenceReadout, chartActions, comparison, runInReadout);
     const roe = el('p'), navigation = el('p'), cursor = el('p'), solution = el('p'), next = el('p'), status = el('p'); status.setAttribute('role', 'status'); status.className = 'strike-status';
     target.setAttribute('data-strike-target', ''); pattern.setAttribute('data-strike-pattern', ''); cursor.setAttribute('data-strike-cursor', ''); solution.setAttribute('data-strike-solution', ''); next.setAttribute('data-strike-next', '');
     const selectLabel = el('label', 'My interpretation '), select = el('select'); select.id = 'flightStrikeInterpretation'; select.setAttribute('data-strike-interpretation', '');
@@ -253,10 +293,11 @@
     scope.setAttribute('data-strike-scope', ''); record.setAttribute('data-strike-mark', ''); lock.setAttribute('data-strike-lock', '');
     for (const button of [scope, record, lock]) { button.type = 'button'; actions.append(button); }
     const note = el('small', 'Authored worksheet. Echoes do not prove identity. Close this panel to keep the radar and flight controls clear.');
-    panel.append(heading, target, chartWrap, diagram, pattern, roe, navigation, cursor, selectLabel, actions, status, solution, next, note); box.append(toggle, panel); host.append(box);
+    panel.append(heading, target, chartWrap, diagram, pattern, roe, navigation, cursor, selectLabel, actions, status, solution, next, note); box.append(toggle, scan, panel); host.append(box);
     const current = () => context && context.App && context.App.game;
     const nativeAction = fn => event => { event.stopPropagation(); fn(current()); event.currentTarget.blur(); };
     bindButton(candidate, nativeAction(g => setPickMode(g, 'candidate')));
+    bindButton(chartZoom,nativeAction(g=>{if(flight(g)){const z=state(g).zoom;setZoom(g,z===1?2:z===2?4:1);}}));
     bindButton(runIn, nativeAction(g => setPickMode(g, 'run-in')));
     bindButton(compareEcho, nativeAction(g => { const result = compare(g); write(status, result.reason); }));
     let chartPress = null;
@@ -277,7 +318,7 @@
     select.addEventListener('keydown', e => e.stopPropagation()); select.addEventListener('keyup', e => e.stopPropagation());
     box.addEventListener('keydown', e => { if (e.target && ['BUTTON', 'SELECT', 'OPTION'].includes(e.target.tagName)) e.stopPropagation(); });
     box.addEventListener('keyup', e => { if (e.target && ['BUTTON', 'SELECT', 'OPTION'].includes(e.target.tagName)) e.stopPropagation(); });
-    ui = { box, toggle, panel, target, pattern, diagram, roe, navigation, cursor, solution, next, status, select, scope, record, lock, chartWrap, chartTitle, canvas, chartHint, candidate, runIn, compareEcho, comparison, runInReadout }; return ui;
+    ui = { box, toggle, panel, scan,scanTitle,scanAction,needle,needleMark,target, pattern, diagram, roe, navigation, cursor, solution, next, status, select, scope, record, lock, chartWrap, chartTitle,chartZoom,referenceReadout,canvas, chartHint, candidate, runIn, compareEcho, comparison, runInReadout }; return ui;
   }
   function drawChart(u, game, d) {
     if (!u.canvas || typeof u.canvas.getContext !== 'function') return;
@@ -292,7 +333,7 @@
     pathLine(c.route.map(r => r.p).concat(c.briefed ? [c.briefed] : []), '#a39970', [4, 4]);
     ctx.font = '9px system-ui';
     for (const f of c.features) {
-      const color = /river|water|coast/.test(f.kind) ? '#75b8c6' : /rail/.test(f.kind) ? '#d3bf91' : '#afbfa1';
+      const color = rec.reference && rec.reference.id===f.id ? '#f2d383' : /river|water|coast/.test(f.kind) ? '#75b8c6' : /rail/.test(f.kind) ? '#d3bf91' : '#afbfa1';
       pathLine(f.points, color, /rail/.test(f.kind) ? [5, 2] : []); const q = xy(f.p);
       if (q[0] < 4 || q[0] > width - 4 || q[1] < 8 || q[1] > height - 5) continue;
       ctx.strokeStyle = color; ctx.strokeRect(q[0] - 3, q[1] - 3, 6, 6); ctx.fillStyle = color; ctx.fillText(f.label, clamp(q[0] + 5, 4, width - 82), clamp(q[1] - 6, 11, height - 5), 105);
@@ -301,6 +342,7 @@
     for (const fix of c.route) { const q = xy(fix.p); ctx.fillStyle = '#b8af83'; ctx.fillRect(q[0] - 2, q[1] - 2, 4, 4); }
     if (c.oap) { const q = xy(c.oap.p); ctx.strokeStyle = '#dfbe7d'; ctx.strokeRect(q[0] - 5, q[1] - 5, 10, 10); ctx.fillStyle = '#dfbe7d'; ctx.fillText('OAP', q[0] + 6, q[1] + 10); }
     if (rec.candidate && rec.runInPoint) pathLine([rec.runInPoint, rec.candidate], '#e6d88c', [6, 3]);
+    if (rec.reference && rec.candidate) pathLine([rec.reference.p,rec.candidate],'#e5bc78',[2,3]);
     if (rec.runInPoint) { const q = xy(rec.runInPoint); ctx.fillStyle = '#e6d88c'; ctx.fillText('IP', q[0] + 5, q[1] - 5); ctx.fillRect(q[0] - 2, q[1] - 2, 4, 4); }
     if (rec.candidate) { const q = xy(rec.candidate); ctx.strokeStyle = '#ffcb69'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(q[0] - 7, q[1]); ctx.lineTo(q[0] + 7, q[1]); ctx.moveTo(q[0], q[1] - 7); ctx.lineTo(q[0], q[1] + 7); ctx.stroke(); ctx.lineWidth = 1; }
     if (d.cursor.available) { const ep = [d.cursor.p[0] - c.shift[0], 0, d.cursor.p[2] - c.shift[2]], q = xy(ep); ctx.strokeStyle = '#b1e4b3'; ctx.beginPath(); ctx.arc(q[0], q[1], 4, 0, Math.PI * 2); ctx.stroke(); }
@@ -310,15 +352,19 @@
   function render(game) {
     const u = mount(); if (!u) return;
     const visible = flight(game) && !game.paused; u.box.hidden = !visible;
-    if (!visible) { u.panel.hidden = true; return; }
+    if (!visible) { u.panel.hidden = true; u.scan.hidden=true; return; }
     const d = snapshot(game); if (!d) return;
     const teaching = document.getElementById('teach'), knee = document.getElementById('knee');
     const covered = !!(teaching && teaching.classList.contains('on') || knee && knee.classList.contains('on'));
     u.box.hidden = covered; u.panel.hidden = !d.open; u.toggle.setAttribute('aria-expanded', String(d.open)); u.toggle.textContent = d.open ? 'Close B/N worksheet' : 'B/N worksheet';
+    const cue=attackCue(game,d);u.scan.hidden=d.open||!cue;
+    if(cue){write(u.scanTitle,cue.title);write(u.scanAction,cue.action);u.scan.dataset.mode=cue.mode;u.needle.hidden=cue.needle===null;u.needleMark.setAttribute('style','left:'+((cue.needle+1)*50).toFixed(1)+'%');}
     u.box.dataset.step = d.step; u.box.dataset.pattern = d.brief.expected; u.diagram.dataset.pattern = d.brief.expected;
     const rec = d.recognition, comparison = rec.comparison;
     write(u.chartTitle, rec.chart.title + ' · north up');
-    write(u.chartHint, rec.pickMode === 'run-in' ? 'Tap a safe initial point for your chosen run-in. This plots a course; the pilot and ASQ-61 remain under existing controls.' : 'Tap chart: candidate (+). Green circle: independent scope cursor. RUN-IN then tap: planned initial point. No automatic designation.');
+    write(u.chartZoom,'ZOOM ×'+rec.zoom);
+    write(u.chartHint, rec.pickMode === 'run-in' ? 'Tap a safe initial point for your chosen run-in. This plots a course; the pilot and ASQ-61 remain under existing controls.' : 'Tap a charted landmark for its recognition clue, then mark your candidate (+). ZOOM separates nearby features. Green circle: independent radar cursor.');
+    write(u.referenceReadout,rec.reference?'REFERENCE · '+rec.reference.label+' · '+rec.reference.signature+(rec.referenceOffset&&rec.referenceOffset.rangeYd>25?' Candidate lies '+rec.referenceOffset.bearing+'° / '+Math.round(rec.referenceOffset.rangeYd)+' yd from this landmark.':''):'Chart features are briefing references. A matching location does not establish target identity or clearance.');
     write(u.comparison, comparison ? 'COMPARE · ' + Math.round(comparison.residualYd) + ' yd separation · echo ' + Math.round(Math.abs(comparison.eastYd)) + ' yd ' + (comparison.eastYd < 0 ? 'W' : 'E') + ' / ' + Math.round(Math.abs(comparison.northYd)) + ' yd ' + (comparison.northYd < 0 ? 'S' : 'N') + ' · ' + comparison.reason : rec.candidate ? 'Chart candidate marked. Slew the actual scope to the return independently; COMPARE ECHO measures agreement without identifying it.' : 'Mark the chart candidate, then compare an independently selected radar echo.');
     write(u.runInReadout, rec.runIn ? 'PLANNED RUN · ' + rec.runIn.course + '° / ' + rec.runIn.lengthNM.toFixed(1) + ' NM · ' + Math.round(Math.abs(rec.runIn.headingError)) + '° ' + (rec.runIn.headingError < 0 ? 'left' : 'right') + ' of present heading · cross-track ' + Math.round(Math.abs(rec.runIn.crossTrackYd)) + ' yd ' + (rec.runIn.crossTrackYd < 0 ? 'left' : 'right') + ' of track · ' + rec.runIn.remainingNM.toFixed(1) + ' NM to mark. Plan only: check clearance and use the existing steering needle / ASQ-61.' : 'RUN-IN plots your approach from an initial point to the chart mark. It does not steer the aircraft or calculate a bomb release.');
     u.candidate.setAttribute('aria-pressed', String(rec.pickMode === 'candidate')); u.runIn.setAttribute('aria-pressed', String(rec.pickMode === 'run-in')); u.compareEcho.disabled = !rec.candidate || !d.cursor.available; if (d.open) drawChart(u, game, d);
@@ -346,7 +392,7 @@
     const box = el('section'); box.className = 'note'; box.setAttribute('data-strike-report', ''); box.append(el('h3', d.title), el('p', d.correlations + ' correlations noted · ' + (d.chartComparisons || 0) + ' chart / echo comparisons · ' + d.released + ' stores expended (' + d.bombsReleased + ' bombs dropped / ' + d.armsReleased + ' ARM launched) · ' + d.impacts + ' weapon impacts measured' + (d.meanMissYd === null ? '' : ' · mean recorded miss ' + Math.round(d.meanMissYd) + ' yd')));
     for (const line of d.lines) box.append(el('p', line)); box.append(el('small', d.note)); host.append(box); return true;
   }
-  root.FlightStrikeBoard = { install(ctx) { if (!ctx || !ctx.App) return false; context = ctx; mount(); return true; }, tick, render, snapshot, sample, brief, mark, designate, interpret, setOpen, debrief, appendDebrief, chart, chartPixel, pick, setPickMode, recognition, compare,
+  root.FlightStrikeBoard = { install(ctx) { if (!ctx || !ctx.App) return false; context = ctx; mount(); return true; }, tick, render, snapshot, sample, brief, mark, designate, interpret, setOpen, debrief, appendDebrief, chart, chartPixel, pick, setPickMode, recognition, compare,setZoom,attackCue,
     reset(game) { if (!game) return false; states.delete(game); render(game); return true; },
     choices: choices.map(c => c.slice()), units: { range: 'NM = 1852 m', bearings: 'degrees true in the existing game', systemError: 'yd', time: 'simulation seconds' } };
 })(window);

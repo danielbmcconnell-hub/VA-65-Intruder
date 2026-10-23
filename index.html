@@ -10,7 +10,7 @@
 }
 </style>
 </head><body>
-<title>Intruder: Yankee Station — Movement &amp; Combat Polish</title>
+<title>Intruder: Yankee Station — B/N Immersion &amp; Visual Polish</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Share+Tech+Mono&display=swap">
@@ -855,6 +855,7 @@ body.desktop #hudbar{display:flex}
 <script src="assets/survival/equipment-view.js"></script>
 <script src="assets/survival/ground-combat.js"></script>
 <script src="assets/render/terrain-shadows.js"></script>
+<script src="assets/render/near-ground.js"></script>
 <script src="assets/willard/interceptor.js"></script>
 <script src="assets/willard/flak.js"></script>
 <script src="assets/willard/sprites.js"></script>
@@ -2433,7 +2434,7 @@ class Renderer {
     `);
 
     /* ---- TERRAIN ---- */
-    this.pTer = program(gl, GLSL_NOISE + GLSL_TERRAIN + `
+    this.pTer = program(gl, GLSL_NOISE + GLSL_TERRAIN + NearGround.glsl + `
       layout(location=0) in vec2 aXZ;
       uniform mat4 uVP; uniform vec3 uCam; uniform vec3 uSunDir;
       uniform vec2 uOrigin; uniform float uCell, uR0, uR1, uHillSh;
@@ -2483,7 +2484,7 @@ class Renderer {
         vec2 ev = floor(lat*0.5)*2.0;
         vec2 latM = mix(lat, ev, a);
         vec2 w = uOrigin + latM*uCell;
-        float h = terrainH(w);
+        float h = nearGroundHeight(w,terrainH(w));
         vW = vec3(w.x, h, w.y);
         /* ---- THE NORMAL ----
            This was being taken in the fragment shader from the screen-
@@ -3138,7 +3139,7 @@ class Renderer {
        Same geometry as the lit passes, rendered from the sun. The terrain
        one has to reproduce the clipmap morph exactly or the ground will
        shadow-acne against itself. */
-    this.pTerD = program(gl, GLSL_NOISE + GLSL_TERRAIN + `
+    this.pTerD = program(gl, GLSL_NOISE + GLSL_TERRAIN + NearGround.glsl + `
       layout(location=0) in vec2 aXZ;
       uniform mat4 uVP; uniform vec3 uCam;
       uniform vec2 uOrigin; uniform float uCell, uR0, uR1;
@@ -3150,7 +3151,7 @@ class Renderer {
         vec2 ev = floor(lat*0.5)*2.0;
         vec2 latM = mix(lat, ev, a);
         vec2 w = uOrigin + latM*uCell;
-        gl_Position = uVP * vec4(w.x, terrainH(w), w.y, 1.0);
+        gl_Position = uVP * vec4(w.x, nearGroundHeight(w,terrainH(w)), w.y, 1.0);
       }
     `, `out vec4 o; void main(){ o = vec4(1.0); }`);
 
@@ -3249,9 +3250,13 @@ class Renderer {
         float leg=1.0-smoothstep(0.20,0.54,visibleY);
         float side=smoothstep(-0.04,0.04,aQ.x)*2.0-1.0;
         float gait=clamp(iMotion.y,0.0,1.0);
-        posed.x+=sin(iMotion.x)*side*leg*gait*0.034*smoothstep(0.0,0.07,visibleY);
+        float swing=sin(iMotion.x), planted=smoothstep(0.0,0.07,visibleY);
+        float legDrive=swing*(0.026+0.008*abs(swing));
+        float shoulder=smoothstep(0.42,0.66,visibleY)*(1.0-smoothstep(0.82,1.0,visibleY));
+        posed.x+=side*leg*legDrive*gait*planted-swing*shoulder*gait*0.010;
         posed.x+=clamp(iMotion.z,-1.0,1.0)*smoothstep(0.35,0.85,visibleY)*0.024;
-        posed.y+=sin(iMotion.x*2.0)*sin(visibleY*3.14159)*gait*0.006;
+        float knee=max(0.0,side*swing)*(1.0-smoothstep(0.12,0.48,visibleY))*planted;
+        posed.y+=(sin(iMotion.x*2.0)*sin(visibleY*3.14159265)*0.003+knee*0.003)*gait;
         if(uVegetation>0.5){
           float windPhase=dot(iP.xz,vec2(0.017,0.023));
           float breeze=sin(uBreezeTime*1.15+windPhase)*0.006+sin(uBreezeTime*0.47+windPhase*0.71)*0.004;
@@ -3685,6 +3690,7 @@ class Renderer {
   shadowTerrain(mtn, seed) {
     const gl = this.gl, p = this.pTerD;
     gl.useProgram(p);
+    NearGround.bind(this,p);
     gl.uniformMatrix4fv(p.u.uVP, false, this.matLightVP);
     gl.uniform3fv(p.u.uCam, this.eye);
     gl.uniform1f(p.u.uMtn, mtn); gl.uniform1f(p.u.uSeed, seed);
@@ -3782,7 +3788,7 @@ class Renderer {
 
   drawTerrain(mtn, seed, wet) {
     const gl = this.gl, p = this.pTer;
-    gl.useProgram(p); this._atmosUniforms(p);
+    gl.useProgram(p); NearGround.bind(this,p); this._atmosUniforms(p);
     gl.uniformMatrix4fv(p.u.uVP, false, this.matVP);
     gl.uniform1f(p.u.uMtn, mtn); gl.uniform1f(p.u.uSeed, seed); gl.uniform1f(p.u.uWet, wet);
     const N = this.cmN;
@@ -11266,6 +11272,7 @@ const App = {
       this.rend.quality = this.set.quality;
       this.resize();
     } catch (e) {
+      if(this.rend)NearGround.dispose(this.rend);
       try { if (this.rend && this.rend.gl) this.rend.gl.getExtension('WEBGL_lose_context')?.loseContext(); } catch (_) {}
       this.rend = null;
       throw e;
@@ -11294,6 +11301,7 @@ const App = {
       for(const id of ['pickle','thrUp','thrDn','btnRun','btnCrouch'])$('#'+id)?.classList.remove('on');
       // Keep the active Game so pending narrative/debrief callbacks remain
       // valid. The frame loop skips simulation and GPU calls while lost.
+      if(this.rend)NearGround.dispose(this.rend);
       this.rend = null;
       $('#loader').style.display = 'none';
       if (this.screen === 'game') this.graphicsContextNotice(false);
@@ -17927,6 +17935,7 @@ class Game {
       ? vadd([eye[0], 0, eye[2]], vmul([fwd[0], 0, fwd[2]], 120))
       : vadd(ac.p, vmul([fwd[0], 0, fwd[2]], 650));
     focus[1] = Math.max(0, terrainH(focus[0], focus[2]));
+    NearGround.prepare(this,R);
     if (R.shadowBegin(focus, onFoot ? 240 : 0)) {
       R.shadowTerrain(TER.mtn, TER.seed);
       for (const [name, data, n] of packed)
@@ -18243,6 +18252,7 @@ ContactShadows.configure({terrainH});
 GroundView.install({App});
 EquipmentView.install({App});
 TerrainShadows.configure({terrainH});
+NearGround.configure({terrainH});
 const _strikeShow=App.show;
 App.show=function(){const result=_strikeShow.apply(this,arguments);FlightStrikeBoard.render(this.game);return result;};
 const _strikeFlightUpdate=Game.prototype.update;
