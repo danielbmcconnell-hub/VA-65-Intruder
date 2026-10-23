@@ -1,3 +1,11 @@
+# Complete higher-resolution photographic characters — latest game
+
+[Download complete game ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/highres-complete-photos/releases/Intruder_Yankee_Station_High_Resolution_Photos.zip) (GitHub sign-in required). [Report/deployment](../docs/HIGH_RESOLUTION_PHOTO_REPORT.md) · [Screenshots](highres-photo-screenshots/).
+
+Fifteen complete photographic cutouts replace tiny human/cattle atlas cells: full bodies, smooth alpha edges, distinct aiming/fallen images and stable high-resolution source selection during movement. Includes the previous capture/transfer fix and all prior missions/equipment. Restored derivatives preserve original reference files. Browser/source/packaged checks pass; physical iPhone Safari untested. Extract and upload the game folder to Netlify Deploys to update the live site.
+
+Earlier releases follow unchanged.
+
 # Photo sprites and capture transition — latest game
 
 [Download complete Netlify ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/sprite-capture-repair/releases/Intruder_Yankee_Station_Photo_Sprites_Capture_Repair.zip) (GitHub sign-in required). [Report/deployment](../docs/PHOTO_SPRITES_CAPTURE_REPAIR_REPORT.md) · [Screenshots](sprite-capture-screenshots/).
