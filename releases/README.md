@@ -1,3 +1,11 @@
+# Photographic walking and running — latest complete game
+
+[Download complete game ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/archive/refs/heads/highres-fluid-movement-site.zip) (private GitHub sign-in required). [Report/deployment](../docs/PHOTOGRAPHIC_MOTION_REPORT.md) · [Rendered evidence](photographic-motion-screenshots/).
+
+Six character/animal types now each have sixteen walking and sixteen running photographic poses, with distance-driven playback and bounded image caches. Includes the previous complete high-resolution photographs and capture/transfer transition. Original source references and earlier releases are preserved. Physical iPhone Safari is untested. Extract and upload the game folder to Netlify Deploys to update the live site.
+
+Earlier releases follow unchanged.
+
 # Complete higher-resolution photographic characters — latest game
 
 [Download complete game ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/raw/refs/heads/highres-complete-photos/releases/Intruder_Yankee_Station_High_Resolution_Photos.zip) (GitHub sign-in required). [Report/deployment](../docs/HIGH_RESOLUTION_PHOTO_REPORT.md) · [Screenshots](highres-photo-screenshots/).

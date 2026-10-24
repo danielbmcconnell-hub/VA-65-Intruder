@@ -1,5 +1,7 @@
 # Intruder: Yankee Station — Codex handoff
 
+The current photographic movement build is on `highres-fluid-movement`. See [the motion report](docs/PHOTOGRAPHIC_MOTION_REPORT.md) for the complete pose inventory, timing behavior, reproducible checks and deployment instructions. The original transfer notes below describe the earlier baseline; use the current report and recorded evidence when assessing those issues. Actual iPhone Safari remains untested.
+
 ## Baseline
 
 This folder is the **V11 Tactical** web build (index.html + assets/), the last downloadable integrated code version in the earlier conversation. Do not assume it is fully functioning merely because previous summaries said tests passed. Actual iPhone gameplay and photorealistic asset behavior require verification.

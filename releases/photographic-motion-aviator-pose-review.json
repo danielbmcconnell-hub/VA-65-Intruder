@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "subject": "aviator",
+  "clip": "run",
+  "decision": "accepted_natural_pose_compression",
+  "automaticHeightReviewFlagPreserved": true,
+  "reviewThreshold": 0.06,
+  "plateMedianOpaqueBodyHeightsPixels": [
+    716.5,
+    744.5,
+    699.5,
+    708.0
+  ],
+  "plateBodyScaleSpreadFraction": 0.06318,
+  "visualReview": {
+    "reviewer": "motion_tests",
+    "finding": "The 16-frame source overview shows consistent head/hair, chest/vest and hip framing across all four plates. Shorter silhouette bounds correspond to bent knees, recovery and flight poses; there is no clear whole-camera magnification step requiring normalization.",
+    "rootAccepted": true,
+    "scope": "Browser DOM source-pose overview; native WebGL gait/alpha/runtime checks are recorded separately."
+  },
+  "interpretation": "Opaque silhouette height is pose-dependent. Its6.318percent span alone does not establish an optical camera-scale error. The visible automatic flag remains intact, and no additional image or renderer camera-scale correction was applied to the aviator.",
+  "finalManifestSHA256": "b1824cdda4f78ff3f85e63de5f1fa2ba32370e85891b938539e619d2820136af",
+  "runtimeProvenanceSHA256": "6bcc7bb5f1c8286e1398660953331acfecbde60f6d5fcc2883b97f4574dbf497",
+  "overview": {
+    "file": "aviator-run-repaired-overview.png",
+    "sha256": "db82b144134e68b796ded3ecbb294c68226b62a92ab6db5b445f547480bc11b9",
+    "receipt": "aviator-run-repaired-overview.json",
+    "receiptSHA256": "f41cf02bca69b0b2d63e660ccce046015b7cb7157e592a968ed77052e8e8cc38",
+    "receiptManifestSHA256": "282d83dc04f16464f59638133a28f5852d4550e775ea9e3bddaef58c865c83c3",
+    "allFourPlateByteHashesMatchFinal": true
+  },
+  "plates": [
+    {
+      "sourcePNG": "assets/sprites/hires/aviator-run-a.png",
+      "sourceSHA256": "63325143ec8cd20147e1f457b68b5a9246e1c53667e772b5e7f45250af4ba705",
+      "runtimeWebP": "assets/sprites/hires/aviator-run-a.webp",
+      "runtimeSHA256": "bad1d67c536d8e149b46de0a579317c806865d39eb53d307e6b885a6c0ab805e",
+      "decodedRGBA_SHA256": "b1f62f45e6f1e6101968e68cfdf0cb80c09dd409fc44526b2efd8059fd4663b6",
+      "decodedRGBAIdentical": true
+    },
+    {
+      "sourcePNG": "assets/sprites/hires/aviator-run-b.png",
+      "sourceSHA256": "89afb93c1db49f6310300cb284574447d1284c361a23ec1c1dffaa2324490c65",
+      "runtimeWebP": "assets/sprites/hires/aviator-run-b.webp",
+      "runtimeSHA256": "ef0e7cdce0c74e963e3be81278db967f02fb64aff7c99b6d03bf7729286eb424",
+      "decodedRGBA_SHA256": "c50be2897314e7153f1bc270e66ebe23189f7b71478efcb3ae19a5ea3bab47b4",
+      "decodedRGBAIdentical": true
+    },
+    {
+      "sourcePNG": "assets/sprites/hires/aviator-run-c.png",
+      "sourceSHA256": "7b753d645d16b08801f3a69fa9b0502eb9af037c06ad748cf483f6033801db0d",
+      "runtimeWebP": "assets/sprites/hires/aviator-run-c.webp",
+      "runtimeSHA256": "a27ae546aa4b5ebb3f97ae6e9008db9132cc138724cd7499ab07795527612fd5",
+      "decodedRGBA_SHA256": "7c9e6774f6642975567e10cf9b77973363ee2b76ca70a1110dcf389e939220ea",
+      "decodedRGBAIdentical": true
+    },
+    {
+      "sourcePNG": "assets/sprites/hires/aviator-run-d.png",
+      "sourceSHA256": "d2a4742824d4e47c2051592d0811e7fc98023415569459da4649be27c8bf66fb",
+      "runtimeWebP": "assets/sprites/hires/aviator-run-d.webp",
+      "runtimeSHA256": "4065558914893e950848b095b1a41d0a495c518a654a03521a4077ace65ec829",
+      "decodedRGBA_SHA256": "f6753f76568b9b16863fe4b03b56aac15a4f6acda875171317934f04f72f3254",
+      "decodedRGBAIdentical": true
+    }
+  ],
+  "assetMutation": false
+}
