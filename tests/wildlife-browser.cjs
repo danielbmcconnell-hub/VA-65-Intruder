@@ -57,7 +57,7 @@ module.exports=async function wildlifeBrowser(browser,target,evidenceDir){
    const startup=executed.filter(row=>row.layout===name&&/^assets\/(?:wildlife\/hires|jungle)\//.test(row.file));assert.equal(startup.length,0,'Ready Room does not fetch new ecology textures');
    record('Ready Room keeps optional wildlife and jungle images deferred until ground entry',{ecologyRequests:startup});
    await page.locator('#wildlifeKind').selectOption('krait');await click(page.locator('#wildlifePractice'));
-   await page.waitForFunction(()=>{const failure=document.getElementById('graphicError');if(failure)throw Error(failure.innerText);return App.game?.evade?.wildlifePractice&&document.getElementById('loader').style.display==='none'&&PhotoCutouts.inspect(App.rend).status==='ready';},null,{timeout:120000});
+   await page.waitForFunction(()=>{const failure=document.getElementById('graphicError');if(failure)throw Error(failure.innerText);return App.game?.evade?.wildlifePractice&&document.getElementById('loader').style.display==='none'&&PhotoCutouts.inspect(App.rend).status==='ready';},null,{polling:50,timeout:90000});
    await page.evaluate(()=>{window.__wildlifeOriginalFrame=App.frame;App.frame=()=>{};App.game.paused=false;App.screen='game';for(const id of ['teach','teachPeek','legend','captVeil'])document.getElementById(id)?.classList.remove('on');App.game.syncControls();});
    const beforeLoad=await inspect();assert.equal(beforeLoad.renderer.ready,false);
    const loadingWalk=await control(2,{forward:1});assert.ok(Math.hypot(loadingWalk.p[0]-beforeLoad.p[0],loadingWalk.p[2]-beforeLoad.p[2])>1);assert.equal(loadingWalk.view.clock,beforeLoad.view.clock);assert.equal(loadingWalk.view.bite,null);

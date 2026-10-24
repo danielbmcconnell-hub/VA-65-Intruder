@@ -1,6 +1,8 @@
 # Intruder: Yankee Station — Codex handoff
 
-The current photographic movement build is on `highres-fluid-movement`. See [the motion report](docs/PHOTOGRAPHIC_MOTION_REPORT.md) for the complete pose inventory, timing behavior, reproducible checks and deployment instructions. The original transfer notes below describe the earlier baseline; use the current report and recorded evidence when assessing those issues. Actual iPhone Safari remains untested.
+The combined wildlife, jungle, carrier and survival release is on `wildlife-jungle`. See [the current report](docs/WILDLIFE_JUNGLE_AND_CARRIER_REPORT.md) for source-bound verification, the private complete-game download and scope limits. Actual iPhone Safari remains untested.
+
+The preceding photographic movement release remains on `highres-fluid-movement`. See [the motion report](docs/PHOTOGRAPHIC_MOTION_REPORT.md) for the complete pose inventory, timing behavior, reproducible checks and deployment instructions. The original transfer notes below describe the earlier baseline; use the current report and recorded evidence when assessing those issues. Actual iPhone Safari remains untested.
 
 ## Baseline
 

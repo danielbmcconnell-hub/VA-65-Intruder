@@ -30,7 +30,7 @@ const server=http.createServer((req,res)=>{
    // slow software-GPU UI assertions can crash the pilot-seat aircraft or
    // open a timed teaching overlay between visibility and geometry reads.
    await page.evaluate(()=>{window.__packagedFixedClock=true;App.game.paused=true;App.screen='build-test';for(const id of ['teach','teachPeek','legend'])document.getElementById(id)?.classList.remove('on')});
-   await page.waitForFunction(()=>{const s=window.PhotoCutouts&&PhotoCutouts.inspect(App.rend);if(s?.status==='error')throw Error(s.failures.join('; '));return s?.status==='ready'&&s.records.filter(r=>r.pose==='idle').length===6&&!!App.rend.textures.photo_vegetation;},null,{polling:50,timeout:90000});
+   await page.waitForFunction(()=>{const s=window.PhotoCutouts&&PhotoCutouts.inspect(App.rend);if(s?.status==='error')throw Error(s.failures.join('; '));return s?.status==='ready'&&s.records.filter(r=>r.pose==='idle').length===6;},null,{polling:50,timeout:90000});
    const cdp=opts.hasTouch?await ctx.newCDPSession(page):null;
    if(cdp){const b=await page.locator('#pickle').boundingBox();assert.ok(b);await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:b.x+b.width/2,y:b.y+b.height/2}]});assert.equal(await page.evaluate(()=>App.gctl.commit),1)}else await page.keyboard.down('Space');
    const observed=await page.evaluate(()=>{const G=App.game;G.paused=false;for(let i=0;i<240;i++)G.update(1/60);G.paused=true;G.render(1/60);G.syncControls();return {mission:G.mis.id,quality:App.set.quality,shadowSize:G.rend.shadowSize,alive:G.ac.alive,onDeck:G.ac.onDeck,phase:G.phase,finite:[...G.ac.p,...G.ac.v].every(Number.isFinite),gpuError:G.rend.gl.getError(),webgl:G.rend.gl.getParameter(G.rend.gl.VERSION)}});
@@ -71,7 +71,7 @@ const server=http.createServer((req,res)=>{
    await page.locator('#powChapter [data-pow-chapter="escape"]').click();
    await page.waitForFunction(()=>App.game?.pow?.stage==='cell'&&document.getElementById('loader').style.display==='none',null,{timeout:90000});
    const pow=await page.evaluate(async()=>{
-     const G=App.game;G.paused=true;G.render(1/60);
+     const G=App.game;window.__packagedFixedClock=true;G.paused=true;G.render(1/60);
      const snapshot=POW.save(G);POW.begin(G,'cell',snapshot);G.paused=true;G.render(1/60);
      let historicalPhotos=0;
      for(const item of Object.values(POWPhotos.historicalPhotoAssets)){const im=new Image();im.src=item.src;await im.decode();if(!im.naturalWidth)throw Error('Invalid historical photograph '+item.src);historicalPhotos++;}
@@ -79,6 +79,8 @@ const server=http.createServer((req,res)=>{
    });
    assert.equal(pow.stage,'cell');assert.ok(pow.solids>20&&pow.riverLoaded&&pow.captivityLoaded&&pow.m21Loaded&&pow.m22Loaded&&pow.m23Loaded);assert.equal(pow.m23Scene,1);assert.equal(pow.m23Pebbles,3);assert.equal(pow.guidanceChapter,'escape');assert.equal(pow.checkpoint,'cell');assert.equal(pow.historicalPhotos,8);assert.equal(pow.gpuError,0);assert.ok(Math.abs(pow.cameraHeight-1.68)<.01);
    assert.equal(pow.savedSortie,'m11');assert.equal(pow.restoredSortie,'m11');assert.equal(pow.ammunition.version,1);assert.equal(pow.ammunition.bulletsExpended,0);
+   // Vegetation is deferred during flight; the original prison entry requests it.
+   await page.waitForFunction(()=>{if(App.rend.gl.isContextLost())throw Error('Packaged ground context lost');return !!App.rend.textures.photo_vegetation;},null,{polling:50,timeout:90000});
    const refinement=await page.evaluate(()=>{const R=App.rend,gl=R.gl,plants=R.textures.photo_vegetation,cutouts=PhotoCutouts.inspect(R);return {title:document.title,modules:[!!window.SpriteLayers,!!window.PhotoCutouts,!!window.PhotoMotion,!!window.ContactShadows,!!window.QualityPolicy,!!window.GroundView,!!window.EquipmentView,!!window.GroundCombat,!!window.TerrainShadows,!!window.NearGround],cutouts:{...cutouts,records:cutouts.records.map(r=>({...r,liveTexture:gl.isTexture(R.textures[r.textureName]?.tex),textureWidth:R.textures[r.textureName]?.w,textureHeight:R.textures[r.textureName]?.h}))},plants:{layers:plants.layers,width:plants.width,height:plants.height,bytes:plants.bytes,array:gl.isTexture(plants.arrayTex),proxy:gl.isTexture(plants.tex)},legacyFigureUploaded:!!R.textures.people,arrays:SpriteLayers.inspect(gl),ground:GroundView.view(App.game),policy:QualityPolicy.inspect(App),gl:gl.getError()}});
    assert.ok(refinement.title.includes('B/N Immersion & Visual Polish'));assert.ok(refinement.modules.every(Boolean));
    assert.equal(refinement.cutouts.status,'ready');assert.equal(refinement.cutouts.ready,refinement.cutouts.expected);assert.ok(refinement.cutouts.ready>=15);assert.deepEqual(refinement.cutouts.failures,[]);assert.ok(refinement.cutouts.bytes<=refinement.cutouts.budget);

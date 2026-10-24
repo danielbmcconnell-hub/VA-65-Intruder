@@ -1,3 +1,11 @@
+# Wildlife, jungle, carrier and survival — latest complete game
+
+[Download complete game ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/archive/refs/heads/wildlife-jungle-site.zip) (private GitHub sign-in required). [Report/deployment](../docs/WILDLIFE_JUNGLE_AND_CARRIER_REPORT.md) · [Reviewed renderer evidence](wildlife-jungle-screenshots/).
+
+Includes complete photographic swimming/harness and deck-crew poses, wildlife threats, layered jungle, moving-deck landing, tree cutaway, ocean/river movement, the second aviator and mission demonstrations. Consult the evidence for exact verified outcomes and fixture scope. Original references and earlier releases remain preserved; actual iPhone Safari is untested. No live Netlify deployment was performed.
+
+Earlier releases follow unchanged.
+
 # Photographic walking and running — latest complete game
 
 [Download complete game ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/archive/refs/heads/highres-fluid-movement-site.zip) (private GitHub sign-in required). [Report/deployment](../docs/PHOTOGRAPHIC_MOTION_REPORT.md) · [Rendered evidence](photographic-motion-screenshots/).
