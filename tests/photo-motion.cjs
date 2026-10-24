@@ -90,6 +90,60 @@ test('capture and scene freezes hold the current photographed gait instead of co
   }
 });
 
+const motionManifest=JSON.parse(fs.readFileSync(path.join(root,'assets/sprites/hires/manifest.json'),'utf8'));
+function timedFixture(kind='nva'){const f=fixture(kind);f.M.configure(motionManifest);return f;}
+
+test('photographed running contact has modestly longer timing than flight without changing the stride',()=>{
+  for(const subject of ['farmer','militia','female_vc','nva','aviator']){
+    const f=timedFixture(subject),timing=f.M.timing(subject,'run'),meta=motionManifest.subjects[subject].animations.run;
+    assert.equal(timing.method,'photographed-run-contact');assert.equal(timing.frames,16);near(timing.intervals[0].start,0);near(timing.intervals.at(-1).end,1);
+    const clearance=meta.sourceRegions.map(r=>meta.baseline-(r.dest[1]+r.source[3]*(r.scale||1))/meta.frameSize[1]);
+    const contact=clearance.indexOf(Math.min(...clearance)),flight=clearance.indexOf(Math.max(...clearance));
+    assert.ok(timing.intervals[contact].duration>timing.intervals[flight].duration,subject+' grounded photograph holds longer than its flight photograph');
+    for(let i=0;i<16;i++){
+      const row=timing.intervals[i];assert.equal(row.frame,i);assert.ok(row.duration>=.88/16-1e-12&&row.duration<=1.12/16+1e-12,subject+' timing variation remains subtle');
+      near(row.end-row.start,row.duration);if(i)near(row.start,timing.intervals[i-1].end);
+    }
+    near(timing.intervals.reduce((sum,row)=>sum+row.duration,0),1);
+  }
+});
+
+test('weighted playback visits every pose in order, wraps at one stride and follows reverse travel distance',()=>{
+  const f=timedFixture(),timing=f.M.timing('nva','run'),stride=motionManifest.subjects.nva.animations.run.stride;
+  let previous=0;
+  for(let i=0;i<=16;i++){
+    const row=timing.intervals[i%16],target=(row.start+row.end)/2+(i===16?1:0),distance=(target-previous)*stride;
+    const p=advance(f,-distance,distance/4);previous=target;
+    assert.equal(p.clip,'run');assert.equal(Math.floor(p.phase*16),i%16,'Every authored pose appears once in chronological order');
+    near(p.cyclePhase,target%1);near(p.distance,target*stride);near(p.velocity[0],-4);assert.ok(p.phase>=0&&p.phase<1);
+  }
+});
+
+test('weighted photographic cadence remains independent of update and render rate',()=>{
+  const poses=[30,60,120].map(hz=>{const f=timedFixture();for(let i=0;i<hz*2;i++){advance(f,4/hz,1/hz);for(let render=0;render<7;render++)f.M.pose(f.actor,f.game);}return f.M.pose(f.actor,f.game);});
+  for(const p of poses){near(p.phase,poses[0].phase);near(p.cyclePhase,poses[0].cyclePhase);near(p.distance,8);near(p.speed,4);}
+});
+
+test('stopping, pause, capture and teleport hold both weighted pose phase and linear cycle phase',()=>{
+  for(const condition of ['stopped','paused','capture','teleport']){
+    const f=timedFixture();advance(f,.3,.075);const before=f.M.pose(f.actor,f.game);
+    if(condition==='paused')f.game.paused=true;if(condition==='capture')f.game._capturePending={};
+    const after=advance(f,condition==='teleport'?100:0,.05);
+    near(after.phase,before.phase,condition+' displayed pose');near(after.cyclePhase,before.cyclePhase,condition+' measured cycle');near(after.distance,before.distance);
+  }
+});
+
+test('unclassified or malformed timing remains uniform and timing inspection cannot alter playback',()=>{
+  const f=timedFixture();
+  for(const [subject,clip]of [['nva','walk'],['cow','walk'],['cow','run'],['unknown','run']]){
+    const timing=f.M.timing(subject,clip);assert.equal(timing.method,'uniform-distance');for(const row of timing.intervals)near(row.duration,1/16);
+  }
+  const original=f.M.timing('nva','run'),mutable=f.M.timing('nva','run');mutable.frames=2;mutable.intervals[0].start=.5;mutable.intervals[0].duration=99;mutable.intervals.push({frame:100});
+  assert.equal(JSON.stringify(f.M.timing('nva','run')),JSON.stringify(original));
+  f.M.configure({subjects:{nva:{animations:{run:{frames:16,stride:2.4,baseline:.9,frameSize:[512,768],sourceRegions:[{}]}}}}});
+  const fallback=f.M.timing('nva','run');assert.equal(fallback.method,'uniform-distance');for(const row of fallback.intervals)near(row.duration,1/16);
+});
+
 function cutout(){const window={};vm.runInNewContext(fs.readFileSync(path.join(root,'assets/render/photo-cutouts.js'),'utf8'),{window});return window.PhotoCutouts;}
 function registered(overrides={}){return {photoCutout:true,photoWidth:560,photoHeight:800,photoBounds:[80,35,505,795],photoBodyFraction:.9,photoBaseline:.995,photoCenter:.5,photoRight:[1,0],p:[7,12,-9],h:1.76,...overrides};}
 test('registered gait frames preserve the shared body scale while their silhouettes change',()=>{

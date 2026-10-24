@@ -114,15 +114,24 @@ module.exports=async function photoMotion(browser,target,evidenceDir){
               sources.push({file,logical,source,dest,scale,width,height,plateWidth:im.naturalWidth,plateHeight:im.naturalHeight,visible,transparent,colours:colours.size,bounds:[x0,y0,x1,y1],softBottom,torsoOpaqueFraction:best/(ww*(bottom-top)),completeness});canvas.width=canvas.height=1;
             }
           }
-          // Start inside a frame interval, avoiding a floating-point boundary
-          // being classified into the neighbouring photographed pose.
-          const actor={kind:subject,p:[0,0,-3.5],ph:Math.PI/meta.frames,alive:true,armed:!['farmer','cow'].includes(subject)},game={phase:'evade',t:0,paused:false,evade:{searchers:subject==='cow'?[]:[actor],locals:[],cattle:subject==='cow'?[actor]:[]}};
+          // Visit the centre of every authored timing interval by moving a
+          // real actor. Equal stride/16 steps would miss shorter intervals.
+          const timing=M.timing(subject,clip),actor={kind:subject,p:[0,0,-3.5],ph:0,alive:true,armed:!['farmer','cow'].includes(subject)},game={phase:'evade',t:0,paused:false,evade:{searchers:subject==='cow'?[]:[actor],locals:[],cattle:subject==='cow'?[actor]:[]}};
+          const rateTrace=rate=>{
+            const probe={kind:subject,p:[0,0,-3.5],ph:0,alive:true},g={phase:'evade',t:0,paused:false,evade:{searchers:subject==='cow'?[]:[probe],locals:[],cattle:subject==='cow'?[probe]:[]}};
+            M.pose(probe,g);M.step(g,.05);
+            const speed=clip==='run'?4:1,distance=meta.stride*.87,duration=distance/speed,steps=Math.ceil(duration*rate),dt=duration/steps;
+            for(let i=0;i<steps;i++){probe.p[2]-=speed*dt;g.t+=dt;M.step(g,dt);}
+            return {rate,steps,duration,expectedDistance:distance,pose:M.pose(probe,g)};
+          };
+          const rateIndependence=[rateTrace(30),rateTrace(120)];
           M.pose(actor,game);M.step(game,.05);R.bloomOn=false;R.setEpisode(null);R.setFires([]);
           R.setCamera([0,1.0,0],[0,0,-1],[0,1,0],50,.1,400,R.W/R.H);
           R.setAtmos({...R.atm,amb:[.55,.55,.55],gnd:[.12,.12,.12],sunCol:[.55,.55,.55],sunDir:[.2,.9,.3],fogDens:0,night:false,exposure:1});
-          let previous=null;const frames=[];
+          let previous=null,cycle=0;const frames=[];
           for(let n=0;n<meta.frames;n++){
-            const distance=meta.stride/meta.frames,speed=clip==='run'?4:1,dt=distance/speed;actor.p[2]-=distance;game.t+=dt;M.step(game,dt);
+            const interval=timing.intervals[n],targetCycle=(interval.start+interval.end)/2,distance=(targetCycle-cycle)*meta.stride,speed=clip==='run'?4:1,duration=distance/speed,steps=Math.max(1,Math.ceil(duration/.2)),dt=duration/steps;
+            for(let i=0;i<steps;i++){actor.p[2]-=distance/steps;game.t+=dt;M.step(game,dt);}cycle=targetCycle;
             PhotoCutouts.beginFrame(R);const d=PhotoSprites.describe(actor,{renderer:R,camera:[0,1,0],game,owner:actor}),q=PhotoSprites.anchor({...d,p:[0,0,-3.5],sourcePhotograph:true});
             R.begin();gl.clearColor(.075,.095,.12,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);R.drawSprites(q.textureName,[q]);R.end(0,0,1);
             const pixels=new Uint8Array(R.W*R.H*4);gl.readPixels(0,0,R.W,R.H,gl.RGBA,gl.UNSIGNED_BYTE,pixels);
@@ -135,11 +144,29 @@ module.exports=async function photoMotion(browser,target,evidenceDir){
             const complete=gl.checkFramebufferStatus(gl.READ_FRAMEBUFFER)===gl.FRAMEBUFFER_COMPLETE,texels=new Uint8Array(gpu.gpuWidth*gpu.gpuHeight*4);gl.readPixels(0,0,gpu.gpuWidth,gpu.gpuHeight,gl.RGBA,gl.UNSIGNED_BYTE,texels);let gx0=gpu.gpuWidth,gy0=gpu.gpuHeight,gx1=0,gy1=0;
             for(let y=0;y<gpu.gpuHeight;y++)for(let x=0;x<gpu.gpuWidth;x++)if(texels[(y*gpu.gpuWidth+x)*4+3]>128){gx0=Math.min(gx0,x);gy0=Math.min(gy0,y);gx1=Math.max(gx1,x+1);gy1=Math.max(gy1,y+1);}
             gl.bindFramebuffer(gl.READ_FRAMEBUFFER,oldRead);gl.deleteFramebuffer(fb);
-            previous=pixels;frames.push({n,phase:M.pose(actor,game).phase,clip:M.pose(actor,game).clip,asset:q.photoAsset,pose:q.photoPose,frame:q.photoFrame,width:q.photoWidth,height:q.photoHeight,quad:[...q.p,q.w,q.h],baseline:q.photoBaseline,alphaBottom:q.photoBounds[3]/q.photoHeight,feet:q.p[1]+q.h*(1-q.photoBounds[3]/q.photoHeight),gpuBounds:[gx0,gy0,gx1,gy1],gpuFeet:q.p[1]+q.h*(1-gy1/gpu.gpuHeight),gpuTop:q.p[1]+q.h*(1-gy0/gpu.gpuHeight),gpuComplete:complete,centerline:[q.p[0]+right[0]*offset,q.p[2]+right[1]*offset],gpu,cols:q.cols,rows:q.rows,motion:q.motion,changed,lowerChanged,png:R.canvas.toDataURL('image/png'),gl:gl.getError()});
+            previous=pixels;const pose=M.pose(actor,game);frames.push({n,phase:pose.phase,cyclePhase:pose.cyclePhase,targetCycle,interval,clip:pose.clip,asset:q.photoAsset,pose:q.photoPose,frame:q.photoFrame,width:q.photoWidth,height:q.photoHeight,quad:[...q.p,q.w,q.h],baseline:q.photoBaseline,alphaBottom:q.photoBounds[3]/q.photoHeight,feet:q.p[1]+q.h*(1-q.photoBounds[3]/q.photoHeight),gpuBounds:[gx0,gy0,gx1,gy1],gpuFeet:q.p[1]+q.h*(1-gy1/gpu.gpuHeight),gpuTop:q.p[1]+q.h*(1-gy0/gpu.gpuHeight),gpuComplete:complete,centerline:[q.p[0]+right[0]*offset,q.p[2]+right[1]*offset],gpu,cols:q.cols,rows:q.rows,motion:q.motion,changed,lowerChanged,png:R.canvas.toDataURL('image/png'),gl:gl.getError()});
           }
-          return {subject,clip,meta,sources,frames,canvas:[R.W,R.H],quality:R.quality,loaded:PhotoCutouts.inspect(R)};
+          return {subject,clip,meta,timing,rateIndependence,sources,frames,canvas:[R.W,R.H],quality:R.quality,loaded:PhotoCutouts.inspect(R)};
         },{subject,clip,auditComplete:!profile.hasTouch});
         assert.equal(sample.frames.length,16);assert.equal(new Set(sample.frames.map(f=>f.frame)).size,16,subject+' '+clip+' selects every authored frame');
+        assert.equal(sample.timing.frames,16);assert.equal(sample.timing.intervals.length,16);
+        let intervalEnd=0;
+        for(let i=0;i<sample.timing.intervals.length;i++){
+          const interval=sample.timing.intervals[i];assert.equal(interval.frame,i,'Timing preserves the authored chronological frame order');
+          assert.ok(Number.isFinite(interval.duration)&&interval.duration>0,'Every complete pose has a positive duration');
+          assert.ok(Math.abs(interval.start-intervalEnd)<1e-12,'Timing intervals are contiguous');
+          assert.ok(Math.abs(interval.end-interval.start-interval.duration)<1e-12,'Measured interval extent agrees with its declared duration');intervalEnd=interval.end;
+        }
+        assert.ok(Math.abs(intervalEnd-1)<1e-12,'Pose intervals cover exactly one measured-distance cycle');
+        if(clip==='run'&&subject!=='cow'){
+          assert.equal(sample.timing.method,'photographed-run-contact');assert.ok(new Set(sample.timing.intervals.map(i=>i.duration.toFixed(8))).size>1,'Photographed human running uses varying contact/flight durations');
+        }else{
+          assert.equal(sample.timing.method,'uniform-distance');for(const interval of sample.timing.intervals)assert.ok(Math.abs(interval.duration-1/16)<1e-12,'Unclassified walk/cow contact timing retains its measured-distance cadence');
+        }
+        assert.deepEqual(sample.frames.map(f=>f.frame),Array.from({length:16},(_,i)=>i),'Measured actor displacement selects all sixteen frames in chronological order');
+        const [slowRate,fastRate]=sample.rateIndependence;
+        for(const trace of sample.rateIndependence){assert.equal(trace.pose.clip,clip);assert.ok(Math.abs(trace.pose.distance-trace.expectedDistance)<1e-8,'Cadence follows measured path length');assert.ok(Math.abs(trace.pose.cyclePhase-.87)<1e-8,'Linear stride phase follows actual displacement at each frame rate');}
+        assert.ok(Math.abs(slowRate.pose.phase-fastRate.pose.phase)<1e-8,'Variable pose timing is independent of update frame rate');
         if(sample.meta.order)assert.deepEqual([...sample.meta.order].sort((a,b)=>a-b),Array.from({length:16},(_,i)=>i),'Each authored cell appears exactly once in chronological order');
         assert.ok(sample.loaded.bytes<=sample.loaded.budget,'Combined base/motion GPU budget');assert.deepEqual(sample.loaded.failures,[]);assert.deepEqual(sample.loaded.motions.failures,[]);
         assert.ok(sample.loaded.motions.cpuBytes<=sample.loaded.motions.cpuBudget,'Decoded movement plates have a bounded CPU cache');
@@ -154,6 +181,7 @@ module.exports=async function photoMotion(browser,target,evidenceDir){
         }
         for(let i=0;i<sample.frames.length;i++){
           const f=sample.frames[i];assert.equal(f.clip,clip);assert.equal(f.pose,clip);assert.equal(f.cols,1);assert.equal(f.rows,1);assert.equal(f.motion,null);assert.equal(f.gl,0);
+          assert.ok(Math.abs(f.cyclePhase-f.targetCycle)<1e-8,'The actual actor reaches the measured interval centre');assert.ok(Math.abs(f.phase-(i+.5)/16)<1e-8,'The selected complete photo agrees with the variable timing interval');
           assert.ok(f.width>=sourceMinimum[0]&&f.height>=sourceMinimum[1],subject+' complete frame dimensions');
           const gpu=f.gpu;assert.ok(gpu?.resident,subject+' rendered frame has an actual resident texture at draw time');
           assert.ok(Math.max(gpu.gpuWidth,gpu.gpuHeight)>=(profile.hasTouch?576:768),subject+' actual moving-frame GPU detail');
@@ -172,8 +200,22 @@ module.exports=async function photoMotion(browser,target,evidenceDir){
           const file=name+'-'+subject+'-'+clip+'-'+String(i).padStart(2,'0');await save(file.replace(name+'-',''),f.png);f.renderSHA256=createHash('sha256').update(Buffer.from(f.png.split(',')[1],'base64')).digest('hex');delete f.png;
         }
         assert.equal(new Set(sample.frames.map(f=>f.renderSHA256)).size,16,'Every gait frame changes actual GPU pixels');
-        if(clip==='run'){assert.ok(sample.frames.some(f=>f.gpuFeet<.025),subject+' running cycle contains a photographed ground contact');assert.ok(sample.frames.some(f=>f.gpuFeet>.035),subject+' running cycle contains a photographed airborne/recovery pose');if(subject!=='cow'){const tops=sample.frames.map(f=>f.gpuTop);assert.ok(Math.max(...tops)-Math.min(...tops)<.025,subject+' top alignment prevents artificial head drops while the photographed legs bend');}}
-        record(name,subject+' '+clip+' renders sixteen distinct full photographs with a stable anchor, changing leg poses and a bounded texture cache',sample);
+        if(clip==='run'){
+          assert.ok(sample.frames.some(f=>f.gpuFeet<.025),subject+' running cycle contains a photographed ground contact');
+          assert.ok(sample.frames.some(f=>f.gpuFeet>.035),subject+' running cycle contains a photographed airborne/recovery pose');
+          if(subject!=='cow'){
+            const rows=sample.frames.map(f=>{const source=sample.sources.find(s=>s.logical===f.frame);return {frame:f.frame,gpuTop:f.gpuTop,sourceTop:f.quad[1]+f.quad[4]*(1-source.bounds[1]/f.height),worldMetresPerGPUTexel:f.quad[4]/f.gpu.gpuHeight};});
+            const span=values=>Math.max(...values)-Math.min(...values),sourceSpan=span(rows.map(r=>r.sourceTop)),gpuSpan=span(rows.map(r=>r.gpuTop)),texel=Math.max(...rows.map(r=>r.worldMetresPerGPUTexel));
+            // Opaque alpha thresholds can move a feathered head/scarf edge by
+            // a texel when 768px sources are sampled into 576px touch textures.
+            // Compare against the independently decoded source silhouette,
+            // allow two GPU texels for the span, and retain a 4cm absolute cap.
+            sample.headRegistration={rows,sourceOpaqueTopSpanMeters:sourceSpan,gpuOpaqueTopSpanMeters:gpuSpan,twoGPUTexelBudgetMeters:texel*2,toleranceMeters:Math.min(.04,sourceSpan+texel*2),absoluteCapMeters:.04};
+            for(const row of rows)assert.ok(Math.abs(row.gpuTop-row.sourceTop)<=row.worldMetresPerGPUTexel*2+1e-8,subject+' actual GPU head/scarf edge agrees with the independently decoded photograph within two texture texels');
+            assert.ok(gpuSpan<=sample.headRegistration.toleranceMeters+1e-8,subject+' head registration exceeds its photographed edge span / GPU texel budget: '+JSON.stringify(sample.headRegistration));
+          }
+        }
+        record(name,subject+' '+clip+' renders sixteen chronological full photographs with measured pose timing, a stable anchor and a bounded texture cache',sample);
       }
       const priorities=await page.evaluate(async()=>{
         const R=App.rend,M=PhotoMotion,actor={kind:'nva',p:[0,0,-4],alive:true,armed:true,seen:1,state:'pursuit'},game={phase:'evade',t:0,evade:{searchers:[actor],locals:[],cattle:[]}};
@@ -222,7 +264,7 @@ module.exports=async function photoMotion(browser,target,evidenceDir){
   assert.equal(executedModules.length,profiles.length*3,'Evidence must record every executed photographic runtime module');
   const assetSHA256={};for(const executed of executedAssets){if(!assetSHA256[executed.file])assetSHA256[executed.file]=createHash('sha256').update(await fs.readFile(path.join(root,'assets/sprites/hires',executed.file))).digest('hex');assert.equal(executed.sha256,assetSHA256[executed.file],'Executed image/manifest bytes changed during this evidence run; repeat on the final files');}
   const indexSHA256=createHash('sha256').update(await fs.readFile(path.join(root,'index.html'))).digest('hex');for(const source of sourceHashes)assert.equal(source.indexSHA256,indexSHA256,'Executed index changed during this evidence run');
-  const report={suite:'photo-motion',passed:true,selection:{subjects,clips,profiles:profiles.map(p=>p.name),subset},checks,screenshots,videos,errors,missing,sourceHashes,moduleSHA256,executedModules,assetSHA256,executedAssets,scope:'Actual Linux Chromium/SwiftShader WebGL2 desktop High quality and simulated iPhone landscape Medium quality at native canvas resolution. Native prison patrol/pause/collision; declared measured-speed walk/run fixtures render every selected authored gait frame using the production renderer at a fixed world position. Generated photographic pose reconstructions, not filmed footage. No physical Windows GPU/iPhone Safari/FPS claim.'};
+  const report={suite:'photo-motion',passed:true,selection:{subjects,clips,profiles:profiles.map(p=>p.name),subset},checks,screenshots,videos,errors,missing,sourceHashes,moduleSHA256,executedModules,assetSHA256,executedAssets,scope:'Actual Linux Chromium/SwiftShader WebGL2 desktop High quality and simulated iPhone landscape Medium quality at native canvas resolution. Native prison patrol/pause/collision; declared measured-speed walk/run fixtures render every selected authored gait frame in chronological order using the production renderer at a fixed world position. Independently checked positive contiguous pose intervals cover one stride cycle; matching measured paths at 30/120 simulation updates per second retain the same distance cadence and human-run timing. Generated photographic pose reconstructions, not filmed footage. No physical Windows GPU/iPhone Safari/FPS claim.'};
   await fs.writeFile(path.join(out,'results.json'),JSON.stringify(report,null,2)+'\n');return report;
 };
 if(require.main===module)(async()=>{

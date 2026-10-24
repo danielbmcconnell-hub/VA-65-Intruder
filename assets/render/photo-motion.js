@@ -7,7 +7,20 @@
   const IDENTITIES={farmer:'farmer',farmerC:'farmer',villager:'farmer',villagerC:'farmer',vc:'militia',militia:'militia',vcFem:'female_vc',female_vc:'female_vc',nva:'nva',soldier:'nva',sentry:'nva',guard:'nva',guardAim:'nva',aviator:'aviator',cow:'cow'};
   let games=new WeakMap();
   let strides={};
+  let timelines=new Map();
   const finite=(n,f=0)=>Number.isFinite(n)?n:f;
+  function timeline(weights,method){
+    const total=weights.reduce((sum,value)=>sum+value,0),frames=weights.length;let start=0;
+    const intervals=weights.map((weight,frame)=>{const end=frame===frames-1?1:start+weight/total,row={frame,start,end,duration:end-start,weight};start=end;return row;});
+    return {frames,method,intervals};
+  }
+  const uniform=timeline(Array(16).fill(1),'uniform-distance');
+  function configuredTimeline(name,clip){return timelines.get((IDENTITIES[name]||name)+':'+clip)||uniform;}
+  function displayPhase(phase,timing){
+    if(timing.method==='uniform-distance')return phase;
+    const interval=timing.intervals.find(row=>phase<row.end)||timing.intervals[timing.frames-1];
+    return Math.min(1-Number.EPSILON,(interval.frame+(phase-interval.start)/interval.duration)/timing.frames);
+  }
   const point=p=>Array.isArray(p)&&p.length>=3&&p.slice(0,3).every(Number.isFinite);
   const clock=g=>g.pow&&Number.isFinite(g.pow.time)?g.pow.time:finite(g.t);
   const active=g=>!!(g&&g.evade&&(!g.phase||g.phase==='evade')&&(!g.pow||!g.pow.complete));
@@ -16,7 +29,7 @@
   function known(actor,game){return !!actor&&(KINDS.has(actor.kind)||cattle(actor,game));}
   function entry(actor,game){
     const s=context(game);let a=s.actors.get(actor);
-    if(!a){a={p:point(actor.p)?actor.p.slice(0,3):null,phase:((finite(actor.ph)/TAU)%1+1)%1,speed:0,distance:0,velocity:[0,0],clip:'idle',moving:false,teleported:false};s.actors.set(actor,a);}
+    if(!a){a={p:point(actor.p)?actor.p.slice(0,3):null,phase:((finite(actor.ph)/TAU)%1+1)%1,speed:0,distance:0,velocity:[0,0],clip:'idle',timingClip:'idle',moving:false,teleported:false};s.actors.set(actor,a);}
     return a;
   }
   function stopped(actor,game){return actor.alive===false||actor.stunned||finite(actor.stunUntil,-1)>finite(game.t,clock(game));}
@@ -37,21 +50,41 @@
       a.speed=distance/Math.max(dt,.001);
       a.clip=a.speed>1.9||a.clip==='run'&&a.speed>1.5?'run':a.speed>.12||a.moving&&a.speed>.05?'walk':'idle';
       a.moving=a.clip!=='idle';
+      if(a.moving)a.timingClip=a.clip;
       if(distance>0){const subject=cattle(actor,game)?'cow':IDENTITIES[actor.kind],configured=strides[subject]&&strides[subject][a.clip],stride=configured||(subject==='cow'?a.clip==='run'?3:2.2:a.clip==='run'?2.4:1.56);a.phase=(a.phase+distance/stride)%1;}
       a.distance+=distance;a.p=p?p.slice(0,3):null;count++;
     }
     group.count=count;return count;
   }
   function pose(actor,game){
-    if(!active(game)||!known(actor,game))return {enabled:false,clip:'idle',phase:0,speed:0,distance:0,moving:false,teleported:false};
+    if(!active(game)||!known(actor,game))return {enabled:false,clip:'idle',phase:0,cyclePhase:0,speed:0,distance:0,moving:false,teleported:false};
     const a=entry(actor,game),halt=stopped(actor,game)||game._capturePending||game.evade.frozen;
-    return {enabled:true,clip:halt?'idle':a.clip,phase:a.phase,speed:halt?0:a.speed,distance:a.distance,moving:!halt&&a.moving,teleported:a.teleported,velocity:a.velocity.slice()};
+    const subject=cattle(actor,game)?'cow':IDENTITIES[actor.kind];
+    return {enabled:true,clip:halt?'idle':a.clip,phase:displayPhase(a.phase,configuredTimeline(subject,a.timingClip)),cyclePhase:a.phase,speed:halt?0:a.speed,distance:a.distance,moving:!halt&&a.moving,teleported:a.teleported,velocity:a.velocity.slice()};
   }
   function reset(game){if(game)return games.delete(game);games=new WeakMap();return true;}
   function configure(manifest){
-    const values={};for(const [name,subject]of Object.entries(manifest&&manifest.subjects||{}))for(const [clip,entry]of Object.entries(subject.animations||{}))if(['walk','run'].includes(clip)&&Number.isFinite(entry.stride)&&entry.stride>=.5&&entry.stride<=6){values[name]=values[name]||{};values[name][clip]=entry.stride;}
-    strides=values;return true;
+    const values={},configured=new Map();
+    for(const [name,subject]of Object.entries(manifest&&manifest.subjects||{}))for(const [clip,entry]of Object.entries(subject&&subject.animations||{})){
+      if(!['walk','run'].includes(clip)||!entry)continue;
+      if(Number.isFinite(entry.stride)&&entry.stride>=.5&&entry.stride<=6){values[name]=values[name]||{};values[name][clip]=entry.stride;}
+      if(!Number.isInteger(entry.frames)||entry.frames<2||entry.frames>64)continue;
+      let weights=Array(entry.frames).fill(1),method='uniform-distance';
+      // A running photo's registered foot clearance distinguishes stance from
+      // flight. Hold contact slightly longer; pass airborne poses faster. The
+      // weights sum to one full stride and stay within 12% of equal duration.
+      // Walks always have a planted foot, and cow contact phases are not yet
+      // classified: retain their distance-linear timing rather than invent it.
+      const regions=entry.sourceRegions,height=entry.frameSize&&entry.frameSize[1];
+      if(clip==='run'&&['farmer','militia','female_vc','nva','aviator'].includes(name)&&Number.isFinite(height)&&height>0&&Number.isFinite(entry.baseline)&&Array.isArray(regions)&&regions.length===entry.frames&&regions.every(r=>r&&Array.isArray(r.source)&&Number.isFinite(r.source[3])&&r.source[3]>0&&Array.isArray(r.dest)&&Number.isFinite(r.dest[1])&&(r.scale===undefined||Number.isFinite(r.scale)&&r.scale>0))){
+        const contact=regions.map(r=>1-Math.max(0,Math.min(1,(entry.baseline-(r.dest[1]+r.source[3]*finite(r.scale,1))/height)/.08))),mean=contact.reduce((sum,value)=>sum+value,0)/contact.length,spread=Math.max(...contact.map(value=>Math.abs(value-mean)));
+        if(spread>1e-6){weights=contact.map(value=>1+.12*(value-mean)/spread);method='photographed-run-contact';}
+      }
+      configured.set(name+':'+clip,timeline(weights,method));
+    }
+    strides=values;timelines=configured;return true;
   }
+  function timing(subject,clip){const value=configuredTimeline(subject,clip);return {frames:value.frames,method:value.method,intervals:value.intervals.map(row=>({...row}))};}
   function inspect(game){const s=game&&games.get(game);return s?{steps:s.steps,count:s.count,stamp:s.stamp,maxActors:MAX_ACTORS}: {steps:0,count:0,stamp:null,maxActors:MAX_ACTORS};}
-  root.PhotoMotion=Object.freeze({step,pose,reset,inspect,configure});
+  root.PhotoMotion=Object.freeze({step,pose,reset,inspect,configure,timing});
 })(window);
