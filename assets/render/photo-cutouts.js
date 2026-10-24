@@ -8,6 +8,7 @@
   const contexts=new WeakMap();
   const finite=(n,f=0)=>Number.isFinite(n)?n:f;
   function context(renderer){return renderer&&contexts.get(renderer);}
+  function hasPose(renderer,name,pose){const s=context(renderer),r=s&&s.records.get(name+':'+pose),texture=r&&renderer.textures[r.textureName];return !!(s&&valid(s)&&r&&r.resident&&texture&&texture.tex&&(!renderer.gl.isTexture||renderer.gl.isTexture(texture.tex)));}
   function mipBytes(width,height){let bytes=0;for(;;){bytes+=width*height*4;if(width===1&&height===1)break;width=Math.max(1,width>>1);height=Math.max(1,height>>1);}return bytes;}
   function dimensions(width,height,limit){const scale=Math.min(1,limit/Math.max(width,height));return [Math.max(1,Math.round(width*scale)),Math.max(1,Math.round(height*scale))];}
   function image(url){return new Promise((resolve,reject)=>{const im=new root.Image();im.decoding='async';im.onload=()=>resolve(im);im.onerror=()=>reject(new Error('Complete photographic sprite failed to load: '+url));im.src=url;});}
@@ -51,7 +52,7 @@
   function space(s,bytes){
     if(bytes>s.budget)return false;
     while(s.bytes+bytes>s.budget){
-      const candidates=[...s.records.values(),...s.motionRecords.values()].filter(r=>r.resident&&r.pose!=='idle'&&!s.pinned.has(r.key));
+      const candidates=[...s.records.values(),...s.motionRecords.values()].filter(r=>r.resident&&r.pose!=='idle'&&!r.permanent&&!s.pinned.has(r.key));
       candidates.sort((a,b)=>a.lastUse-b.lastUse);if(!candidates.length)return false;evict(s,candidates[0]);
     }
     return true;
@@ -117,7 +118,7 @@
     const bounds=registration?alpha.bounds.map((n,i)=>n*scale+registration.dest[i%2]):alpha.bounds.slice();
     const record={key,subject:clip.subject,clip:clip.clip,frame,pose:clip.clip,url,sourceWidth,sourceHeight,bounds,visiblePixels:alpha.visiblePixels,
       ...(registration?{sourceRegion:registration.source.slice(),sourceDestination:registration.dest.slice(),sourceScale:scale,sourcePlateWidth:p.im.naturalWidth,sourcePlateHeight:p.im.naturalHeight}:{}),
-      textureName:'photo_hr_'+clip.subject+'_'+clip.clip+'_'+frame,heightRatio:1};
+      textureName:'photo_hr_'+clip.subject+'_'+clip.clip+'_'+frame,heightRatio:1,permanent:clip.clip==='swim'&&frame===0};
     if(!upload(s,record,p.im,alpha.region,width,height,registration?{size:clip.frameSize,dest:registration.dest,scale}:null))return null;s.motionRecords.set(key,record);return record;
   }
   async function prepareMotion(renderer,name,mode){
@@ -154,7 +155,7 @@
             jobs.push({name,pose,entry});
           }
           for(const [mode,value]of Object.entries(subject.animations||{})){
-            if(!['walk','run'].includes(mode)||!value||!Array.isArray(value.plates)||!value.plates.length||!value.plates.every(filename)||value.cols!==2||value.rows!==2||!Number.isInteger(value.frames)||value.frames!==value.plates.length*4)throw new Error('Invalid photographic movement clip: '+name+':'+mode);
+            if(!['walk','run','swim'].includes(mode)||!value||!Array.isArray(value.plates)||!value.plates.length||!value.plates.every(filename)||(mode==='swim'?(value.cols!==1||value.rows!==4||value.frames!==8||!Number.isFinite(value.worldHeight)||value.worldHeight<.4||value.worldHeight>1):(value.cols!==2||value.rows!==2))||!Number.isInteger(value.frames)||value.frames!==value.plates.length*4)throw new Error('Invalid photographic movement clip: '+name+':'+mode);
             if(value.order&&(!Array.isArray(value.order)||value.order.length!==value.frames||new Set(value.order).size!==value.frames||!value.order.every(n=>Number.isInteger(n)&&n>=0&&n<value.frames)))throw new Error('Invalid photographic movement frame order');
             if(value.registration&&(!Array.isArray(value.registration)||value.registration.length!==value.frames||!value.registration.every(r=>r&&Number.isFinite(r.baseline)&&r.baseline>.4&&r.baseline<=1&&Number.isFinite(r.center)&&r.center>=0&&r.center<=1)))throw new Error('Invalid photographic movement registration');
             if(value.sourceRegions){
@@ -189,6 +190,11 @@
             if(SUBJECTS.every(subject=>s.records.has(subject+':idle')))root.document.getElementById('photoLoading')?.remove();
           }
         }
+        // Keep one complete horizontal photo for each actual swimmer ready.
+        // Optional stroke frames share the existing LRU, while these three
+        // small fallback slots prevent a temporary decode from standing an
+        // actor upright in the water. No land-gait frames are preloaded here.
+        for(const name of SUBJECTS){const clip=s.clips.get(name+':swim');if(!clip)continue;const stored=clip.order?clip.order[0]:0,index=Math.floor(stored/(clip.cols*clip.rows));if(await plate(s,clip,index))motionRecord(s,clip,0);}
         s.status='ready';return inspect(renderer);
       }catch(error){s.status='error';s.failures.push(String(error&&error.message||error));if(root.console)root.console.error(s.failures[s.failures.length-1]);return inspect(renderer);}
     })();
@@ -197,17 +203,22 @@
   function describe(actor,options={}){
     const s=context(options.renderer),name=options.photoName;
     if(!s||!s.subjects[name])return null;
-    let pose=actor.alive===false?'fallen':actor.crouch||actor.crouched?'crouch':actor.armed!==false&&(actor.seen||actor.kind==='guardAim'||actor.state==='pursuit')?'aim':'idle';
-    const owner=options.owner||actor,motion=options.photoMotion||root.PhotoMotion&&options.game&&root.PhotoMotion.pose(owner,options.game);
+    const suspended=actor.alive!==false&&!!actor.suspended&&name==='aviator';
+    let pose=suspended?'harness':actor.alive===false?'fallen':actor.crouch||actor.crouched?'crouch':actor.armed!==false&&(actor.seen||actor.kind==='guardAim'||actor.state==='pursuit')?'aim':'idle';
+    const owner=options.owner||actor,gait=options.photoMotion||root.PhotoMotion&&options.game&&root.PhotoMotion.pose(owner,options.game);
+    // Stroke phase is owned by real swimming travel, never walking distance or
+    // a render-time clock. A stationary swimmer holds a complete glide pose.
+    const swimming=!suspended&&actor.alive!==false&&!!actor.swimming&&s.clips.has(name+':swim');
+    const motion=swimming?{enabled:true,moving:true,clip:'swim',phase:finite(actor.swimPhase),velocity:gait&&gait.velocity&&Math.hypot(...gait.velocity)>.05?gait.velocity:[Math.sin(finite(actor.yaw,finite(actor.face))),-Math.cos(finite(actor.yaw,finite(actor.face)))]}:gait;
     const camera=options.camera||options.renderer&&options.renderer.eye;
     // Ground NPC/cow source Y is often zero until terrain placement in render.
     // Horizontal camera distance therefore determines presentation detail.
     const near=!camera||!actor.p||Math.hypot(camera[0]-actor.p[0],camera[2]-actor.p[2])<=60;
-    if(!near&&motion&&motion.moving&&actor.alive!==false)pose='idle';
+    if(!suspended&&!near&&motion&&motion.moving&&actor.alive!==false)pose='idle';
     const requestedPose=pose;
     // Threat recognition alone is not a shooting pose. Pursuers keep their
     // actual armed running frames; an explicitly firing/stunned actor stops.
-    if(near&&actor.alive!==false&&!actor.crouch&&!actor.crouched&&!actor.stunned&&!actor.firing&&motion&&motion.enabled&&motion.moving){
+    if(!suspended&&(near||swimming)&&actor.alive!==false&&(swimming||!actor.crouch&&!actor.crouched&&!actor.stunned&&!actor.firing)&&motion&&motion.enabled&&motion.moving){
       const clip=s.clips.get(name+':'+motion.clip);
       if(clip){
         const frame=Math.floor(((finite(motion.phase)%1+1)%1)*clip.frames)%clip.frames,stored=clip.order?clip.order[frame]:frame,index=Math.floor(stored/(clip.cols*clip.rows));
@@ -218,24 +229,27 @@
         if(!s.motionRecords.has(currentKey))needed.add(index);
         if(!s.motionRecords.has(nextKey))needed.add(nextPlate);
         for(const i of needed)plate(s,clip,i);
-        const animated=motionRecord(s,clip,frame);
+        const animated=motionRecord(s,clip,frame)||(swimming&&s.motionRecords.get(name+':swim:0'));
         if(animated){
           s.pinned.add(animated.key);let flip=!!s.flipActors.get(owner);
           let right=[1,0];
           if(options.camera&&actor.p&&motion.velocity){const dx=options.camera[0]-actor.p[0],dz=options.camera[2]-actor.p[2],length=Math.hypot(dx,dz)||1,travel=(motion.velocity[0]*dz-motion.velocity[1]*dx)/length;
             right=[dz/length,-dx/length];
             if(Math.abs(travel)>.08){flip=clip.facing==='left'?travel>0:travel<0;s.flipActors.set(owner,flip);}}
-          const registration=clip.registration&&clip.registration[frame];
-          return descriptor(animated,s,options,name,clip.clip,frame,{photoBodyFraction:clip.bodyHeight,photoBaseline:registration?registration.baseline:clip.baseline,photoCenter:registration?registration.center:.5,photoRight:right,flip});
+          const registration=clip.registration&&clip.registration[animated.frame];
+          return descriptor(animated,s,swimming?{...options,height:clip.worldHeight}:options,name,clip.clip,animated.frame,{photoBodyFraction:clip.bodyHeight,photoBaseline:registration?registration.baseline:clip.baseline,photoCenter:registration?registration.center:.5,photoRight:right,flip,...(swimming?{photoSwimming:true}:{}),...(animated.frame!==frame?{photoPendingFrame:frame}:{})});
         }
       }
     }
     let record=s.records.get(name+':'+pose);
     if(record&&!record.resident){preparePose(options.renderer,name,pose);record=null;}
+    // The full legacy parachute remains the render fallback until a genuine
+    // suspended photograph is resident; never substitute a standing body.
+    if(suspended&&!record)return null;
     if(!record){pose='idle';record=s.records.get(name+':idle');}
     if(!record)return null;
     touch(s,record);s.pinned.add(record.key);
-    return descriptor(record,s,options,name,pose,0,requestedPose!==pose?{photoPendingPose:requestedPose}:{});
+    return descriptor(record,s,options,name,pose,0,{...(requestedPose!==pose?{photoPendingPose:requestedPose}:{}),...(suspended?{photoSuspended:true}:{})});
   }
   function descriptor(record,s,options,name,pose,frame,extra={}){
     const baseHeight=finite(options.height,s.subjects[name].height);
@@ -269,5 +283,5 @@
     }
     return true;
   }
-  root.PhotoCutouts=Object.freeze({load,describe,anchor,inspect,guard,prepareMotion,preparePose,beginFrame,endFrame,subjects:SUBJECTS,mipBytes});
+  root.PhotoCutouts=Object.freeze({load,describe,anchor,inspect,guard,prepareMotion,preparePose,hasPose,beginFrame,endFrame,subjects:SUBJECTS,mipBytes});
 })(window);

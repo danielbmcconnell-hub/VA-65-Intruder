@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "plants": {
+    "canopy": {
+      "file": "canopy.webp",
+      "width": 1024,
+      "height": 1536,
+      "bounds": [
+        26,
+        8,
+        1007,
+        1523
+      ],
+      "baseline": 0.991536458,
+      "center": 0.524144449,
+      "bodyHeight": 0.986328125
+    },
+    "bamboo": {
+      "file": "bamboo.webp",
+      "width": 1024,
+      "height": 1536,
+      "bounds": [
+        24,
+        8,
+        1017,
+        1526
+      ],
+      "baseline": 0.993489583,
+      "center": 0.523594386,
+      "bodyHeight": 0.98828125
+    },
+    "nipa": {
+      "file": "nipa.webp",
+      "width": 1536,
+      "height": 1024,
+      "bounds": [
+        25,
+        13,
+        1516,
+        1007
+      ],
+      "baseline": 0.983398438,
+      "center": 0.526771036,
+      "bodyHeight": 0.970703125
+    },
+    "fern": {
+      "file": "fern.webp",
+      "width": 1536,
+      "height": 1024,
+      "bounds": [
+        21,
+        21,
+        1519,
+        1005
+      ],
+      "baseline": 0.981445312,
+      "center": 0.49645257,
+      "bodyHeight": 0.9609375
+    },
+    "liana": {
+      "file": "liana.webp",
+      "width": 1024,
+      "height": 1536,
+      "bounds": [
+        212,
+        68,
+        815,
+        1459
+      ],
+      "baseline": 0.949869792,
+      "center": 0.521768017,
+      "bodyHeight": 0.905598958
+    },
+    "litter": {
+      "file": "litter.webp",
+      "width": 1536,
+      "height": 1024,
+      "bounds": [
+        44,
+        37,
+        1491,
+        967
+      ],
+      "baseline": 0.944335938,
+      "center": 0.528927903,
+      "bodyHeight": 0.908203125
+    }
+  }
+}

@@ -6,16 +6,17 @@ const {createHash}=require('node:crypto');
 const {execFileSync}=require('node:child_process');
 const root=path.resolve(__dirname,'..');
 module.exports=async function photoMotion(browser,target,evidenceDir){
-  const out=path.join(evidenceDir,'photo-motion'),checks=[],screenshots=[],videos=[],errors=[],missing=[],sourceHashes=[],executedModules=[],executedAssets=[],sourceJobs=[];
+  const out=path.join(evidenceDir,'photo-motion'),checks=[],screenshots=[],videos=[],errors=[],missing=[],sourceHashes=[],executedModules=[],executedAssets=[],executedRuntimeModules=[],sourceJobs=[];
   await fs.mkdir(out,{recursive:true});
   const profiles=[{name:'desktop',viewport:{width:1280,height:720},deviceScaleFactor:1},{name:'iphone-layout-chromium',viewport:{width:844,height:390},deviceScaleFactor:3,isMobile:true,hasTouch:true}]
     .filter(p=>!process.env.INTRUDER_MOTION_PROFILE||p.name===process.env.INTRUDER_MOTION_PROFILE);
-  const subjects=['farmer','militia','female_vc','nva','aviator','cow'].filter(s=>!process.env.INTRUDER_MOTION_SUBJECT||s===process.env.INTRUDER_MOTION_SUBJECT),clips=['walk','run'].filter(c=>!process.env.INTRUDER_MOTION_CLIP||c===process.env.INTRUDER_MOTION_CLIP),subset=subjects.length!==6||clips.length!==2;
+  const subjects=['farmer','militia','female_vc','nva','aviator','cow'].filter(s=>!process.env.INTRUDER_MOTION_SUBJECT||s===process.env.INTRUDER_MOTION_SUBJECT),clips=['walk','run'].filter(c=>!process.env.INTRUDER_MOTION_CLIP||c===process.env.INTRUDER_MOTION_CLIP),subset=subjects.length!==6||clips.length!==2||profiles.length!==2;
   assert.ok(subjects.length&&clips.length&&profiles.length,'A requested evidence subset must match real subjects/clips/profiles');
   const record=(layout,name,actual)=>{checks.push({layout,name,passed:true,actual});console.log('PASS photo-motion '+layout+' '+name);};
   for(const profile of profiles){
     const {name,...options}=profile,context=await browser.newContext(options),page=await context.newPage();page.setDefaultTimeout(120000);
     page.on('pageerror',e=>errors.push({layout:name,message:e.message}));page.on('response',r=>{if(r.status()>=400&&r.url().includes('/assets/'))missing.push(r.url());});
+    page.on('response',r=>{if(!r.url().startsWith(target))return;const file=new URL(r.url()).pathname.replace(/^\//,'');if(file.endsWith('.js')&&r.status()===200)sourceJobs.push(r.body().then(bytes=>executedRuntimeModules.push({layout:name,file,sha256:createHash('sha256').update(bytes).digest('hex')})).catch(error=>errors.push({layout:name,message:'Source body: '+error.message})));});
     page.on('response',r=>{const module=/\/assets\/render\/(photo-motion|photo-cutouts|photographic-sprites)\.js(?:\?|$)/.exec(r.url());if(module)sourceJobs.push(r.body().then(bytes=>executedModules.push({layout:name,module:module[1],sha256:createHash('sha256').update(bytes).digest('hex')})));});
     page.on('response',r=>{const asset=/\/assets\/sprites\/hires\/([a-z0-9_-]+\.(?:json|png|webp))(?:\?|$)/.exec(r.url());if(asset&&r.status()===200)sourceJobs.push(r.body().then(bytes=>executedAssets.push({layout:name,file:asset[1],sha256:createHash('sha256').update(bytes).digest('hex')})));});
     const click=l=>profile.hasTouch?l.tap():l.click();
@@ -256,7 +257,7 @@ module.exports=async function photoMotion(browser,target,evidenceDir){
       }
       assert.deepEqual(errors.filter(e=>e.layout===name),[]);assert.deepEqual(missing,[]);
     }catch(error){await page.screenshot({path:path.join(out,name+'-failure.png')}).catch(()=>{});await fs.writeFile(path.join(out,name+'-failure.json'),JSON.stringify({error:String(error),checks,errors,missing},null,2));throw error;}
-    finally{await context.close();}
+    finally{await Promise.all(sourceJobs);await context.close();}
   }
   await Promise.all(sourceJobs);
   const moduleSHA256={};for(const name of ['photo-motion','photo-cutouts','photographic-sprites'])moduleSHA256[name]=createHash('sha256').update(await fs.readFile(path.join(root,'assets/render/'+name+'.js'))).digest('hex');
@@ -264,7 +265,10 @@ module.exports=async function photoMotion(browser,target,evidenceDir){
   assert.equal(executedModules.length,profiles.length*3,'Evidence must record every executed photographic runtime module');
   const assetSHA256={};for(const executed of executedAssets){if(!assetSHA256[executed.file])assetSHA256[executed.file]=createHash('sha256').update(await fs.readFile(path.join(root,'assets/sprites/hires',executed.file))).digest('hex');assert.equal(executed.sha256,assetSHA256[executed.file],'Executed image/manifest bytes changed during this evidence run; repeat on the final files');}
   const indexSHA256=createHash('sha256').update(await fs.readFile(path.join(root,'index.html'))).digest('hex');for(const source of sourceHashes)assert.equal(source.indexSHA256,indexSHA256,'Executed index changed during this evidence run');
-  const report={suite:'photo-motion',passed:true,selection:{subjects,clips,profiles:profiles.map(p=>p.name),subset},checks,screenshots,videos,errors,missing,sourceHashes,moduleSHA256,executedModules,assetSHA256,executedAssets,scope:'Actual Linux Chromium/SwiftShader WebGL2 desktop High quality and simulated iPhone landscape Medium quality at native canvas resolution. Native prison patrol/pause/collision; declared measured-speed walk/run fixtures render every selected authored gait frame in chronological order using the production renderer at a fixed world position. Independently checked positive contiguous pose intervals cover one stride cycle; matching measured paths at 30/120 simulation updates per second retain the same distance cadence and human-run timing. Generated photographic pose reconstructions, not filmed footage. No physical Windows GPU/iPhone Safari/FPS claim.'};
+  const runtimeModuleSHA256={};for(const executed of executedRuntimeModules){if(!runtimeModuleSHA256[executed.file])runtimeModuleSHA256[executed.file]=createHash('sha256').update(await fs.readFile(path.join(root,executed.file))).digest('hex');assert.equal(executed.sha256,runtimeModuleSHA256[executed.file],'Executed module changed: '+executed.file);}
+  for(const profile of profiles)assert.ok(executedRuntimeModules.some(row=>row.layout===profile.name&&row.file==='assets/render/photo-motion.js'),'Every profile records actual runtime module bytes');
+  assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
+  const report={suite:'photo-motion',passed:true,sourceStable:true,fullCoverage:!subset,selection:{subjects,clips,profiles:profiles.map(p=>p.name),subset},checks,screenshots,videos,errors,missing,sourceHashes,moduleSHA256,executedModules,runtimeModuleSHA256,executedRuntimeModules,assetSHA256,executedAssets,scope:'Actual Linux Chromium/SwiftShader WebGL2 desktop High quality and simulated iPhone landscape Medium quality at native canvas resolution. Native prison patrol/pause/collision; declared measured-speed walk/run fixtures render every selected authored gait frame in chronological order using the production renderer at a fixed world position. Independently checked positive contiguous pose intervals cover one stride cycle; matching measured paths at 30/120 simulation updates per second retain the same distance cadence and human-run timing. Generated photographic pose reconstructions, not filmed footage. No physical Windows GPU/iPhone Safari/FPS claim.'};
   await fs.writeFile(path.join(out,'results.json'),JSON.stringify(report,null,2)+'\n');return report;
 };
 if(require.main===module)(async()=>{

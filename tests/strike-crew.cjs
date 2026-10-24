@@ -18,12 +18,14 @@ function fixture(options = {}) {
   }
   const host = new Node('section'); host.id = 'game';
   const document = { hidden: false, getElementById: id => ids.get(id), createElement: tag => new Node(tag), addEventListener(k, fn) { (documentEvents[k] ||= []).push(fn); } };
-  const synth = { pending: false, speaking: false, said: [], cancels: 0, speak(u) { this.said.push(u); this.speaking = true; u.onstart(); }, cancel() { this.cancels++; this.speaking = false; this.pending = false; const u = this.said.at(-1); if (u) u.onend(); } };
+  const synth = { pending: false, speaking: false, said: [], cancels: 0, getVoices() { return options.voices || [{name:'Microsoft David Desktop',lang:'en-US'}]; }, speak(u) { this.said.push(u); this.speaking = true; u.onstart(); }, cancel() { this.cancels++; this.speaking = false; this.pending = false; const u = this.said.at(-1); if (u) u.onend(); } };
   const window = { addEventListener(k, fn) { (events[k] ||= []).push(fn); } };
   if (options.speech !== false) { window.speechSynthesis = synth; window.SpeechSynthesisUtterance = function (text) { this.text = text; }; }
   const effects = { targets: [], flashes: [] };
   window.FlightStrikeEffects = { inspect() { return effects; } };
-  vm.runInContext(source, vm.createContext({ window, document }));
+  const contextVM=vm.createContext({ window, document });
+  vm.runInContext(fs.readFileSync(path.join(__dirname,'../assets/audio/voice-profiles.js'),'utf8'),contextVM);
+  vm.runInContext(source, contextVM);
   const game = { t: 0, phase: 'ingress', mis: { id: 'm2' }, strikeExperience: { phase: 'navigation' }, rightSeat: true, ac: { p: [0, 1000, 0], roll: 0, alive: true, bombs: 12, dmg: {} }, world: { nav: { fixes: 0 }, score: { dropped: 0, hits: 0, misses: 0 }, designated: null }, sol: null, steer: null, masterArm: false, _lastCommit: 0, rend: { eye: [0, 1000, 0], matV: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1] } };
   const App = { game, screen: 'game', set: { sound: true }, graphicsContextLost: false }, api = window.FlightStrikeCrew;
   const context = { App, canSeeAftermath: () => true }; api.install(context);
@@ -150,6 +152,10 @@ test('native speech button activates once per click and never leaks flight keys'
 });
 test('synth guidance never queues behind unrelated active or pending speech', () => {
   for (const property of ['speaking', 'pending']) { const f = fixture(); f.baseline(); f.click(); f.synth[property] = true; f.game.world.nav.fixes++; f.tick(.1); assert.equal(f.synth.said.length, 0); f.game.paused = true; f.api.render(f.game); assert.equal(f.synth.cancels, 0); }
+});
+test('guidance captions remain when only British or female English system voices are installed',()=>{
+  const f=fixture({voices:[{name:'Daniel',lang:'en-GB'},{name:'Samantha',lang:'en-US'}]});f.baseline();f.click();f.game.world.nav.fixes++;f.tick(.1);
+  assert.equal(f.synth.said.length,0);assert.equal(f.synth.cancels,0);assert.ok(f.api.inspect(f.game).caption);
 });
 test('owned voice stops on pause, visibility loss, retry and switching to an old mission', () => {
   for (const mode of ['pause', 'visibility', 'retry', 'old-mission']) {

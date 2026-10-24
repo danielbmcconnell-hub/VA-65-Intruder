@@ -12,7 +12,7 @@
   const mode=g=>g.evade.weaponMode||(g.evade.drawn?'pistol':'fists');
   const reduced=()=>{if(motionQuery===undefined)motionQuery=typeof root.matchMedia==='function'?root.matchMedia('(prefers-reduced-motion: reduce)'):null;return !!(motionQuery&&motionQuery.matches);};
   const appFor=g=>context&&context.App||g&&g.app;
-  function eligible(g){return !!(g&&g.evade&&!g.pow&&point(g.evade.p)&&(!g.phase||g.phase==='evade')&&!g.evade.frozen&&!g.evade.handsUp&&!g.result);}
+  function eligible(g){return !!(g&&g.evade&&!g.pow&&point(g.evade.p)&&(!g.phase||g.phase==='evade')&&!g.evade.frozen&&!g.evade.handsUp&&!g.result&&!g.evade.swimming&&!(root.LandingWater&&typeof root.LandingWater.swimming==='function'&&root.LandingWater.swimming(g)));}
   function owned(g){const a=appFor(g);return !a||a.game===undefined||a.game===g;}
   function active(g){const a=appFor(g),d=root.document;return eligible(g)&&owned(g)&&!g.paused&&!g.evade.held&&!g._solitaryActive&&(!a||(!a.screen||a.screen==='game')&&!a.graphicsContextLost)&&!(d&&(d.hidden||d.visibilityState==='hidden'));}
   function fresh(g){return {actor:g.evade,p:g.evade.p.slice(0,3),clock:0,phase:0,gait:0,amplitude:0,run:0,crouch:0,speed:0,distance:0,steps:0,mode:mode(g),drawAge:.2,action:null,actionAge:1,actionMode:mode(g),pulses:0,reduced:reduced()};}

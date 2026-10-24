@@ -577,7 +577,8 @@
         a.lastSense = time(s); a.senseAt = time(s) + .18;
         observe(game, a, elapsed);
       }
-      chooseGoal(game, a, dt); moveActor(game, a, dt, budget);
+      chooseGoal(game, a, dt);
+      if(!(P.River&&P.River.movePursuer&&P.River.movePursuer(game,a,dt)))moveActor(game,a,dt,budget);
       a.motionBlend += (clamp(a.spd / 2.6, 0, 1) - a.motionBlend) * Math.min(1, dt * 6);
       peak = Math.max(peak, a.sus);
       if (!e.frozen && grab(game, a, dt)) return;

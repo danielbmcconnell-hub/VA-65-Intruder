@@ -1,0 +1,9 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs'),path=require('node:path');
+const window={};vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../assets/audio/voice-profiles.js'),'utf8'),{window});const V=window.VoiceProfiles;
+const voices=[{name:'Daniel',lang:'en-GB'},{name:'Samantha',lang:'en-US'},{name:'Microsoft David Desktop',lang:'en-US'},{name:'Vietnamese',lang:'vi-VN'}];
+test('English uses an explicit male United States voice even when British and female voices precede it',()=>{assert.equal(V.select(voices,'en-US','BN'),voices[2]);assert.equal(V.select(voices,'en-GB','PILOT'),voices[2]);});
+test('unavailable American male voices never fall back to British or unknown female defaults',()=>{assert.equal(V.select(voices.slice(0,2),'en-US','CREW'),null);const u={text:'Ready.'};assert.equal(V.apply(u,{speaker:'BN'},voices.slice(0,2)),false);assert.equal(u.voice,undefined);});
+test('Vietnamese stays in its own language and does not borrow an English voice',()=>{assert.equal(V.select(voices,'vi-VN','GUARD'),voices[3]);assert.equal(V.select(voices.slice(0,3),'vi-VN','GUARD'),null);});
+test('natural American male voices are preferred without losing stable speaker identity',()=>{const all=voices.concat({name:'Microsoft Guy Online Natural',lang:'en_US'});assert.equal(V.select(all,'en-US','PILOT'),all[4]);assert.equal(V.select(all,'en-US','PILOT'),V.select(all,'en-US','PILOT'));});
+test('calm, warning and emergency delivery differ appropriately in both languages',()=>{const calm={text:'Steady on course.'},urgent={text:'Eject now!'},vi={text:'Giơ tay lên!'};assert.ok(V.apply(calm,{speaker:'BN'},voices));assert.ok(V.apply(urgent,{speaker:'BN',tone:'bad'},voices));assert.ok(V.apply(vi,{speaker:'GUARD',lang:'vi-VN',tone:'warn'},voices));assert.ok(calm.rate<urgent.rate&&calm.volume<urgent.volume);assert.equal(vi.lang,'vi-VN');assert.equal(vi.rate,urgent.rate);});

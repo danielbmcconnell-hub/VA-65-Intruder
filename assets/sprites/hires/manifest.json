@@ -1184,6 +1184,166 @@
               "center": 0.500270006
             }
           ]
+        },
+        "swim": {
+          "plates": [
+            "militia-swim-a.webp",
+            "militia-swim-b.webp"
+          ],
+          "cols": 1,
+          "rows": 4,
+          "frames": 8,
+          "order": [
+            7,
+            6,
+            5,
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "stride": 0.9,
+          "baseline": 0.8984375,
+          "bodyHeight": 0.78125,
+          "worldHeight": 0.7,
+          "facing": "right",
+          "frameSize": [
+            1152,
+            512
+          ],
+          "sourceRegions": [
+            {
+              "source": [
+                31,
+                1212,
+                966,
+                297
+              ],
+              "dest": [
+                157,
+                146
+              ]
+            },
+            {
+              "source": [
+                42,
+                768,
+                932,
+                426
+              ],
+              "dest": [
+                168,
+                49
+              ]
+            },
+            {
+              "source": [
+                51,
+                360,
+                947,
+                388
+              ],
+              "dest": [
+                177,
+                81
+              ]
+            },
+            {
+              "source": [
+                29,
+                50,
+                965,
+                308
+              ],
+              "dest": [
+                155,
+                141
+              ]
+            },
+            {
+              "source": [
+                25,
+                381,
+                979,
+                379
+              ],
+              "dest": [
+                151,
+                75
+              ]
+            },
+            {
+              "source": [
+                31,
+                810,
+                963,
+                328
+              ],
+              "dest": [
+                157,
+                114
+              ]
+            },
+            {
+              "source": [
+                24,
+                1168,
+                979,
+                324
+              ],
+              "dest": [
+                150,
+                132
+              ]
+            },
+            {
+              "source": [
+                43,
+                55,
+                945,
+                296
+              ],
+              "dest": [
+                169,
+                141
+              ]
+            }
+          ],
+          "registration": [
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            },
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            },
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            },
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            },
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            },
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            },
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            },
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            }
+          ]
         }
       }
     },
@@ -2378,6 +2538,166 @@
               "center": 0.499100709
             }
           ]
+        },
+        "swim": {
+          "plates": [
+            "nva-swim-a.webp",
+            "nva-swim-b.webp"
+          ],
+          "cols": 1,
+          "rows": 4,
+          "frames": 8,
+          "order": [
+            7,
+            6,
+            5,
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "stride": 0.9,
+          "baseline": 0.8984375,
+          "bodyHeight": 0.78125,
+          "worldHeight": 0.7,
+          "facing": "right",
+          "frameSize": [
+            1152,
+            512
+          ],
+          "sourceRegions": [
+            {
+              "source": [
+                34,
+                1189,
+                980,
+                301
+              ],
+              "dest": [
+                160,
+                135
+              ]
+            },
+            {
+              "source": [
+                36,
+                794,
+                827,
+                398
+              ],
+              "dest": [
+                162,
+                27
+              ]
+            },
+            {
+              "source": [
+                31,
+                418,
+                976,
+                372
+              ],
+              "dest": [
+                157,
+                60
+              ]
+            },
+            {
+              "source": [
+                13,
+                88,
+                1010,
+                394
+              ],
+              "dest": [
+                139,
+                100
+              ]
+            },
+            {
+              "source": [
+                13,
+                484,
+                779,
+                352
+              ],
+              "dest": [
+                139,
+                109
+              ]
+            },
+            {
+              "source": [
+                14,
+                842,
+                1004,
+                308
+              ],
+              "dest": [
+                140,
+                90
+              ]
+            },
+            {
+              "source": [
+                11,
+                1159,
+                1006,
+                326
+              ],
+              "dest": [
+                137,
+                101
+              ]
+            },
+            {
+              "source": [
+                33,
+                84,
+                982,
+                321
+              ],
+              "dest": [
+                159,
+                122
+              ]
+            }
+          ],
+          "registration": [
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            },
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            },
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            },
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            },
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            },
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            },
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            },
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            }
+          ]
         }
       }
     },
@@ -2391,6 +2711,10 @@
         "fallen": {
           "file": "aviator-fallen.png",
           "heightRatio": 0.516393
+        },
+        "harness": {
+          "file": "aviator-harness.webp",
+          "heightRatio": 0.9545454545454545
         }
       },
       "animations": {
@@ -2967,6 +3291,166 @@
             {
               "baseline": 0.988402062,
               "center": 0.500832212
+            }
+          ]
+        },
+        "swim": {
+          "plates": [
+            "aviator-swim-a.webp",
+            "aviator-swim-b.webp"
+          ],
+          "cols": 1,
+          "rows": 4,
+          "frames": 8,
+          "order": [
+            7,
+            6,
+            5,
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "stride": 0.9,
+          "baseline": 0.8984375,
+          "bodyHeight": 0.78125,
+          "worldHeight": 0.7,
+          "facing": "right",
+          "frameSize": [
+            1152,
+            512
+          ],
+          "sourceRegions": [
+            {
+              "source": [
+                10,
+                1136,
+                1007,
+                318
+              ],
+              "dest": [
+                136,
+                106
+              ]
+            },
+            {
+              "source": [
+                12,
+                781,
+                995,
+                331
+              ],
+              "dest": [
+                138,
+                83
+              ]
+            },
+            {
+              "source": [
+                18,
+                403,
+                996,
+                356
+              ],
+              "dest": [
+                144,
+                52
+              ]
+            },
+            {
+              "source": [
+                21,
+                68,
+                986,
+                311
+              ],
+              "dest": [
+                147,
+                110
+              ]
+            },
+            {
+              "source": [
+                20,
+                430,
+                993,
+                317
+              ],
+              "dest": [
+                146,
+                98
+              ]
+            },
+            {
+              "source": [
+                19,
+                784,
+                997,
+                324
+              ],
+              "dest": [
+                145,
+                84
+              ]
+            },
+            {
+              "source": [
+                19,
+                1137,
+                1000,
+                344
+              ],
+              "dest": [
+                145,
+                57
+              ]
+            },
+            {
+              "source": [
+                15,
+                52,
+                1000,
+                331
+              ],
+              "dest": [
+                141,
+                70
+              ]
+            }
+          ],
+          "registration": [
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            },
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            },
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            },
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            },
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            },
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            },
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
+            },
+            {
+              "baseline": 0.8984375,
+              "center": 0.5
             }
           ]
         }

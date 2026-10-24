@@ -6,7 +6,7 @@
   'use strict';
   const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
   const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
-  const kinds = Object.freeze(Object.assign(Object.create(null), { bnStrikeDepot: 1, bnStrikeShed: 1, bnStrikeRuin: 2, bnStrikeRoad: 3, bnStrikeTruck: 4, bnStrikeTower: 5 }));
+  const kinds = Object.freeze(Object.assign(Object.create(null), { bnStrikeDepot: 1, bnStrikeShed: 1, bnStrikeRuin: 2, bnStrikeRoad: 3, bnStrikeTruck: 4, bnStrikeTower: 5, carrier: 6 }));
   function detailWeight(distance, footprint, quality) {
     if (![distance, footprint, quality].every(Number.isFinite) || distance < 0 || footprint < 0) return 0;
     return (1 - smooth(180, quality < .5 ? 620 : 1450, distance)) * (1 - smooth(.16, .56, footprint));
@@ -57,6 +57,20 @@ vec3 flightRiverNormal(vec3 world,float distanceToEye,float quality,float time){
 }
 vec3 flightMeshSurface(vec3 alb,vec3 local,vec3 normal,float distanceToEye,float quality){
   if(uSurfacePolish<0.5||uSurfaceKind<0.5) return alb;
+  if(uSurfaceKind>5.5){
+    // The flight deck is matte charcoal nonskid. Local coordinates keep
+    // grain and touchdown rubber on the moving ship instead of sliding.
+    if(normal.y>0.9&&local.y> -0.1&&local.y<0.20){
+      float grainFade=1.0-smoothstep(0.10,0.52,max(fwidth(local.x),fwidth(local.z))*22.0);
+      float grain=vnoise(local.xz*22.0)-0.5;
+      float ax=local.x*0.986286-local.z*(-0.165048),az=local.x*(-0.165048)+local.z*0.986286;
+      float rubber=exp(-pow((abs(ax)-2.1)/1.20,2.0))*smoothstep(45.0,65.0,az)*(1.0-smoothstep(120.0,145.0,az));
+      float tread=0.60+0.40*vnoise(vec2(ax*1.6,az*.17));
+      float paint=1.0-smoothstep(.14,.30,dot(alb,vec3(.333333)));
+      return alb*(1.0+grain*.055*grainFade)*(1.0-rubber*tread*paint*.32);
+    }
+    return alb;
+  }
   float near=1.0-smoothstep(100.0,quality<0.5?380.0:900.0,distanceToEye);
   if(near<0.002) return alb;
   vec3 original=alb;

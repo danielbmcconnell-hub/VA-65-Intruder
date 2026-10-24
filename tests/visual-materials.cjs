@@ -7,9 +7,9 @@ const window = {};
 vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../assets/flight/visual-materials.js'), 'utf8'), { window });
 const M = window.FlightVisualMaterials;
 
-test('surface ownership excludes photographic sprites, original aircraft, carrier and unchanged scenery', () => {
-  for (const name of ['intruder', 'A6A', 'carrier', 'people', 'photo_farmer', 'photo_nva', 'bldg', 'MiG17PF', 'bnStrikeEmbers', '', null, '__proto__', 'constructor']) assert.equal(M.kind(name), 0, String(name));
-  for (const [name, kind] of [['bnStrikeDepot', 1], ['bnStrikeShed', 1], ['bnStrikeRuin', 2], ['bnStrikeRoad', 3], ['bnStrikeTruck', 4], ['bnStrikeTower', 5]]) assert.equal(M.kind(name), kind);
+test('surface ownership includes the matte carrier and excludes photographs, aircraft and unchanged scenery', () => {
+  for (const name of ['intruder', 'A6A', 'carrierLt', 'people', 'photo_farmer', 'photo_nva', 'bldg', 'MiG17PF', 'bnStrikeEmbers', '', null, '__proto__', 'constructor']) assert.equal(M.kind(name), 0, String(name));
+  for (const [name, kind] of [['bnStrikeDepot', 1], ['bnStrikeShed', 1], ['bnStrikeRuin', 2], ['bnStrikeRoad', 3], ['bnStrikeTruck', 4], ['bnStrikeTower', 5],['carrier',6]]) assert.equal(M.kind(name), kind);
 });
 
 test('detail vanishes at unresolved pixel footprints and long range on all qualities', () => {

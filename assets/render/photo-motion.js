@@ -32,14 +32,14 @@
     if(!a){a={p:point(actor.p)?actor.p.slice(0,3):null,phase:((finite(actor.ph)/TAU)%1+1)%1,speed:0,distance:0,velocity:[0,0],clip:'idle',timingClip:'idle',moving:false,teleported:false};s.actors.set(actor,a);}
     return a;
   }
-  function stopped(actor,game){return actor.alive===false||actor.stunned||finite(actor.stunUntil,-1)>finite(game.t,clock(game));}
+  function stopped(actor,game){return actor.alive===false||actor.airborne||actor.stunned||finite(actor.stunUntil,-1)>finite(game.t,clock(game));}
   function step(game,dt){
     if(!active(game)||game.paused||game._capturePending||game.evade.frozen)return 0;
     dt=Math.max(0,Math.min(.25,finite(dt)));if(!dt)return 0;
     let group=context(game);const now=clock(game);
     if(group.ground!==game.evade||group.stamp!==null&&now<group.stamp){games.delete(game);group=context(game);}
     if(group.stamp===now)return 0;group.stamp=now;group.steps++;
-    const all=(game.evade.searchers||[]).concat(game.evade.locals||[],game.evade.cattle||[]),seen=new Set();let count=0;
+    const all=(game.evade.searchers||[]).concat(game.evade.locals||[],game.evade.cattle||[],root.AviatorCompanion?root.AviatorCompanion.actors(game):[]),seen=new Set();let count=0;
     for(const actor of all){
       if(count>=MAX_ACTORS)break;if(!known(actor,game)||seen.has(actor))continue;seen.add(actor);
       const a=entry(actor,game),p=point(actor.p)?actor.p:null;

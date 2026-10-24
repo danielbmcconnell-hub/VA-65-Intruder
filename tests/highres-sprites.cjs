@@ -26,7 +26,11 @@ test('every base photographic subject has a separate high-resolution PNG instead
   for(const name of ['farmer','militia','female_vc','nva','aviator','cow']){
     const subject=manifest.subjects[name];assert.ok(subject&&subject.poses&&subject.poses.idle,name);
     for(const [pose,value]of Object.entries(subject.poses)){
-      const file=typeof value==='string'?value:value.file,bytes=fs.readFileSync(path.join(folder,file));
+      const file=typeof value==='string'?value:value.file;
+      // The optional suspended-harness pose has an exact lossless WebP runtime
+      // plus unchanged PNG source; the base portraits remain original PNGs.
+      const sourceFile=pose==='harness'?(assert.equal(name,'aviator'),assert.equal(file,'aviator-harness.webp'),file.replace(/\.webp$/,'.png')):file;
+      const bytes=fs.readFileSync(path.join(folder,sourceFile));
       assert.deepEqual([...bytes.subarray(0,8)],[137,80,78,71,13,10,26,10]);
       const width=bytes.readUInt32BE(16),height=bytes.readUInt32BE(20);
       assert.ok(Math.min(width,height)>=768 && Math.max(width,height)>=1024,name+':'+pose+' '+width+'x'+height);

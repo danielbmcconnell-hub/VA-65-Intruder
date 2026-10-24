@@ -1,0 +1,587 @@
+{
+  "encoder": "1.5.0\nlibsharpyuv: 0.4.1",
+  "arguments": [
+    "-lossless",
+    "-exact",
+    "-q",
+    "100",
+    "-m",
+    "6"
+  ],
+  "method": "Technical lossless WebP container conversion only; unchanged generated PNG sources remain preserved. No resizing, cropping, color, pose, alpha or metadata edits to PNG sources.",
+  "count": 38,
+  "files": [
+    {
+      "sourcePNG": "assets/jungle/bamboo.png",
+      "runtimeWebP": "assets/jungle/bamboo.webp",
+      "sourceSHA256": "2dca840e3d414402ac0395aace74e417de8544eceaeb70a28fa41621625d6e7b",
+      "runtimeSHA256": "20c731e5dee66c2dfe163c0e8aad584d36b7a3b1f6399fb93e0cb061d697b885",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "sourceBytes": 3360868,
+      "runtimeBytes": 2466302,
+      "decodedRGBA_SHA256": "9121272974d3486eab38f03facd61d5ffadc063e8ab6b5ce13d14e4f38db66d9",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/jungle/canopy.png",
+      "runtimeWebP": "assets/jungle/canopy.webp",
+      "sourceSHA256": "7dd29a446fcbacc01b4f763a1845b5cbb21d5aa7e9f3b69a9d0a626bcd50a827",
+      "runtimeSHA256": "89de546e70952808f4ba847e425d90d8337db01b3c25f85f3dd96c02daea4d51",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "sourceBytes": 2947084,
+      "runtimeBytes": 2156454,
+      "decodedRGBA_SHA256": "4bc8ba5f4c28cefb272f807f411f0166acaafb92d313c3f4efa0736009fb38f1",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/jungle/fern.png",
+      "runtimeWebP": "assets/jungle/fern.webp",
+      "sourceSHA256": "0906aa1fc4db46b83ca51e91059249eb963bbb7d82005679daf1695356dec9fc",
+      "runtimeSHA256": "4a1492c9067c68fd2af8e82bd95cc693658f9fba227e2ec63ed631c9a2b4cdba",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 2669005,
+      "runtimeBytes": 1864378,
+      "decodedRGBA_SHA256": "321d91bb92574c09b861944c36ead0680438788b44417070b7b8714df5f4f23f",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/jungle/liana.png",
+      "runtimeWebP": "assets/jungle/liana.webp",
+      "sourceSHA256": "ea996c91e53d842c326278a2995c1fe9e9c8dc6f250b3410ee1ffb406762ad9b",
+      "runtimeSHA256": "6bdce9376c2cadff86ae2c47ca11fc7ee011368aa8cc471ae98a198bdc72bb9f",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "sourceBytes": 1875733,
+      "runtimeBytes": 1259872,
+      "decodedRGBA_SHA256": "41d6c75daf87d1682067adcc4d6edde31289adb8ef722560c74d03f0c775174b",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/jungle/litter.png",
+      "runtimeWebP": "assets/jungle/litter.webp",
+      "sourceSHA256": "1b73a7298819f393d0cf98d09403756261aa6759630da2ff6521c18325f259a0",
+      "runtimeSHA256": "82d75c25cccbeebf7821f77bc9cf86c41c113f8318fd1e730d8c350bc0a5e274",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 2699866,
+      "runtimeBytes": 1787232,
+      "decodedRGBA_SHA256": "9350834b8c67c0652e40ffbf882484d97b85002d8cd92b5be6321e9a9ced7ec7",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/jungle/nipa.png",
+      "runtimeWebP": "assets/jungle/nipa.webp",
+      "sourceSHA256": "30c621a58647ad9b669d6e677ed3f47143b9dd7a39a105a29d11b0c630d0b192",
+      "runtimeSHA256": "636051cb41683ad339e811f142dc0adf86cffee22f6ef19a7d4e9e92ef7353fd",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 2899923,
+      "runtimeBytes": 2008820,
+      "decodedRGBA_SHA256": "6afd114121abcc424a54bcdb9cc234e4c2ec3b63c8e6d7e37e156170dba81545",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/boar-run-a.png",
+      "runtimeWebP": "assets/wildlife/hires/boar-run-a.webp",
+      "sourceSHA256": "b64910480d78331ed318008026e089516ba819d903f4cf8695bcf26107f6161a",
+      "runtimeSHA256": "c0086eb56f8dae2ed4d2994b91514e7d9714f34ab56e997088ed027be10640e8",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 2624340,
+      "runtimeBytes": 1659890,
+      "decodedRGBA_SHA256": "adb3fb9ea41143eedf7f6a5f3d9c11e18e74f0b141b8f9639dd3382eae485dfd",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/boar-run-b.png",
+      "runtimeWebP": "assets/wildlife/hires/boar-run-b.webp",
+      "sourceSHA256": "764556dd50bcad838e2cbd2eb57fe50947859daf3f867ef2485e2408fef5e6d6",
+      "runtimeSHA256": "3490b29ec58715c341ec999fa330c35638297a737f0a22f6b6d594b559ee773d",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 2591794,
+      "runtimeBytes": 1689634,
+      "decodedRGBA_SHA256": "e0ea69ca33e685f420cfd0aaf30cdc2edebc4d93d7242e3bb46fbd66595d11a7",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/boar-run-c.png",
+      "runtimeWebP": "assets/wildlife/hires/boar-run-c.webp",
+      "sourceSHA256": "2ca455bbf3ce27b0bb20b1b006b4ea737c928fc15fc9926c6edbcd5e322798ef",
+      "runtimeSHA256": "2cf86f5aa115b007f8520f09c2adaf03ceccc30d2ae2f53191a0de6ad8844b9f",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 2523357,
+      "runtimeBytes": 1603826,
+      "decodedRGBA_SHA256": "b48f8ebc5a6eaebcba0ee87370c8830c6b5074eb6c29d11cd5114557f59d7cd6",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/boar-run-d.png",
+      "runtimeWebP": "assets/wildlife/hires/boar-run-d.webp",
+      "sourceSHA256": "1421b3e3fc9bfb6b7018dee33e84e514e5748920b1fa06d4ebaa7cc92ff5e5c5",
+      "runtimeSHA256": "4384f2b86914acddb392e9eca9d73860fa759461bba205c70333580ba3f20c22",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 2439558,
+      "runtimeBytes": 1553440,
+      "decodedRGBA_SHA256": "8b21e33754b229f6a6f32a0f58e64705453d567aadff778034fa1632b25526f2",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/boar-walk-a.png",
+      "runtimeWebP": "assets/wildlife/hires/boar-walk-a.webp",
+      "sourceSHA256": "d02871fff7ac2a246153ab2d97859be6b4663993728083a7002a70810b464e33",
+      "runtimeSHA256": "9d14bc9892343ff3d938a48f81efb72fc9f4866d3d12166cca3df16b00aad466",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 2727182,
+      "runtimeBytes": 1734342,
+      "decodedRGBA_SHA256": "85b81423d1720e7104df107ef9dd36722e388a1985539279ce76daffafdf1fcb",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/boar-walk-b.png",
+      "runtimeWebP": "assets/wildlife/hires/boar-walk-b.webp",
+      "sourceSHA256": "e45363d9855cf58e36b3d8fd5a2ce9f5a32cfe79035e39b7611182e2c03a222d",
+      "runtimeSHA256": "f3b752c1434ee36cd224faddb0c937681f919f0452ceda752fdc16184a25ed35",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 2744715,
+      "runtimeBytes": 1748670,
+      "decodedRGBA_SHA256": "25d749a6f16d73b2feb1f15b58d0799dcae735ddcb429378d9bc1e6ad721d767",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/boar-walk-c.png",
+      "runtimeWebP": "assets/wildlife/hires/boar-walk-c.webp",
+      "sourceSHA256": "d3a72f70b821e05d89d1ddcecc529ee33c801b7ab85ae7a93eba295a927ca207",
+      "runtimeSHA256": "4ef9fa1551d32d71b20812a015e67687e0527c9f752b43d0293c040b4ebdc705",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 2726556,
+      "runtimeBytes": 1735672,
+      "decodedRGBA_SHA256": "78e763ddb1f4bb874a0edaec7c7ad4741be481e224875f2bba40434326a202ab",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/boar-walk-d.png",
+      "runtimeWebP": "assets/wildlife/hires/boar-walk-d.webp",
+      "sourceSHA256": "a8d6cffc78a5e12b2f66500d63a4b30744f5b2b296733a2adbfb26a5c6b99fac",
+      "runtimeSHA256": "01245a3c305b32b9d4641e0503b7dd1b8c4b03c5ea046c5f0a89b7483d251510",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 2654212,
+      "runtimeBytes": 1683676,
+      "decodedRGBA_SHA256": "ddbe0ce91f453822942eec7e6db0e9965bba9029c9ba96d0f8b366a8a616a3ec",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/centipede-crawl-a.png",
+      "runtimeWebP": "assets/wildlife/hires/centipede-crawl-a.webp",
+      "sourceSHA256": "7d286b60429467bc5c808d1dde4e4f082e879bc59c15421ad9c938f2973d615c",
+      "runtimeSHA256": "f848b0e075fcf27a5a4de3008acd5da2acac0b9bf9544d39587ade6d09f78df9",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 1897263,
+      "runtimeBytes": 1321974,
+      "decodedRGBA_SHA256": "4ac5faa50e071b78b12b1a5abee67d586214c78bfdb51618bda25e4113d9d0f9",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/centipede-crawl-b.png",
+      "runtimeWebP": "assets/wildlife/hires/centipede-crawl-b.webp",
+      "sourceSHA256": "d5ba005b969b54f53073aadcd5f5cdddbcd7f7b01ec134c6caa355f9fc265213",
+      "runtimeSHA256": "45e331c0eb24d089660ce5edddf0bf3920a5b5d5deca799672c79d7b2558af12",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 1869846,
+      "runtimeBytes": 1306006,
+      "decodedRGBA_SHA256": "e9043b65ab7b10c44ad920e70782235990538bdaf0f846e02f4190353a9b138f",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/cobra-crawl-a.png",
+      "runtimeWebP": "assets/wildlife/hires/cobra-crawl-a.webp",
+      "sourceSHA256": "08db87ac86fabc079bcd703787b4777ded704ca173cd111d645751aa8feae1f4",
+      "runtimeSHA256": "e53839c6a5d4c488cdbd0deacf8b5053eb5131a07eb8e22066249ca890e6c4ce",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 1403074,
+      "runtimeBytes": 912122,
+      "decodedRGBA_SHA256": "66517e77b6ebe02aafc1b2d7f8c583264950231018ab16628fd0d057702f81de",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/cobra-crawl-b.png",
+      "runtimeWebP": "assets/wildlife/hires/cobra-crawl-b.webp",
+      "sourceSHA256": "fdc07f21646492aed43025710866a14f4e47f3d2d75c277790d696f1a7baa6da",
+      "runtimeSHA256": "51d7335ec49ba54fbd7a3b523c71b84a4106642521b4c87700b647cd2eeb59d1",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 1439159,
+      "runtimeBytes": 935880,
+      "decodedRGBA_SHA256": "906c47396971eb505637a6271d0b908b7305994c1905de78cd8d0393d4a5dcb0",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/cobra-threat-a.png",
+      "runtimeWebP": "assets/wildlife/hires/cobra-threat-a.webp",
+      "sourceSHA256": "056334930f46c8bfc8ac1b68e64b3a5e84900c11bb80b70b0bd6d84f00a4e32a",
+      "runtimeSHA256": "3d2714046ac5283bed26cb967b5534146891e1de2d2975c0f70c29116e6816e0",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "sourceBytes": 2001632,
+      "runtimeBytes": 1272546,
+      "decodedRGBA_SHA256": "bb3fc9581b3148d737cecbbec5bb644224d809c003ba37cdd2ffb1605be52d7b",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/krait-crawl-a.png",
+      "runtimeWebP": "assets/wildlife/hires/krait-crawl-a.webp",
+      "sourceSHA256": "c611148f450b78883f56d7f4bfcfdd1e8a0ef2fc327eb75fcd9593403fc25046",
+      "runtimeSHA256": "e3171e28dd5ef541c8afe07cf4e88e243f130ee12ecd4dfcc4b6d721ded4b12f",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 1495209,
+      "runtimeBytes": 960896,
+      "decodedRGBA_SHA256": "cf3a4e866e5f61ac713811ab958e2a4ecf582950d8b4fd9fba631611da19e3be",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/krait-crawl-b.png",
+      "runtimeWebP": "assets/wildlife/hires/krait-crawl-b.webp",
+      "sourceSHA256": "88a6fea6176c3b3fc9aacbf4575fba93c1191805a237bf5c962a5db17f3f19e5",
+      "runtimeSHA256": "8f4e408e343553a2bb3de57d7c5501db24ee4128d2b10edc37abd0d964e31da0",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 1529263,
+      "runtimeBytes": 947290,
+      "decodedRGBA_SHA256": "a4729acc042eb7f95e925e74c53ac0d8d8bd8cb97443da2dda18062c573b2058",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/krait-threat-a.png",
+      "runtimeWebP": "assets/wildlife/hires/krait-threat-a.webp",
+      "sourceSHA256": "1a5413ab55ffd0220169adfdb0c2e14f50b8d29f955d23dcc2a269496c20530c",
+      "runtimeSHA256": "b6e53ac6a60cd9831894fc7e6fcee02c7f964813fe5caa1461022a2188627181",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 1790539,
+      "runtimeBytes": 1129874,
+      "decodedRGBA_SHA256": "6ab826acdb325830ff1fed14634018d7df4417c8cc58d1a49357c38a0195cc89",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/nest.png",
+      "runtimeWebP": "assets/wildlife/hires/nest.webp",
+      "sourceSHA256": "80d4c667cd5f2027d35712935ed6b19b186bedad7e762cf5dcc30281b5cd10c8",
+      "runtimeSHA256": "57e022484ed297632834860a456152fe8763d23d8c3469c6b102f1d8575863a4",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 2569037,
+      "runtimeBytes": 1824390,
+      "decodedRGBA_SHA256": "66d1967b1db7c6f1eedf2039004f075913d509d2c271b9150f5cf9c0bdf8d486",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/pit-viper-crawl-a.png",
+      "runtimeWebP": "assets/wildlife/hires/pit-viper-crawl-a.webp",
+      "sourceSHA256": "75fa2fb1b993cd0ad49c25bdb2991756580287f5cb007cfe790828ac256d8fb0",
+      "runtimeSHA256": "eaafe77c8c0b4b7041203939b0d2fe1f9f81b9548e67d6a56f27b7134212f720",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 1621054,
+      "runtimeBytes": 1064154,
+      "decodedRGBA_SHA256": "0579ddc05d67aecb9624c89c142f74852305a8527b208939d86d70b50f8c6fbf",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/pit-viper-crawl-b.png",
+      "runtimeWebP": "assets/wildlife/hires/pit-viper-crawl-b.webp",
+      "sourceSHA256": "9aa18e235adecaa95d153c22166070090a31713a850bf934033869c4443c0a0e",
+      "runtimeSHA256": "0617bf80fcc2eb960357d6b32c1e1752100a524cf9ca3d431281a41df4404009",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 1636037,
+      "runtimeBytes": 1069438,
+      "decodedRGBA_SHA256": "8172b5a74214c10546f7de070145a6fbb45be735fc5ad2b32ccace46ff4f1971",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/pit-viper-threat-a.png",
+      "runtimeWebP": "assets/wildlife/hires/pit-viper-threat-a.webp",
+      "sourceSHA256": "c4b79046ed5c41651dadfee7c5fea312f6a9a820d1539e951ca9dd7a867d0b21",
+      "runtimeSHA256": "b98132885d9186e417398a2e77c9fa521161a9659b7a81e350064c8a05cb2a2e",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "sourceBytes": 2232736,
+      "runtimeBytes": 1484528,
+      "decodedRGBA_SHA256": "ab29bce8f283b1543870d67ee46aeb2b6ee0dfbde05c29d508715e0c733a6f4e",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/scorpion-crawl-a.png",
+      "runtimeWebP": "assets/wildlife/hires/scorpion-crawl-a.webp",
+      "sourceSHA256": "d69d1061ea0fc4ada0c38b93f4153782c860f74361691f331bfd0b6c67a3c55d",
+      "runtimeSHA256": "b6f80f75a05611cee67db3f6112758f1cbc52f063298bdefbc514a33a4c368ae",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 2347872,
+      "runtimeBytes": 1546520,
+      "decodedRGBA_SHA256": "1860a02694dd8f88d036f83f545240640ac42bb77c2534f154a8e0008075ae76",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/scorpion-crawl-b.png",
+      "runtimeWebP": "assets/wildlife/hires/scorpion-crawl-b.webp",
+      "sourceSHA256": "59e0b351a8df0048ed17a5c86d36fe490cfcdbe934e5663ac58176880d13e36b",
+      "runtimeSHA256": "c8c78a4a7f7eb93962ca53f0bdfa6c866f67d53fc8506b38df4ad7fef72d3f9e",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 2377337,
+      "runtimeBytes": 1574954,
+      "decodedRGBA_SHA256": "5cf587ab5db6d7e6303b3d70bbd9b4f9fde2dc0394ac800475e9c4ac0ab06521",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/tiger-run-a.png",
+      "runtimeWebP": "assets/wildlife/hires/tiger-run-a.webp",
+      "sourceSHA256": "5fc7751f1f88eaa0e4a867166f862856d26c40525bcdb98660861fdc232e5078",
+      "runtimeSHA256": "52abeebcddd1edfc7feaf66a210a58015df74da1a2b43642028345de919a4bc8",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 2262291,
+      "runtimeBytes": 1465894,
+      "decodedRGBA_SHA256": "e129f8658136114bd1d2ce048fbfd2a1df6026f05ad4ebbd94322e06ca227cbd",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/tiger-run-b.png",
+      "runtimeWebP": "assets/wildlife/hires/tiger-run-b.webp",
+      "sourceSHA256": "ba97eb718c84b25e0712f650338b87b48495777c6d607db33320543479f9a602",
+      "runtimeSHA256": "61d55a1998119e51adf7494ca092ad98cb9612ee28c72949f12c7b89757a15b5",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "sourceBytes": 2599018,
+      "runtimeBytes": 1725970,
+      "decodedRGBA_SHA256": "8df3eec57b7e68af420209cca1a5084add280b6006dd18c8fe960cc901a3eff0",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/tiger-run-c.png",
+      "runtimeWebP": "assets/wildlife/hires/tiger-run-c.webp",
+      "sourceSHA256": "2562aab55471cb4d79c50c83a0e3c96e8d89a5d1582453f571545e1c48d49f7e",
+      "runtimeSHA256": "de9a54095cd6a33ae077483a8f47d51835346a97d468ad8129210d80d311aa73",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "sourceBytes": 2655802,
+      "runtimeBytes": 1768244,
+      "decodedRGBA_SHA256": "b1555be476f1878d8f550c2138d35c99d3c5a053dd8a8f921316b099be0b442a",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/tiger-run-d.png",
+      "runtimeWebP": "assets/wildlife/hires/tiger-run-d.webp",
+      "sourceSHA256": "46ed19e5ea56c758a9bdf954573c83e43fe140f1304a812ec86794bf7a1d33ec",
+      "runtimeSHA256": "10d1d2c0a5f649f91e0194bd095720e27d72a1788532dfc9bcc383d699df1c54",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "sourceBytes": 2622260,
+      "runtimeBytes": 1722678,
+      "decodedRGBA_SHA256": "e46959e4bf820dffe535302ea7bf39a2e3f4b45de0be0c54c34a0a315ee83fe1",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/tiger-walk-a.png",
+      "runtimeWebP": "assets/wildlife/hires/tiger-walk-a.webp",
+      "sourceSHA256": "b4a87a3b1169d55889f7705854932107c9f22d3fc18ba9d590def7e104c698c6",
+      "runtimeSHA256": "f3982e2457bb51dc27e9492b4bb0fd6a78ec2e2c4b01aac9c764cf73f0c4e1f2",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 2432534,
+      "runtimeBytes": 1585348,
+      "decodedRGBA_SHA256": "735c51f33d5c39ba574d33f35d09c228e6e650b29f83524b25a69284336def78",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/tiger-walk-b.png",
+      "runtimeWebP": "assets/wildlife/hires/tiger-walk-b.webp",
+      "sourceSHA256": "710529a27b040fcfe0b9da826880eac0410356319b46e73165f615ea8fa94092",
+      "runtimeSHA256": "9375ea661541316066742b9f137b5fdc56a0016346f7df0c38ea75182b37a57c",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 2416354,
+      "runtimeBytes": 1601242,
+      "decodedRGBA_SHA256": "493f59907b73aea6f1fa74b5a211f4a57471184340c5112ac138207f4bae4581",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/tiger-walk-c.png",
+      "runtimeWebP": "assets/wildlife/hires/tiger-walk-c.webp",
+      "sourceSHA256": "4aca37d59a5af39bb8d1126673fb678413a253df787e61c45bda521f2174168c",
+      "runtimeSHA256": "adec41f3c796ce55841680bd64c595af75640de931d977d7117e0ec213a0fe15",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 2357059,
+      "runtimeBytes": 1537892,
+      "decodedRGBA_SHA256": "aadb0ad77155cfe00792b39e60edf525fd95ec2043c455cc1b6c87fc2825d234",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/tiger-walk-d.png",
+      "runtimeWebP": "assets/wildlife/hires/tiger-walk-d.webp",
+      "sourceSHA256": "13f760d432a322d0a8102dc5f71334d5c66d96d31ec023f4f6e182a537b9e856",
+      "runtimeSHA256": "4d27b33fcd8c8be3afd6aa6e06b52d4779870d5febaa408e9b256ab860fb0059",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 2471467,
+      "runtimeBytes": 1636392,
+      "decodedRGBA_SHA256": "9d353aaee231a9d2dad28177f402b52f50c53b935ffac112b9fc80be912eb6a2",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/weaver-ants-crawl-a.png",
+      "runtimeWebP": "assets/wildlife/hires/weaver-ants-crawl-a.webp",
+      "sourceSHA256": "aed0bac276dafaf5d9a7df4192ff75ea6759a0f1ca1d5f50a764259990752b04",
+      "runtimeSHA256": "79177309104dd51396204522ec24852656500f94ae0bfec9362c7e79e24c23a5",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 1912565,
+      "runtimeBytes": 1321974,
+      "decodedRGBA_SHA256": "a558628ce48f5bc848c243187893fc56f977824f77bef7cd7afd6c6f7bd391cb",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    },
+    {
+      "sourcePNG": "assets/wildlife/hires/weaver-ants-crawl-b.png",
+      "runtimeWebP": "assets/wildlife/hires/weaver-ants-crawl-b.webp",
+      "sourceSHA256": "c65d1ef0859a42400cc899dada0c1b80897929e60e3ddc7118bf046ea60e4e16",
+      "runtimeSHA256": "0298292c85c27a3fdfb172fded26a4676008fc6ca508b345441f6c31273ed977",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sourceBytes": 1888773,
+      "runtimeBytes": 1305722,
+      "decodedRGBA_SHA256": "435fccc16f7999a684f29ba75e438e0e71f0347c68851dd020205effc98097c5",
+      "allRGBAIdentical": true,
+      "includesInvisibleRGB": true
+    }
+  ],
+  "sourceBytes": 87312374,
+  "runtimeBytes": 57974136
+}

@@ -51,7 +51,8 @@
     if (!s.voiceEnabled || !speechAvailable() || !active(g) || app && app.set && !app.set.sound || voice || synth.pending || synth.speaking) return false;
     try {
       const utterance = new root.SpeechSynthesisUtterance(caption.text.slice(0, 175));
-      utterance.lang = 'en-US'; utterance.rate = .96; utterance.pitch = caption.speaker === 'PILOT' ? .84 : .94; utterance.volume = .8;
+      const voices=typeof synth.getVoices==='function'?synth.getVoices():[];
+      if(!root.VoiceProfiles||!root.VoiceProfiles.apply(utterance,{speaker:caption.speaker,text:caption.text,lang:'en-US',tone:caption.priority>=3?'bad':caption.priority===2?'warn':undefined},voices))return false;
       const owned = { game: g, utterance, started: false }; voice = owned;
       utterance.onstart = () => { if (voice === owned) owned.started = true; };
       utterance.onend = utterance.onerror = () => { if (voice === owned) voice = null; };

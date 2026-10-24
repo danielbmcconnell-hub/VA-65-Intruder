@@ -94,8 +94,8 @@
       }
       // Movement, not a timer or a speed flag, creates footsteps. Warp/recenter
       // discontinuities are discarded and corpses/stunned actors remain quiet.
-      if (distance > .002 && distance < Math.max(.9, dt * 4.5) && a.alive !== false && !a.stunned && finite(a.stunUntil, -1) <= finite(game.t, now)) previous.stride += distance;
-      else if (distance >= Math.max(.9, dt * 4.5) || a.alive === false) previous.stride = 0;
+      if (!a.swimming&&!a.riverEntering&&distance > .002 && distance < Math.max(.9, dt * 4.5) && a.alive !== false && !a.stunned && finite(a.stunUntil, -1) <= finite(game.t, now)) previous.stride += distance;
+      else if (a.swimming||a.riverEntering||distance >= Math.max(.9, dt * 4.5) || a.alive === false) previous.stride = 0;
       if (previous.stride >= .78) {
         previous.stride %= .78;
         if (info.audible && (!footstep || info.gain > footstep.info.gain)) footstep = { actor: a, info };

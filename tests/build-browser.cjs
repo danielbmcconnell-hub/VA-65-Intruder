@@ -50,6 +50,8 @@ const server=http.createServer((req,res)=>{
    assert.equal(await toggle.getAttribute('aria-pressed'),'false');assert.equal(await page.evaluate(()=>FlightCoach.enabled(App.game)),false);
    const m24=await page.evaluate(()=>({ammunition:!!window.SurvivalAmmunition,board:!!window.FlightStrikeBoard,effects:!!window.FlightStrikeEffects,sortie:!!window.FlightSortieCheckpoint}));
    assert.ok(Object.values(m24).every(Boolean),'All new production modules must load from the exact package');
+   const realismModules=await page.evaluate(()=>Object.fromEntries(['VoiceProfiles','AircraftDetail','CarrierLaunch','MissionDemo','LandingWater','AviatorCompanion','Wildlife','WildlifeRender','WildlifeTargeting','JungleScenery'].map(name=>[name,!!window[name]])));
+   assert.ok(Object.values(realismModules).every(Boolean),'Every carrier, survival, wildlife, voice and demonstration module must load from the package');
    await page.evaluate(()=>{App.screen='game';App.game.paused=false;FlightStrikeBoard.render(App.game)});
    const boardToggle=page.locator('#flightStrikeBoardToggle');await boardToggle.waitFor({state:'visible'});
    if(opts.hasTouch)await boardToggle.tap();else await boardToggle.click();
@@ -95,6 +97,20 @@ const server=http.createServer((req,res)=>{
    for(const r of walkFrames){assert.ok(r.liveTexture,'Motion photograph GPU texture '+r.frame);assert.ok(r.sourceWidth>=512&&r.sourceHeight>=768,'Motion photograph source detail '+r.frame);assert.ok(r.gpuWidth>=(opts.hasTouch?384:512)&&r.gpuHeight>=(opts.hasTouch?576:768),'Motion photograph GPU detail '+r.frame);}
    assert.equal(packagedMotion.gl,0);assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
    checks.push({name:name+' packaged sixteen-frame photographic walk decodes and uploads within the shared GPU budget',passed:true,observed:packagedMotion});
+   const packagedSwim=await page.evaluate(async()=>{
+    const R=App.rend,gl=R.gl,clips=[];
+    for(const subject of ['nva','militia','aviator']){
+     PhotoCutouts.beginFrame(R);await PhotoCutouts.prepareMotion(R,subject,'swim');
+     const state=PhotoCutouts.inspect(R),clip=state.motions.clips.find(c=>c.subject===subject&&c.clip==='swim');
+     const frames=state.motions.records.filter(r=>r.subject===subject&&r.clip==='swim').map(r=>({...r,liveTexture:gl.isTexture(R.textures[r.textureName]?.tex)}));
+     clips.push({subject,clip,frames,bytes:state.bytes,budget:state.budget,cpuBytes:state.motions.cpuBytes,cpuBudget:state.motions.cpuBudget,failures:state.motions.failures});
+    }
+    return {clips,gl:gl.getError()};
+   });
+   packagedSwim.modules=realismModules;
+   for(const entry of packagedSwim.clips){assert.equal(entry.clip?.frames,8);assert.equal(entry.frames.length,8);assert.ok(entry.frames.every(r=>r.liveTexture));assert.ok(entry.bytes<=entry.budget&&entry.cpuBytes<=entry.cpuBudget);assert.deepEqual(entry.failures,[]);}
+   assert.equal(packagedSwim.gl,0);assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
+   checks.push({name:name+' packaged complete eight-pose swimming clips upload for NVA, VC and the companion aviator',passed:true,observed:packagedSwim});
    assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
    await page.screenshot({path:path.join(root,'test-results','build-'+name+'-pow.png'),timeout:90000});
    checks.push({name:name+' packaged Ready Room prison entry, tutorial, checkpoint and historical photographs',passed:true,observed:pow,errors,missing});console.log('PASS '+name+' packaged POW chapter, new guidance modules and eight historical photographs');

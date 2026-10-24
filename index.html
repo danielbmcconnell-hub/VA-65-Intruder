@@ -463,8 +463,11 @@ body.desktop #hudbar{display:flex}
 #hudbar button.on{background:rgba(242,105,27,.26);border-color:var(--tiger);color:#ffd9bc}
 #legend{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
   background:rgba(6,10,14,.92);border:1px solid var(--rule);border-top:2px solid var(--tiger);
-  padding:12px 16px;display:none;pointer-events:none;max-width:min(94vw,720px);z-index:6}
+  padding:12px 16px;display:none;pointer-events:auto;max-width:min(94vw,720px);max-height:calc(100% - 84px);overflow-y:auto;touch-action:pan-y;z-index:68}
 #legend.on{display:block}
+#legend .legend-head{display:flex;align-items:center;justify-content:space-between;gap:18px;position:sticky;top:-12px;background:#060a0e;padding:8px 0;z-index:1}
+#legend .legend-head h4{margin:0}
+#legend .legend-head button{min-height:44px;padding:5px 12px;border:1px solid #63717a;color:#eee;background:#17212a;cursor:pointer}
 #legend h4{font-family:var(--ff-disp);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--amber);margin:0 0 8px}
 #legend .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:4px 20px}
@@ -776,6 +779,7 @@ body.desktop #hudbar{display:flex}
     <div id="teach"><div class="tt"></div><div class="tb"></div><div class="tk"></div><div class="tx">Tap to hide</div></div>
     <div id="teachPeek"></div>
     <div id="radio"></div>
+    <div id="wildlifeStatus" role="status" aria-live="polite" hidden></div>
 
     <div id="knee"><div id="kneeIn">
       <div id="kneeBar">
@@ -831,6 +835,7 @@ body.desktop #hudbar{display:flex}
 </div>
 
 <style id="runtime-style">#runtimeHelp{position:fixed;bottom:4px;left:50%;transform:translateX(-50%);z-index:130;max-width:min(92vw,600px);padding:7px 11px;background:rgba(4,10,17,.92);border:1px solid #d87232;color:#e9e5da;font:11px/1.5 Arial,sans-serif;pointer-events:none;text-align:center}#runtimeHelp[hidden]{display:none}</style>
+<style id="wildlife-style">#wildlifeStatus{position:absolute;top:58px;left:50%;transform:translateX(-50%);z-index:26;max-width:min(420px,calc(100% - 292px));padding:8px 12px;border-left:2px solid #b7aa76;background:rgba(8,17,12,.88);color:#ede9d9;font:12px/1.4 Arial,sans-serif;text-align:center;pointer-events:none}#wildlifeStatus[hidden]{display:none}#wildlifeStatus button{pointer-events:auto;min-height:40px;margin:5px 5px 0;padding:4px 10px;border:1px solid #777c5d}#wildlifeStatus[data-warning="true"]{border-color:#edb15a}#wildlifePracticeCard select{min-height:44px;max-width:100%;padding:8px 12px;background:#111c15;color:#ede9d9;border:1px solid #52634f;font:inherit}body.capture-active #wildlifeStatus{visibility:hidden!important}@media(max-height:440px){#wildlifeStatus{top:49px;font-size:11px;padding:6px 8px}}</style>
 <div id="runtimeHelp" role="status" aria-live="polite">This file preview may block interactive games. For reliable play, upload the web package and open its URL in Safari.</div>
 <script id="bootstrap-status">(function(){var box=document.getElementById('runtimeHelp');box.textContent='Starting game controls…';window.addEventListener('error',function(e){if(e.target!==window||!e.message)return;if(box){box.hidden=false;box.textContent='Game error: '+e.message+' ('+(e.lineno||'?')+':'+(e.colno||'?')+')';}});window.addEventListener('unhandledrejection',function(e){if(box){box.hidden=false;box.textContent='Startup issue: '+String(e.reason||'unknown')+' — use the hosted web package in Safari.';}});})();</script>
 
@@ -869,11 +874,21 @@ body.desktop #hudbar{display:flex}
 <script src="assets/flight/strike-experience.js"></script>
 <script src="assets/flight/tactical-approach.js"></script>
 <script src="assets/flight/visual-materials.js"></script>
+<script src="assets/flight/aircraft-detail.js"></script>
 <script src="assets/flight/airframe-feedback.js"></script>
 <script src="assets/render/sprite-layers.js"></script>
 <script src="assets/render/photo-cutouts.js"></script>
 <script src="assets/render/photo-motion.js"></script>
 <script src="assets/render/photographic-sprites.js"></script>
+<script src="assets/survival/wildlife.js"></script>
+<script src="assets/survival/wildlife-targeting.js"></script>
+<script src="assets/audio/voice-profiles.js"></script>
+<script src="assets/survival/landing-water.js"></script>
+<script src="assets/survival/aviator-companion.js"></script>
+<script src="assets/flight/carrier-launch.js"></script>
+<script src="assets/flight/mission-demo.js"></script>
+<script src="assets/render/wildlife-render.js"></script>
+<script src="assets/render/jungle-scenery.js"></script>
 <script src="assets/render/contact-shadows.js"></script>
 <script src="assets/render/quality-policy.js"></script>
 <script src="assets/survival/ground-view.js"></script>
@@ -2536,7 +2551,7 @@ class Renderer {
       }
     `, GLSL_NOISE + GLSL_TERRAIN + GLSL_ATMOS + GLSL_SHADOW + FlightVisualMaterials.glsl + `
       in vec3 vW; in float vFine; in float vOcc; in vec3 vTN; out vec4 o;
-      uniform vec3 uCam; uniform float uWet, uDetail;
+      uniform vec3 uCam; uniform float uWet, uDetail, uGroundJungle;
       void main(){
         float dcam = distance(vW, uCam);
         /* Smooth, from the height field's own gradient. The old
@@ -2844,6 +2859,32 @@ class Renderer {
           n = normalize(mix(n, mix(vec3(0.0,1.0,0.0), riserN, riser), terrA*0.72));
         }
 
+        /* Ground jungle floor. The flight surface above represents the
+           canopy seen from an aircraft. On foot, the same forest field
+           reveals shaded soil and fallen leaves beneath those crowns.
+           Roads, fields, water, banks and terraces keep their own surfaces. */
+        if (uGroundJungle > 0.5) {
+          float floorNear = 1.0 - smoothstep(55.0, 100.0, dcam);
+          float floorForest = 1.0 - smoothstep(0.490, 0.500, biome);
+          float floorLand = smoothstep(2.0, 7.0, h) * smoothstep(0.55, 0.78, slope);
+          float floorClear = (1.0 - smoothstep(0.02, 0.25, road))
+                           * (1.0 - smoothstep(0.01, 0.10, riv))
+                           * (1.0 - smoothstep(0.04, 0.20, bank))
+                           * (1.0 - smoothstep(0.01, 0.10, wet2))
+                           * (1.0 - smoothstep(0.01, 0.10, terrA));
+          float floorWeight = floorNear * floorForest * floorLand * floorClear;
+          if (floorWeight > 0.001) {
+            float leafVariation = fbm3(vW.xz*0.38 + 13.7);
+            float soilGrain = vnoise(vW.xz*2.7 + 5.3);
+            vec3 floorSoil = mix(vec3(0.14,0.105,0.058), vec3(0.27,0.20,0.112), leafVariation);
+            floorSoil *= 0.88 + 0.24*soilGrain;
+            alb = mix(alb, floorSoil, floorWeight);
+            // The floor follows its actual earth slope. Crown-shaped bump
+            // lighting belongs to the aerial canopy above this surface.
+            n = normalize(mix(n, gn, floorWeight*0.82));
+          }
+        }
+
         /* The target area, scraped bare. A truck park is not six trucks on a
            hillside — it is a patch of beaten earth with tracks worn into it,
            and from five miles that patch is the thing you actually see. The
@@ -3034,7 +3075,7 @@ class Renderer {
         vSurfaceLocal = aP; vSurfaceNormal = aN;
         gl_Position = uVP * wp;
       }
-    `, GLSL_NOISE + GLSL_ATMOS + GLSL_SHADOW + (window.EpisodeGLSL || '') + FlightVisualMaterials.glsl + `
+    `, GLSL_NOISE + GLSL_ATMOS + GLSL_SHADOW + (window.EpisodeGLSL || '') + FlightVisualMaterials.glsl + AircraftDetail.glsl + `
       in vec3 vW, vN, vC; in vec4 vTint; out vec4 o;
       in vec3 vSurfaceLocal, vSurfaceNormal;
       uniform float uDetail;
@@ -3042,6 +3083,13 @@ class Renderer {
       void main(){
         vec3 alb = vC * vTint.rgb;
         alb = flightMeshSurface(alb, vSurfaceLocal, vSurfaceNormal, length(uCam-vW), uDetail);
+        float dC = length(uCam - vW);
+        bool carrierDeck=uSurfaceKind>5.5&&vSurfaceNormal.y>0.9&&vSurfaceLocal.y> -0.1&&vSurfaceLocal.y<0.20;
+        vec3 nB = vN;
+        if(uAircraftKind > 0.5){
+          alb = aircraftPaint(alb, vSurfaceLocal, vSurfaceNormal, dC, uDetail);
+          nB = aircraftNormal(normalize(vN), vW, vSurfaceLocal, normalize(vSurfaceNormal), dC, uDetail);
+        }else if(!carrierDeck){
         /* ---- SURFACE ----
            Everything in this game was flat-shaded vertex colour: one
            number per surface, no grain, no wear, no bump. Doom in 1993
@@ -3060,7 +3108,6 @@ class Renderer {
            board, render, cloth. The fine one is grit, and it is faded
            out with distance so it does not boil into aliasing. */
         vec3 an = abs(vN) + 1e-4; an /= (an.x + an.y + an.z);
-        float dC = length(uCam - vW);
         float fine = 1.0 - smoothstep(14.0, 60.0, dC);
         /* fbm, not raw value noise. vnoise is bilinear on a lattice —
            at seven cycles per metre it is a chequerboard, and the
@@ -3100,7 +3147,6 @@ class Renderer {
         /* And a bump, taken from the gradient of the middle octave, so
            the light actually breaks over the grain instead of lying
            flat on a painted-on pattern. */
-        vec3 nB = vN;
         if (fine > 0.01) {
           float e2 = 0.08;
           float gx = fbm3((vW.yz + vec2(e2,0.0))*2.4)*an.x + fbm3((vW.xz + vec2(e2,0.0))*2.4)*an.y + fbm3((vW.xy + vec2(e2,0.0))*2.4)*an.z;
@@ -3108,6 +3154,7 @@ class Renderer {
           vec3 tgt = normalize(cross(vN, abs(vN.y) > 0.9 ? vec3(0,0,1) : vec3(0,1,0)));
           vec3 bit = cross(vN, tgt);
           nB = normalize(vN - (tgt*(gx-t2) + bit*(gy-t2)) * 1.5 * fine);
+        }
         }
         vec3 vNs = vN; vec3 vN2 = nB;
         float diff0 = max(dot(vN2, uSunDir),0.0);
@@ -3135,8 +3182,10 @@ class Renderer {
            grey and white shine and matt olive drab does not. */
         vec3 hv = normalize(uSunDir + vd);
         float gloss = clamp(dot(alb, vec3(0.333)) * 1.9 + 0.10, 0.0, 0.90);
-        col += uSunCol * pow(max(dot(vN2, hv), 0.0), 46.0) * gloss * 0.62 * vis;
-        col += uSunCol * pow(max(dot(vN2, hv), 0.0), 7.0) * gloss * 0.045 * vis;
+        vec4 airFinish = aircraftLighting(alb);
+        if(carrierDeck)airFinish=vec4(.055,18.0,.022,.006);
+        col += uSunCol * pow(max(dot(vN2, hv), 0.0), airFinish.y) * gloss * 0.62 * vis * airFinish.x;
+        col += uSunCol * pow(max(dot(vN2, hv), 0.0), 7.0) * gloss * 0.045 * vis * airFinish.x;
         /* Fresnel. Every surface goes mirror-like at a grazing angle,
            whatever it is made of — it is why the sea is dark underfoot
            and bright at the horizon, and why the top of a fuselage
@@ -3147,9 +3196,9 @@ class Renderer {
            material rather than a coloured shape. */
         float fres = pow(1.0 - clamp(dot(vN2, vd), 0.0, 1.0), 5.0);
         vec3 skyUp = mix(uHorizon, uZenith, 0.45);
-        col = mix(col, skyUp * 0.82 + uSunCol * 0.06, fres * 0.30);
+        col = mix(col, skyUp * 0.82 + uSunCol * 0.06, fres * airFinish.z);
         col += alb*fireLight(vW, vN2);
-        col += uHorizon*rim*0.18;
+        col += uHorizon*rim*airFinish.w;
         col += alb*vTint.a;                    // emissive
         if (uEpisodeOn > 0.5) {
           vec3 light = uEpisodeAmbient + episodeLight(vW, normalize(vN));
@@ -3819,11 +3868,12 @@ class Renderer {
     gl.depthMask(true); gl.enable(gl.CULL_FACE);
   }
 
-  drawTerrain(mtn, seed, wet) {
+  drawTerrain(mtn, seed, wet, groundJungle = false) {
     const gl = this.gl, p = this.pTer;
     gl.useProgram(p); NearGround.bind(this,p); this._atmosUniforms(p);
     gl.uniformMatrix4fv(p.u.uVP, false, this.matVP);
     gl.uniform1f(p.u.uMtn, mtn); gl.uniform1f(p.u.uSeed, seed); gl.uniform1f(p.u.uWet, wet);
+    gl.uniform1f(p.u.uGroundJungle, groundJungle ? 1 : 0);
     const N = this.cmN;
     const lv = this.quality === 0 ? this.cmLevels - 1 : this.cmLevels;
     for (let L = 0; L < lv; L++) {
@@ -4063,7 +4113,12 @@ class Renderer {
     gl.bindVertexArray(null);
   }
 
-  meshFromBuilder(name, mb) { this.meshes[name] = mb.upload(this.gl); return this.meshes[name]; }
+  meshFromBuilder(name, mb) {
+    AircraftDetail.refine(mb,name);
+    this.meshes[name] = mb.upload(this.gl);
+    this.meshes[name].aircraftDetail = AircraftDetail.inspect(mb);
+    return this.meshes[name];
+  }
 
   /* Canopy glass. Drawn after everything opaque, blended, with depth writes
      off: perspex that you can see two men sitting behind, reflecting the sky
@@ -4115,6 +4170,7 @@ class Renderer {
     gl.useProgram(p); this._atmosUniforms(p);
     gl.uniform1f(p.u.uEpisodeMaterial,name==='powWater'?1:0);
     gl.uniform1f(p.u.uSurfaceKind, FlightVisualMaterials.kind(name));
+    gl.uniform1f(p.u.uAircraftKind, AircraftDetail.kind(name));
     gl.uniformMatrix4fv(p.u.uVP, false, this.matVP);
     gl.bindVertexArray(m.vao);
     gl.bindBuffer(gl.ARRAY_BUFFER, m.inst);
@@ -5225,6 +5281,13 @@ function buildCarrier() {
     { z: 150, y: -16, rx: 13, ry: 16 },
     { z: 160, y: -17, rx: 9, ry: 15 }
   ], C.hull, 14, true, false, C.hullR);
+  // These elliptical rings originally crowned 1.57m ABOVE the flight deck.
+  // That grey hull skin covered the landing area and looked like water
+  // through a transparent deck. Trim only the hidden crown to the slab's
+  // underside; preserve the visible lower hull, beam and waterline.
+  const trimmedHull=new Set();
+  for(let i=0;i<m.p.length/3;i++)if(m.p[i*3+1]> -3.2){m.p[i*3+1]=-3.2;trimmedHull.add(i);}
+  for(let t=0;t<m.i.length;t+=3){const ids=m.i.slice(t,t+3);if(!ids.some(i=>trimmedHull.has(i)))continue;const [a,b,c]=ids.map(i=>m.p.slice(i*3,i*3+3)),n=vnorm(vcross(vsub(b,a),vsub(c,a)));if(n.every(Number.isFinite))for(const i of ids)for(let k=0;k<3;k++)m.n[i*3+k]=n[k];}
   // the flare of the bow above the waterline
   m.loft([
     { z: -166, y: -6.5, rx: 4, ry: 5 },
@@ -5283,6 +5346,17 @@ function buildCarrier() {
   m.box(IX - 0.3, 15.6, -1, 4.3, 0.95, 11.2, C.glass);             // bridge windows
   m.box(IX, 19.0, 4.5, 3.6, 1.5, 7.0, [0.135, 0.145, 0.155]);      // Pri-Fly
   m.box(IX - 0.3, 19.3, 4.5, 3.5, 0.80, 6.4, C.glass);
+  // Render-only bridge framing, port galleries and funnel louvers retain
+  // the existing CVA-63 island footprint and historical mast silhouette.
+  for(let z=-9;z<=9;z+=2){
+    m.box(IX-4.66,15.65,z,.055,.57,.045,C.steel);
+    m.box(IX-3.86,19.35,4.5+z*.58,.045,.64,.035,C.steel);
+  }
+  for(const y of [15.08,16.22])m.box(IX-4.66,y,0,.055,.045,10.1,C.steel);
+  for(const z of [-11.28,11.28])for(let x=-4;x<=4;x+=1.3)m.box(IX-.3+x,15.65,z,.035,.57,.045,C.steel);
+  for(let z=-7;z<=7;z+=2.3)m.box(IX-6.62,11.65,z,.035,.65,.035,C.steel);
+  for(const y of [11.54,12.26])m.box(IX-6.62,y,0,.035,.035,7.3,C.steel);
+  for(let y=20.4;y<25.1;y+=.63)m.box(IX-2.48,y,9.5,.045,.16,3.45,[.075,.078,.080]);
   // flag bridge wings
   for (const zz of [-5.5, 5.5]) m.box(IX - 5.2, 11.0, zz, 1.4, 0.20, 2.2, C.steel);
   // stack and uptakes
@@ -6311,6 +6385,10 @@ function buildProps() {
         m.box(Math.cos(a) * rr, -t * 4.3, Math.sin(a) * rr, 0.022, 0.56, 0.022, LINE);
       }
     }
+    // A released canopy remains in the branches after its aviator drops.
+    const emptyCanopy = new MB();
+    for (const key of ['p','n','c','i']) emptyCanopy[key] = m[key].slice();
+    P.chuteEmpty = emptyCanopy;
     m.blob(0, -5.00, 0, 0.21, 0.33, 0.17, [0.270, 0.272, 0.232], 7, 4);     // torso
     m.blob(0, -4.62, 0, 0.135, 0.145, 0.145, [0.760, 0.745, 0.700], 7, 4);  // helmet
     for (const sx of [1, -1]) {
@@ -6318,6 +6396,12 @@ function buildProps() {
       m.blob(sx * 0.11, -5.46, -0.04, 0.085, 0.26, 0.095, [0.270, 0.272, 0.232], 5, 3);
     }
     P.chute = m;
+    // During a cutaway fall, retain the harness body while its photograph
+    // loads without bringing the discarded canopy down with the aviator.
+    const harnessBody = new MB();
+    for (const key of ['p','n','c']) harnessBody[key] = m[key].slice(emptyCanopy[key].length);
+    harnessBody.i = m.i.slice(emptyCanopy.i.length).map(index => index - emptyCanopy.count);
+    P.chuteBody = harnessBody;
     // and the same thing streaming, before it has caught air
     m = new MB();
     m.loft([{ z: 0, y: 0, rx: 0.16, ry: 0.16 }, { z: 1.4, y: 0, rx: 0.42, ry: 0.42 },
@@ -8472,9 +8556,9 @@ class World {
   solve(ac) {
     const d = this.designated;
     if (!d) return null;
-    const dx = d.p[0] - ac.p[0], dz = d.p[2] - ac.p[2];
-    const gr = Math.hypot(dx, dz);
-    const bearing = Math.atan2(dx, -dz);
+    let dx = d.p[0] - ac.p[0], dz = d.p[2] - ac.p[2];
+    let gr = Math.hypot(dx, dz);
+    let bearing = Math.atan2(dx, -dz);
     const track = Math.atan2(ac.v[0], -ac.v[2]);
     let az = ((bearing - track + PI * 3) % TAU) - PI;
     const h = ac.p[1] - d.p[1];
@@ -8492,9 +8576,26 @@ class World {
       x += u * st; y += w * st; t += st;
     }
     const rel = x, tof = t;
-    const closing = Math.max(vh * Math.cos(az), 20);
-    const tRel = (gr - rel) / closing;
-    return { valid: Math.abs(az) < 0.30 && tRel > -1.2 && tRel < 45 && h > 55, az, gr, rel, tRel, tof, h };
+    let tRel = (gr - rel) / Math.max(vh * Math.cos(az), 20), aim = d.p;
+    /* A locked surface track supplies its present course and speed. Lead
+       the observed motion through both the remaining run-in and the bomb
+       fall; bombing its present position missed a 31-knot boat by 200m.
+       Chart coordinates and offset/manual points have no moving track. */
+    const tracked = this.lock && Array.isArray(this.targets) && this.targets.includes(d) &&
+      (d.kind === 'boat' || d.kind === 'contacts') && Number.isFinite(d.yaw) &&
+      Number.isFinite(d.spd) && d.spd > 0 && d.spd <= 100;
+    if (tracked) {
+      const vx = Math.sin(d.yaw) * d.spd, vz = -Math.cos(d.yaw) * d.spd;
+      for (let i = 0; i < 4; i++) {
+        const lead = tof + clamp(tRel, 0, 60);
+        aim = [d.p[0] + vx * lead, d.p[1], d.p[2] + vz * lead];
+        dx = aim[0] - ac.p[0]; dz = aim[2] - ac.p[2];
+        gr = Math.hypot(dx, dz); bearing = Math.atan2(dx, -dz);
+        az = ((bearing - track + PI * 3) % TAU) - PI;
+        tRel = (gr - rel) / Math.max(vh * Math.cos(az), 20);
+      }
+    }
+    return { valid: Math.abs(az) < 0.30 && tRel > -1.2 && tRel < 45 && h > 55, az, gr, rel, tRel, tof, h, aim };
   }
 }
 
@@ -9240,7 +9341,16 @@ class Cockpit {
       const rel = Math.abs((((Math.atan2(ax, -az) - (g2.face || 0) + PI) % TAU) + TAU) % TAU - PI);
       if (rel < 0.62 && d2 < 26) { lamp = 1; lampD = Math.min(lampD, d2); }
     }
-    const rows = e.camp ? [
+    const rows = e.swimming ? [
+      ['YOU ARE', e.moving ? 'SWIMMING' : 'AFLOAT', 0],
+      ['RADIO', e.radio >= 1 ? 'AUTHENTICATED' : 'CALL FOR RESCUE', e.radio >= 1 ? 0 : 1],
+      ['PICKUP', dp > 1200 ? '\u2014' : Math.round(dp) + ' M', 1],
+      ['NEAREST', closest > 900 ? '\u2014' : Math.round(closest) + ' M', closest < 20 ? 2 : 0]
+    ] : e.wildlifePractice ? [
+      ['ENCOUNTER', e.wildlifeLabel || 'FOREST', 0],
+      ['YOU ARE', e.running ? 'RUNNING' : e.crouch ? 'CROUCHED' : e.moving ? 'WALKING' : 'STILL', 0],
+      ['WILDLIFE', 'GIVE SPACE', 1]
+    ] : e.camp ? [
       ['THE WALL', Math.round(dp) + ' M', dp > 20 ? 1 : 0],
       ['NEAREST', closest > 900 ? '\u2014' : Math.round(closest) + ' M',
         closest < 8 ? 2 : closest < 20 ? 1 : 0],
@@ -9299,7 +9409,7 @@ class Cockpit {
     g.strokeStyle = '#2b3742'; g.strokeRect(x + .5, y + .5, w - 1, h - 1);
     g.font = '8px "Share Tech Mono", monospace';
     g.fillStyle = '#8b959d'; g.textAlign = 'center';
-    g.fillText(e.camp ? 'THE YARD' : e.doom !== undefined ? 'THE FIRST HOUR' : 'SURVIVAL',
+    g.fillText(e.swimming ? 'AT SEA' : e.wildlifePractice ? 'JUNGLE PRACTICE' : e.camp ? 'THE YARD' : e.doom !== undefined ? 'THE FIRST HOUR' : 'SURVIVAL',
       x + w / 2, y + 9);
     rows.forEach((rw, i) => {
       const yy = y + 18 + i * rh + rh / 2;
@@ -11003,35 +11113,16 @@ class Audio2 {
      Vietnamese needs a Vietnamese voice to be anything other than an
      insult; where the browser has not got one, the line stays as a
      caption and the shout stays a shout.                              */
-  speak(who, text, lang) {
+  speak(who, text, lang, tone) {
     if (!this.spoken || typeof speechSynthesis === 'undefined' || !text) return false;
-    const V = {
-      'TURCZYN':  { p: 0.80, r: 1.02, v: 0 },
-      'PILOT':    { p: 0.82, r: 1.02, v: 0 },
-      'B/N':      { p: 0.98, r: 1.06, v: 1 },
-      'BN':       { p: 0.98, r: 1.06, v: 1 },
-      'LSO':      { p: 1.04, r: 1.14, v: 2 },
-      'SHIP':     { p: 0.92, r: 1.10, v: 3 },
-      'AIR BOSS': { p: 0.86, r: 1.00, v: 4 },
-      'CREW':     { p: 0.90, r: 1.00, v: 1 },
-      'GUARD':    { p: 0.86, r: 1.12, v: 0 }
-    }[who] || { p: 0.95, r: 1.05, v: 2 };
     try {
       /* Do not let it queue. A pile-up of six unfinished sentences is
          worse than silence, and in a bad moment six things happen. */
-      if (speechSynthesis.pending) speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(
         String(text).replace(/<[^>]*>/g, '').replace(/—/g, ',').slice(0, 170));
-      const want = lang || 'en-US';
-      const list = this._voices || (this._voices = speechSynthesis.getVoices() || []);
-      const pool = list.filter(x => x.lang && x.lang.toLowerCase().indexOf(want.slice(0, 2)) === 0);
-      if (want.slice(0, 2) === 'vi' && !pool.length) return false;   // not in a fake accent
-      const preferred = pool.filter(x=> /\b(daniel|alex|aaron|fred|david|james|tom|guy|male|ryan|arthur|george|oliver|reed)\b/i.test(x.name));
-      if (preferred.length) u.voice = preferred[V.v % preferred.length];
-      else if (pool.length) u.voice = pool[V.v % pool.length];
-      u.lang = want;
-      u.pitch = Math.min(V.p,0.89); u.rate = Math.min(V.r,0.97);
-      u.volume = 1.0;
+      const list = this._voices&&this._voices.length ? this._voices : (this._voices=speechSynthesis.getVoices()||[]);
+      if (!VoiceProfiles.apply(u,{speaker:who,text,lang,tone},list)) return false;
+      if (speechSynthesis.pending) speechSynthesis.cancel();
       speechSynthesis.speak(u);
       return true;
     } catch (e) { return false; }
@@ -11161,6 +11252,12 @@ class Audio2 {
       f.frequency.value = 2600;
       g.gain.setValueAtTime((vol || 0.12) * 3.2, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
       src.connect(f); f.connect(g); src.start(t); src.stop(t + 0.2);
+    } else if (kind === 'tire') {
+      // A brief tyre spin-up chirp at wheel contact, separate from the
+      // longer arresting-engine sound that starts when the hook catches.
+      f.type='bandpass';f.frequency.setValueAtTime(1900,t);f.frequency.exponentialRampToValueAtTime(650,t+.17);f.Q.value=1.3;
+      g.gain.setValueAtTime(vol||.20,t);g.gain.exponentialRampToValueAtTime(.001,t+.21);
+      src.connect(f);f.connect(g);src.start(t);src.stop(t+.23);
     } else if (kind === 'thunk') {
       f.frequency.value = 400;
       g.gain.setValueAtTime(vol || 0.5, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
@@ -11250,6 +11347,9 @@ const App = {
       // Photographic character atlases: load independently, retain original fallback.
       const renderer = this.rend;
       PhotoCutouts.load(renderer,{touch:IS_TOUCH,current:()=>this.rend===renderer});
+      CarrierLaunch.load(renderer,{touch:IS_TOUCH,current:()=>this.rend===renderer});
+      const loadLegacyVegetation = () => {
+      if(renderer._legacyVegetationRequested)return;renderer._legacyVegetationRequested=true;
       for (const name of ['vegetation']) {
         const im = new Image();
         im.onload = () => { if (this.rend !== renderer || renderer.gl.isContextLost()) return;
@@ -11277,6 +11377,8 @@ const App = {
         };
         im.src=photoPaths.shift();
       }
+      };
+      renderer._loadLegacyVegetation=loadLegacyVegetation;
 
       /* The real figures are cut out of a photograph, and that sheet is
          a PNG, so it decodes a frame or two after this. Paint the
@@ -11696,16 +11798,20 @@ const App = {
         ['Knife', 'KNIFE'],
         ['Hands up / surrender', 'HANDS UP']
       ];
-      L.innerHTML = '<h4>Controls</h4><div class="cols">' +
+      L.innerHTML = '<div class="legend-head"><h4 id="legendTitle">Controls</h4><button type="button" data-close-controls aria-label="Close controls">Close ×</button></div><div class="cols">' +
         rows.map(r => '<div class="kv2"><span>' + r[0] + '</span><b>' + r[1] + '</b></div>').join('') +
         '</div><div class="hint">' + (kb
           ? 'Hold Space through the whole attack &mdash; the computer picks the release point. Lost? Press M.'
           : 'Hold COMMIT through the whole attack &mdash; the computer picks the release point. Lost? Tap CHART.')
         + '</div>';
+      L.setAttribute('role','dialog');L.setAttribute('aria-labelledby','legendTitle');
+      L.querySelector('[data-close-controls]').onclick=event=>{event.stopPropagation();this.toggleLegend(false);};
+      L.addEventListener('click',event=>{if(!event.target.closest('button,a,input,select,textarea'))this.toggleLegend(false);});
     }
     L.classList.toggle('on', on);
+    L.setAttribute('aria-hidden',String(!on));$('#btnKeys').setAttribute('aria-expanded',String(on));
     clearTimeout(this._lg);
-    if (on) this._lg = setTimeout(() => L.classList.remove('on'), 11000);
+    if (on) this._lg = setTimeout(() => this.toggleLegend(false), 11000);
   },
   toggleScope() {
     if (!this.game) return;
@@ -11716,7 +11822,7 @@ const App = {
   },
   toggleGear() {
     const G2 = this.game; if (!G2) return;
-    if (G2.ac.ias * MS2KT > 260) { this.radio('TURCZYN', 'Too fast for the gear.', 'warn'); return; }
+    if (!G2.ac.gear && G2.ac.ias * MS2KT > 260) { this.radio('TURCZYN', 'Too fast to extend the gear.', 'warn'); return; }
     G2.ac.gear = !G2.ac.gear; $('#btnGear').classList.toggle('on', G2.ac.gear);
     G2.ac.hook = G2.ac.gear;
     this.audio.burst('thunk', 0.25);
@@ -12816,7 +12922,7 @@ const App = {
     s.appendChild(mk('Flying', 'Full removes the stability help and makes the guns meaner.', ['Assisted', 'Standard', 'Full'], this.set.assist, v => this.set.assist = v));
     s.appendChild(mk('Sound', '', ['Off', 'On'], this.set.sound, v => { this.set.sound = v; if (this.audio.master) this.audio.master.gain.value = v ? 0.62 : 0; }));
     s.appendChild(mk('Crew voices',
-      'Spoken uses the voice built into your browser, so the crew actually say the words. Tones is the older behaviour \u2014 squelch and the texture of a man talking, with the words left to the caption. Captions are there whichever you pick.',
+      'Spoken uses an installed American male voice for English and a Vietnamese voice for Vietnamese. If a suitable voice is unavailable, captions and radio tones remain. Calm calls and urgent warnings use different delivery. Captions remain available with every option.',
       ['Off', 'Tones', 'Spoken'], this.set.voices === undefined ? 2 : this.set.voices,
       v => { this.set.voices = v; this.audio.spoken = v >= 2 ? 1 : 0; }));
     s.appendChild(mk('Pitch axis', '', ['Normal', 'Inverted'], this.set.invert, v => this.set.invert = v));
@@ -13172,7 +13278,7 @@ const App = {
          them. If it speaks the line, the chopped-noise version is left
          out — two men talking over each other is not atmosphere. */
       this.audio.spoken = (this.set.voices === undefined ? 2 : this.set.voices) >= 2 ? 1 : 0;
-      const said = this.audio.speak(who, say || msg, lang);
+      const said = this.audio.speak(who, say || msg, lang, cls);
       if (!said) this.audio.voice(who, msg);
       else if (!this.game || (!this.game.evade && !this.game.ejected)) this.audio.burst('beep', 0.12);
     }
@@ -13305,7 +13411,7 @@ class Game {
     this.apAGL = 700;
     this._apDeck = 0; this._apCalled = 0; this._apBall = 0; this._apHome = 0;
     this.steer = null;
-    this.departed = false; this._apThr = undefined;
+    this.departed = false; this._launched = false; this._apThr = undefined;
     this.aclsCoupled = false; this._aclsCall = 0; this._onBall = 0; this._reattack = 0;
     this.world.onSound = (k, v, pan) => { if (this.app.set.sound) this.app.audio.burst(k, v, pan); };
     this.world.onCrewHit = (who, now, was, src) => this.crewHit(who, now, was, src);
@@ -13733,14 +13839,9 @@ class Game {
      deck. The B/N's job during a recovery was to sit there and let it happen,
      which is exactly what this models. */
   aclsGuide(dt, ac, W) {
-    const c = W.carrier;
-    const ca = Math.cos(CV.angle), sa = Math.sin(CV.angle);
-    /* Work in the ANGLED DECK's own frame, the same one the arresting gear
-       is checked in. Deriving a parallel approach line by hand put it 34
-       metres off the centreline, which the ship scores as hitting its side. */
-    const L = worldToLocal([c.p[0], c.p[1] + (c.heave || 0), c.p[2]], c.hdg, ac.p);
-    const ax = L[0] * ca - L[2] * sa, az = L[0] * sa + L[2] * ca;
-    if (az < 10) return;                         // over the wires; let it land
+    const reference=CarrierLaunch.approachReference(this,CV);
+    if(!reference||reference.along< -90)return;
+    this._carrierGuidance=reference;
     ac.gear = true; ac.hook = true;
     if (!this._aclsCall) {
       this._aclsCall = 1;
@@ -13748,35 +13849,20 @@ class Game {
       this.app.radio('TURCZYN', 'Intruder ball, coupled.');
       this.teach('acls');
     }
-    const SPD = 67, GS = 3.5 * DEG;
-    const aimZ = CV.wire[1] + 2;
-    const wantY = az > 150 ? 1.55 + (az - aimZ) * Math.tan(GS) : 1.45;
-    const dw = (dx, dz) => localToWorld(c.p, c.hdg,
-      dx * ca + dz * sa, 0, -dx * sa + dz * ca);
-    const pA = dw(0, CV.aim + 100), pB = dw(0, CV.aim);
-    const course = Math.atan2(pB[0] - pA[0], -(pB[2] - pA[2]));   // down the deck
-    const fx = Math.sin(course), fz = -Math.cos(course);
-    const rx = Math.cos(course), rz = Math.sin(course);
-    const lat = clamp(-ax * 0.26, -17, 17);      // drive the lineup to centre
-    // firmer vertically once past the ramp, or it floats over the wires
-    const kv = az < 220 ? 1.15 : 0.50;
-    const vW = [fx * SPD + rx * lat,
-                /* L[1] is height above the DECK. Comparing wantY against
-                   ac.p[1], which is height above the sea, worked only while
-                   the deck sat at sea level; once the ship was given a hull
-                   the aeroplane flew a glideslope nineteen metres low and
-                   never reached the ramp. */
-                clamp((wantY - L[1]) * kv, -8.5, 4) - SPD * Math.tan(GS),
-                fz * SPD + rz * lat];
+    // A continuous world-up optical path anchored at the actual deck aim
+    // point, with final climb/descent bounds after glide feed-forward.
+    // A low aircraft can add power and climb; deck pitch is not projected
+    // as a rotating plane all the way out into the groove.
+    const vW=reference.command;
     const k = clamp(dt * 1.6, 0, 1);
     ac.v[0] += (vW[0] - ac.v[0]) * k;
     ac.v[1] += (vW[1] - ac.v[1]) * k;
     ac.v[2] += (vW[2] - ac.v[2]) * k;
     const kb = clamp(dt * 2.4, 0, 1);
-    let he = ((course - ac.yaw + PI * 3) % TAU) - PI;
+    let he = ((reference.course - ac.yaw + PI * 3) % TAU) - PI;
     ac.yaw += he * kb;
     ac.pitch += (8.2 * DEG - ac.pitch) * kb;
-    ac.roll += (0 - ac.roll) * kb;
+    ac.roll += (0-ac.roll) * kb;
     ac.thr = 0.46;
   }
 
@@ -14200,6 +14286,9 @@ class Game {
       return 'A AND D STEER THE CANOPY — come down away from the villages';
     if (this.evade) {
       const e = this.evade;
+      if (e.swimming) return IS_TOUCH
+        ? 'STICK SWIMS — RUN MAKES A STRONGER STROKE · RADIO CALLS FOR RESCUE · SMOKE SIGNALS THE HELICOPTER'
+        : 'W SWIMS — SHIFT MAKES A STRONGER STROKE · R CALLS FOR RESCUE · G SIGNALS WITH SMOKE';
       if (e.drawn) return 'SPACE FIRES — six rounds, and every one of them is heard  ·  F holsters  ·  V is the knife';
       if (e.radio < 1) return 'R WORKS THE SURVIVAL RADIO — W walks, SHIFT runs (and runs is seen)  ·  F draws the .38';
       const dp = Math.hypot(e.pickup[0] - e.p[0], e.pickup[1] - e.p[2]);
@@ -14552,6 +14641,14 @@ class Game {
        the country is farmed to the treeline and a white canopy is
        visible for miles. Who it is depends on where you put it. */
     const E = this.evade;
+    // Ocean survivors have no farmer standing beside the canopy. The water
+    // adapter below supplies swimming controls and the normal rescue radio.
+    if (terrainH(px, pz) < -.4) return;
+    if(this.mis.wildlifePractice){
+      E.wildlifePractice=true;
+      this.app.radio('CREW','Jungle practice. Give wildlife space; back away from warning signs.','warn');
+      return;
+    }
     const r = Math.random();
     /* Coker came down among armed villagers, so on that mission there is
        always somebody and he is usually armed. */
@@ -14640,6 +14737,7 @@ class Game {
 
   stepEvade(dt) {
     const e = this.evade, W = this.world, K = this.app.keys, A = this.app;
+    if(e.wildlifePractice)e.spawn=e.localRefill=e.cowT=1e9;
     /* Held while the first-minute card is up: he is standing in the
        paddy deciding, and nothing should be creeping up on him while a
        dialogue box has the screen.
@@ -14701,7 +14799,7 @@ class Game {
     const run = (K.ShiftLeft || K.ShiftRight || g.run) ? 1 : 0;
     /* A leg wound from the first minute is carried for the rest of it:
        a man who has been shot through the thigh does not run. */
-    const hk = (e.hurt ? 0.62 : 1) * (e.crouch ? 0.52 : 1);
+    const hk = (e.hurt ? 0.62 : 1) * (e.crouch ? 0.52 : 1) * Wildlife.movementFactor(this) * AviatorCompanion.movementFactor(this);
     if (e.handsUp && (run && Math.abs(fwd)>0.2 || K.Space || K.KeyV || e.attackWant)) {
       e.handsUp=false; e.handsT=0; A.radio('CREW','Breaking away. Move!', 'warn');
     }
@@ -14752,6 +14850,7 @@ class Game {
     const CAP = e.river ? 14 : 22;
     if (e.spawn <= 0 && e.searchers.length < CAP) {
       const mk = (x, z, gx, gz, kind) => {
+        if (!e.river && terrainH(x, z) <= 1.1) return null;
         const s = { p: [x, 0, z], goal: [gx, 0, gz], seen: 0, alive: true, sus: 0, kind: kind };
         /* Farmers are not armed and will not shoot at you. Everybody
            else out here is, and once the helicopter is in the hover
@@ -14829,7 +14928,7 @@ class Game {
       const sp = (s.flee ? 3.15 : s.seen ? 2.3 : (s.sus || 0) > 0.45 ? 0.35 : 1.7) * hurtK * stagger;
       // Keep pursuit and civilian flight out of buildings and tree trunks.
       const nx=s.p[0]+dx/d*sp*dt,nz=s.p[2]+dz/d*sp*dt;
-      if(!this._localSolidAt(nx,nz,0.28)) {s.p[0]=nx;s.p[2]=nz;}
+      if((e.river || terrainH(nx,nz) >= .12) && !this._localSolidAt(nx,nz,0.28)) {s.p[0]=nx;s.p[2]=nz;}
       else {s.goal=[s.p[0]+rnd(-30,30),0,s.p[2]+rnd(-30,30)];}
       const targetFace=Math.atan2(dx,-dz);
       if(!s._look){let delta=targetFace-(s.face||targetFace);
@@ -14976,6 +15075,10 @@ class Game {
        smoothed so it reads as a meter rather than a flicker. */
     e.expose = e.expose === undefined ? 0 : e.expose + (peak - e.expose) * Math.min(1, dt * 4.5);
     e.sus = peakSus;
+
+    // Standalone forest practice keeps the native controls and collisions,
+    // without starting a search party, rescue clock or campaign outcome.
+    if(e.wildlifePractice)return;
 
     /* ---- the hour after the canopy, on Coker's mission ---- */
     if (e.doom !== undefined) {
@@ -15212,16 +15315,19 @@ class Game {
            this the air cover had cleared the field so thoroughly by
            the time the Jolly arrived that nobody was left to shoot,
            and the extraction was a formality. */
-        const n = 5 + (Math.random() * 4 | 0);
+        const n = 5 + (Math.random() * 4 | 0); let reinforcements = 0;
         for (let k = 0; k < n; k++) {
           const a3 = Math.random() * TAU, r3 = 190 + Math.random() * 190;
           const kd = Math.random() < 0.45 ? 'nva' : Math.random() < 0.75 ? 'vc' : 'militia';
+          const rx = e.p[0] + Math.cos(a3) * r3, rz = e.p[2] + Math.sin(a3) * r3;
+          if (terrainH(rx, rz) <= 1.1) continue;
           e.searchers.push({
-            p: [e.p[0] + Math.cos(a3) * r3, 0, e.p[2] + Math.sin(a3) * r3],
+            p: [rx, 0, rz],
             goal: [e.p[0], 0, e.p[2]], seen: 1, sus: 1.2, alive: true,
             kind: kd, armed: true, fireT: this.t + 4 + Math.random() * 10 });
+          reinforcements++;
         }
-        A.radio('SANDY', 'That signal has brought them out. We will keep their heads down — move.', 'warn');
+        if (reinforcements) A.radio('SANDY', 'That signal has brought them out. We will keep their heads down — move.', 'warn');
       }
     }
     if (e.smoke) {
@@ -15995,13 +16101,24 @@ class Game {
        cattle standing in the same field. One target list, so the sight
        picture tells the truth about what the muzzle is on. */
     const eyeHeight=e.crouch?1.16:1.68;
-    const sight=GroundCombat.target(this,e,{
+    const targetOptions={
       floorAt:p=>this.pow?p[1]:e.camp?this.campY:Math.max(terrainH(p[0],p[2]),0),
       eyeHeight:typeof GroundView!=='undefined'?GroundView.eyeHeight(this,eyeHeight):eyeHeight,
       bodyHeight:o=>{const pose=PhotoSprites.describe(o,{camera:this.rend.eye,renderer:this.rend});
         return pose?pose.h:1.76;},
       lineOfSight:o=>this._groundLineOfSight(e.p,o.p,e)
-    });
+    };
+    let sight=GroundCombat.target(this,e,targetOptions);
+    if((e.weaponMode==='pistol'||e.weaponMode==='knife') && WildlifeRender.ready(this.rend)){
+      const animals=Wildlife.targets(this);
+      if(animals.length){
+        const animalSight=WildlifeTargeting.target(this,e,{...targetOptions,actors:animals,camera:this.rend.eye});
+        // Exact bodies under the crosshair take priority over aim assistance;
+        // among equal hit classes the nearest actual surface wins.
+        if(animalSight && (!sight || sight.assisted&&!animalSight.assisted ||
+          sight.assisted===animalSight.assisted && animalSight.rayDistance<sight.rayDistance))sight=animalSight;
+      }
+    }
     const closest=sight?sight.actor:null,cd=sight?sight.distance:1e9,cIsCow=!!(sight&&sight.isCow);
     e.aim = closest ? Math.round(cd) : null;
     e.aimCow = closest ? cIsCow : false;
@@ -16027,6 +16144,11 @@ class Game {
       } catch (err) { /* the hit still counts */ }
     };
     const strike = (o, isCow, lethal, quiet) => {
+      if(o.wildlife){
+        const hit=Wildlife.weaponHit(this,o.id,{weapon:e.weaponMode});
+        if(hit)A.radio('CREW','The animal is breaking away. Give it room to leave.','warn');
+        return;
+      }
       /* Knocked off the line of the shot. */
       const ka = Math.atan2(o.p[0] - e.p[0], -(o.p[2] - e.p[2]));
       o.kick = { a: ka, v: lethal ? 2.6 : 1.7 };
@@ -16671,7 +16793,7 @@ class Game {
   rescued() {
     if (this.phase === 'done') return;
     this.phase = 'done';
-    this.app.radio('CREW', 'We have you. Both of you. Going home.', '');
+    this.app.radio('CREW', AviatorCompanion.rescueLine(this), '');
     this.rescuedOK = true;
     this.evade = null;          // or the package keeps flying over an empty field
     const how = this.ejected ? 'Ejected' : 'Crash-landed';
@@ -16734,14 +16856,14 @@ class Game {
       } else if (o[1] === 'trap') {
         done = !!this.rescuedOK || !!(this.wire && this.ac.onDeck);
         v = this.rescuedOK ? 'recovered by SAR' : done ? 'aboard' : (this.phase === 'recovery' ? 'in the groove' : 'pending');
-      } else if (o[1] === 'launch') { done = !this.ac.onDeck; v = done ? 'airborne' : 'on the cat'; }
+      } else if (o[1] === 'launch') { done = !!this._launched || this.departed || !this.ac.onDeck; v = done ? this.ac.onDeck ? 'launched and recovered' : 'airborne' : 'on the cat'; }
       else if (o[1] === 'approach') { done = this.shipRange < 4000; v = done ? 'in the pattern' : 'pending'; }
       else if (o[1] === 'discipline') { done = W.score.dropped === 0; v = W.score.dropped ? 'VIOLATED' : 'maintained'; }
       else if (o[1] === 'eject') {
         done = !!(this.ejected && this._outOfAircraft);
         v = done ? 'survived' : this.chute ? 'under canopy' : 'pending';
-      } else if (o[1] === 'breakout') { done = !!this.breakoutOK; v = done ? 'out of the camp' : 'pending'; }
-      else if (o[1] === 'escape') { done = !!this.escapedOK; v = done ? 'reached the sea' : 'pending'; }
+      } else if (o[1] === 'breakout') { done = this.pow ? !!(this.pow.flags && (this.pow.flags.outside || this.pow.flags.roofCrossed)) : !!this.breakoutOK; v = done ? 'out of the camp' : 'pending'; }
+      else if (o[1] === 'escape') { done = this.pow ? !!(this.pow.complete && this.pow.outcome && this.pow.outcome.escaped === true) : !!this.escapedOK; v = done ? 'reached the sea' : 'pending'; }
       out.push([o[0], v, done]);
     }
     return out;
@@ -16957,12 +17079,13 @@ class Game {
         ac.cat = 2.1; this.app.audio.burst('cat');
         this.teach('launched');
         this.app.radio('AIR BOSS', 'Cleared to launch. Good hunting, Cupcake.');
-        for (let i = 0; i < 30; i++) W.fx.smoke([ac.p[0] + rnd(-6, 6), 1 + rnd(0, 3), ac.p[2] + rnd(-8, 8)], [0.6, 0.6, 0.6], rnd(3, 7), rnd(1.5, 3), [0, 2, 0], 1.5);
+        for (let i = 0; i < 30; i++) W.fx.smoke(CarrierLaunch.steamPoint(this,rnd(-6,6),1+rnd(0,3),rnd(-8,8)), [0.6, 0.6, 0.6], rnd(3, 7), rnd(1.5, 3), [0, 2, 0], 1.5);
       }
       if (ac.cat > 0) {
         acStep(ac, dt, { pitch: clamp(pitch, -0.2, 0.5) + 0.22, roll: 0, yaw: 0 }, W);
         this.shake = 0.8;
         if (!ac.onDeck) {
+          this._launched = true;
           this.phase = 'airborne';
           this.app.radio('BN', 'Good airspeed. Climbing away.');
           if (this.rightSeat && this.steer == null) {
@@ -17051,8 +17174,9 @@ class Game {
         this._lastRel = this.t; this._relArm = 0;
         const n = nR, ivl = ivlR;
         if (W.navErrAtRelease === undefined) W.navErrAtRelease = W.navErr();
-        // cross-track scatter proportional to how spread the target is
-        W.release(ac, n, ivl, clamp(spreadR / 58, 0.4, 4.4));
+        // A single locked-point release retains the store's normal ejector
+        // dispersion. Unrelated targets cannot turn it into an area salvo.
+        W.release(ac, n, ivl, n === 1 ? 0.6 : clamp(spreadR / 58, 0.4, 4.4));
         for (let k = 0; k < n; k++)
           setTimeout(() => this.app.audio.burst('rack', 0.20), k * ivl * 1000);
         this.app.radio('BN', 'Bombs away.');
@@ -17124,7 +17248,7 @@ class Game {
        seconds after the catapult and the LSO starts grading the climb-out. */
     if (!ac.onDeck && this.shipRange > 7000) this.departed = true;
     const recovering = !this.strikeExperience || this.egressCalled || ac.bombs === 0;
-    if (recovering) this.recoveryCalls(ac, W);
+    if (recovering && this.departed) this.recoveryCalls(ac, W);
     if (recovering && this.departed && this.shipRange < 5600 && !ac.onDeck && this.phase !== 'done' && this.phase !== 'deck') {
       if (this.phase !== 'recovery') { this.phase = 'recovery'; this.app.radio('LSO', 'Roger ball. Call the ball at three-quarters of a mile.'); }
       this.teach('nearship');
@@ -17159,23 +17283,24 @@ class Game {
   /* ---- carrier: glideslope, lineup, arrestment ---- */
   checkShip(dt) {
     const ac = this.ac, c = this.world.carrier;
-    const L = worldToLocal([c.p[0], c.p[1] + (c.heave || 0), c.p[2]], c.hdg, ac.p);
-    // angled deck frame
-    const ca = Math.cos(CV.angle), sa = Math.sin(CV.angle);
-    const ax = L[0] * ca - L[2] * sa, az = L[0] * sa + L[2] * ca;
-    this.deckL = [ax, L[1], az];
-    // glideslope: 3.5 degrees onto the 3-wire. rampD > 0 means still astern.
-    const rampD = az - CV.aim;
-    const gsIdeal = Math.max(rampD, 0) * Math.tan(3.5 * DEG) + 1.65;
-    this.gsErr = clamp((L[1] - gsIdeal) / Math.max(10, rampD * 0.055 + 7), -2, 2);
-    this.lineErr = ax;
+    // Ship motion and wheel/hook contact share the exact rendered deck
+    // basis. World vertical speed is not sink rate onto a pitching deck.
+    const L = CarrierLaunch.landingFrame(this,dt,CV);
+    if(!L)return;
+    const ax=L[0],az=L[2];
+    this.deckL = L;
+    // The ball and LSO use the same stabilized optical path as ACLS.
+    // Physical deckL and hook/wheel contact retain the rigid ship frame.
+    const optical=CarrierLaunch.approachReference(this,CV),rampD=optical.along,lineup=optical.line;
+    this.gsErr = clamp((ac.p[1]-optical.targetY) / Math.max(10, rampD * 0.055 + 7), -2, 2);
+    this.lineErr = lineup;
     this.rampD = rampD;
     if (this.phase === 'recovery' && rampD < 1400 && rampD > 0) {
-      this.approachLog.push([Math.abs(this.gsErr), Math.abs(ax)]);
+      this.approachLog.push([Math.abs(this.gsErr), Math.abs(lineup)]);
       if (this.approachLog.length > 900) this.approachLog.shift();
     }
     this.waveoff = this.phase === 'recovery' && rampD < 520 && rampD > -30 &&
-      (Math.abs(this.gsErr) > 1.5 || Math.abs(ax) > 22 || !ac.gear);
+      (Math.abs(this.gsErr) > 1.5 || Math.abs(lineup) > 22 || !ac.gear);
     /* The LSO talks you down. He does not say much, and everything he says
        is an instruction. */
     if (this.phase === 'recovery' && rampD > -20 && rampD < 1500 && ac.alive) {
@@ -17188,8 +17313,8 @@ class Game {
         else if (this.waveoff) { call = 'Wave off, wave off!'; cls = 'bad'; }
         else if (g < -0.55) { call = 'Power. You are low.'; cls = 'warn'; }
         else if (g > 0.75) { call = 'You are high. Come down.'; cls = 'warn'; }
-        else if (ax > 13) { call = 'Come left for lineup.'; }
-        else if (ax < -13) { call = 'Come right for lineup.'; }
+        else if (lineup > 13) { call = 'Come left for lineup.'; }
+        else if (lineup < -13) { call = 'Come right for lineup.'; }
         else if (aoaD > 11.5) { call = 'You are slow. Add a little power.'; cls = 'warn'; }
         else if (aoaD < 6.6) { call = 'You are fast.'; }
         else if (rampD < 350 && !this._lsoOk) { this._lsoOk = 1; call = 'Roger ball. Looking good.'; }
@@ -17197,46 +17322,12 @@ class Game {
       }
     } else { this._lsoOk = 0; }
     // deck contact / arrestment
-    if (ac.alive && !ac.onDeck && L[1] <= 1.75 && L[1] > -9 && Math.abs(ax) < 38 && az > -190 && az < CV.ramp + 20) {
+    if ((this.departed || this.phase === 'recovery') && ac.alive && !ac.onDeck && L[1] <= 1.75 && L[1] > -9 && Math.abs(ax) < 38 && az > -190 && az < CV.ramp + 20) {
       this.tryTrap(true);
     }
   }
   tryTrap(force) {
-    const ac = this.ac, c = this.world.carrier;
-    if (!this.deckL) return false;
-    const [ax, ay, az] = this.deckL;
-    if (ay > 2.55 || ay < -9) return false;
-    if (az > CV.ramp + 20 || az < -190 || Math.abs(ax) > 44) return false;   // not a deck event
-    if (Math.abs(ax) > 26) { this.world.kill(ac, 'Struck the side of the ship.'); return true; }
-    const sink = -ac.v[1];
-    if (az > CV.ramp - 1) {
-      if (ay < 0.45) { this.world.kill(ac, 'Hit the ramp.'); return true; }
-      return false;                              // scraped over it, still flying
-    }
-    if (!ac.gear) { this.world.kill(ac, 'Landed with the gear up.'); return true; }
-    if (sink > 9.5) { this.world.kill(ac, 'Excessive sink rate at touchdown.'); return true; }
-    // the hook catches the first wire the aircraft rolls across
-    let wire = 0;
-    for (let i = 0; i < CV.wire.length; i++) if (az > CV.wire[i] - 2.5) { wire = i + 1; break; }
-    if (wire === 0) {
-      // long — no wire left ahead
-      if (!this._bolter || this.t - this._bolter > 3) {
-        this._bolter = this.t; this.bolters = (this.bolters || 0) + 1;
-        this.app.radio('LSO', 'Bolter, bolter, bolter. Full power, come round again.', 'warn');
-        ac.thr = 1; ac.p[1] += 1.4; ac.v[1] = Math.max(ac.v[1], 4);
-      }
-      return true;
-    }
-    // trapped
-    this.wire = wire;
-    this.app.audio.burst('wire', 0.6);
-    this.teach('trapped');
-    ac.v = [0, 0, 0]; ac.onDeck = true; ac.thr = 0; ac.p[1] = c.p[1] + (c.heave || 0) + 1.62;
-    this.phase = 'done';
-    this.app.audio.burst('thunk', 0.8);
-    this.app.radio('LSO', 'On deck. ' + wire + ' wire.');
-    setTimeout(() => this.debrief(true), 1700);
-    return true;
+    return CarrierLaunch.contact(this,CV);
   }
 
   /* ---------------- debrief ---------------- */
@@ -17379,14 +17470,17 @@ class Game {
   /* ---------------- render ---------------- */
   render(dt) {
     const R = this.rend, ac = this.ac, W = this.world, A = this.app;
+    prepareGroundEcology(this);
     PhotoCutouts.beginFrame(R);
+    JungleScenery.beginFrame(this,R);
+    updateWildlifeStatus(this);
     R.surfacePolish = FlightStrikeScene.active(this) || !!this.evade ? 1 : 0;
     FlightStrikeExperience.render(this);
     FlightTacticalApproach.render(this);
     FlightAirframeFeedback.render(this);
     if(typeof FlightStrikeBoard!=='undefined')FlightStrikeBoard.render(this);
     if(POW.EpisodeAudio)POW.EpisodeAudio.step(this,0);
-    R.setAtmos(this.atm);
+    R.setAtmos(JungleScenery.atmosphere(this,this.atm));
     let episodeProfile=this.pow && POW.MemoryDetail && POW.Mindscape && POW.Mindscape.active(this)
       ? POW.MemoryDetail.renderState(this)
       : this.pow && POW.EpisodeScene ? POW.EpisodeScene.renderState(this) : this.willard && !this.evade && !this.chute ? WillardMission.lighting(this) : null;
@@ -17501,6 +17595,8 @@ class Game {
     }
     const strikeLook=FlightStrikeExperience.camera(this);
     if(strikeLook){eye=strikeLook.eye;fwd=vnorm(vsub(strikeLook.target,eye));up=[0,1,0];}
+    const landingInertia=CarrierLaunch.camera(this);
+    if(landingInertia&&!this.extView&&!this.evade&&!this.chute){eye=vadd(eye,vmul(ax.fwd,landingInertia.forward));fwd=vnorm(vadd(fwd,vmul(ax.up,landingInertia.pitch)));}
     if (shake > 0.01) {
       const s = shake * 0.7;
       eye = vadd(eye, [rnd(-s, s) * 0.2, rnd(-s, s) * 0.2, rnd(-s, s) * 0.2]);
@@ -17518,9 +17614,11 @@ class Game {
        This also handles scripted people, not only randomly generated ones. */
     const buf = this.instBuf; const tmp = m4();
     const groups = {};
-    const sprites = [];
+    const sprites = [],carrierCrew=[];
+    CarrierLaunch.beginFrame(R);
     let vegetationSprites = 0;
     const push = (mesh, p, rot, s, tint) => {
+      if(JungleScenery.queue(this,R,mesh,p,s))return;
       const photo = PhotoSprites.identity({kind:mesh});
       if (photo) {
         if (this.evade && !this.evade.camp &&
@@ -17568,7 +17666,7 @@ class Game {
           return;
         }
       }
-      if(this.evade && (mesh==='tree'||mesh==='palm'||mesh==='bamboo'||mesh==='bush')) {
+      if(this.evade && R.textures.photo_vegetation && (mesh==='tree'||mesh==='palm'||mesh==='bamboo'||mesh==='bush')) {
         // Keep only foreground foliage. Distant LOD blobs looked like debris floating in the sky.
         return;
       }
@@ -17580,17 +17678,18 @@ class Game {
     push('carrierLt', [c.p[0], c.p[1] + (c.heave || 0), c.p[2]], [c.hdg, c.pitch, c.roll], [1, 1, 1], [1, 1, 1, 1.7]);
     if (this.deckPark && vdist2(ac.p, c.p) < 1.6e8) {
       for (const d of this.deckPark) {
-        const dp = localToWorld([c.p[0], c.p[1] + (c.heave || 0), c.p[2]], c.hdg, d[0], 1.62, d[1]);
-        push('intruder', dp, [c.hdg + d[2], c.pitch, c.roll], [1, 1, 1], [0.92, 0.92, 0.92, 0]);
-        push('canopy', dp, [c.hdg + d[2], c.pitch, c.roll], [1, 1, 1], [0.92, 0.92, 0.92, 0]);
-        push('gear', dp, [c.hdg + d[2], c.pitch, c.roll], [1, 1, 1], [0.92, 0.92, 0.92, 0]);
+        const parked=CarrierLaunch.parked(c,d),dp=parked.p;
+        push('intruder', dp, parked.rot, [1, 1, 1], [0.92, 0.92, 0.92, 0]);
+        push('canopy', dp, parked.rot, [1, 1, 1], [0.92, 0.92, 0.92, 0]);
+        push('gear', dp, parked.rot, [1, 1, 1], [0.92, 0.92, 0.92, 0]);
       }
     }
     /* The crew, while the ship is close enough for a man to be a man.
        They stand on the deck, so they ride its heave and roll with it. */
     if (this.deckCrew && vdist2(ac.p, c.p) < 9e6) {
-      for (const d of this.deckCrew) {
-        const dp = localToWorld([c.p[0], c.p[1] + (c.heave || 0), c.p[2]], c.hdg, d[0], 0.02, d[1]);
+      for (const [i,d] of this.deckCrew.entries()) {
+        if(CarrierLaunch.queue(this,R,d,i,carrierCrew))continue;
+        const dp = CarrierLaunch.deckPoint(c,[d[0],.025,d[1]]);
         push(d[4] ? 'deckkneel' : 'deckman', dp, [c.hdg + d[2], c.pitch, c.roll],
           [1, 1, 1], [d[3][0], d[3][1], d[3][2], 0]);
       }
@@ -17619,14 +17718,15 @@ class Game {
     }
     /* People from the terrain and the search party share one billboard pass.
        `sprites` was initialized before World.clutter() above. */
-    const photoActors=this.evade?this.evade.searchers.concat(this.evade.locals||[]).map(actor=>({actor,cow:false}))
-      .concat((this.evade.cattle||[]).map(actor=>({actor,cow:true})))
-      .sort((a,b)=>Math.hypot(a.actor.p[0]-R.eye[0],a.actor.p[2]-R.eye[2])-Math.hypot(b.actor.p[0]-R.eye[0],b.actor.p[2]-R.eye[2])):[];
+    const photoActors=(this.evade?this.evade.searchers.concat(this.evade.locals||[]).map(actor=>({actor,cow:false}))
+      .concat((this.evade.cattle||[]).map(actor=>({actor,cow:true}))):[])
+      .concat(AviatorCompanion.actors(this).map(actor=>({actor,cow:false})))
+      .sort((a,b)=>Math.hypot(a.actor.p[0]-R.eye[0],a.actor.p[2]-R.eye[2])-Math.hypot(b.actor.p[0]-R.eye[0],b.actor.p[2]-R.eye[2]));
     // Allocate high-resolution gait slots to nearby people and cattle first.
     // Sorting this render-only copy never changes AI or collision iteration.
     for (const {actor:sc,cow} of photoActors) {
       if(!cow&&sc.alive===false&&sc.downAt===undefined)continue;
-      const gy=cow?Math.max(terrainH(sc.p[0],sc.p[2]),0):this.pow?sc.p[1]:this.evade.camp?this.campY:Math.max(terrainH(sc.p[0],sc.p[2]),0);
+      const gy=sc.companion||sc.swimming||sc.airborne?sc.p[1]:cow?Math.max(terrainH(sc.p[0],sc.p[2]),0):this.pow?sc.p[1]:this.evade&&this.evade.camp?this.campY:Math.max(terrainH(sc.p[0],sc.p[2]),0);
       const face=Number.isFinite(sc.face)?sc.face:sc.goal?Math.atan2(sc.goal[0]-sc.p[0],-(sc.goal[2]-sc.p[2])):0;
       const descriptor=PhotoSprites.describe({...sc,face,...(cow?{kind:'cow'}:{})},{camera:R.eye,renderer:R,game:this,owner:sc,moving:cow?(sc.walk||0)>0:(sc.spd||0)>.25});
       if(descriptor && descriptor.photoCutout && R.textures && R.textures[descriptor.textureName]){
@@ -17650,21 +17750,34 @@ class Game {
         push('ejseat', s.p, [s.yaw, s.tilt || 0, (s.tilt || 0) * 0.6], [1, 1, 1], [1, 1, 1, 0]);
       }
       const cin = (c.cineT || 0) < (c.cine || 0);
-      if (c.open < 0.42) {
+      let ownHarness = false;
+      if(cin && !c.landingReleased && c.open >= .82){
+        const actor=this._chutePhotoActor||(this._chutePhotoActor={kind:'aviator',alive:true,armed:false,airborne:true,suspended:true,spd:0});
+        actor.p=[c.p[0],c.p[1]-1.6,c.p[2]];actor.face=c.drift;
+        if(PhotoCutouts.hasPose(R,'aviator','harness')){
+          const photo=PhotoCutouts.describe(actor,{renderer:R,photoName:'aviator',camera:R.eye,game:this,owner:actor});
+          if(photo&&photo.photoSuspended&&R.textures[photo.textureName]){
+            sprites.push({...photo,p:actor.p.slice(),owner:actor,sourcePhotograph:true});ownHarness=true;
+          }
+        }else PhotoCutouts.preparePose(R,'aviator','harness');
+      }
+      if (!c.landingReleased && c.open < 0.42) {
         // streaming: a sausage of nylon trailing straight up
         push('chuteStream', [c.p[0], c.p[1] + 2.2 + c.open * 3.4, c.p[2]],
              [c.drift, -PI / 2, 0], [1, 0.7 + c.open, 1], [1, 1, 1, 0]);
-      } else {
+      } else if(!c.landingReleased) {
         /* Blossomed. Seen from the cine camera the whole thing is
            drawn; from inside the straps the man on the risers is the
            player, so only the canopy above him belongs on screen —
            and it is scaled down to nothing underneath. */
         const bl = clamp((c.open - 0.42) / 0.40, 0, 1);
-        push('chute', [c.p[0], c.p[1] + 4.6, c.p[2]],
+        push(ownHarness?'chuteEmpty':'chute', [c.p[0], c.p[1] + 4.6, c.p[2]],
              [c.drift, 0, Math.sin(this.t * 0.8) * 0.045],
              [bl, 0.55 + bl * 0.45, bl], [1, 1, 1, cin ? 0 : 0]);
       }
     }
+    AviatorCompanion.instances(this,push);
+    if(this.landingCanopy)push('chuteEmpty',[...this.landingCanopy.p],[0,0,.12],[.95,.45,.95],[1,1,1,0]);
 
     /* The aeroplane, where it went in. */
     if (this.wreck && this.wreck.down) {
@@ -17708,6 +17821,7 @@ class Game {
         }
       }
     }
+    JungleScenery.populate(this,R,{solid:(x,z,r)=>_jungleOriginalLocalSolidAt.call(this,x,z,r)});
     this._sprites = sprites;
 
     /* Contact shadows under anything standing on the ground. The sun's
@@ -17728,7 +17842,7 @@ class Game {
         // Reserve the bounded nearby feet before long shadows: dense
         // vegetation must not consume all 600 instances and drop the cores.
         blobs.push(...ContactShadows.collect(this,sprites,R.quality));
-        blobs.push(...TerrainShadows.collect(this,sprites,{ox,oz,
+        blobs.push(...TerrainShadows.collect(this,sprites.concat(JungleScenery.shadowSprites(this,R)),{ox,oz,
           reach:0.30+lean*0.95,radius:1.05+lean*0.8,darkness:dark*0.92,quality:R.quality}));
         if (this.evade) {
           const E = this.evade;
@@ -17809,7 +17923,7 @@ class Game {
     /* ---- the lit pass ---- */
     R.begin();
     R.drawSky(this.t);
-    R.drawTerrain(TER.mtn, TER.seed, this.atm.wet);
+    R.drawTerrain(TER.mtn, TER.seed, this.atm.wet, JungleScenery.floorMode(this));
     R.drawSea(this.t, this.atm.wave, [W.carrier.p[0], W.carrier.p[2], W.carrier.hdg]);
     for (const [name, data, n] of packed)
       if (name !== 'canopy' && name !== 'jollyDisc' && name !== 'sandyDisc')
@@ -17843,6 +17957,10 @@ class Game {
       for (const [name, list] of Object.entries(groups)) R.drawSprites(name, list);
     }
     PhotoCutouts.endFrame(R);
+    JungleScenery.draw(this,R);
+    WildlifeRender.draw(this,R);
+    R.drawGroundShadows(CarrierLaunch.shadows(this,carrierCrew));
+    CarrierLaunch.draw(this,R,carrierCrew);
     if(this.willard && !this.evade && !this.chute && this.willard.enemy)WillardSprites.draw(R,this.willard.enemy,{dt,light:.78});
     /* The see-through pass: canopy perspex, and the rotor discs, which
        are the same problem — a surface you look through that still
@@ -18157,6 +18275,21 @@ GroundView.install({App});
 EquipmentView.install({App});
 TerrainShadows.configure({terrainH});
 NearGround.configure({terrainH});
+function dryJungleAt(x,z){
+  return JungleScenery.habitat(fbm(x*.00021+11.7,z*.00021+11.7,3),fbm(x*.00006+3.7,z*.00006-2.1,3));
+}
+JungleScenery.configure({terrainH,jungle:dryJungleAt});
+WildlifeRender.configure({terrainH,program,glsl:GLSL_NOISE+GLSL_ATMOS+GLSL_SHADOW});
+// New local trunks share the existing swept collision solver. Placement checks
+// use the original static query above so a trunk never rejects itself.
+const _jungleOriginalLocalSolidAt=Game.prototype._localSolidAt;
+const _jungleOriginalBlockedAt=Game.prototype._blockedAt;
+Game.prototype._localSolidAt=function(x,z,r){
+  return _jungleOriginalLocalSolidAt.call(this,x,z,r)||JungleScenery.blockedAt(this,x,z,r);
+};
+Game.prototype._blockedAt=function(x,z,r,e){
+  return _jungleOriginalBlockedAt.call(this,x,z,r,e)||(!e.camp&&JungleScenery.blockedAt(this,x,z,r));
+};
 const _strikeShow=App.show;
 App.show=function(){const result=_strikeShow.apply(this,arguments);FlightStrikeBoard.render(this.game);return result;};
 const _strikeFlightUpdate=Game.prototype.update;
@@ -18176,6 +18309,23 @@ Game.prototype.stepEvade = function(dt) {
   const result=wasPOW?POW.tick(this,dt):_originalStepEvade.call(this,dt);
   if(!wasPOW && POW.FigureMotion)POW.FigureMotion.step(this,dt);
   PhotoMotion.step(this,dt);
+  if(this.evade && this.evade===actor && !wasPOW && !document.hidden && !LandingWater.swimming(this) && WildlifeRender.ready(this.rend)){
+    if(!this.evade.wildlife)Wildlife.enter(this);
+    Wildlife.step(this,dt,{
+      terrainH,
+      solidAt:(x,z,r)=>this._blockedAt(x,z,r,this.evade),
+      move:(x,z,dx,dz,r)=>this._moveOnFoot(x,z,dx,dz,r,this.evade),
+      coverAt:(x,z)=>dryJungleAt(x,z)?this._coverAt([x,Math.max(0,terrainH(x,z)),z]):0,
+      lineOfSight:(a,b)=>this._groundLineOfSight(a,b,this.evade),
+      night:!!this.atm.night,
+      warn:text=>{this.evade.wildlifeMessage={text,until:this.t+9};this.app.radio('CREW',text,'warn');},
+      hurt:event=>{
+        this.evade.wildlifeHits=Math.min(999,(this.evade.wildlifeHits||0)+1);
+        this.shake=Math.max(this.shake||0,.55);this.flash=Math.max(this.flash||0,.18);
+        if(event.message){this.evade.wildlifeMessage={text:event.message,until:this.t+9};this.app.radio('CREW',event.message,'warn');}
+      }
+    });
+  }else if(this.evade && this.evade===actor && !wasPOW)Wildlife.synchronize(this);
   GroundView.step(this,dt);
   const distance=actor&&actor===this.evade&&actor.moving&&before?Math.hypot(actor.p[0]-before[0],actor.p[2]-before[2]):0;
   EquipmentView.step(this,dt,distance);
@@ -18268,6 +18418,162 @@ App.renderLog = function(body) {
     card.append(h,p,small);body.appendChild(card);
   }
 };
+
+/* Wildlife extends the existing countryside, never the historical POW rooms
+   or aircraft simulation. Required photographs must be visible before a new
+   hazard can advance. Its serializable state lives with the ground episode. */
+const WILDLIFE_PRACTICE_KINDS=Object.freeze([
+  ['boar','Wild boar','BOAR'],['tiger','Tiger','TIGER'],
+  ['krait','Banded krait','KRAIT'],['cobra','Cobra','COBRA'],
+  ['pit-viper','Green pit viper','PIT VIPER'],['scorpion','Scorpion','SCORPION'],
+  ['centipede','Centipede','CENTIPEDE'],['weaver-ants','Weaver ant nest','WEAVER ANTS'],
+  ['forest','Forest walk','FOREST']
+]);
+function prepareGroundEcology(game){
+  const renderer=game&&game.rend,e=game&&game.evade;if(!renderer||!e)return;
+  if(LandingWater.swimming(game))return;
+  if(game.pow||e.camp){renderer._loadLegacyVegetation?.();return;}
+  const options={touch:IS_TOUCH,current:()=>game.app.rend===renderer};
+  if(!renderer._jungleRequested){
+    renderer._jungleRequested=true;
+    JungleScenery.load(renderer,options).then(()=>{
+      if(game.app.rend===renderer&&!JungleScenery.ready(renderer))renderer._loadLegacyVegetation?.();
+    }).catch(()=>{if(game.app.rend===renderer)renderer._loadLegacyVegetation?.();});
+  }
+  if(!e.river&&!renderer._wildlifeRequested){
+    renderer._wildlifeRequested=true;WildlifeRender.load(renderer,options);
+  }
+}
+function updateWildlifeStatus(game){
+  const node=document.getElementById('wildlifeStatus');if(!node)return;
+  const app=game&&game.app;
+  if(!game||!game.evade||game.pow||game.evade.camp||game.evade.river||game._capturePending||
+      game.result||LandingWater.swimming(game)||app&&app.screen!=='game') {node.hidden=true;return;}
+  const ready=WildlifeRender.ready(game.rend),state=WildlifeRender.inspect(game.rend);
+  let text='',key='',warning=false,retry=false;
+  if(!ready){
+    retry=state.status==='error';key=retry?'error':'loading';
+    text=retry?'Wildlife could not load. Retry to restore animal encounters.':'Preparing wildlife…';
+  }else{
+    const view=Wildlife.view(game),message=game.evade.wildlifeMessage;
+    if(message&&message.until>game.t){text=message.text;warning=true;}
+    else if(view.bite){text='Possible bite. Move clear and seek rescue.';warning=true;}
+    else if(view.injury){text='Recovering from animal contact. Give it space to leave.';warning=true;}
+    else if(view.irritation){text='Bite or sting irritation. Move away from the animal or nest.';warning=true;}
+    key=text;
+  }
+  node.hidden=!text;if(!text)return;
+  node.dataset.warning=String(warning);
+  if(node.dataset.key===key)return;node.dataset.key=key;
+  node.replaceChildren(document.createTextNode(text));
+  if(retry){
+    const button=document.createElement('button');button.textContent='Retry wildlife';button.onclick=()=>{
+      node.dataset.key='';WildlifeRender.retry(game.rend);updateWildlifeStatus(game);
+    };node.appendChild(document.createElement('br'));node.appendChild(button);
+    if(game.evade.wildlifePractice){const leave=document.createElement('button');leave.textContent='Ready Room';leave.onclick=()=>{
+      game.paused=true;app.game=null;app.show('ready');node.hidden=true;
+    };node.appendChild(leave);}
+  }
+}
+const _wildlifeGroundPhase=Game.prototype._startGroundPhase;
+Game.prototype._startGroundPhase=function(){
+  const result=_wildlifeGroundPhase.apply(this,arguments);
+  if(this.evade&&!this.pow&&!this.evade.camp&&!this.evade.river)Wildlife.enter(this);
+  return result;
+};
+function wildlifePracticePoint(game){
+  const centre=game.world.tgtCenter||[-12000,0,0];let best=null,bestScore=-Infinity;
+  // Search dry, gently sloping forest rather than placing the camera in a
+  // paddy, building or river. This changes only this standalone practice.
+  // A target can sit inside a broad wet delta. Preserve the original local
+  // search first, then sample two bounded outer rings for this practice only.
+  for(const ring of [{radius:10,stride:1,inner:-1},{radius:20,stride:2,inner:10},{radius:40,stride:4,inner:20}]){
+  for(let j=-ring.radius;j<=ring.radius;j+=ring.stride)for(let i=-ring.radius;i<=ring.radius;i+=ring.stride){
+    if(Math.abs(i)<=ring.inner&&Math.abs(j)<=ring.inner)continue;
+    const x=centre[0]+i*170,z=centre[2]+j*170,y=terrainH(x,z);
+    if(!Number.isFinite(y)||y<6||y>500)continue;
+    const jungle=fbm(x*.00021+11.7,z*.00021+11.7,3);
+    if(jungle>.46||!JungleScenery.habitat(jungle,fbm(x*.00006+3.7,z*.00006-2.1,3)))continue;
+    const slope=Math.max(...[[8,0],[-8,0],[0,8],[0,-8]].map(d=>Math.abs(terrainH(x+d[0],z+d[1])-y)));
+    if(slope>1.4||game._localSolidAt(x,z,3.5))continue;
+    const score=(.5-jungle)*30-slope-Math.hypot(i,j)*.02;
+    if(score>bestScore){best=[x,y,z];bestScore=score;}
+  }
+  if(best)break;
+  }
+  if(!best)throw new Error('A dry forest clearing could not be found. Restart jungle practice.');
+  game.world.clutter([best[0],best[1]+1.68,best[2]],null,()=>{});
+  // Scenic buildings may have been generated by the new terrain cells.
+  if(game._localSolidAt(best[0],best[2],.6)){
+    for(let i=0;i<24;i++){
+      const angle=i*Math.PI/12,x=best[0]+Math.sin(angle)*8,z=best[2]-Math.cos(angle)*8,y=terrainH(x,z);
+      if(y>6&&dryJungleAt(x,z)&&!game._localSolidAt(x,z,.6)&&Math.abs(y-best[1])<1.8)return [x,y,z];
+    }
+    throw new Error('The forest clearing is obstructed. Restart jungle practice.');
+  }
+  return best;
+}
+function beginWildlifePractice(game,kind){
+  const option=WILDLIFE_PRACTICE_KINDS.find(row=>row[0]===kind)||WILDLIFE_PRACTICE_KINDS[0];
+  const p=wildlifePracticePoint(game);game._startGroundPhase(p[0],p[2],0,'practice');
+  const e=game.evade;e.p=p.slice();e.wildlifePractice=true;e.wildlifeLabel=option[2];
+  e.searchers=[];e.locals=[];e.cattle=[];e.spawn=e.localRefill=e.cowT=1e9;
+  e.held=0;e.exposure=0;e.radio=-1;e.hdg=0;e.look=e.pitchCmd=kind==='boar'||kind==='tiger'?-.08:-.35;
+  game.extView=false;game.camSm=null;game.wildlifePractice={kind:option[0],origin:p.slice()};
+  game.taught.evade=1;game._capturePending=false;game._solitaryActive=false;
+  const encounters=[];
+  if(option[0]!=='forest'){
+    const distance=option[0]==='tiger'?16:option[0]==='boar'?9:option[0]==='weaver-ants'?4:2.3;
+    for(const angle of [0,.28,-.28,.55,-.55,.85,-.85]){
+      const x=p[0]+Math.sin(angle)*distance,z=p[2]-Math.cos(angle)*distance,y=terrainH(x,z);
+      if(y<=2||Math.abs(y-p[1])>2||game._localSolidAt(x,z,option[0]==='boar'||option[0]==='tiger'?.7:.25))continue;
+      encounters.push({id:'practice-'+option[0],kind:option[0],p:[x,y,z],yaw:Math.PI,state:'rest',anchorHeight:1.3});break;
+    }
+    if(!encounters.length)throw new Error('The animal needs a clearer patch of forest. Restart jungle practice.');
+  }
+  Wildlife.enter(game,{seed:271828,disableSpawns:option[0]!=='forest',encounters});
+  for(const id of ['teach','teachPeek','legend','captVeil'])document.getElementById(id)?.classList.remove('on');
+  if(game.app.gctl){game.app.gctl.pitch=0;game.app.gctl.roll=0;}
+  for(const key of Object.keys(game.app.keys))game.app.keys[key]=0;
+  game.syncControls();game.render(0);return game;
+}
+App.startWildlifePractice=function(kind='boar'){
+  const option=WILDLIFE_PRACTICE_KINDS.find(row=>row[0]===kind)||WILDLIFE_PRACTICE_KINDS[0];
+  const mission={...MISSIONS[0],id:'free',code:'JUNGLE PRACTICE',title:'Jungle survival practice',
+    free:true,wildlifePractice:true,wildlifeKind:option[0],
+    env:{...MISSIONS[0].env,hour:9.2,fog:.3,oc:.45,mountains:false}};
+  this.start(mission);this._wildlifeLaunch={kind:option[0],token:this._missionStart};
+};
+const _wildlifeStart=App.start;
+App.start=function(mission){
+  const result=_wildlifeStart.apply(this,arguments);
+  this._wildlifeLaunch=mission&&mission.wildlifePractice?{kind:mission.wildlifeKind||'boar',token:this._missionStart}:null;
+  return result;
+};
+const _wildlifeFrame=App.frame;
+App.frame=function(now){
+  if(this._wildlifeLaunch&&this._wildlifeLaunch.token!==this._missionStart)this._wildlifeLaunch=null;
+  if(this._wildlifeLaunch&&this.game&&this.screen==='game'&&!this.graphicsContextLost&&document.getElementById('loader').style.display==='none'){
+    const launch=this._wildlifeLaunch;this._wildlifeLaunch=null;
+    try{beginWildlifePractice(this.game,launch.kind);}catch(error){this.graphicsFailure(error);}
+  }
+  return _wildlifeFrame.call(this,now);
+};
+const _wildlifeReady=App.renderReady;
+App.renderReady=function(){
+  _wildlifeReady.call(this);if(this.tab!=='ops')return;
+  const card=document.createElement('article');card.className='card';card.id='wildlifePracticeCard';
+  card.innerHTML='<div class="body"><h2>Jungle survival practice</h2><p>Walk the forest, recognize wildlife warnings and learn to give animals room. Standalone practice keeps your campaign record separate.</p><div class="btnrow"></div></div>';
+  const row=card.querySelector('.btnrow'),select=document.createElement('select');select.id='wildlifeKind';select.setAttribute('aria-label','Choose a wildlife encounter');
+  for(const option of WILDLIFE_PRACTICE_KINDS){const node=document.createElement('option');node.value=option[0];node.textContent=option[1];select.appendChild(node);}
+  const button=document.createElement('button');button.className='btn';button.id='wildlifePractice';button.textContent='Enter the jungle';button.onclick=()=>this.startWildlifePractice(select.value);
+  row.append(select,button);document.getElementById('readyBody').appendChild(card);
+};
+
+LandingWater.install({Game,App,terrainH,JungleScenery,POW});
+AviatorCompanion.install({Game,App,terrainH,LandingWater});
+CarrierLaunch.install({Game,bodyAxes});
+MissionDemo.install({App,Game,missions:MISSIONS,Store,terrainH,localToWorld,worldToLocal,CV,POW});
 
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { });
 try {

@@ -1,0 +1,776 @@
+{
+  "version": 1,
+  "method": "Image-generation/editing tool photographic derivatives guided by user carrier crew references; original PNG bytes preserved.",
+  "limitations": "Reconstructed discrete photographic poses, not filmed motion capture; they depict period deck clothing rather than identifying specific people in the supplied photos.",
+  "sourceImages": 11,
+  "idlePoses": 6,
+  "animationPoses": 20,
+  "allDecodedRGBAIdentical": true,
+  "files": [
+    {
+      "sourcePNG": "assets/carrier/hires/yellow-idle.png",
+      "sourceSHA256": "e23073d75931a9c74c26f744ee4cd224365134ea70c916743b8ed61cc471e635",
+      "runtimeWebP": "assets/carrier/hires/yellow-idle.webp",
+      "runtimeSHA256": "ec14bd99f47363d44e47fafda5da72e6e22dcbfb58009a6fd8f7d377103687ff",
+      "width": 1024,
+      "height": 1536,
+      "sourceBytes": 1862088,
+      "runtimeBytes": 1144566,
+      "decodedRGBA_SHA256": "059bb33a0d7f7d5d16526ef32749a6ec915c2aca84849f1dc0a65e48e3c48fde",
+      "decodedRGBAIdentical": true,
+      "includesInvisibleRGB": true,
+      "measurement": {
+        "coreBounds": [
+          229,
+          61,
+          906,
+          1473
+        ],
+        "torsoX": 474.3948819173976,
+        "opaqueInteriorFraction": 0.9866498684386568,
+        "opaquePixels": 448460,
+        "lowerBodyRGBA_SHA256": "3535e70cee83bcd1ecf962407fe5697a342a1cb643b06b821f24a38d630ec665"
+      }
+    },
+    {
+      "sourcePNG": "assets/carrier/hires/yellow-signal-a.png",
+      "sourceSHA256": "8b27cc9b0cdcd7b70929b755027e9db56d318d21258144fd637c01c24491e118",
+      "runtimeWebP": "assets/carrier/hires/yellow-signal-a.webp",
+      "runtimeSHA256": "d8939b5f504bd54a577ded717acbc533dd3e1a73e8097dab4b9e4ca2040dff54",
+      "width": 1536,
+      "height": 1024,
+      "sourceBytes": 1869582,
+      "runtimeBytes": 1158620,
+      "decodedRGBA_SHA256": "03beaac1ac1742e8732c855b2ff42153d408f1414a51fa245c47df048813a641",
+      "decodedRGBAIdentical": true,
+      "includesInvisibleRGB": true,
+      "frames": [
+        {
+          "sourceRegion": [
+            257,
+            30,
+            394,
+            489
+          ],
+          "componentBounds": [
+            261,
+            34,
+            647,
+            515
+          ],
+          "foreignFigurePixels": 0,
+          "complete": true,
+          "guardPixels": 4,
+          "coreBounds": [
+            261,
+            35,
+            646,
+            514
+          ],
+          "torsoX": 440.23797196417263,
+          "opaqueInteriorFraction": 0.9803982910829333,
+          "opaquePixels": 102287,
+          "lowerBodyRGBA_SHA256": "9cfde87f29ff0a484ace3230eef38c8bb5fba4956eaab410ac757df8610bfcbf"
+        },
+        {
+          "sourceRegion": [
+            979,
+            4,
+            392,
+            514
+          ],
+          "componentBounds": [
+            981,
+            6,
+            1369,
+            516
+          ],
+          "foreignFigurePixels": 0,
+          "complete": true,
+          "guardPixels": 2,
+          "coreBounds": [
+            981,
+            7,
+            1368,
+            514
+          ],
+          "torsoX": 1162.1080723029102,
+          "opaqueInteriorFraction": 0.9789168997281492,
+          "opaquePixels": 102262,
+          "lowerBodyRGBA_SHA256": "d68e62f929380cd7c8f5dbba46698b182644e2dbe55eeb1742cdfac23d92738b"
+        },
+        {
+          "sourceRegion": [
+            206,
+            515,
+            420,
+            488
+          ],
+          "componentBounds": [
+            210,
+            519,
+            622,
+            999
+          ],
+          "foreignFigurePixels": 0,
+          "complete": true,
+          "guardPixels": 4,
+          "coreBounds": [
+            211,
+            520,
+            622,
+            998
+          ],
+          "torsoX": 424.96424935228083,
+          "opaqueInteriorFraction": 0.9803246382824249,
+          "opaquePixels": 96415,
+          "lowerBodyRGBA_SHA256": "dc40bb7750622cb11aa1ac000d2bd3994c583dd79f7fb35e52a12975262f3f08"
+        },
+        {
+          "sourceRegion": [
+            979,
+            516,
+            475,
+            485
+          ],
+          "componentBounds": [
+            981,
+            518,
+            1452,
+            999
+          ],
+          "foreignFigurePixels": 0,
+          "complete": true,
+          "guardPixels": 2,
+          "coreBounds": [
+            982,
+            519,
+            1451,
+            998
+          ],
+          "torsoX": 1207.4881952582919,
+          "opaqueInteriorFraction": 0.9803275725288961,
+          "opaquePixels": 99581,
+          "lowerBodyRGBA_SHA256": "5fbcc20fffcea7b50e405fd203c9e97285e5ba19ca25ef04b04c5311f56958c4"
+        }
+      ]
+    },
+    {
+      "sourcePNG": "assets/carrier/hires/yellow-signal-b.png",
+      "sourceSHA256": "3b819cb797f696300fbc3a06901612fdebf71ee76c19dd87b8bf1d20a992f2f6",
+      "runtimeWebP": "assets/carrier/hires/yellow-signal-b.webp",
+      "runtimeSHA256": "b30beb1c860e5501320cb3b3b8edbabad0956654691e4235d5dcaba375e8a03e",
+      "width": 1536,
+      "height": 1024,
+      "sourceBytes": 2061960,
+      "runtimeBytes": 1282894,
+      "decodedRGBA_SHA256": "db23f221fa03b8a3fe7190ecf53c62af7003e04edc744678216012f37860bc0e",
+      "decodedRGBAIdentical": true,
+      "includesInvisibleRGB": true,
+      "frames": [
+        {
+          "sourceRegion": [
+            203,
+            4,
+            591,
+            504
+          ],
+          "componentBounds": [
+            207,
+            8,
+            790,
+            504
+          ],
+          "foreignFigurePixels": 0,
+          "complete": true,
+          "guardPixels": 4,
+          "coreBounds": [
+            207,
+            9,
+            790,
+            503
+          ],
+          "torsoX": 421.00161728004423,
+          "opaqueInteriorFraction": 0.9820599372868868,
+          "opaquePixels": 116722,
+          "lowerBodyRGBA_SHA256": "fce13bd827d68f62eb229c3465d8ab33beb2f089dc22241b3cbf95b0f20a8b2d"
+        },
+        {
+          "sourceRegion": [
+            889,
+            11,
+            606,
+            497
+          ],
+          "componentBounds": [
+            893,
+            15,
+            1491,
+            504
+          ],
+          "foreignFigurePixels": 0,
+          "complete": true,
+          "guardPixels": 4,
+          "coreBounds": [
+            893,
+            16,
+            1490,
+            503
+          ],
+          "torsoX": 1140.0050872341335,
+          "opaqueInteriorFraction": 0.9818526543878656,
+          "opaquePixels": 114452,
+          "lowerBodyRGBA_SHA256": "43e58cd9ce07837aa885652f895f80ae9796c833b5195587ada7a601bc4bd1ed"
+        },
+        {
+          "sourceRegion": [
+            200,
+            504,
+            407,
+            508
+          ],
+          "componentBounds": [
+            204,
+            508,
+            603,
+            1008
+          ],
+          "foreignFigurePixels": 0,
+          "complete": true,
+          "guardPixels": 4,
+          "coreBounds": [
+            205,
+            509,
+            602,
+            1007
+          ],
+          "torsoX": 386.55411507846554,
+          "opaqueInteriorFraction": 0.9827930063050575,
+          "opaquePixels": 111815,
+          "lowerBodyRGBA_SHA256": "fd442392fc1bb9d23e9dd44b4226d0fbdbdcf4c1a09b7ce037119508a765c1b4"
+        },
+        {
+          "sourceRegion": [
+            934,
+            512,
+            397,
+            499
+          ],
+          "componentBounds": [
+            938,
+            516,
+            1327,
+            1007
+          ],
+          "foreignFigurePixels": 0,
+          "complete": true,
+          "guardPixels": 4,
+          "coreBounds": [
+            939,
+            516,
+            1326,
+            1006
+          ],
+          "torsoX": 1111.1396767906012,
+          "opaqueInteriorFraction": 0.9820160041064374,
+          "opaquePixels": 109097,
+          "lowerBodyRGBA_SHA256": "ef36a0c495c9c2215bec24fba2f171b7fd07cae501c4b4b4c573d1c65b181a8b"
+        }
+      ]
+    },
+    {
+      "sourcePNG": "assets/carrier/hires/green-idle.png",
+      "sourceSHA256": "d3ba42c35ac509336ee9e25a8167af182077ed30c504111174bd6b62c16a4e2c",
+      "runtimeWebP": "assets/carrier/hires/green-idle.webp",
+      "runtimeSHA256": "5516f0b8cf56ba72c3794276595e435c01bb797cbc65e8a8952062483b713fb6",
+      "width": 1024,
+      "height": 1536,
+      "sourceBytes": 1729316,
+      "runtimeBytes": 1015604,
+      "decodedRGBA_SHA256": "ee0b125c9035e1ed77488301dac2c75813a1179c19782eb25e251eca979df37a",
+      "decodedRGBAIdentical": true,
+      "includesInvisibleRGB": true,
+      "measurement": {
+        "coreBounds": [
+          264,
+          72,
+          783,
+          1474
+        ],
+        "torsoX": 502.76853664404996,
+        "opaqueInteriorFraction": 0.9892425996743257,
+        "opaquePixels": 433562,
+        "lowerBodyRGBA_SHA256": "ec2d82fd1a6015e81741df0318ae22fe95f67f4796dde5edcf017103fd44d557"
+      }
+    },
+    {
+      "sourcePNG": "assets/carrier/hires/green-inspect-a.png",
+      "sourceSHA256": "ae8ca4535a8cffdea9c76d7f2f91f0826b6e0ceaaddf81dcb638e5187f234990",
+      "runtimeWebP": "assets/carrier/hires/green-inspect-a.webp",
+      "runtimeSHA256": "cc1335db08cc0b4c20afe92c194086de05dcd4e29764dc3082cd2073e4fecaaa",
+      "width": 1536,
+      "height": 1024,
+      "sourceBytes": 1941159,
+      "runtimeBytes": 1168094,
+      "decodedRGBA_SHA256": "4fde2e8bb335ca43282c7df15e71a32e5577ecd0096cfcd94e875c9887bb4861",
+      "decodedRGBAIdentical": true,
+      "includesInvisibleRGB": true,
+      "frames": [
+        {
+          "sourceRegion": [
+            220,
+            3,
+            400,
+            495
+          ],
+          "componentBounds": [
+            224,
+            7,
+            616,
+            494
+          ],
+          "foreignFigurePixels": 0,
+          "complete": true,
+          "guardPixels": 4,
+          "coreBounds": [
+            225,
+            8,
+            615,
+            493
+          ],
+          "torsoX": 422.62979488055726,
+          "opaqueInteriorFraction": 0.982858744843606,
+          "opaquePixels": 99876,
+          "lowerBodyRGBA_SHA256": "d0cffc6cbd4daff1d22b859c3f7c11d98740d4329ab7636d1773ab724a607da7"
+        },
+        {
+          "sourceRegion": [
+            908,
+            79,
+            479,
+            422
+          ],
+          "componentBounds": [
+            912,
+            83,
+            1383,
+            497
+          ],
+          "foreignFigurePixels": 0,
+          "complete": true,
+          "guardPixels": 4,
+          "coreBounds": [
+            912,
+            84,
+            1382,
+            496
+          ],
+          "torsoX": 1085.3301127295033,
+          "opaqueInteriorFraction": 0.9815495047941817,
+          "opaquePixels": 95011,
+          "lowerBodyRGBA_SHA256": "c8b188f6d929ca0638f9370eb4b2b1794cd7e230238e1f903854ae8060b9b422"
+        },
+        {
+          "sourceRegion": [
+            218,
+            508,
+            417,
+            484
+          ],
+          "componentBounds": [
+            222,
+            512,
+            631,
+            988
+          ],
+          "foreignFigurePixels": 0,
+          "complete": true,
+          "guardPixels": 4,
+          "coreBounds": [
+            223,
+            513,
+            630,
+            987
+          ],
+          "torsoX": 431.1695089625924,
+          "opaqueInteriorFraction": 0.9846489001301566,
+          "opaquePixels": 108331,
+          "lowerBodyRGBA_SHA256": "2ac5d5d13ef1945d4580beaa8668420d9ccc90ec7f41c4dbe1bd22a02a6ea9df"
+        },
+        {
+          "sourceRegion": [
+            910,
+            503,
+            411,
+            497
+          ],
+          "componentBounds": [
+            914,
+            507,
+            1317,
+            996
+          ],
+          "foreignFigurePixels": 0,
+          "complete": true,
+          "guardPixels": 4,
+          "coreBounds": [
+            914,
+            508,
+            1316,
+            995
+          ],
+          "torsoX": 1108.8293394602792,
+          "opaqueInteriorFraction": 0.9835753869673227,
+          "opaquePixels": 104660,
+          "lowerBodyRGBA_SHA256": "e05186276844886a1c0532c0a311337c077f06eaa1d991f6e99cd101655fa157"
+        }
+      ]
+    },
+    {
+      "sourcePNG": "assets/carrier/hires/red-idle.png",
+      "sourceSHA256": "72b1c9fea034a364213d0d290dac44e5d0ac1eb4affbf311d3da843936d0576c",
+      "runtimeWebP": "assets/carrier/hires/red-idle.webp",
+      "runtimeSHA256": "52a43084b40aeaffc794c27de54170949af1ac96db69781a58c2d6ba06785729",
+      "width": 1024,
+      "height": 1536,
+      "sourceBytes": 1824140,
+      "runtimeBytes": 1106972,
+      "decodedRGBA_SHA256": "9c9c511324abd47ca65176113b2c4984c305807248035b4a103af27b9679378e",
+      "decodedRGBAIdentical": true,
+      "includesInvisibleRGB": true,
+      "measurement": {
+        "coreBounds": [
+          170,
+          53,
+          849,
+          1466
+        ],
+        "torsoX": 512.4880552943501,
+        "opaqueInteriorFraction": 0.9881715820114177,
+        "opaquePixels": 443170,
+        "lowerBodyRGBA_SHA256": "ebbed171ab078c3d527439fea47f5fb1de83abbe2ba7705596c5517b17befbdd"
+      }
+    },
+    {
+      "sourcePNG": "assets/carrier/hires/blue-idle.png",
+      "sourceSHA256": "b1b5d98a67387f4e1334dc71ab940d0f19fa12db0e67c59ba59ce183c25ab33e",
+      "runtimeWebP": "assets/carrier/hires/blue-idle.webp",
+      "runtimeSHA256": "7b8ff1dff55ab242335bbc356acd730b4c4216ccedca4e2454b070edbe2603f3",
+      "width": 1024,
+      "height": 1536,
+      "sourceBytes": 1748193,
+      "runtimeBytes": 1057732,
+      "decodedRGBA_SHA256": "b214b1065b02e62114dd9097bda604f0f1d3743dec34cad758ec296997d4aabc",
+      "decodedRGBAIdentical": true,
+      "includesInvisibleRGB": true,
+      "measurement": {
+        "coreBounds": [
+          176,
+          59,
+          814,
+          1476
+        ],
+        "torsoX": 502.9864176552799,
+        "opaqueInteriorFraction": 0.9890138560647732,
+        "opaquePixels": 459943,
+        "lowerBodyRGBA_SHA256": "cc637eccee8d8385cfd9ec41428953e60129137e5589b0d39ee8e1e26cd7a585"
+      }
+    },
+    {
+      "sourcePNG": "assets/carrier/hires/blue-walk-a.png",
+      "sourceSHA256": "3ea8973b51875673bfabd4217b8a08fe48f74863e6d69a449aacdf1a7b3101ab",
+      "runtimeWebP": "assets/carrier/hires/blue-walk-a.webp",
+      "runtimeSHA256": "fe41810f77c9af97fa332bfd6e6aa0c6be63ed395ecdaaf47a3d39d235788582",
+      "width": 1024,
+      "height": 1536,
+      "sourceBytes": 2130197,
+      "runtimeBytes": 1325346,
+      "decodedRGBA_SHA256": "21b3a00a203bd9b1bf62653e89fdfb2a790953a52326f3e221313767d2672b6f",
+      "decodedRGBAIdentical": true,
+      "includesInvisibleRGB": true,
+      "frames": [
+        {
+          "sourceRegion": [
+            80,
+            28,
+            425,
+            718
+          ],
+          "componentBounds": [
+            84,
+            32,
+            501,
+            742
+          ],
+          "foreignFigurePixels": 0,
+          "complete": true,
+          "guardPixels": 4,
+          "coreBounds": [
+            86,
+            33,
+            501,
+            741
+          ],
+          "torsoX": 278.2286210742353,
+          "opaqueInteriorFraction": 0.9789755891068153,
+          "opaquePixels": 120479,
+          "lowerBodyRGBA_SHA256": "4450a412659015198d6e8b49c7824ac60366c5bfbd7fb0dd82f4c101f72e6e4e"
+        },
+        {
+          "sourceRegion": [
+            565,
+            29,
+            399,
+            726
+          ],
+          "componentBounds": [
+            569,
+            33,
+            960,
+            751
+          ],
+          "foreignFigurePixels": 0,
+          "complete": true,
+          "guardPixels": 4,
+          "coreBounds": [
+            570,
+            34,
+            960,
+            750
+          ],
+          "torsoX": 764.9118655793113,
+          "opaqueInteriorFraction": 0.977862781119192,
+          "opaquePixels": 119211,
+          "lowerBodyRGBA_SHA256": "dc61e59b0bb317188debad34aede526ea4af7ea6a4956a7a15a8ca6dcfb5214c"
+        },
+        {
+          "sourceRegion": [
+            55,
+            766,
+            449,
+            701
+          ],
+          "componentBounds": [
+            59,
+            770,
+            500,
+            1463
+          ],
+          "foreignFigurePixels": 0,
+          "complete": true,
+          "guardPixels": 4,
+          "coreBounds": [
+            60,
+            772,
+            499,
+            1462
+          ],
+          "torsoX": 252.13688109800566,
+          "opaqueInteriorFraction": 0.9776181409035831,
+          "opaquePixels": 115540,
+          "lowerBodyRGBA_SHA256": "f922672c0bab1ace8b545e4730b1be789895b7268b5bc7ab2f5e3061e43382be"
+        },
+        {
+          "sourceRegion": [
+            533,
+            773,
+            473,
+            697
+          ],
+          "componentBounds": [
+            537,
+            777,
+            1002,
+            1466
+          ],
+          "foreignFigurePixels": 0,
+          "complete": true,
+          "guardPixels": 4,
+          "coreBounds": [
+            538,
+            778,
+            1001,
+            1465
+          ],
+          "torsoX": 741.0930708288955,
+          "opaqueInteriorFraction": 0.9771603425103337,
+          "opaquePixels": 118303,
+          "lowerBodyRGBA_SHA256": "ddbb5494b96a25eac189c49ee71880480517cfec93427ab75b98a81facc03eed"
+        }
+      ]
+    },
+    {
+      "sourcePNG": "assets/carrier/hires/blue-walk-b.png",
+      "sourceSHA256": "8e67897181529e0c36f9215d1f87eb3f316f013cd48d1c32d0f479df9778d867",
+      "runtimeWebP": "assets/carrier/hires/blue-walk-b.webp",
+      "runtimeSHA256": "5843a57d5acc6561a211d26c50f0953e49d2d33c99dc3b14ce890635ef0a0167",
+      "width": 1024,
+      "height": 1536,
+      "sourceBytes": 2153642,
+      "runtimeBytes": 1353908,
+      "decodedRGBA_SHA256": "448cd99f065598012aa34047c94fca6ea18d82aa3ed17336fae727df61267212",
+      "decodedRGBAIdentical": true,
+      "includesInvisibleRGB": true,
+      "frames": [
+        {
+          "sourceRegion": [
+            80,
+            25,
+            455,
+            717
+          ],
+          "componentBounds": [
+            84,
+            29,
+            531,
+            738
+          ],
+          "foreignFigurePixels": 0,
+          "complete": true,
+          "guardPixels": 4,
+          "coreBounds": [
+            85,
+            30,
+            530,
+            737
+          ],
+          "torsoX": 286.0691731042488,
+          "opaqueInteriorFraction": 0.9794459194460808,
+          "opaquePixels": 123917,
+          "lowerBodyRGBA_SHA256": "629baf094bb5d584330174b3599d0021487a42953a3c98fceb9dd7817f1f3138"
+        },
+        {
+          "sourceRegion": [
+            562,
+            25,
+            407,
+            730
+          ],
+          "componentBounds": [
+            566,
+            29,
+            965,
+            751
+          ],
+          "foreignFigurePixels": 0,
+          "complete": true,
+          "guardPixels": 4,
+          "coreBounds": [
+            567,
+            30,
+            964,
+            750
+          ],
+          "torsoX": 761.9908414634137,
+          "opaqueInteriorFraction": 0.9787299145723241,
+          "opaquePixels": 120921,
+          "lowerBodyRGBA_SHA256": "81b3825206334ea93c263976778a3346c1d3c28512bddaa22f76217ff79daa77"
+        },
+        {
+          "sourceRegion": [
+            49,
+            763,
+            452,
+            703
+          ],
+          "componentBounds": [
+            53,
+            767,
+            497,
+            1462
+          ],
+          "foreignFigurePixels": 0,
+          "complete": true,
+          "guardPixels": 4,
+          "coreBounds": [
+            54,
+            768,
+            497,
+            1462
+          ],
+          "torsoX": 259.48286122671453,
+          "opaqueInteriorFraction": 0.9790442809892876,
+          "opaquePixels": 121542,
+          "lowerBodyRGBA_SHA256": "c242653966d9b414f27dbeec6e0ca3068f1877e86c91878adcf99e30c5474f5e"
+        },
+        {
+          "sourceRegion": [
+            540,
+            766,
+            472,
+            703
+          ],
+          "componentBounds": [
+            544,
+            770,
+            1008,
+            1465
+          ],
+          "foreignFigurePixels": 0,
+          "complete": true,
+          "guardPixels": 4,
+          "coreBounds": [
+            545,
+            771,
+            1007,
+            1463
+          ],
+          "torsoX": 753.9914550269392,
+          "opaqueInteriorFraction": 0.9791091104105047,
+          "opaquePixels": 123068,
+          "lowerBodyRGBA_SHA256": "3197ad04a66919142ebe1c55b62e32d644ce7e936dc9304380f85a01b05aa66f"
+        }
+      ]
+    },
+    {
+      "sourcePNG": "assets/carrier/hires/brown-idle.png",
+      "sourceSHA256": "514dbf85a7b0771e92e627de278e3ea1eea8984dda0f4e5a2bf7f53a7b046761",
+      "runtimeWebP": "assets/carrier/hires/brown-idle.webp",
+      "runtimeSHA256": "41870d35718e2a5d75a4b8006df6b4eff3e642bf32ef93ee0cfe9c1e3e025fd8",
+      "width": 1024,
+      "height": 1536,
+      "sourceBytes": 1776738,
+      "runtimeBytes": 1062606,
+      "decodedRGBA_SHA256": "dd33bd3ab87d34da47c999aff713dc3094d29a824ad13216c18bc88d38e3c0fc",
+      "decodedRGBAIdentical": true,
+      "includesInvisibleRGB": true,
+      "measurement": {
+        "coreBounds": [
+          242,
+          58,
+          807,
+          1477
+        ],
+        "torsoX": 501.0733408606702,
+        "opaqueInteriorFraction": 0.9878854358710041,
+        "opaquePixels": 453999,
+        "lowerBodyRGBA_SHA256": "5eea50f6aa7282a281a493e7318426309d6f084854054759ae0b830cd17da338"
+      }
+    },
+    {
+      "sourcePNG": "assets/carrier/hires/white-idle.png",
+      "sourceSHA256": "ebb9bbf6060b0a7539d09de609e876dfadebc8476ff9df93fbd6fd8dcac44353",
+      "runtimeWebP": "assets/carrier/hires/white-idle.webp",
+      "runtimeSHA256": "410a4cf9ed4d01d3c92ceb6971972130ff32414eb0806627a33b401c658120d7",
+      "width": 1024,
+      "height": 1536,
+      "sourceBytes": 1775843,
+      "runtimeBytes": 1055068,
+      "decodedRGBA_SHA256": "f29f8b044c5329217f20bdfb33390f23b685753db7dfe81e601e4d43f0afb730",
+      "decodedRGBAIdentical": true,
+      "includesInvisibleRGB": true,
+      "measurement": {
+        "coreBounds": [
+          272,
+          41,
+          823,
+          1476
+        ],
+        "torsoX": 503.5426425411658,
+        "opaqueInteriorFraction": 0.9894703107491827,
+        "opaquePixels": 433726,
+        "lowerBodyRGBA_SHA256": "88e1ca2f5bbed1557c8218f284b60910d3639f5d485d6b82ee97b686545b0c62"
+      }
+    }
+  ]
+}
