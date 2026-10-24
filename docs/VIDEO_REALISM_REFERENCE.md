@@ -1,5 +1,7 @@
 # Carrier footage as a game reference
 
+The later three night-combat uploads are reviewed separately in [Night-combat video references](NIGHT_COMBAT_VIDEO_REVIEW.md), including their distinct source hashes, observed events and proposed game improvements.
+
 Three smaller uploaded recordings could be inspected visually. The observations below come from timestamped still frames, not an audio transcript or a frame-by-frame measurement of an entire landing. Source recordings and extracted frames remain outside the deployable game. Their photographs can guide geometry, materials, animation and staging without inserting a recording's camera cuts into player-controlled flight.
 
 ## `IMG_8182.mov`: carrier landing
