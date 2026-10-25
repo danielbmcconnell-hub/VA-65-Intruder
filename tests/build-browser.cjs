@@ -2,7 +2,8 @@
 // Release verification: serve only the generated deployment folder, verify all
 // packaged bytes over HTTP, then launch a real flight in both browser layouts.
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),http=require('node:http'),crypto=require('node:crypto');
-const root=path.resolve(__dirname,'..'),site=path.join(root,'dist/site');
+const root=path.resolve(__dirname,'..'),site=path.join(root,'dist/site'),evidenceDir=path.resolve(process.argv[2]||path.join(root,'test-results'));
+const sha=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
 const {chromium}=require(path.join(root,'node_modules/playwright'));
 const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.jpg':'image/jpeg','.jpeg':'image/jpeg','.png':'image/png','.webp':'image/webp'};
 const server=http.createServer((req,res)=>{
@@ -13,11 +14,11 @@ const server=http.createServer((req,res)=>{
 });
 (async()=>{
  await new Promise(r=>server.listen(0,'127.0.0.1',r));const target='http://127.0.0.1:'+server.address().port+'/';let browser;
- const checks=[];
+ const checks=[],executedHTTP=[];
  try{
-  fs.mkdirSync(path.join(root,'test-results'),{recursive:true});
-  const manifest=JSON.parse(fs.readFileSync(path.join(root,'dist/build-manifest.json')));
-  for(const item of manifest.files){const response=await fetch(target+item.file);assert.equal(response.status,200);assert.equal(response.headers.get('content-type'),mime[path.extname(item.file)]||'text/plain');const bytes=Buffer.from(await response.arrayBuffer());assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'),item.sha256)}
+  fs.mkdirSync(evidenceDir,{recursive:true});
+  const manifestPath=path.join(root,'dist/build-manifest.json'),manifestBytes=fs.readFileSync(manifestPath),testBytes=fs.readFileSync(__filename),manifest=JSON.parse(manifestBytes);
+  for(const item of manifest.files){const response=await fetch(target+item.file);assert.equal(response.status,200);assert.equal(response.headers.get('content-type'),mime[path.extname(item.file)]||'text/plain');const bytes=Buffer.from(await response.arrayBuffer()),observed=sha(bytes);assert.equal(observed,item.sha256);executedHTTP.push({file:item.file,sha256:observed,contentType:response.headers.get('content-type')});}
   checks.push({name:'All '+manifest.files.length+' packaged runtime files served with exact hashes',passed:true});
   browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE||(fs.existsSync('/usr/bin/chromium')?'/usr/bin/chromium':undefined),headless:true,args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
   for(const profile of [{name:'desktop',viewport:{width:1280,height:720}},{name:'iphone-layout-chromium',viewport:{width:844,height:390},deviceScaleFactor:3,isMobile:true,hasTouch:true}]){
@@ -50,8 +51,11 @@ const server=http.createServer((req,res)=>{
    assert.equal(await toggle.getAttribute('aria-pressed'),'false');assert.equal(await page.evaluate(()=>FlightCoach.enabled(App.game)),false);
    const m24=await page.evaluate(()=>({ammunition:!!window.SurvivalAmmunition,board:!!window.FlightStrikeBoard,effects:!!window.FlightStrikeEffects,sortie:!!window.FlightSortieCheckpoint}));
    assert.ok(Object.values(m24).every(Boolean),'All new production modules must load from the exact package');
-   const realismModules=await page.evaluate(()=>Object.fromEntries(['VoiceProfiles','AircraftDetail','CarrierLaunch','MissionDemo','LandingWater','AviatorCompanion','Wildlife','WildlifeRender','WildlifeTargeting','JungleScenery'].map(name=>[name,!!window[name]])));
+   const realismModules=await page.evaluate(()=>Object.fromEntries(['VoiceProfiles','AircraftDetail','CarrierLaunch','MissionDemo','LandingWater','AviatorCompanion','Wildlife','WildlifeRender','WildlifeTargeting','JungleScenery','VisualClarity','FlightThreatFeedback','PrisonDetail','PrisonFood','RationPhoto','GroundItems','GroundItemsRender'].map(name=>[name,!!window[name]])));
    assert.ok(Object.values(realismModules).every(Boolean),'Every carrier, survival, wildlife, voice and demonstration module must load from the package');
+   const groundArtwork=await page.evaluate(async()=>{const rows=[];for(const file of ['assets/firstperson/punch-left.webp','assets/firstperson/punch-right.webp','assets/items/pickups.webp','assets/firstperson/stick.webp','assets/firstperson/rifle.webp']){const image=new Image();image.src=file;await image.decode();rows.push({file,width:image.naturalWidth,height:image.naturalHeight});}return rows;});
+   assert.equal(groundArtwork.length,5);assert.ok(groundArtwork.every(row=>row.width>=1024&&row.height>=600));
+   checks.push({name:name+' packaged photographic left/right hand poses and useful-item atlas decode completely',passed:true,observed:groundArtwork});
    await page.evaluate(()=>{App.screen='game';App.game.paused=false;FlightStrikeBoard.render(App.game)});
    const boardToggle=page.locator('#flightStrikeBoardToggle');await boardToggle.waitFor({state:'visible'});
    if(opts.hasTouch)await boardToggle.tap();else await boardToggle.click();
@@ -64,7 +68,7 @@ const server=http.createServer((req,res)=>{
    await page.evaluate(()=>{App.game.paused=true;App.screen='build-test';App.game.render(1/60)});
    checks.push({name:name+' packaged flight guidance toggles through native input without moving its target',passed:true,observed:{before,after},errors,missing});
    console.log('PASS '+name+' exact packaged native guidance toggle and stable target');
-   await page.locator('#teach').dispatchEvent('click');await page.screenshot({path:path.join(root,'test-results','build-'+name+'-flight.png'),timeout:90000});
+   await page.locator('#teach').dispatchEvent('click');await page.screenshot({path:path.join(evidenceDir,'build-'+name+'-flight.png'),timeout:90000});
    checks.push({name:name+' packaged flight launches and renders with fresh default settings',passed:true,observed,errors,missing});console.log('PASS '+name+' packaged flight: default quality '+observed.quality+', '+observed.photosDecoded+' images decoded');
    // Resume the native scheduler for the real chapter's queued startup.
    await page.evaluate(()=>{window.__packagedFixedClock=false;App.show('ready');requestAnimationFrame(t=>App.frame(t))});
@@ -114,8 +118,18 @@ const server=http.createServer((req,res)=>{
    assert.equal(packagedSwim.gl,0);assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
    checks.push({name:name+' packaged complete eight-pose swimming clips upload for NVA, VC and the companion aviator',passed:true,observed:packagedSwim});
    assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
-   await page.screenshot({path:path.join(root,'test-results','build-'+name+'-pow.png'),timeout:90000});
+   await page.screenshot({path:path.join(evidenceDir,'build-'+name+'-pow.png'),timeout:90000});
    checks.push({name:name+' packaged Ready Room prison entry, tutorial, checkpoint and historical photographs',passed:true,observed:pow,errors,missing});console.log('PASS '+name+' packaged POW chapter, new guidance modules and eight historical photographs');
+   // Rations belong to solitary/regular confinement, not the October escape
+   // cell. Enter their real standalone chapter rather than changing its stage.
+   await page.evaluate(()=>{window.__packagedFixedClock=false;App.show('ready');requestAnimationFrame(t=>App.frame(t))});
+   if(opts.hasTouch)await page.locator('#powChapter [data-pow-chapter="solitary"]').tap();else await page.locator('#powChapter [data-pow-chapter="solitary"]').click();
+   await page.waitForFunction(()=>App.game?.pow?.stage==='solitary'&&document.getElementById('loader').style.display==='none',null,{polling:50,timeout:90000});
+   await page.evaluate(()=>{window.__packagedFixedClock=true;App.game.paused=true;App.game.render(0);});
+   await page.waitForFunction(()=>{const p=PrisonDetail.inspect(App.rend),r=RationPhoto.inspect(App.rend);if(p.status==='error'||r.status==='error')throw Error(JSON.stringify({p,r}));return p.status==='ready'&&r.status==='ready';},null,{polling:50,timeout:90000});
+   const prisonMaterials=await page.evaluate(()=>{const g=App.game,R=App.rend;g.render(0);return {stage:g.pow.stage,materials:PrisonDetail.inspect(R),ration:RationPhoto.inspect(R),meal:PrisonFood.inspect(g),fullMesh:!!R.meshes.rationPhotoFull,emptyMesh:!!R.meshes.rationPhotoEmpty,gl:R.gl.getError()};});
+   assert.equal(prisonMaterials.stage,'solitary');assert.equal(prisonMaterials.materials.ready,4);assert.ok(prisonMaterials.materials.bytes<=prisonMaterials.materials.budget);assert.equal(prisonMaterials.ration.ready,2);assert.ok(prisonMaterials.ration.bytes<=prisonMaterials.ration.budget);assert.equal(prisonMaterials.meal.supported,true);assert.equal(prisonMaterials.meal.mealObject,'cell-tray');assert.ok(prisonMaterials.fullMesh&&prisonMaterials.emptyMesh);assert.equal(prisonMaterials.gl,0);assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
+   checks.push({name:name+' packaged prison material textures and whole-photo full/empty ration surfaces load through the native chapter',passed:true,observed:prisonMaterials});
    // Launch through the released menu, then advance only original production
    // physics to the naturally spawned interceptor. No aircraft/enemy placement
    // or mission-phase mutation is used in this packaged integration smoke.
@@ -132,7 +146,7 @@ const server=http.createServer((req,res)=>{
    if(opts.hasTouch)await page.locator('#willardRear').tap();else await page.locator('#willardRear').click();
    const willard=await page.evaluate(()=>{const g=App.game;g.paused=true;g.render(1/60);return {mission:g.mis.id,alive:g.ac.alive,phase:g.willard.phase,rear:g.willard.rear,rightSeat:g.rightSeat,checkpointValid:WillardMission.validCheckpoint(Store.get(WillardMission.KEY,null)),artwork:WillardSprites.inspect(g.rend),immersion:{nightContrast:g.rend.atm.nightContrast,meshes:['bnRouteFactory','bnRouteBridge','bnRouteRail'].every(n=>!!g.rend.meshes[n]),chart:!!FlightStrikeBoard.chart(g),rasterCPU:g.hud.radar.ctx.getContextAttributes().willReadFrequently},gpuError:g.rend.gl.getError()}});
    assert.equal(willard.mission,'willard');assert.equal(willard.alive,true);assert.equal(willard.rightSeat,false);assert.equal(willard.rear,true);assert.ok(['contact','defend'].includes(willard.phase));assert.equal(willard.checkpointValid,true);assert.equal(willard.artwork.status,'ready');assert.equal(willard.artwork.uploads,1);assert.ok(willard.artwork.draws>0);assert.equal(willard.artwork.last.visible,true);assert.equal(willard.gpuError,0);assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
-   await page.screenshot({path:path.join(root,'test-results','build-'+name+'-willard.png'),timeout:90000});
+   await page.screenshot({path:path.join(evidenceDir,'build-'+name+'-willard.png'),timeout:90000});
    assert.deepEqual(willard.immersion,{nightContrast:1,meshes:true,chart:true,rasterCPU:true});
    checks.push({name:name+' packaged Willard mission launches through native input and renders the supplied world-space interceptor',passed:true,observed:willard,errors,missing});console.log('PASS '+name+' packaged Willard native PLAY, original flight, checkpoint and actual GPU atlas');
    await page.evaluate(()=>{App.game.paused=true;App.show('ready')});
@@ -154,10 +168,12 @@ const server=http.createServer((req,res)=>{
    if(opts.hasTouch)await page.locator('#dixieLook').tap();else await page.locator('#dixieLook').click();
    const dixie=await page.evaluate(()=>{const g=App.game;g.render(0);return {mission:g.mis.id,rightSeat:g.rightSeat,airborne:!g.ac.onDeck,view:FlightStrikeExperience.view(g),meshes:['bnStrikeDepot','bnStrikeRuin','bnStrikeTower'].every(n=>!!g.rend.meshes[n]),chart:FlightStrikeBoard.chart(g).features.some(f=>f.id==='dixie-road-junction'),p:g.ac.p.slice(),bombs:g.ac.bombs,score:{...g.world.score},gpuError:g.rend.gl.getError(),focused:document.activeElement?.id}});
    assert.equal(dixie.mission,'m2');assert.ok(dixie.rightSeat&&dixie.airborne&&dixie.meshes&&dixie.chart&&dixie.view.look);assert.equal(dixie.view.ripple,4);assert.notEqual(dixie.focused,'dixieLook');assert.deepEqual(dixie.p,beforeDixie.p);assert.equal(dixie.bombs,beforeDixie.bombs);assert.deepEqual(dixie.score,beforeDixie.score);assert.equal(dixie.gpuError,0);assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
-   await page.screenshot({path:path.join(root,'test-results','build-'+name+'-dixie.png'),timeout:90000});
+   await page.screenshot({path:path.join(evidenceDir,'build-'+name+'-dixie.png'),timeout:90000});
    checks.push({name:name+' packaged guided Dixie native briefing, airborne practice, scene, chart and original intervalometer',passed:true,observed:dixie,errors,missing});console.log('PASS '+name+' packaged guided Dixie native practice and controls');await ctx.close();
   }
-  fs.writeFileSync(path.join(root,'test-results/build.json'),JSON.stringify({scope:'Runtime deployment folder byte checks and actual Chromium WebGL2 flight smoke; physical devices not tested',sourceSha256:manifest.entrySHA256,checks,recordedAt:new Date().toISOString()},null,2)+'\n');
+  const sourceStable=manifestBytes.equals(fs.readFileSync(manifestPath))&&testBytes.equals(fs.readFileSync(__filename))&&manifest.files.every(item=>sha(fs.readFileSync(path.join(site,item.file)))===item.sha256);
+  assert.equal(sourceStable,true,'Packaged runtime, manifest and executed test must remain unchanged');
+  fs.writeFileSync(path.join(evidenceDir,'build.json'),JSON.stringify({suite:'packaged-runtime',passed:true,fullCoverage:true,sourceStable,scope:'Every exact runtime file served over HTTP plus native Chromium WebGL2 desktop/touch flight, prison, photographs and mission-control smoke; declared fixed-clock and checkpoint fixtures. Physical devices and hardware FPS are not tested.',sourceSha256:manifest.entrySHA256,sourceSHA256:Object.fromEntries(manifest.files.map(item=>[item.file,item.sha256])),testSHA256:{'tests/build-browser.cjs':sha(testBytes)},executedHTTP,checks,recordedAt:new Date().toISOString()},null,2)+'\n');
   console.log('PASS deployment folder: all exact runtime hashes and desktop/native-touch flight, zero missing local assets or JavaScript/WebGL errors');
  }finally{if(browser)await browser.close();await new Promise(r=>server.close(r))}
 })().catch(e=>{console.error(e.stack);process.exitCode=1});

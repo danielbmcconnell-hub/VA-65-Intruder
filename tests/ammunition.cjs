@@ -21,20 +21,39 @@ function fixture() {
     rnd: (lo, hi) => (lo + hi) / 2, terrainH: () => 0 });
   vm.runInContext(moduleSource, context);
   context.SurvivalAmmunition = window.SurvivalAmmunition;
-  vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/survival/ground-combat.js'), 'utf8'), context);
-  context.GroundCombat = window.GroundCombat;
+  // The production weapon path now queries complete human-photo dimensions
+  // and whether wildlife GPU assets are ready. Load those real modules;
+  // this CPU fixture has no renderer uploads, so wildlife stays unavailable.
+  for (const [name, file] of [
+    ['GroundCombat', 'survival/ground-combat.js'],
+    ['GroundItems', 'survival/ground-items.js'],
+    ['GroundView', 'survival/ground-view.js'],
+    ['PhotoSprites', 'render/photographic-sprites.js'],
+    ['WildlifeRender', 'render/wildlife-render.js'],
+    ['WildlifeTargeting', 'survival/wildlife-targeting.js'],
+    ['Wildlife', 'survival/wildlife.js']
+  ]) {
+    vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets', file), 'utf8'), context);
+    context[name] = window[name];
+  }
+  window.GroundItems.configure({terrainH:()=>0,solidAt:()=>false});
   vm.runInContext('globalThis.methods={' +
+    method('_handPunch(dt,e,A,K,blocked=false)', '  _weapons(dt, e, A, K)') + ',' +
     method('_weapons(dt, e, A, K)', '  /* ---- people are solid') + ',' +
     method('applyFirstContact(res)', '  /* The hour between the canopy') + '};', context);
   const e = { p: [0, 0, 0], hdg: 0, rounds: 6, hasPistol: true, hasKnife: true,
     drawn: 1, weaponMode: 'pistol', lastShot: -99, kills: 0, noise: 0,
     searchers: [], locals: [], cattle: [], spawn: 100 };
   const game = { t: 10, phase: 'evade', evade: e, mis: { escape: false },
+    rend: { eye: [0, 1.68, 0] },
     world: { score: { hits: 3, dropped: 4, cep: [20] }, fx: { glow() {}, smoke() {} } },
     app: { radio: (...args) => messages.push(args), audio: { burst: (...args) => sounds.push(args) } },
+    _handPunch:context.methods._handPunch,
     _alertWitnesses() {}, _groundLineOfSight() { return true; }, _panicAtCow() {}, teach() {} };
-  const fire = (dt = 1, keys = { Space: true }) => {
-    game.t += dt;
+  const fire = (dt = 1, keys = {}) => {
+    // A queued primary attack uses the selected weapon. Space belongs to
+    // empty-hand punches and must never serve as a revolver trigger.
+    e.attackWant = 1; game.t += dt;
     context.methods._weapons.call(game, 1 / 60, e, game.app, keys);
   };
   const contact = result => context.methods.applyFirstContact.call(game, result);
@@ -55,12 +74,21 @@ test('one real accepted trigger shot spends one round even when it hits nothing'
   assert.equal(f.sounds.filter(s => s[0] === 'gun').length, 1);
   assert.deepEqual(f.game.world.score.cep, [20]); assert.equal(f.game.world.score.dropped, 4);
 });
+test('held Space punches with the free hand and never fires a drawn revolver', () => {
+  const f=fixture();
+  for(let i=0;i<18;i++){f.game.t+=1/60;f.context.methods._weapons.call(f.game,1/60,f.e,f.game.app,{Space:true});}
+  const punch=f.context.GroundCombat.inspectPunch(f.game);
+  assert.equal(punch.serial,1,'Holding the punch key starts exactly one swing');
+  assert.equal(punch.hands.right,'pistol');assert.equal(f.e.weaponMode,'pistol');
+  assert.equal(f.e.rounds,6);assert.equal(f.A.view(f.game).bulletsExpended,0);
+  assert.equal(f.sounds.filter(s=>s[0]==='gun').length,0);
+});
 test('trigger debounce and the actual pistol cooldown cannot spend or count extra rounds', () => {
   const f = fixture(); f.fire(); f.fire(.1); f.fire(.31);
   assert.equal(f.e.rounds, 5); assert.equal(f.game.world.score.pistolShots, 1);
   f.fire(.46); assert.equal(f.e.rounds, 4); assert.equal(f.game.world.score.pistolShots, 2);
 });
-test('held attack exhausts the original finite six rounds then dry fires without increasing expenditure', () => {
+test('repeated primary attacks exhaust the original finite six rounds then dry fire without increasing expenditure', () => {
   const f = fixture(); for (let i = 0; i < 9; i++) f.fire(1);
   assert.equal(f.e.rounds, 0); assert.equal(f.game.world.score.bulletsExpended, 6);
   assert.equal(f.sounds.filter(s => s[0] === 'gun').length, 6);

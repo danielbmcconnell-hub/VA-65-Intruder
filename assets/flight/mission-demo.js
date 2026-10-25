@@ -201,7 +201,10 @@
      g.app.gctl.roll=clamp(angle(-Math.PI/2-e.hdg)*2,-1,1);if(Math.abs(angle(-Math.PI/2-e.hdg))<.08)action(s,g,()=>{if(p.EpisodeStealth.throwStone(g))s.stoneThrown=true;},1);return;
     }
     if(!s.corridorClear){
-     if(!s.hideReady){if(navigate(g,s,[b[0]-1.7,e.p[1],b[2]-1.05],dt,.3)){s.hideReady=true;s.guardWait=s.elapsed;}return;}
+     // The reconstructed cell's beds flank a one-metre aisle. Wait in the
+     // clear apron by the left door jamb, then turn back through the door;
+     // the former wide-room hiding point now lies inside a concrete slab.
+     if(!s.hideReady){if(navigate(g,s,[b[0]-.65,e.p[1],b[2]-3.0],dt,.18)){s.hideReady=true;s.guardWait=s.elapsed;}return;}
      const guard=e.searchers?.find(a=>a.id==='corridor-sentry'&&a.alive!==false),door=[b[0],b[1],b[2]-5];
      const distracted=s.stoneThrown&&guard&&guard.p[0]<b[0]-4&&flat(guard.p,door)>4;
      if(guard&&!distracted&&(guard.state!=='patrol'||flat(guard.p,door)<7||s.elapsed-s.guardWait<14)){stage(s,'cell','The fitting is covered. An actual thrown stone draws attention down the corridor. The computer waits behind the wall for the patrol to move away.');return;}

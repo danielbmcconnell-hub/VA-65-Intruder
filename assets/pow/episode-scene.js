@@ -61,7 +61,7 @@
     const s = game.pow, scene = state(game), day = daylight(game), fade = 1 - day * .86;
     if (s.stage === 'cell' || s.stage === 'compound') {
       const out = [
-        lamp(game, 'cell-bulb', at(game, 0, 2.50, -.4), at(game, 1.65, 1.10, -3.38), 5.5, 1.15, [1, .79, .48]),
+        lamp(game, 'cell-bulb', at(game, 0, 2.70, -1.28), at(game, .95, 1.10, -3.42), 4.6, .78, [1, .94, .87]),
         lamp(game, 'corridor-lamp', at(game, 7.4, 2.85, -5.6), at(game, 7.4, 1.05, -7.55), 8.5, .85, [1, .76, .42]),
         lamp(game, 'yard-west', at(game, -22, 5.58, 12), at(game, -21.8, 1.10, 12), 24, .80 * fade, [1, .80, .50]),
         lamp(game, 'yard-east', at(game, 22, 5.58, 12), at(game, 21.8, 1.10, 12), 34, 1.35 * fade, [1, .84, .58], 'searchlight')
@@ -98,19 +98,12 @@
     const plaster = [.87, 1.06, .95, 0], lime = [1.20, 1.23, 1.03, 0], damp = [.62, .75, .66, 0];
     const timber = [1.27, 1.04, .71, 0], rust = [1.55, .83, .48, 0];
     if (s.stage === 'cell' || s.stage === 'compound') {
-      for (const side of [-1, 1]) {
-        box('cell-plaster-' + side, 'powStone', side * 2.589, 1.47, 0, .007, 1.36, 3.35, plaster);
-        box('cell-damp-band-' + side, 'powStone', side * 2.578, .37, .3, .007, .24, 3.02, damp);
-        for (let n = 0; n < 3; n++) box('cell-wear-' + side + '-' + n, 'powStone', side * 2.566,
-          .80 + n * .44, -2.20 + n * 1.83, .008, .13 + n * .045, .34 + n * .08, lime);
-      }
-      box('cell-rear-plaster', 'powStone', 0, 1.47, 3.389, 2.57, 1.34, .007, plaster);
-      box('cell-rear-damp', 'powStone', .35, .34, 3.378, 2.22, .25, .007, damp);
-      for (const z of [-2.5, .1, 2.6]) box('cell-roof-timber-' + z, 'powWood', 0, 3.01, z, 2.61, .09, .085, timber);
-      for (const z of [-1.2, 1.2]) box('cell-floor-joint-' + z, 'powDark', 0, .016, z, 2.57, .006, .016, [.55, .58, .53, 0]);
+      // The reconstructed cell owns continuous photographic plaster and a
+      // concrete ceiling. Former beam/color-overlay boxes described the old,
+      // much wider room and must not float outside its replacement walls.
       if (!s.flags?.doorOpen) {
-        for (const y of [.62, 1.92]) box('door-rusted-hinge-' + y, 'powMetal', -.78, y, -3.488, .065, .11, .018, rust);
-        box('door-lock-backing', 'powMetal', .51, 1.0, -3.466, .115, .155, .008, [1.10, .96, .72, 0]);
+        for (const y of [.62, 1.92]) box('door-rusted-hinge-' + y, 'powMetal', -.40, y, -3.488, .035, .080, .018, [.64,.66,.60,0]);
+        box('door-lock-backing', 'powMetal', .30, 1.0, -3.466, .070, .115, .008, [.64,.66,.60,0]);
       }
       for (const x of [1.9, 7.4, 12.2]) {
         box('corridor-timber-' + x, 'powWood', x, 2.99, -5.7, .075, .075, 1.96, timber);
@@ -222,11 +215,11 @@
     const blend = (night, sunlight) => night.map((v, i) => v + (sunlight[i] - v) * day);
     return {
       profile: indoor ? 'worn-prison-plaster' : s.stage === 'compound' ? 'prison-rooftops' : river ? 'muddy-river' : 'hanoi-street',
-      ambient: blend(indoor ? [.08, .105, .13] : [.105, .14, .19], indoor ? [.27, .28, .25] : [.48, .47, .43]),
-      rim: blend([.13, .18, .25], [.08, .10, .12]),
-      fogColor: blend([.12, .17, .21], [.47, .50, .45]),
+      ambient: blend(indoor ? [.11, .11, .10] : [.105, .14, .19], indoor ? [.24, .23, .21] : [.48, .47, .43]),
+      rim: blend(indoor ? [.065, .052, .038] : [.13, .18, .25], indoor ? [.08, .07, .05] : [.08, .10, .12]),
+      fogColor: blend(indoor ? [.13, .105, .075] : [.12, .17, .21], indoor ? [.30, .25, .18] : [.47, .50, .45]),
       fogDensity: indoor ? .001 : river ? .0027 + rain * .0014 : .0020 + rain * .0008,
-      material: { grain: quality(game) === 0 ? .08 : .15, wear: indoor ? .60 : river ? .24 : .43,
+      material: { grain: quality(game) === 0 ? .08 : .15, wear: indoor ? .20 : river ? .24 : .43,
         wetness: river ? .55 + rain * .4 : s.stage === 'hanoi' ? .28 + rain * .4 : rain * .3 },
       water: { enabled: river, level: finite(r.waterY, s.base[1]), time: e.clock,
         current: river ? finite(r.currentWorldMps, finite(r.current, .8)) : 0,

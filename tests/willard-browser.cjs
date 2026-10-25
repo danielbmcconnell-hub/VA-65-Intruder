@@ -272,10 +272,14 @@ module.exports = async function willardBrowser(browser, target, evidenceDir) {
         await click(page.locator('#btnSurrender'));
         await page.evaluate(()=>{for(let i=0;i<180&&!App.game._capt;i++)App.game.update(1/60);});
       }
+      // The cinematic capture now advances in production simulation time.
+      // This suite deliberately stopped its scheduler for original fixed-step
+      // flight, so wall-clock waiting cannot move transfer/holding forwards.
+      const transfer=await page.evaluate(()=>{const g=App.game;let frames=0;while((g.pow?.stage!=='solitary'||CaptureTransition.active(g))&&frames<2400){g.update(1/60);frames++;}return {frames,stage:g.pow?.stage,transition:CaptureTransition.inspect(g)};});
       await page.waitForFunction(()=>App.game.pow?.stage==='solitary',null,{timeout:15000,polling:50});
-      const captivity=await page.evaluate(()=>{const g=App.game;g.render(1/60);g.syncControls();return {mission:g.mis.id,stage:g.pow.stage,captured:!!g._capt,stats:g.pow.stats,p:g.evade.p.slice(),solids:g.pow.solids.length,objects:g.pow.objects.length,gl:g.rend.gl.getError(),savedMission:Store.get('pow_checkpoint',null)?.sortie?.missionId};});
-      assert.equal(captivity.captured,true);assert.equal(captivity.stage,'solitary');assert.equal(captivity.savedMission,'willard');assert.ok(captivity.solids>0&&captivity.objects>0);assert.equal(captivity.gl,0);await shot('preserved-solitary-captivity');
-      record('Capture after the original ejection enters the existing playable solitary-confinement system', captivity, 'Native first-contact surrender when offered; otherwise a declared nearby NVA placement and native HANDS UP lets production line-of-sight/captor timing resolve capture. Original delayed captivity callback, prison geometry and mechanics remain live. No captured flag, POW stage or chapter API is assigned.');
+      const captivity=await page.evaluate(()=>{const g=App.game;g.render(1/60);g.syncControls();return {mission:g.mis.id,stage:g.pow.stage,captured:!!g._capt,pending:!!g._capturePending,stats:g.pow.stats,p:g.evade.p.slice(),solids:g.pow.solids.length,objects:g.pow.objects.length,gl:g.rend.gl.getError(),savedMission:Store.get('pow_checkpoint',null)?.sortie?.missionId};});
+      assert.equal(captivity.captured,true);assert.equal(captivity.pending,false);assert.equal(captivity.stage,'solitary');assert.equal(captivity.savedMission,'willard');assert.ok(captivity.solids>0&&captivity.objects>0);assert.equal(captivity.gl,0);await shot('preserved-solitary-captivity');
+      record('Capture after the original ejection enters the existing playable solitary-confinement system', {captivity,transfer}, 'Native first-contact surrender when offered; otherwise a declared nearby NVA placement and native HANDS UP lets production line-of-sight/captor timing resolve capture. Original fixed-step updates advance the cinematic transfer/holding callback; prison geometry and mechanics remain live. No captured flag, POW stage or chapter API is assigned.');
       assert.deepEqual(errors, []); assert.deepEqual(missing, []);
       record('The complete combat sortie, retries, optional strike, fatal dive and survival/captivity transitions have no JavaScript errors or missing runtime assets', { errors, missing }, 'Real original renderer and integrated combat/navigation/mission conditions throughout all five playable phases and separately declared negative-path fixtures.');
     } catch (error) {

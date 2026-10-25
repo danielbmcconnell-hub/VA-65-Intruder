@@ -1,6 +1,7 @@
 'use strict';
 const assert = require('node:assert/strict'), fs = require('node:fs/promises'), path = require('node:path');
 const crypto = require('node:crypto');
+const {waitCompletePhotographs}=require('./helpers/complete-photo-fixture.cjs');
 
 // Real application controls, flight engine and WebGL2. Fixed-step loops compress
 // a short flight; no aircraft placement, physics replacement or invented impact
@@ -17,6 +18,7 @@ module.exports = async function flightCoachBrowser(browser, target, evidenceDir)
   for (const profile of profiles.filter(profile => !selectedProfile || profile.name === selectedProfile)) {
     const { name, ...options } = profile, context = await browser.newContext(options), errors = [], missing = [];
     await context.addInitScript(() => {
+      if(location.protocol==='about:')return;
       localStorage.setItem('a6_set', JSON.stringify({ quality: 0, assist: 1, sound: 0, voices: 0, invert: 0, sens: 1, mouse: 0, seat: 0 }));
       localStorage.setItem('a6_sawkeys', '1'); localStorage.removeItem('a6_flightCoach22');
     });
@@ -35,7 +37,7 @@ module.exports = async function flightCoachBrowser(browser, target, evidenceDir)
     const loaded = async id => {
       await page.waitForFunction(expected => document.getElementById('graphicError') || App.game?.mis.id === expected && App.game.st && document.getElementById('loader').style.display === 'none', id, { timeout: 90000 });
       assert.equal(await page.locator('#graphicError').count(), 0);
-      await page.waitForFunction(() => ['nva', 'female_vc', 'militia', 'farmer', 'vegetation'].every(key => App.rend.textures['photo_' + key]), null, { timeout: 45000 });
+      await waitCompletePhotographs(page);
       await page.locator('#teach').dispatchEvent('click');
       if (await page.locator('#legend.on').count()) await page.keyboard.press('h');
     };
@@ -111,11 +113,12 @@ module.exports = async function flightCoachBrowser(browser, target, evidenceDir)
       const gearBefore = await page.evaluate(() => ({ gear: App.game.ac.gear, knots: App.game.ac.ias * 1.943844492 }));
       if (cdp) await touch('#btnGear', false); else await page.keyboard.press('g');
       const gearAfter = await page.evaluate(() => ({ gear: App.game.ac.gear, hook: App.game.ac.hook, enabled: FlightCoach.enabled(App.game), error: App.rend.gl.getError(), radio: document.getElementById('radio').textContent }));
-      const expectedGear = gearBefore.knots > 260 ? gearBefore.gear : !gearBefore.gear;
+      const extensionBlocked = !gearBefore.gear && gearBefore.knots > 260;
+      const expectedGear = extensionBlocked ? false : !gearBefore.gear;
       assert.equal(gearAfter.gear, expectedGear); assert.equal(gearAfter.hook, expectedGear); assert.equal(gearAfter.enabled, true); assert.equal(gearAfter.error, 0);
-      if (gearBefore.knots > 260) assert.match(gearAfter.radio, /Too fast for the gear/);
+      if (extensionBlocked) assert.match(gearAfter.radio, /Too fast for the gear/);
       let slowdown = null, allowedGear = gearAfter;
-      if (gearBefore.knots > 260) {
+      if (extensionBlocked) {
         if (cdp) { await touch('#thrDn', true); assert.equal(await page.evaluate(() => App.gctl.thrDn), 1); }
         else { await page.keyboard.down('Control'); assert.equal(await page.evaluate(() => App.keys.ControlLeft), 1); }
         slowdown = await page.evaluate(() => {
@@ -131,7 +134,7 @@ module.exports = async function flightCoachBrowser(browser, target, evidenceDir)
         assert.equal(allowedGear.gear, !gearBefore.gear); assert.equal(allowedGear.hook, !gearBefore.gear);
         assert.equal(allowedGear.enabled, true); assert.equal(allowedGear.error, 0);
       }
-      record('Existing gear control enforces its airspeed limit and operates after native-input deceleration', { before: gearBefore, interlockResponse: gearAfter, slowdown, allowedResponse: allowedGear }, (cdp ? 'Actual touchscreen GEAR and held THR− controls.' : 'Actual G and held Control keyboard events.') + ' When above 260 KIAS, the original engine is advanced under actual throttle-down input until below 255 KIAS before GEAR is tried again; no speed, velocity or position is assigned.');
+      record('Existing gear control permits retraction and limits high-speed extension', { before: gearBefore, extensionBlocked, interlockResponse: gearAfter, slowdown, allowedResponse: allowedGear }, (cdp ? 'Actual touchscreen GEAR and held THR− controls.' : 'Actual G and held Control keyboard events.') + ' Retraction remains available above 260 KIAS. If an extension is actually blocked, native throttle-down input advances the original engine below 255 KIAS before retrying; no speed, velocity or position is assigned.');
       await page.evaluate(() => { App.game.paused = false; FlightCoach.tick(App.game, 0); App.game.render(1 / 60); });
       await shot('carrier-airborne-guidance');
 

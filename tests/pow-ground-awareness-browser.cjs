@@ -15,17 +15,18 @@ function methods() {
     const body = html.slice(start + 1), end = body.slice(1).search(/\n  [A-Za-z_$][\w$]*\([^;\n]*\)\s*\{/);
     return end < 0 ? body : body.slice(0, end + 1);
   };
-  return ['_groundAwareness', '_stepLivingWorld', '_alertWitnesses', '_groundLineOfSight', '_weapons'].map(read).join('\n');
+  return ['_groundAwareness', '_stepLivingWorld', '_alertWitnesses', '_groundLineOfSight', '_handPunch', '_weapons'].map(read).join('\n');
 }
 function fixture() {
   const boxes = [], messages = [];
   const math = Object.create(Math); math.random = () => .5;
   const sandbox = {Math: math, Number, PI: Math.PI, TAU: Math.PI * 2, IS_TOUCH: false,
     terrainH: () => 10, rnd: (a, b) => (a + b) / 2, clamp: (n, lo, hi) => Math.max(lo, Math.min(hi, n))};
-  const context = vm.createContext(sandbox);
-  vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/survival/ground-combat.js'), 'utf8'), context);
+  sandbox.window=sandbox;const context = vm.createContext(sandbox);
+  for(const file of ['survival/ground-combat.js','survival/ground-items.js','survival/ground-view.js','render/photographic-sprites.js','render/wildlife-render.js','survival/wildlife-targeting.js','survival/wildlife.js'])vm.runInContext(fs.readFileSync(path.join(__dirname,'../assets',file),'utf8'),context);
+  sandbox.GroundItems.configure({terrainH:sandbox.terrainH});
   const Fixture = vm.runInContext('(class GroundFixture {' + methods() + '\n})', context);
-  const G = new Fixture(); G.t = 20; G.world = {fx: {glow() {}, smoke() {}}};
+  const G = new Fixture(); G.t = 20; G.rend={eye:[0,11.68,0]}; G.world = {fx: {glow() {}, smoke() {}}};
   G.app = {radio(...args) { messages.push(args); }, vn() {}, audio: {burst() {}}};
   G._seedLivingWorld = () => { throw new Error('Fixture must not refill'); };
   G._localSolidAt = (x, z, r) => boxes.some(b => Math.abs(x - b.x) < b.hw + r && Math.abs(z - b.z) < b.hl + r);
@@ -81,7 +82,7 @@ function pure() {
     const f = fixture(); f.e.p = [7, 0, 0]; f.e.hdg = -Math.PI / 2;
     Object.assign(f.e, {weaponMode: 'pistol', drawn: 1, rounds: 1, hasPistol: true, lastShot: -99});
     const a = f.add('nva', [-7, 0, 0], Math.PI / 2); f.boxes.push({x: 0, z: 0, hw: 4.2, hl: 4.2});
-    f.G._weapons(.1, f.e, f.G.app, {Space: true});
+    f.e.attackWant=1;f.G._weapons(.1, f.e, f.G.app, {});
     assert.equal(f.e.rounds, 0); assert.equal(a.seen, 0); assert.ok(a.sus >= .7); assert.deepEqual(Array.from(a.lastNoise), [7, 0, 0]);
   });
   test('sight cache preserves the last validated position and bounds repeated LOS work', () => {
@@ -109,7 +110,7 @@ module.exports = async function groundAwareness(browser, target) {
     await page.evaluate(() => App.start(MISSIONS.find(m => !m.escape)));
     await page.waitForFunction(() => App.game?.st && document.getElementById('loader').style.display === 'none', null, {timeout: 90000});
     const results = await page.evaluate(() => {
-      const G = App.game; App.screen = 'fixture'; G.paused = true; G.t = 20; G.startCamp(1);
+      const G = App.game; App.frame = () => {}; App.screen = 'game'; G.paused = false; G.t = 20; G.startCamp(1);
       let p;
       for (let radius = 160; radius < 1300 && !p; radius += 80) for (let heading = 0; heading < TAU; heading += PI / 4) {
         const x = G.evade.p[0] + Math.cos(heading) * radius, z = G.evade.p[2] + Math.sin(heading) * radius;
@@ -136,7 +137,7 @@ module.exports = async function groundAwareness(browser, target) {
       e.noise = 0; e.p[0] += 10; G.t += .3; G._stepLivingWorld(.1, e);
       record('hidden-relocation-keeps-heard-destination', hidden.goal[0] === p[0] + 7, {goal: hidden.goal, player: e.p});
       Object.assign(e, {weaponMode: 'pistol', drawn: 1, rounds: 1, hasPistol: true, lastShot: -99, hdg: -PI / 2});
-      G.t += 1; G._weapons(.1, e, App, {Space: true});
+      G.t += 1; e.attackWant=1; G._weapons(.1, e, App, {});
       record('pistol-hearing-does-not-grant-xray-sight', e.rounds === 0 && !hidden.seen && hidden.sus >= .7, {rounds: e.rounds, seen: hidden.seen, suspicion: hidden.sus});
       G.world.scenery.splice(G.world.scenery.indexOf(wall), 1);
       return results;

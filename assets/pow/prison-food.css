@@ -1,0 +1,7 @@
+.prison-food[hidden]{display:none!important}
+.prison-food [hidden]{display:none!important}
+.prison-food{position:fixed;inset:0;z-index:94;display:flex;align-items:center;justify-content:center;background:rgba(3,5,4,.68);padding:12px;box-sizing:border-box;pointer-events:auto}
+.prison-food-panel{position:relative;box-sizing:border-box;width:min(660px,96vw);max-height:92dvh;overflow:auto;background:#171a16;color:#e1e3d9;border:1px solid #687061;border-radius:8px;padding:18px;box-shadow:0 12px 40px #0009}
+.prison-food-panel h2{margin:0 100px 8px 0;font-size:21px}.prison-food-panel img{display:block;width:100%;height:auto;max-height:48dvh;object-fit:contain;margin:auto}
+.prison-food-dismiss{position:absolute;right:12px;top:10px;min-height:40px}.prison-food-panel p{line-height:1.4;margin:8px 0}.prison-food-panel .dim{font-size:12px;color:#aeb5a7}.prison-food-empty{padding:45px 0;text-align:center;color:#b7bdae}
+@media(max-height:480px){.prison-food-panel{padding:12px;width:min(760px,96vw)}.prison-food-panel img{width:46%;max-height:57dvh;float:left;margin-right:18px}.prison-food-description{padding-top:8px}.prison-food-panel .dim{clear:both}.prison-food-panel h2{font-size:18px}}

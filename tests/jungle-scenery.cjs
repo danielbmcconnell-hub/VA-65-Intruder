@@ -6,11 +6,11 @@ const source=fs.readFileSync(path.join(__dirname,'../assets/render/jungle-scener
 function rgba(width,height,edge=false){const data=new Uint8ClampedArray(width*height*4);for(let y=4;y<height-4;y++)for(let x=8;x<width-8;x++){const i=(y*width+x)*4;data[i]=45;data[i+1]=112;data[i+2]=34;data[i+3]=255;}if(edge)data[3]=255;return data;}
 function fixture(options={}){
  const math=Object.create(Math);math.random=()=>{throw Error('Scenery must not consume gameplay RNG')};
- const document={createElement(){return {width:0,height:0,getContext(){const cv=this;return {drawImage(){},getImageData(){return {data:rgba(cv.width,cv.height)}}};}};}};
- const window={document,fetch:async()=>({ok:true,json:async()=>({version:1,plants:Object.fromEntries(['canopy','bamboo','nipa','fern','liana','litter'].map(kind=>[kind,{file:kind+'.webp'}]))})})};
- window.Image=class{constructor(){this.naturalWidth=1024;this.naturalHeight=1536;}set src(value){queueMicrotask(()=>value.includes(options.fail||'never-fail')?this.onerror():this.onload());}};
+ const document={createElement(){return {width:0,height:0,getContext(){const cv=this;return {drawImage(im){cv.imageSource=im;},getImageData(){let data;if(cv.imageSource?._src.includes('forest-floor')){data=new Uint8ClampedArray(cv.width*cv.height*4);for(let i=0;i<data.length;i+=4){data[i]=50;data[i+1]=40;data[i+2]=28;data[i+3]=255;}if(options.floorHole)data[3]=0;}else data=rgba(cv.width,cv.height);if(options.offCentre)for(let y=0;y<cv.height;y++)for(let x=0;x<Math.floor(cv.width*.28);x++)data[(y*cv.width+x)*4+3]=0;return {data};}};}};}};
+ const window={document,fetch:async()=>({ok:true,json:async()=>({version:1,...(options.floor?{floor:{file:'forest-floor.webp',width:1254,height:1254,worldSize:3,gpuHigh:512,gpuTouch:384}}:{}),plants:Object.fromEntries(['canopy','bamboo','nipa','fern','liana','litter'].map(kind=>[kind,{file:kind+'.webp'}]))})})};
+ window.Image=class{constructor(){this.naturalWidth=1024;this.naturalHeight=1536;}set src(value){this._src=value;if(value.includes('forest-floor'))this.naturalWidth=this.naturalHeight=1254;queueMicrotask(()=>value.includes(options.fail||'never-fail')?this.onerror():this.onload());}};
  vm.runInNewContext(source,{window,Math:math});
- let allocations=0;const gl={TEXTURE_2D:1,TEXTURE_MIN_FILTER:2,LINEAR_MIPMAP_LINEAR:3,isContextLost:()=>false,bindTexture(){},generateMipmap(){},texParameteri(){},deleteTexture(){allocations--;}};
+ let allocations=0;const gl={TEXTURE_2D:1,TEXTURE_MIN_FILTER:2,LINEAR_MIPMAP_LINEAR:3,TEXTURE_WRAP_S:4,TEXTURE_WRAP_T:5,REPEAT:6,parameters:[],isContextLost:()=>false,bindTexture(target,T){this.bound=T;},generateMipmap(){},texParameteri(target,p,value){this.parameters.push({texture:this.bound?.name,p,value});},deleteTexture(){allocations--;}};
  const r={eye:[0,12,0],quality:2,textures:{},gl,texFromCanvas(name,cv){allocations++;return this.textures[name]={tex:{name},w:cv.width,h:cv.height};},_drawSpriteBatch(name,list,wind){this.draws.push({name,list,wind});},draws:[]};
  const g={phase:'evade',t:0,world:{},evade:{p:[0,10,0]},atm:{fogDens:.0001,fogHeight:1200,wet:.5}};
  return {M:window.JungleScenery,g,r,window,allocations:()=>allocations};
@@ -134,8 +134,50 @@ test('forest floor is a ground-phase presentation mode and nearby leaf detail st
  const {M,g,r,window}=fixture();M.configure({terrainH:()=>10,jungle:()=>true});await M.load(r);let surfaces=[];window.WildlifeRender={drawSurfaces(game,renderer,items){surfaces=items;return items.length;}};
  assert.equal(M.floorMode(g),1);
  for(let frame=0;frame<14;frame++){M.beginFrame(g,r);M.populate(g,r,{solid:()=>false});M.draw(g,r);const s=M.inspect(g,r);assert.ok(s.terrainSamples<=72);assert.ok(s.fineUpdates<=3);assert.ok(s.fineCache<=128);}
- const fine=surfaces.filter(s=>s.id.startsWith('floor-leaf:'));assert.ok(fine.length>=8&&fine.length<=12);assert.ok(fine.every(s=>s.p[1]===10&&Math.hypot(s.p[0]-g.evade.p[0],s.p[2]-g.evade.p[2])<=10));
+ const fine=surfaces.filter(s=>s.id.startsWith('floor-leaf:'));assert.ok(fine.length>=24&&fine.length<=M.profiles[2].floor);assert.ok(fine.every(s=>s.p[1]===10&&Math.hypot(s.p[0]-g.evade.p[0],s.p[2]-g.evade.p[2])<=11));
  for(let region=0;region<56;region++){g.evade.p[0]+=100;r.eye[0]=g.evade.p[0];M.beginFrame(g,r);M.populate(g,r,{solid:()=>false});const s=M.inspect(g,r);assert.ok(s.terrainSamples<=72&&s.fineUpdates<=3&&s.fineCache<=128);}
  assert.equal(M.inspect(g,r).fineCache,128,'A long walk exercises actual leaf-cell eviction instead of only checking a small warm cache');
  for(const condition of [{phase:'flight'},{pow:{}},{evade:{p:[0,10,0],camp:true}},{evade:{p:[0,10,0],river:true}},{evade:{p:[NaN,10,0]}}])assert.equal(M.floorMode({...g,...condition}),0);
+});
+
+test('whole-source mirroring retains the measured asymmetric root at its physical ground centre',async()=>{
+ const {M,g,r}=fixture({offCentre:true});M.configure({terrainH:()=>10,jungle:()=>true});await M.load(r);const rs=M.inspect(g,r).records;
+ for(let i=0;i<20;i++){M.beginFrame(g,r);M.populate(g,r,{solid:()=>false});}
+ for(const eye of [[0,12,0],[7,12,-4],[-6,12,5]]){
+  r.eye=eye;r.draws=[];M.beginFrame(g,r);M.populate(g,r,{solid:()=>false});M.draw(g,r);
+  const plants=r.draws.flatMap(d=>d.list);assert.ok(plants.some(p=>p.flip)&&plants.some(p=>!p.flip));
+  for(const p of plants){const record=rs.find(s=>s.kind===p.plantKind),dx=r.eye[0]-p.p[0],dz=r.eye[2]-p.p[2],length=Math.hypot(dx,dz),center=p.flip?1-record.center:record.center,offset=(center-.5)*p.w;near(p.p[0]+dz/length*offset,p.groundRoot[0]);near(p.p[2]-dx/length*offset,p.groundRoot[2]);near(p.p[1]+p.h*(1-record.baseline),p.groundRoot[1]);}
+ }
+});
+
+test('fine cover reserves leaves and low ferns at every quality while keeping the existing total and sample budgets',async()=>{
+ for(const q of [0,1,2]){
+  const {M,g,r,window}=fixture();r.quality=q;M.configure({terrainH:()=>10,jungle:()=>true});await M.load(r);let surfaces=[];window.WildlifeRender={drawSurfaces(game,renderer,rows){surfaces=rows;}};
+  for(let i=0;i<24;i++){M.beginFrame(g,r);for(let j=0;j<160;j++)M.queue(g,r,'tree',[(j%16-8)*5,10,(Math.floor(j/16)+1)*5],[1,1,1]);M.populate(g,r,{solid:()=>false});M.draw(g,r);const s=M.inspect(g,r);assert.ok(s.count<=M.profiles[q].total);assert.ok(s.terrainSamples<=72&&s.solidChecks<=36&&s.fineUpdates<=2);}
+  const s=M.inspect(g,r),near=s.plants.filter(p=>p.id.startsWith('floor-fern:')),leaves=surfaces.filter(p=>p.id.startsWith('floor-leaf:'));assert.equal(near.length,M.profiles[q].soft);assert.ok(leaves.length>=M.profiles[q].floor*.8&&leaves.length<=M.profiles[q].floor);assert.ok(near.every(p=>p.h*s.records.find(r=>r.kind==='fern').bodyFraction<1.02));assert.ok(near.every(p=>!s.obstacles.some(o=>o.id===p.id)),'Soft understory must not create invisible trunk collision');
+  const trees=s.plants.filter(p=>p.kind==='canopy'&&p.id.startsWith('tree:')).map(p=>p.h*s.records.find(r=>r.kind==='canopy').bodyFraction);assert.ok(Math.max(...trees)-Math.min(...trees)>3,'Repeated source trees receive stable natural size variation');
+ }
+});
+
+test('opaque photographic floor shares the existing botanical budget and exposes its real repeat/mipmap texture',async()=>{
+ for(const touch of [false,true]){
+  const {M,r,allocations}=fixture({floor:true});const result=await M.load(r,{touch});assert.equal(result.expectedSources,7);assert.equal(result.readySources,7);assert.equal(result.records.length,6);assert.equal(result.floor.status,'ready');assert.equal(result.floor.opaque,true);assert.deepEqual(Array.from(result.failures),[]);assert.ok(result.bytes<=result.budget);
+  const floor=M.floorTexture(r);assert.ok(floor&&floor.tex===r.textures.jungle_floor.tex);assert.equal(floor.w,touch?384:512);assert.equal(floor.h,floor.w);assert.equal(floor.worldSize,3);assert.equal(floor.sourceWidth,1254);assert.equal(floor.sourceHeight,1254);
+  const params=r.gl.parameters.filter(p=>p.texture==='jungle_floor');for(const p of [r.gl.TEXTURE_WRAP_S,r.gl.TEXTURE_WRAP_T])assert.ok(params.some(v=>v.p===p&&v.value===r.gl.REPEAT));assert.ok(params.some(v=>v.p===r.gl.TEXTURE_MIN_FILTER&&v.value===r.gl.LINEAR_MIPMAP_LINEAR));
+  floor.worldSize=99;assert.equal(M.floorTexture(r).worldSize,3,'Public texture descriptor cannot alter registration');assert.equal(allocations(),7);M.dispose(r);assert.equal(allocations(),0);assert.equal(M.floorTexture(r),null);
+ }
+});
+
+test('floor failure is explicit and never silently consumes a seventh texture or replaces valid plants',async()=>{
+ for(const option of [{floorHole:true},{fail:'forest-floor.webp'}]){
+  const {M,r,allocations}=fixture({floor:true,...option}),s=await M.load(r);assert.equal(s.expectedSources,7);assert.equal(s.readySources,6);assert.equal(s.records.length,6);assert.equal(s.floor.status,'error');assert.equal(s.floor.ready,false);assert.equal(M.floorTexture(r),null);assert.ok(s.failures.some(f=>f.kind==='floor'));assert.equal(allocations(),6);
+ }
+ const {M,r}=fixture({floor:true});let current=true;await M.load(r,{current:()=>current});assert.ok(M.floorTexture(r));current=false;assert.equal(M.floorTexture(r),null);current=true;r.gl.isContextLost=()=>true;assert.equal(M.floorTexture(r),null);
+});
+
+test('actual floor manifest and lossless encoding retain the unchanged generated source and recorded provenance',()=>{
+ const crypto=require('node:crypto'),dir=path.join(__dirname,'../assets/jungle'),manifest=JSON.parse(fs.readFileSync(path.join(dir,'manifest.json'))),proof=JSON.parse(fs.readFileSync(path.join(dir,'floor-provenance.json'))),png=fs.readFileSync(path.join(dir,'forest-floor.png')),webp=fs.readFileSync(path.join(dir,'forest-floor.webp')),sha=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
+ assert.equal(Object.keys(manifest.plants).length,6);assert.equal(manifest.floor.file,'forest-floor.webp');assert.equal(manifest.floor.worldSize,3);assert.equal(manifest.floor.gpuHigh,512);assert.equal(manifest.floor.gpuTouch,384);assert.equal(manifest.floor.width,png.readUInt32BE(16));assert.equal(manifest.floor.height,png.readUInt32BE(20));assert.equal(manifest.floor.width,1254);
+ assert.equal(sha(png),'48b60e0d211034c7f78d1882e79fd06d0609336867ec9de4fc4a4e0e85639604');assert.equal(sha(png),proof.sourceSHA256);assert.equal(proof.sourceSHA256,proof.rawSHA256);assert.equal(sha(webp),proof.runtimeSHA256);assert.equal(proof.rawSourceByteIdentical,true);assert.equal(proof.allDecodedRGBAIdentical,true);assert.equal(proof.fullyOpaque,true);assert.equal(png.length,proof.sourceBytes);assert.equal(webp.length,proof.runtimeBytes);
+ assert.equal(webp.toString('ascii',0,4),'RIFF');assert.equal(webp.toString('ascii',8,12),'WEBP');assert.equal(webp.toString('ascii',12,16),'VP8L','The shipped floor is a lossless WebP stream, not a lossy replacement');
 });

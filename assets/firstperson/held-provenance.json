@@ -1,0 +1,61 @@
+{
+  "version": 2,
+  "assets": {
+    "stick": {
+      "source": "assets/firstperson/stick.png",
+      "runtime": "assets/firstperson/stick.webp",
+      "rawToolOutput": "/workspace/generated_images/exec-3448d5e0-510b-4386-a3fa-995a44ba92e7.png",
+      "size": [
+        1086,
+        1448
+      ],
+      "sourceSHA256": "8db86048f08d904508b9753d2c1fb53a06eee793380712c3cafbd1ba26a97c1b",
+      "runtimeSHA256": "94b49ea891324b8a6a98d75bbacfcf6abb784a2bee1e886b597654f29389c284",
+      "originalToolBytesUnchanged": true,
+      "allDecodedRGBAIdentical": true,
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "archivedV1Source": "assets/firstperson/stick-v1.png",
+      "archivedV1SourceSHA256": "5717895f9dfad68a41ae0d51415f4fc970c734866f8e00486f6d183cec5e4fa0",
+      "opaqueTwoPixelBorderSamples": {
+        "top": 0,
+        "left": 0,
+        "right": 0,
+        "bottom": 714
+      }
+    },
+    "rifle": {
+      "source": "assets/firstperson/rifle.png",
+      "runtime": "assets/firstperson/rifle.webp",
+      "rawToolOutput": "/workspace/generated_images/exec-05da9351-f73a-40db-a797-52cbcea5b9fc.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sourceSHA256": "cbf15a1cb5c060ef6949377e9e3e3eaee371ac1057165bd4a39885bd1b577bc6",
+      "runtimeSHA256": "4cdb02d57462b8b135c6b2cb52c9375380c108cdb1e124c6cd7754727aa50857",
+      "originalToolBytesUnchanged": true,
+      "allDecodedRGBAIdentical": true,
+      "sourceAlphaRange": [
+        0,
+        254
+      ]
+    }
+  },
+  "note": "Complete holding photographs, with a new bottom-entry stick forearm after native render exposed the original side cutoff. Original generated rifle is unchanged; native low-ready framing must hide authored sleeve boundaries at the camera edge. Motion transforms complete images and does not supply photographed firearm firing or stick-action cycles. Original private photographs and prior assets remain unchanged.",
+  "encoding": {
+    "tool": "cwebp 1.5.0",
+    "arguments": [
+      "-lossless",
+      "-exact",
+      "-q",
+      "100",
+      "-m",
+      "6"
+    ]
+  },
+  "recordedAt": "2026-10-25T01:29:22.439821+00:00",
+  "previous": "assets/firstperson/held-provenance-v1.json"
+}

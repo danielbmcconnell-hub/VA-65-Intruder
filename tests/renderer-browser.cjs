@@ -112,14 +112,20 @@ module.exports = async function rendererChecks(browser, target, evidenceDir) {
       R.resize(window.innerWidth, window.innerHeight, window.devicePixelRatio || 1);
       return result;
     });
+    await fs.writeFile(path.join(evidenceDir, 'renderer-shader-observations.json'), JSON.stringify(shader, null, 2) + '\n');
     assert.deepEqual(shader.inheritedErrors, [], 'Actual gameplay must not accumulate GPU errors');
     assert.deepEqual(shader.gpuErrors, [], 'Actual shader fixtures must not raise GPU errors');
     assert.equal(shader.lowShadowSize, 1);
     assert.ok(shader.redPixels > 100, 'The chosen atlas cell must actually render');
     assert.equal(shader.maxBlue, 0, 'Red frame must not sample its blue neighbour');
-    assert.ok(shader.solidCentre[0] > 200 && shader.solidCentre[1] < 3);
-    assert.ok(shader.softCentre[0] > 90 && shader.softCentre[0] < 180, 'Half-alpha red must render, without double premultiplication');
-    assert.ok(shader.softCentre[1] > 25 && shader.softCentre[1] < 40, 'Half-alpha edge must blend with the actual background');
+    // Photo lighting deliberately preserves midtones. Test compositing against
+    // the actual opaque control instead of requiring an unlit red value.
+    assert.ok(shader.solidCentre[0] > 32 && shader.solidCentre[1] < 3);
+    assert.equal(shader.solidCentre[3], 255);
+    const alpha = 128 / 255; // Canvas's declared rgba(...,0.5) fixture.
+    assert.ok(Math.abs(shader.softCentre[0] - shader.solidCentre[0] * alpha) <= 2, 'Half-alpha red must retain the lit control colour without double premultiplication');
+    assert.ok(Math.abs(shader.softCentre[1] - 64 * (1 - alpha)) <= 1, 'Half-alpha edge must blend with the actual quarter-green background');
+    assert.equal(shader.softCentre[3], 255);
     assert.deepEqual(shader.occludedCentre, shader.wallCentre, 'Opaque wall must occlude the sprite');
     assert.equal(shader.replacementDeleted, true, 'Replacing an atlas must delete its previous texture');
     assert.deepEqual(shader.state, { depthWrites: true, blending: false, culling: true });

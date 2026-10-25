@@ -33,10 +33,18 @@
     "test:capture": "node --test tests/capture-transition.cjs && node tests/capture-transition-browser.cjs",
     "test:photo-motion": "node --test tests/photo-motion.cjs && node tests/photo-motion-browser.cjs",
     "test:wildlife": "node --test tests/wildlife.cjs tests/wildlife-targeting.cjs tests/wildlife-render.cjs tests/jungle-scenery.cjs tests/wildlife-assets.cjs && node tests/run-browser.cjs --suite=wildlife",
-    "test:realism:domain": "node --test tests/wildlife.cjs tests/wildlife-targeting.cjs tests/wildlife-render.cjs tests/jungle-scenery.cjs tests/wildlife-assets.cjs tests/landing-water.cjs tests/aviator-companion.cjs tests/carrier-launch.cjs tests/aircraft-detail.cjs tests/voice-profiles.cjs tests/launch-objective.cjs tests/recovery-phase.cjs tests/mission-demo.cjs tests/moving-target-solution.cjs tests/swim-cutouts.cjs tests/equipment-view.cjs tests/strike-crew.cjs tests/visual-materials.cjs tests/point-shot.cjs tests/ocean-roster.cjs",
+    "test:realism:domain": "node --test tests/wildlife.cjs tests/wildlife-targeting.cjs tests/wildlife-render.cjs tests/jungle-scenery.cjs tests/wildlife-assets.cjs tests/landing-water.cjs tests/aviator-companion.cjs tests/carrier-launch.cjs tests/aircraft-detail.cjs tests/voice-profiles.cjs tests/launch-objective.cjs tests/recovery-phase.cjs tests/mission-demo.cjs tests/moving-target-solution.cjs tests/swim-cutouts.cjs tests/equipment-view.cjs tests/strike-crew.cjs tests/visual-materials.cjs tests/point-shot.cjs tests/ocean-roster.cjs tests/threat-feedback.cjs tests/visual-clarity.cjs tests/prison-detail.cjs tests/prison-food.cjs tests/ration-photo.cjs tests/ground-items.cjs tests/ground-items-render.cjs",
     "test:landing-survival": "node --test tests/landing-water.cjs tests/aviator-companion.cjs tests/equipment-view.cjs tests/swim-cutouts.cjs tests/ocean-roster.cjs && node tests/run-browser.cjs --suite=landing-survival",
     "test:carrier": "node --test tests/carrier-launch.cjs && node tests/carrier-launch-browser.cjs test-results/carrier-launch",
-    "test:aircraft-detail": "node --test tests/aircraft-detail.cjs tests/visual-materials.cjs && node tests/run-browser.cjs --suite=aircraft-detail"
+    "test:aircraft-detail": "node --test tests/aircraft-detail.cjs tests/visual-materials.cjs && node tests/run-browser.cjs --suite=aircraft-detail",
+    "test:threat-feedback": "node --test tests/threat-feedback.cjs && node tests/run-browser.cjs --suite=threat-feedback",
+    "test:photo-motion-loading": "node --test tests/highres-sprites.cjs tests/photo-motion.cjs tests/swim-cutouts.cjs && node tests/run-browser.cjs --suite=photo-motion-loading",
+    "test:visual-clarity": "node --test tests/visual-clarity.cjs && node tests/run-browser.cjs --suite=visual-clarity",
+    "test:prison-food": "node --test tests/prison-food.cjs tests/ration-photo.cjs && node tests/run-browser.cjs --suite=prison-food",
+    "test:prison-detail": "node --test tests/prison-detail.cjs && node tests/run-browser.cjs --suite=prison-detail",
+    "test:jungle-fidelity": "node --test tests/jungle-scenery.cjs tests/wildlife-assets.cjs && node tests/run-browser.cjs --suite=jungle-fidelity",
+    "test:ground-items:domain": "node --test tests/ground-items.cjs tests/ground-items-render.cjs tests/ground-combat.cjs tests/equipment-view.cjs",
+    "test:ground-items": "node --test tests/ground-items.cjs tests/ground-items-render.cjs tests/ground-combat.cjs tests/equipment-view.cjs && node tests/run-browser.cjs --suite=ground-items"
   },
   "devDependencies": {
     "playwright": "1.62.1"

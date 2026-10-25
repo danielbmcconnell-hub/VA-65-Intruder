@@ -39,7 +39,7 @@ module.exports = async function episodeAudioBrowser(browser, target, evidenceDir
     async function tick(seconds) { await page.evaluate(seconds => { for (let n = 0; n < Math.ceil(seconds * 20); n++) App.game.stepEvade(.05); App.game.render(1 / 60); }, seconds); }
     async function freeze() {
       await page.waitForFunction(() => App.game?.pow && document.getElementById('loader').style.display === 'none', null, { timeout: 90000 });
-      await page.evaluate(() => { App.screen = 'fixture'; App.game.paused = false; for (const k of Object.keys(App.keys)) App.keys[k] = 0; App.gctl.pitch = App.gctl.roll = 0; });
+      await page.evaluate(() => { window.__episodeAudioNativeFrame ||= App.frame; App.frame = () => {}; App.screen = 'game'; App.game.paused = false; for (const k of Object.keys(App.keys)) App.keys[k] = 0; App.gctl.pitch = App.gctl.roll = 0; });
       if (await page.locator('#powHUD [data-guide-skip]').isVisible()) await click(page.locator('#powHUD [data-guide-skip]'));
       await render();
     }
@@ -47,6 +47,7 @@ module.exports = async function episodeAudioBrowser(browser, target, evidenceDir
       await click(page.locator('#pauseBtn')); await render();
       await click(page.locator('#pauseBody button').filter({ hasText: /^Ready Room$/ }));
       await page.waitForFunction(() => App.screen === 'ready' && App.game === null, null, { timeout: 30000 });
+      await page.evaluate(() => { App.frame = window.__episodeAudioNativeFrame; requestAnimationFrame(t => App.frame(t)); });
     }
     async function sound(value) {
       await click(page.locator('#tabs [data-tab="set"]'));
@@ -141,8 +142,8 @@ module.exports = async function episodeAudioBrowser(browser, target, evidenceDir
       check('The real Sound On setting reuses the original context and cached bank', await snapshot(), a => a.sound === 1 && a.mix.active && a.activeSources === 3 && a.buffers.length === 3 && a.sameContext && a.contexts === 1 && a.resumes === resumeCount);
       await page.evaluate(() => {
         // Restoration rebuilds POW meshes lazily in the real render loop.
-        // The fixture screen suppresses that loop, so use normal gameplay here.
-        App.screen = 'game';
+        // Resume the saved native scheduler for graphics recovery.
+        App.frame = window.__episodeAudioNativeFrame; App.screen = 'game'; requestAnimationFrame(t => App.frame(t));
         window.__episodeAudioGame = App.game;
         window.__episodeAudioGL = App.game.rend.gl.getExtension('WEBGL_lose_context');
         if (!__episodeAudioGL) throw Error('Real WebGL context-loss extension unavailable');
@@ -153,7 +154,7 @@ module.exports = async function episodeAudioBrowser(browser, target, evidenceDir
       await page.waitForTimeout(200); await page.evaluate(() => __episodeAudioGL.restoreContext());
       await page.waitForFunction(() => !App.graphicsContextLost && App.rend && App.game === __episodeAudioGame && App.rend.meshes.powStone, null, { timeout: 30000 });
       await click(page.getByRole('button', { name: 'Resume mission', exact: true }));
-      await page.evaluate(() => { App.screen = 'fixture'; }); await render();
+      await page.evaluate(() => { window.__episodeAudioNativeFrame ||= App.frame; App.frame = () => {}; App.screen = 'game'; }); await render();
       check('Native graphics recovery rebuilds GPU state and cached ambience without replacing the audio context', await snapshot(), a => a.mix.active && a.activeSources === 3 && a.buffers.length === 3 && a.sameContext && a.contexts === 1 && a.resumes === resumeCount && a.gl === 0);
       await ready(); await click(page.locator('#toBoot')); await click(page.locator('#bootFly'));
       await page.waitForFunction(() => App.game?.phase === 'deck' && document.getElementById('loader').style.display === 'none', null, { timeout: 90000 });

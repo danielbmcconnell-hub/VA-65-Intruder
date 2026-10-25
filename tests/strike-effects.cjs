@@ -13,6 +13,10 @@ function fixture(quality = 1) {
     vlen: a => Math.hypot(...a), vnorm: a => { const n = Math.hypot(...a) || 1; return a.map(v => v / n); }, terrainH: () => 0,
     vdist2: (a, b) => (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2 };
   vm.createContext(sandbox); vm.runInContext(source, sandbox);
+  // Real World projectiles now call the isolated cosmetic trail module.
+  // Load that production dependency rather than replacing its emitter.
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/flight/threat-feedback.js'), 'utf8'), sandbox);
+  sandbox.FlightThreatFeedback = window.FlightThreatFeedback;
   vm.runInContext(html.slice(html.indexOf('class FX {'), html.indexOf('const AC =')) + '\nwindow.ActualFX = FX;', sandbox);
   const FX = window.ActualFX, calls = [], fx = { add: [], smk: [] };
   for (const name of ['smoke', 'glow', 'streak']) fx[name] = (...args) => { calls.push({ name, args }); (name === 'smoke' ? fx.smk : fx.add).push({ args }); };

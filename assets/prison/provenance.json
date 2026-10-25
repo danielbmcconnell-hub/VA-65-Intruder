@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "recordedAt": "2026-10-24T23:57:48.935146+00:00",
+  "assets": {
+    "materials": {
+      "source": "assets/prison/materials.png",
+      "runtime": "assets/prison/materials.webp",
+      "rawToolOutput": "/workspace/generated_images/exec-2861a508-0f93-42d7-bd46-3ab785d195de.png",
+      "sourceSHA256": "b710af3ed85616115de815f70b76c9e8f7b9e4dcf9798ca9ec5b3d8218db4fd6",
+      "runtimeSHA256": "8c13c0811e1064bc4d1ecc71dad00ba4c8d5d5211729357d01556b4e021a3c45",
+      "sourceBytes": 3761826,
+      "runtimeBytes": 2308256,
+      "size": [
+        1774,
+        887
+      ],
+      "rawSourceByteIdentical": true,
+      "allDecodedRGBAIdentical": true,
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparentPixels": 0,
+        "occupiedPixels": 1573538
+      }
+    },
+    "ration": {
+      "source": "assets/prison/ration.png",
+      "runtime": "assets/prison/ration.webp",
+      "rawToolOutput": "/workspace/generated_images/exec-cd6d6ef6-110f-4bfe-9e5e-dd07d25dbcd4.png",
+      "sourceSHA256": "b13e3d5b24519b1418460ef334748d58e715d9c24d68a9ed7fb3304bed7f5206",
+      "runtimeSHA256": "04a8bd7a9411ba8acd067ff81bf791c1d672d04045014e018d01fa6bc21b4706",
+      "sourceBytes": 2397001,
+      "runtimeBytes": 1514228,
+      "size": [
+        1536,
+        1024
+      ],
+      "rawSourceByteIdentical": true,
+      "allDecodedRGBAIdentical": true,
+      "alpha": {
+        "min": 0,
+        "max": 254,
+        "transparentPixels": 862807,
+        "occupiedPixels": 710057
+      }
+    },
+    "ration-empty": {
+      "source": "assets/prison/ration-empty.png",
+      "runtime": "assets/prison/ration-empty.webp",
+      "rawToolOutput": "/workspace/generated_images/exec-55ff8c94-d6ca-425b-ad96-1d0f25660397.png",
+      "sourceSHA256": "645c5eaddc1623b9b5570533d3667b1f67e70e39f35ccf34f2d85947ecab4863",
+      "runtimeSHA256": "e23dea53cbad621f2c18050c351c6ac84ba1e6a0ff1f6e68e33049b8459d9841",
+      "sourceBytes": 2446186,
+      "runtimeBytes": 1548908,
+      "size": [
+        1536,
+        1024
+      ],
+      "rawSourceByteIdentical": true,
+      "allDecodedRGBAIdentical": true,
+      "alpha": {
+        "min": 0,
+        "max": 254,
+        "transparentPixels": 866062,
+        "occupiedPixels": 706802
+      }
+    },
+    "cell-materials": {
+      "source": "assets/prison/cell-materials.png",
+      "runtime": "assets/prison/cell-materials.webp",
+      "rawToolOutput": "/workspace/generated_images/exec-8f5ed021-d731-4b2a-aed0-3d9a7cc1d817.png",
+      "sourceSHA256": "e408bc776e8de0f1a1e0bfd45744362bfb3b871e1c1bc484da3cd64b80705edc",
+      "runtimeSHA256": "8a8b32f8037423d07ec793e109286acd736693e46a0ac189cdb5bc5f69b9cc14",
+      "size": [
+        1774,
+        887
+      ],
+      "originalToolBytesUnchanged": true,
+      "allDecodedRGBAIdentical": true,
+      "fullyOpaque": true,
+      "reference": "New supplied narrow twin-platform cell photograph; original generated material samples, no source photo alterations."
+    }
+  },
+  "encoding": {
+    "tool": "cwebp 1.5.0",
+    "arguments": [
+      "-lossless",
+      "-exact",
+      "-q",
+      "100",
+      "-m",
+      "6"
+    ]
+  },
+  "referenceUse": "The supplied photographs guide materials, tin shape and contents. Original user photographs and watermarks were not altered or included as game textures. The generated image outputs remain unchanged; WebP decoding preserves every source RGBA value."
+}

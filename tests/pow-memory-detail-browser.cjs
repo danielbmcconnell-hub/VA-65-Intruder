@@ -38,7 +38,7 @@ module.exports = async function memoryBrowser(browser, target, evidenceDir) {
     }
     async function back() { await click(page.locator('[data-mind-return]')); await tick(.1); }
     async function init() { const coreResponse = page.waitForResponse(r => new URL(r.url()).pathname.endsWith('/assets/pow/core.js')); const entry = await page.goto(target, { waitUntil: 'domcontentloaded', timeout: 30000 }); const core = await coreResponse; sourceHashes.push({ layout: layout.name, entrySHA256: createHash('sha256').update(await entry.body()).digest('hex'), coreSHA256: createHash('sha256').update(await core.body()).digest('hex') }); await page.waitForFunction(() => window.App && window.POW?.MemoryDetail); await click(page.locator('#bootGo')); }
-    async function freeze(stage = 'solitary') { await page.waitForFunction(stage => App.game?.pow?.stage === stage && document.getElementById('loader').style.display === 'none', stage, { timeout: 90000 }); await page.evaluate(() => { App.screen = 'fixture'; App.game.paused = false; for (const k of Object.keys(App.keys)) App.keys[k] = 0; App.gctl.pitch = App.gctl.roll = 0; }); if (await page.locator('#powHUD [data-guide-skip]').isVisible()) await click(page.locator('#powHUD [data-guide-skip]')); }
+    async function freeze(stage = 'solitary') { await page.waitForFunction(stage => App.game?.pow?.stage === stage && document.getElementById('loader').style.display === 'none', stage, { timeout: 90000 }); await page.evaluate(() => { App.frame = () => {}; App.screen = 'game'; App.game.paused = false; for (const k of Object.keys(App.keys)) App.keys[k] = 0; App.gctl.pitch = App.gctl.roll = 0; }); if (await page.locator('#powHUD [data-guide-skip]').isVisible()) await click(page.locator('#powHUD [data-guide-skip]')); }
     try {
       await page.addInitScript(() => { localStorage.setItem('a6_set', JSON.stringify({ quality: 0, sound: 0, voices: 0, mouse: 0, seat: 0, assist: 1, sens: 1 })); localStorage.setItem('a6_sawkeys', '1'); });
       await init(); await click(page.locator('#powChapter [data-pow-chapter="solitary"]')); await freeze();
@@ -63,10 +63,10 @@ module.exports = async function memoryBrowser(browser, target, evidenceDir) {
       // cell and earn notebook access, so this catches physical lamp state
       // accidentally being reset when Save runs inside an imagined activity.
       await init(); await click(page.locator('#powChapter [data-pow-chapter="escape"]')); await freeze('cell'); await tick(.1);
-      await use('bunk-bracket', { x: -.8, z: .9 }); assert.equal(await page.evaluate(() => App.game.pow.inventory.bracket), true);
-      await use('episode-lamp:cell-bulb', { x: 1.6, z: -2.25 }); assert.equal(await page.evaluate(() => App.game.pow.episodeScene.lamps['cell-bulb']), false);
+      await use('bunk-bracket', { x: 0, z: -.8 }); assert.equal(await page.evaluate(() => App.game.pow.inventory.bracket), true);
+      await use('episode-lamp:cell-bulb', { x: .5, z: -3.0 }); assert.equal(await page.evaluate(() => App.game.pow.episodeScene.lamps['cell-bulb']), false);
       for (const [kind, label, object] of [['car', 'Engine', 'mind-car-block'], ['architecture', 'House', 'mind-house-concrete']]) {
-        await use('mental-notebook', { x: -.8, z: .9 });
+        await use('mental-notebook', { x: 0, z: -.25 });
         await click(page.locator('#pow-captivity').getByRole('button', { name: label, exact: true }));
         const before = await page.evaluate(() => ({ stage: App.game.pow.stage, p: App.game.evade.p.slice(), scene: POW.EpisodeScene.snapshot(App.game), ai: POW.AI.snapshot(App.game) }));
         assert.equal(before.stage, 'cell'); assert.equal(before.scene.lamps['cell-bulb'], false); assert.ok(before.scene.clock > 0);

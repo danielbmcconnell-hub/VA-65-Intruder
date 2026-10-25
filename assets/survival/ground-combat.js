@@ -1,13 +1,103 @@
-/* Ground weapon eligibility and hit reactions. The original trigger, ammunition,
- * random accuracy, wounds, witness response and flight simulation stay owned by
- * Game. Body capsules approximate the supplied photo silhouettes; this is not
- * per-pixel collision or a replacement ballistics engine. */
+/* Ground body targeting, swept reactions and simulation-driven empty-hand
+ * punches. Selected-weapon fire, ammunition, wounds, witness response and flight
+ * simulation stay owned by Game. Capsules approximate the supplied silhouettes;
+ * this is not per-pixel collision or a replacement ballistics engine. */
 (function (root) {
   'use strict';
   const EPS = 1e-9, RANGE = 60, ASSIST_ANGLE = .035, MAX_PADDING = .16, FRICTION = 7.5, MAX_TERRAIN_SAMPLES = 240;
   const point = p => Array.isArray(p) && [0,1,2].every(i => Number.isFinite(p[i]));
   const finite = (n, otherwise = 0) => Number.isFinite(n) ? n : otherwise;
   const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+  const punchStates = new WeakMap();
+  const PUNCH = Object.freeze({ contact: .115, duration: .46, startSpacing: .18, maxStep: .25, reach: 1.7 });
+  const itemName = item => typeof item === 'string' && item.length ? item : null;
+  // Inventory describes carried equipment; only an actually selected or active
+  // item owns a hand. Worn clothing never occupies either hand. The existing
+  // radio and signal photographs are left-handed and retain that ownership.
+  function hands(game, options = {}) {
+    const e = game && game.evade;
+    if (!e) return { left: null, right: null };
+    let slots = options.handItems;
+    if (typeof slots === 'function') slots = slots(game);
+    if (!slots && root.GroundItems && typeof root.GroundItems.handItems === 'function') slots = root.GroundItems.handItems(game);
+    const mode = e.weaponMode || (e.drawn ? 'pistol' : 'fists');
+    const right = mode === 'pistol' && e.hasPistol !== false && e.drawn !== 0 && e.drawn !== false ? 'pistol'
+      : mode === 'knife' && (e.hasKnife !== false || e.fitting) ? e.fitting && !e.hasKnife ? 'fitting' : 'knife'
+      : mode === 'stick' || mode === 'branch' ? 'stick'
+      : ['rifle', 'radio', 'flare', 'smoke'].includes(mode) ? mode : null;
+    const result = slots ? { left: itemName(slots.left), right: itemName(slots.right) }
+      : { left: right === 'rifle' ? 'rifle' : null, right };
+    const now = finite(options.now, finite(game.t, finite(e.t)));
+    const available = (!game.phase || game.phase === 'evade') && !game.pow && !e.frozen && !e.handsUp && !e.held &&
+      e.doom === undefined && !e.camp && !e.river && !game._solitaryActive && !game._capturePending && !game.result;
+    const age = stamp => Number.isFinite(stamp) && stamp >= 0 && now >= stamp ? now - stamp : Infinity;
+    if (available && e.smoke && e.radio >= 1 && age(e.signalT) < 8) result.left = e.signalNight ? 'flare' : 'smoke';
+    else if (available && e.radio >= 0 && age(e.lastTx) < 2.8) result.left = 'radio';
+    return result;
+  }
+  function punchState(game) {
+    let state = punchStates.get(game);
+    if (!state || state.actor !== game.evade) {
+      state = { actor: game.evade, clock: 0, down: false, nextHand: 'right', serial: 0, lastStart: -Infinity, left: null, right: null };
+      punchStates.set(game, state);
+    }
+    return state;
+  }
+  function punchPose(action) {
+    if (!action) return null;
+    return { id: action.id, hand: action.hand, age: action.age, contacted: action.contacted,
+      phase: action.age < .045 ? 'anticipate' : action.age < PUNCH.contact ? 'extend' : 'recover', duration: PUNCH.duration, contact: PUNCH.contact };
+  }
+  function inspectPunch(game, options = {}) {
+    const state = game && punchStates.get(game);
+    if (!state || state.actor !== game.evade) return null;
+    return { clock: state.clock, down: state.down, nextHand: state.nextHand, serial: state.serial, hands: hands(game, options),
+      left: punchPose(state.left), right: punchPose(state.right) };
+  }
+  // One rising edge starts one swing. Contact is emitted once, later in the
+  // swing, so the caller checks the current view ray and solids at impact.
+  // Recovery belongs to each arm independently; holding Space never queues
+  // another hit, even across a blocked climb, modal, or equipment transition.
+  function stepPunch(game, dt, down, options = {}) {
+    const slots = hands(game, options), events = { started: null, contacts: [], hands: slots, blocked: false, reason: null };
+    if (!game || !game.evade || !point(game.evade.p)) { events.blocked = true; events.reason = 'unavailable'; return events; }
+    const state = punchState(game), e = game.evade;
+    if (!Number.isFinite(dt) || dt <= 0) { events.reason = 'time'; return events; }
+    const consumed = !!(options.blocked || game.result || e.frozen || e.held || e.handsUp || e.swimming || game._solitaryActive || game._capturePending);
+    const blocked = consumed || !!game.paused;
+    const pressed = !!down && !state.down;
+    state.down = !!down;
+    // Cancel an unfinished empty-hand swing if that hand acquires an item.
+    for (const hand of ['left', 'right']) if (slots[hand]) state[hand] = null;
+    // A contextual climb/work action takes over the arms. An unrelated old
+    // punch must not resume and hit somebody after the traversal finishes.
+    if (consumed) { state.left = state.right = null; state.lastStart = -Infinity; }
+    if (blocked) { events.blocked = true; events.reason = 'blocked'; return events; }
+    const elapsed = Math.min(dt, PUNCH.maxStep);
+    state.clock += elapsed;
+    for (const hand of ['left', 'right']) {
+      const action = state[hand];
+      if (!action) continue;
+      action.age += elapsed;
+      if (!action.contacted && action.age >= PUNCH.contact) {
+        action.contacted = true;
+        events.contacts.push({ id: action.id, hand, kind: 'punch', reach: PUNCH.reach });
+      }
+      if (action.age >= PUNCH.duration) state[hand] = null;
+    }
+    if (!pressed) { events.reason = down ? 'held' : null; return events; }
+    const free = ['right', 'left'].filter(hand => !slots[hand]);
+    if (!free.length) { events.reason = 'occupied'; return events; }
+    const hand = free.length === 1 ? free[0] : state.nextHand;
+    if (state[hand]) { events.reason = 'recovery'; return events; }
+    if (state.clock - state.lastStart + EPS < PUNCH.startSpacing) { events.reason = 'spacing'; return events; }
+    const action = { id: ++state.serial, hand, age: 0, contacted: false };
+    state[hand] = action; state.lastStart = state.clock;
+    state.nextHand = hand === 'right' ? 'left' : 'right';
+    events.started = { id: action.id, hand, kind: 'punch', reach: PUNCH.reach, duration: PUNCH.duration, contact: PUNCH.contact };
+    return events;
+  }
+  function resetPunch(game) { return !!game && punchStates.delete(game); }
   function direction(e) {
     const heading = finite(e && e.hdg), look = finite(e && e.look), c = Math.cos(look);
     const d = [Math.sin(heading) * c, -.04 + Math.sin(look), -Math.cos(heading) * c], n = Math.hypot(...d);
@@ -117,6 +207,6 @@
     for (const actor of e.cattle || []) settle(actor, true);
     return moved;
   }
-  root.GroundCombat = Object.freeze({ target, reactions, direction,
-    limits: Object.freeze({ range: RANGE, assistAngle: ASSIST_ANGLE, maxAssistPadding: MAX_PADDING, reactionDeceleration: FRICTION, maxTerrainSamples: MAX_TERRAIN_SAMPLES, terrainSpacing: .25, timers: 0, retainedActors: 0 }) });
+  root.GroundCombat = Object.freeze({ target, reactions, direction, hands, stepPunch, inspectPunch, resetPunch, punchLimits: PUNCH,
+    limits: Object.freeze({ range: RANGE, assistAngle: ASSIST_ANGLE, maxAssistPadding: MAX_PADDING, reactionDeceleration: FRICTION, maxTerrainSamples: MAX_TERRAIN_SAMPLES, terrainSpacing: .25, timers: 0, targetingRetainedActors: 0, punchActorsPerGame: 1, globalGameList: 0 }) });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -16,7 +16,7 @@ module.exports = async function ammunitionBrowser(browser, target, evidenceDir) 
     const ledger = () => page.evaluate(() => ({ ...SurvivalAmmunition.view(App.game), rounds: App.game.evade?.rounds, mode: App.game.evade?.weaponMode, drawn: App.game.evade?.drawn }));
     const tick = seconds => page.evaluate(seconds => { const g = App.game; for (let i = 0; i < Math.ceil(seconds * 60); i++) { g.t += 1 / 60; g.stepEvade(1 / 60); } g.syncControls(); g.render(1 / 60); }, seconds);
     async function select(mode) { if (profile.hasTouch) { await click(page.locator({ pistol: '#btnPistol', knife: '#btnKnife', fists: '#btnPunch' }[mode])); await tick(1 / 60); } else { const key = { pistol: 'f', knife: 'v', fists: 'p' }[mode]; await page.keyboard.down(key); try { await tick(1 / 60); } finally { await page.keyboard.up(key); } } }
-    async function fire(seconds = 1 / 60) { if (profile.hasTouch) { await click(page.locator('#btnFire')); await tick(seconds); } else { await page.keyboard.down('Space'); try { await tick(seconds); } finally { await page.keyboard.up('Space'); } } }
+    async function fire(seconds = 1 / 60) { if (profile.hasTouch) { await click(page.locator('#btnFire')); await tick(seconds); } else { const box=await page.locator('#gl').boundingBox();assert.ok(box,'Actual game canvas must receive primary pointer attacks');await page.mouse.move(box.x+box.width*.5,box.y+box.height*.5);await page.mouse.down();try { await tick(seconds); } finally { await page.mouse.up(); } } }
     async function shot(key) { const file = name + '-' + key + '.png'; assert.equal(await page.evaluate(() => App.rend.gl.getError()), 0); await page.screenshot({ path: path.join(out, file), timeout: 90000 }); screenshots.push('m24-ammunition/' + file); }
     try {
       const response = await page.goto(target, { waitUntil: 'domcontentloaded' }), sourceSHA256 = createHash('sha256').update(await response.body()).digest('hex');
@@ -24,7 +24,7 @@ module.exports = async function ammunitionBrowser(browser, target, evidenceDir) 
       await page.evaluate(() => App.start(MISSIONS.find(m => m.id === 'm2')));
       await page.waitForFunction(() => App.game?.st && document.getElementById('loader').style.display === 'none', null, { timeout: 90000 });
       const fixture = await page.evaluate(() => {
-        App.screen = 'fixture'; const g = App.game, t = g.world.briefed; g.paused = true; let p;
+        App.frame = () => {}; App.screen = 'game'; const g = App.game, t = g.world.briefed; g.paused = false; let p;
         for (let r = 900; r < 6000 && !p; r += 160) for (let a = 0; a < TAU && !p; a += PI / 8) {
           const x = t[0] + Math.sin(a) * r, z = t[2] + Math.cos(a) * r, h = terrainH(x, z);
           if (h > 8 && !g._localSolidAt(x, z, .5) && Math.abs(terrainH(x + 10, z - 10) - h) < 2) p = [x, h, z];
@@ -33,11 +33,11 @@ module.exports = async function ammunitionBrowser(browser, target, evidenceDir) 
         for (const id of ['teach', 'teachPeek', 'legend']) document.getElementById(id)?.classList.remove('on');
         return { aircraft: g.ac.p.slice(), velocity: g.ac.v.slice(), mission: g.mis.id };
       });
-      // Existing button handlers are native even with a paused fixture. They
+      // Existing button handlers are native even with the frame scheduler stopped. They
       // perform the real two-tap eject confirmation and parachute simulation.
       if (profile.hasTouch) { await click(page.locator('#btnEject')); await click(page.locator('#btnEject')); }
-      else { await page.evaluate(() => App.screen = 'game'); await page.keyboard.press('j'); await page.keyboard.press('j'); await page.evaluate(() => App.screen = 'fixture'); }
-      const descent = await page.evaluate(() => { const g = App.game; g.paused = false; let frames = 0; while (g.phase === 'chute' && frames++ < 4800) g.update(1 / 60); g.paused = true; g.render(1 / 60); g.syncControls(); return { frames, phase: g.phase, ejected: g.ejected }; });
+      else { await page.evaluate(() => App.screen = 'game'); await page.keyboard.press('j'); await page.keyboard.press('j'); await page.evaluate(() => App.screen = 'game'); }
+      const descent = await page.evaluate(() => { const g = App.game; g.paused = false; let frames = 0; while (g.phase === 'chute' && frames++ < 4800) g.update(1 / 60); g.paused = false; g.render(1 / 60); g.syncControls(); return { frames, phase: g.phase, ejected: g.ejected }; });
       assert.equal(descent.phase, 'evade'); assert.equal(descent.ejected, true);
       if (await page.locator('#captVeil.on').count()) {
         const run = page.locator('#captBody').getByRole('button', { name: 'Run', exact: true });
@@ -51,12 +51,13 @@ module.exports = async function ammunitionBrowser(browser, target, evidenceDir) 
       await fire(.2); assert.equal((await ledger()).remaining, 6); assert.equal((await ledger()).bulletsExpended, 0);
       record('An attack while the revolver is holstered spends no ammunition', await ledger(), 'Original initial fists mode and native attack input before drawing.');
       await select('pistol'); assert.equal((await ledger()).drawn, true);
+      if(!profile.hasTouch){const before=await ledger();await page.keyboard.down('Space');try{await tick(.25)}finally{await page.keyboard.up('Space')}await tick(.1);const after=await ledger();assert.equal(after.remaining,before.remaining);assert.equal(after.bulletsExpended,before.bulletsExpended);assert.equal(after.mode,'pistol');record('Space uses the free hand without firing the carried revolver',{before,after},'Actual held Space and release while the revolver remains selected; only primary canvas Attack fires it.');}
       await fire(); const first = await ledger(); assert.equal(first.remaining, 5); assert.equal(first.pistolShots, 1); assert.equal(first.bulletsExpended, 1);
-      record('Native draw and fire count an accepted missed round exactly once', first, profile.hasTouch ? 'Actual touchscreen Pistol/FIRE buttons; no target is in sight.' : 'Actual F selection and Space trigger keyboard events; no target is in sight.');
+      record('Native draw and fire count an accepted missed round exactly once', first, profile.hasTouch ? 'Actual touchscreen Pistol/FIRE buttons; no target is in sight.' : 'Actual F selection and primary canvas mouse trigger; no target is in sight.');
       await fire(.2); assert.equal((await ledger()).bulletsExpended, 1); assert.equal((await ledger()).remaining, 5);
       await page.evaluate(() => { const g = App.game; for (let i = 0; i < 4; i++) { g.syncControls(); g.render(1 / 60); } }); assert.equal((await ledger()).bulletsExpended, 1);
       record('Trigger cooldown and repeated actual renders do not spend or duplicate a shot', await ledger(), 'A second real trigger within .85 seconds, then four original renderer/control refreshes.');
-      // Queued mobile FIRE is consumed by its real cooldown. Let that same
+      // Queued primary FIRE is consumed by its real cooldown. Let that same
       // queued trigger complete, then use distinct native taps for the rest.
       await tick(.9); let shots = (await ledger()).pistolShots;
       while (shots < 6) { await fire(); await tick(.9); shots = (await ledger()).pistolShots; }
@@ -68,16 +69,16 @@ module.exports = async function ammunitionBrowser(browser, target, evidenceDir) 
       await select('knife'); await fire(.95); await select('fists'); await fire(.95); assert.equal((await ledger()).pistolShots, 6); assert.equal((await ledger()).bulletsExpended, 6);
       record('Empty-trigger, carried knife and fists never add bullets expended', await ledger(), 'Actual empty trigger and native knife/fists selection with subsequent attack inputs.');
 
-      await page.evaluate(() => {App.game.captured();App.game.paused=false;for(let i=0;i<360;i++)App.game.update(1/60);}); await page.waitForFunction(() => App.game?.pow?.stage === 'solitary'&&!CaptureTransition.active(App.game), null, { timeout: 15000 });
-      await page.evaluate(() => { App.screen = 'fixture'; App.game.paused = false; App.game.render(1 / 60); App.game.syncControls(); });
+      await page.evaluate(() => {App.game.captured();App.game.paused=false;for(let i=0;i<780;i++)App.game.update(1/60);}); await page.waitForFunction(() => App.game?.pow?.stage === 'solitary'&&!CaptureTransition.active(App.game), null, { timeout: 15000 });
+      await page.evaluate(() => { App.frame = () => {}; App.screen = 'game'; App.game.paused = false; App.game.render(1 / 60); App.game.syncControls(); });
       const captured = await ledger(); assert.equal(captured.bulletsExpended, 6); assert.equal(captured.remaining, 0); assert.equal(captured.hasPistol, false);
       await click(page.locator('#powHUD .pow-tools button').filter({ hasText: /^Save$/ }));
       const checkpoint = await page.evaluate(() => Store.get('pow_checkpoint', null)); assert.equal(checkpoint.ammunition.bulletsExpended, 6); assert.equal(checkpoint.sortie.missionId, 'm2'); assert.equal(checkpoint.sortie.context.captured, true); assert.equal(checkpoint.sortie.context.ejected, true);
-      record('Actual capture confiscates equipment while Save retains the completed shot ledger', { captured, saved: checkpoint.ammunition }, 'Real Game.captured and six seconds of original fixed-step transfer/reveal; native Save control.');
+      record('Actual capture confiscates equipment while Save retains the completed shot ledger', { captured, saved: checkpoint.ammunition }, 'Real Game.captured and thirteen seconds of original fixed-step transfer/reveal; native Save control.');
       await page.reload({ waitUntil: 'domcontentloaded' }); await page.waitForFunction(() => window.App && window.SurvivalAmmunition); await click(page.locator('#bootGo'));
       await click(page.locator('#powChapter button').filter({ hasText: /^Continue POW checkpoint$/ }));
       await page.waitForFunction(() => App.game?.pow?.stage === 'solitary' && document.getElementById('loader').style.display === 'none', null, { timeout: 90000 });
-      await page.evaluate(() => { App.screen = 'fixture'; App.game.paused = false; App.game.render(1 / 60); App.game.syncControls(); });
+      await page.evaluate(() => { App.frame = () => {}; App.screen = 'game'; App.game.paused = false; App.game.render(1 / 60); App.game.syncControls(); });
       const restored = await ledger(); assert.equal(restored.bulletsExpended, 6); assert.equal(restored.pistolShots, 6); assert.equal(restored.remaining, 0); assert.equal(restored.hasPistol, false);
       const sortie = await page.evaluate(() => ({ mission: App.game.mis.id, captured: !!App.game._capt, ejected: !!App.game.ejected, bombs: App.game.ac.bombs, dropped: App.game.world.score.dropped, total: App.game.world.score.total }));
       assert.equal(sortie.mission, 'm2'); assert.equal(sortie.captured, true); assert.equal(sortie.ejected, true); assert.equal(sortie.bombs, checkpoint.sortie.stores.bombs); assert.equal(sortie.dropped, checkpoint.sortie.score.dropped); assert.equal(sortie.total, checkpoint.sortie.score.total);

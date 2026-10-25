@@ -4,6 +4,7 @@ const fs = require('node:fs/promises');
 const fsSync = require('node:fs');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
+const installCompletePhotoFixture = require('./helpers/complete-photo-fixture.cjs');
 
 // Native prison entry and real AI movement, followed by explicitly declared
 // production-WebGL fixtures. No fixture is a completed escape, new photograph,
@@ -67,22 +68,24 @@ module.exports = async function refinementVisual(browser, target, evidenceDir) {
       const sourceSHA256 = createHash('sha256').update(await response.body()).digest('hex');
       await page.waitForFunction(() => window.App && window.POW?.FigureMotion && window.SpriteLayers && window.ContactShadows);
       await click(page.locator('#bootGo')); await click(page.locator('#powChapter button').filter({ hasText: 'Enter the prison' }));
-      await page.waitForFunction(() => App.game?.pow?.stage === 'cell' && document.getElementById('loader').style.display === 'none' && App.rend?.textures.people?.layers === 72 && App.rend?.textures.photo_vegetation?.layers === 48, null, { polling: 50 });
+      await page.waitForFunction(() => App.game?.pow?.stage === 'cell' && document.getElementById('loader').style.display === 'none', null, { polling: 50 });
+      await installCompletePhotoFixture(page); await installCompletePhotoFixture.waitPOWVegetation(page);
       await page.evaluate(() => { window.__refinementClock = true; }); await page.waitForTimeout(60);
       const entry = await page.evaluate(() => {
         const g = App.game, R = App.rend, gl = R.gl;
         for (const id of ['teach', 'teachPeek', 'legend']) document.getElementById(id)?.classList.remove('on');
         document.getElementById('radio').innerHTML = ''; g.render(1 / 60); g.syncControls();
         const meta = n => { const t = R.textures[n]; return { w: t.w, h: t.h, width: t.width, height: t.height, cols: t.cols, rows: t.rows, layers: t.layers, levels: t.levels, bytes: t.bytes, premultiplied: t.premultiplied, uploadPath: t.uploadPath, liveArray: gl.isTexture(t.arrayTex), live2D: gl.isTexture(t.tex) }; };
-        return { stage: g.pow.stage, actors: g.evade.searchers.length, solids: g.pow.solids.length, webgl: gl.getParameter(gl.VERSION), people: meta('people'), plants: meta('photo_vegetation'), memory: SpriteLayers.inspect(gl), source: FIGIMG.getAttribute('src'), gl: gl.getError() };
+        return { stage: g.pow.stage, actors: g.evade.searchers.length, solids: g.pow.solids.length, webgl: gl.getParameter(gl.VERSION), legacyAtlasUploaded: !!R.textures.people, cutouts: PhotoCutouts.inspect(R), plants: meta('photo_vegetation'), memory: SpriteLayers.inspect(gl), source: FIGIMG.getAttribute('src'), gl: gl.getError() };
       });
       assert.equal(entry.stage, 'cell'); assert(entry.actors > 0 && entry.solids > 20); assert.match(entry.webgl, /^WebGL 2/);
-      assert.deepEqual([entry.people.width, entry.people.height, entry.people.layers], [192, 384, 72]);
+      assert.equal(entry.legacyAtlasUploaded, false); assert.equal(entry.cutouts.status, 'ready');
+      assert(entry.cutouts.records.filter(r => r.pose === 'idle' && r.resident).length === 6); assert(entry.cutouts.bytes <= entry.cutouts.budget);
       assert.deepEqual([entry.plants.width, entry.plants.height, entry.plants.layers], [192, 256, 48]);
-      assert(entry.people.liveArray && entry.plants.liveArray && entry.people.live2D && entry.plants.live2D);
-      assert(entry.people.premultiplied && entry.plants.premultiplied); assert.equal(entry.source, 'assets/figures-original.png');
-      assert.equal(entry.memory.liveArrays, 2); assert(entry.memory.bytes < 40 * 1024 * 1024); assert.equal(entry.gl, 0);
-      record('Native prison and original photographs load as two bounded frame-isolated WebGL2 arrays', { sourceSHA256, originalHash, entry, screenshot: await savePNG('native-prison-cell') }, 'Actual Ready Room prison entry with mouse/emulated touch. No stage teleport, actor relocation, rewritten photograph or device-performance inference.');
+      assert(entry.plants.liveArray && entry.plants.live2D && entry.plants.premultiplied); assert.equal(entry.source, 'assets/figures-original.png');
+      assert.equal(entry.memory.liveArrays, 1); assert(entry.memory.bytes < 20 * 1024 * 1024); assert.equal(entry.gl, 0);
+      record('Native prison loads complete human photographs and one bounded frame-isolated vegetation array', { sourceSHA256, originalHash, entry, screenshot: await savePNG('native-prison-cell') }, 'Actual Ready Room prison entry with mouse/emulated touch. All six complete idle images remain resident; the removed legacy people atlas remains absent. No stage teleport, actor relocation, rewritten photograph or device-performance inference.');
+
 
       const patrol = await page.evaluate(() => {
         const g = App.game, actors = g.evade.searchers, before = actors.map(a => a.p.slice()); let penetrations = 0, moving = 0, peakSpeed = 0;
@@ -103,12 +106,12 @@ module.exports = async function refinementVisual(browser, target, evidenceDir) {
         const camera = R.setCamera, draw = R.drawSprites, shadowDraw = R.drawGroundShadows, calls = [], shadowCalls = [];
         R.drawGroundShadows = function (list) { shadowCalls.push({ total: list.length, contacts: list.filter(s => s.contact).length, visibleContacts: list.slice(0,600).filter(s => s.contact).length, firstContact: list.findIndex(s => s.contact) }); return shadowDraw.apply(this, arguments); };
         R.setCamera = function () { return camera.call(this, [b[0] + 9, b[1] + 1.55, b[2] + 22], [0, -.035, -1], [0, 1, 0], 58, .1, 60000, this.W / this.H); };
-        R.drawSprites = function (name, sprites) { for (const s of sprites) { const a = actors.find(a => Math.hypot(a.p[0] - s.p[0], a.p[2] - s.p[2]) < .12); if (a) { const m = PHOTO_ATLAS.people.frames[s.cell]; calls.push({ kind: a.kind, name, cell: s.cell, feet: s.p[1] + s.h * m.bottom, actorY: a.p[1], aspect: s.w / s.h, visibleHeight: s.h * m.height, motion: s.motion }); } } return draw.apply(this, arguments); };
+        R.drawSprites = function (name, sprites) { for (const s of sprites) { const a = actors.find(a => a === s.owner); if (a) calls.push({ kind: a.kind, name, ...__completePhotoFixture.meta(s), actorY: a.p[1] }); } return draw.apply(this, arguments); };
         try { g.render(1 / 60); } finally { R.setCamera = camera; R.drawSprites = draw; R.drawGroundShadows = shadowDraw; }
         const result = { calls, shadowCalls, movements: actors.map((a, i) => ({ kind: a.kind, state: a.state, moved: Math.hypot(a.p[0] - before[i][0], a.p[2] - before[i][2]), pose: POW.FigureMotion.pose(a, g) })), contacts: ContactShadows.inspect(g), gl: R.gl.getError() };
         g.evade.searchers = originalActors; g.pow.actors = originalPOWActors; POW.FigureMotion.reset(g); return result;
       });
-      assert.equal(roster.calls.length, 3); assert(roster.shadowCalls.some(c => c.contacts === 3 && c.visibleContacts === 3 && c.firstContact === 0), JSON.stringify(roster.shadowCalls)); for (const a of roster.calls) { assert.equal(a.name, 'people'); assert(Math.abs(a.feet - a.actorY) < .001); assert(Math.abs(a.aspect - .5) < .001); assert(a.visibleHeight > 1.2 && a.visibleHeight < 1.9); }
+      assert.equal(roster.calls.length, 3); assert(roster.shadowCalls.some(c => c.contacts === 3 && c.visibleContacts === 3 && c.firstContact === 0), JSON.stringify(roster.shadowCalls)); for (const a of roster.calls) { assert.match(a.name, /^photo_hr_/); assert.equal(a.complete, true); assert.equal(a.cols, 1); assert.equal(a.rows, 1); assert.equal(a.cell, 0); assert(a.liveTexture); assert(Math.abs(a.feet - a.actorY) < .001); assert(Math.abs(a.renderedAspect - a.sourceAspect) < .001); assert(a.visibleHeight > 1.2 && a.visibleHeight < 1.9); }
       for (const a of roster.movements) assert(a.moved > .2 && a.pose.stride > .1, JSON.stringify(a)); assert.equal(roster.gl, 0);
       record('Farmer, VC and NVA remain distinct, grounded and moving in the real prison world', { roster, screenshot: await savePNG('declared-roster-farmer-vc-nva') }, 'Declared actor-roster, sound and camera fixture in the existing yard. Original hearing, civilian flee, guard investigation and collision navigation generate movement. Normal prison actors restored immediately afterward.');
 
@@ -128,29 +131,29 @@ module.exports = async function refinementVisual(browser, target, evidenceDir) {
         const png = p => {const c=document.createElement('canvas');c.width=R.W;c.height=R.H;const x=c.getContext('2d'),d=x.createImageData(R.W,R.H);for(let y=0;y<R.H;y++)d.data.set(p.subarray(y*R.W*4,(y+1)*R.W*4),(R.H-1-y)*R.W*4);x.putImageData(d,0,0);return c.toDataURL('image/png');};
         const cleanup = () => { for(const n of resources){ const t=R.textures[n];if(t){SpriteLayers.dispose(gl,t);gl.deleteTexture(t.tex);delete R.textures[n];}} };
         try {
-          // An independent ordinary 2D upload of the untouched original atlas.
-          R.texFromCanvas('refinementLegacyPeople', FIGIMG); resources.push('refinementLegacyPeople');
+          const F = __completePhotoFixture;
           const plants = await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=reject;im.src='assets/processed/vegetation.webp';});
           R.texFromCanvas('refinementLegacyPlants', plants); resources.push('refinementLegacyPlants');
-          const savedMax = [];
-          for(const n of ['people','photo_vegetation']){const t=R.textures[n];gl.bindTexture(gl.TEXTURE_2D_ARRAY,t.arrayTex);savedMax.push([t,gl.getTexParameter(gl.TEXTURE_2D_ARRAY,gl.TEXTURE_MAX_LEVEL)]);gl.texParameteri(gl.TEXTURE_2D_ARRAY,gl.TEXTURE_MAX_LEVEL,0);}
-          for(const [kind,cell] of [['farmer',48],['vc',24],['nva',0]]){
-            const m=PHOTO_ATLAS.people.frames[cell],s={p:[0,-2*m.bottom,-3],h:2,w:1,cell,cols:8,rows:9};
-            clear();R.drawSprites('refinementLegacyPeople',[s]);const legacy=read();clear();R.drawSprites('people',[s]);const layered=read();
-            const lod0=diff(legacy,layered), distances=[];
-            gl.bindTexture(gl.TEXTURE_2D_ARRAY,R.textures.people.arrayTex);gl.texParameteri(gl.TEXTURE_2D_ARRAY,gl.TEXTURE_MAX_LEVEL,R.textures.people.levels-1);
-            for(const distance of [3,9,18]){clear();R.drawSprites('people',[{...s,p:[0,s.p[1],-distance],motion:[0,0,0,m.bottom]}]);distances.push({distance,...metrics(read())});}
-            gl.bindTexture(gl.TEXTURE_2D_ARRAY,R.textures.people.arrayTex);gl.texParameteri(gl.TEXTURE_2D_ARRAY,gl.TEXTURE_MAX_LEVEL,0);
-            clear();R.drawSprites('people',[{...s,motion:[Math.PI/2,1,.15,m.bottom]}]);images.push({name:'daylight-original-'+kind,png:png(read())});
-            samples.push({kind,lod0,distances});
+          for(const [kind,subject] of [['farmer','farmer'],['vc','militia'],['nva','nva']]){
+            await F.prepare(subject);
+            const sprite=F.sprite(subject), record=PhotoCutouts.inspect(R).records.find(r=>r.key===sprite.photoAsset), texture=R.textures[sprite.textureName];
+            const image=await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=reject;im.src=record.url;});
+            const canvas=document.createElement('canvas');canvas.width=texture.w;canvas.height=texture.h;const context=canvas.getContext('2d');context.imageSmoothingEnabled=true;context.imageSmoothingQuality='high';context.drawImage(image,0,0,canvas.width,canvas.height);
+            const rawName='refinementRawComplete_'+subject;R.texFromCanvas(rawName,canvas);resources.push(rawName);canvas.width=canvas.height=1;
+            gl.bindTexture(gl.TEXTURE_2D,texture.tex);const oldMin=gl.getTexParameter(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+            clear();R.drawSprites(rawName,[sprite]);const raw=read();clear();R.drawSprites(sprite.textureName,[sprite]);const complete=read();const lod0=diff(raw,complete);
+            gl.bindTexture(gl.TEXTURE_2D,texture.tex);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,oldMin);
+            const distances=[];for(const distance of [3,9,18]){const at=F.sprite(subject,[0,0,-distance]);clear();R.drawSprites(at.textureName,[at]);distances.push({distance,...metrics(read())});}
+            clear();R.drawSprites(sprite.textureName,[sprite]);images.push({name:'daylight-complete-'+kind,png:png(read())});samples.push({kind,source:F.meta(sprite),lod0,distances});
           }
+          const plantTexture=R.textures.photo_vegetation;gl.bindTexture(gl.TEXTURE_2D_ARRAY,plantTexture.arrayTex);const savedPlantMax=gl.getTexParameter(gl.TEXTURE_2D_ARRAY,gl.TEXTURE_MAX_LEVEL);gl.texParameteri(gl.TEXTURE_2D_ARRAY,gl.TEXTURE_MAX_LEVEL,0);
           const m=PHOTO_ATLAS.vegetation.frames[7],h=3.5/m.height,plant={p:[0,-m.bottom*h,-6],h,w:3,cell:7,cols:8,rows:6};
           clear();R.drawSprites('refinementLegacyPlants',[plant]);const oldPlant=read();clear();R.drawSprites('photo_vegetation',[plant]);const plantLOD0=diff(oldPlant,read());
-          for(const [t,max] of savedMax){gl.bindTexture(gl.TEXTURE_2D_ARRAY,t.arrayTex);gl.texParameteri(gl.TEXTURE_2D_ARRAY,gl.TEXTURE_MAX_LEVEL,max);}
+          gl.bindTexture(gl.TEXTURE_2D_ARRAY,plantTexture.arrayTex);gl.texParameteri(gl.TEXTURE_2D_ARRAY,gl.TEXTURE_MAX_LEVEL,savedPlantMax);
           const plantDistances=[];for(const d of [6,18,36]){clear();R.drawSprites('photo_vegetation',[{...plant,p:[0,plant.p[1],-d]}]);plantDistances.push({distance:d,...metrics(read())});}
           clear();R.drawSprites('photo_vegetation',[plant]);images.push({name:'daylight-original-vegetation',png:png(read())});
           const wall=new MB();wall.quad([-2,0,-2],[2,0,-2],[2,2,-2],[-2,2,-2],[.5,.5,.5]);R.meshFromBuilder('refinementWall',wall);
-          clear();R.drawMesh('refinementWall',identity,1);const wallPixels=read();R.drawSprites('people',[{p:[0,0,-3],h:2,w:1,cell:0,cols:8,rows:9,motion:[Math.PI/2,1,.5,0]}]);const occlusion=diff(wallPixels,read());
+          clear();R.drawMesh('refinementWall',identity,1);const wallPixels=read();const behind=F.sprite('nva');R.drawSprites(behind.textureName,[behind]);const occlusion=diff(wallPixels,read());
           // Deliberately antagonistic neighbours: target is a one-pixel green
           // checker; every other frame is magenta. Each target mip is read
           // directly from its array layer, independently of the sprite shader.
@@ -169,8 +172,8 @@ module.exports = async function refinementVisual(browser, target, evidenceDir) {
             temporal[texture]={frames:frames.length,interiorSamples:count,meanGreenTemporalDifference:count?energy/count:0};
           }
           R.setCamera([0,1,0],[0,0,-1],[0,1,0],50,.1,400,1);
-          clear();R.drawSprites('refinementLegacyPeople',[{p:[0,0,-3],h:2,w:1,cell:0,cols:8,rows:9}]);const legacyUse=gl.getUniform(R.pSprite,R.pSprite.u.uUseSpriteLayers);
-          clear();R.drawSprites('people',[{p:[0,0,-3],h:2,w:1,cell:0,cols:8,rows:9}]);
+          const samplerSprite=F.sprite('nva');clear();R.drawSprites(samplerSprite.textureName,[samplerSprite]);const legacyUse=gl.getUniform(R.pSprite,R.pSprite.u.uUseSpriteLayers);
+          clear();R.drawSprites('refinementIsolated',[{p:[0,0,-3],h:2,w:1,cell:0,cols:8,rows:9}]);
           const samplers={legacyUse,arrayUse:gl.getUniform(R.pSprite,R.pSprite.u.uUseSpriteLayers),atlas:gl.getUniform(R.pSprite,R.pSprite.u.uTex),layers:gl.getUniform(R.pSprite,R.pSprite.u.uSpriteLayers),shadow:gl.getUniform(R.pSprite,R.pSprite.u.uShadow)};
           const state={depthWrites:gl.getParameter(gl.DEPTH_WRITEMASK),depthTest:gl.isEnabled(gl.DEPTH_TEST),blending:gl.isEnabled(gl.BLEND),culling:gl.isEnabled(gl.CULL_FACE)};
           return {dims,samples,plantLOD0,plantDistances,occlusion,mipReads,temporal,samplers,state,images,gl:gl.getError()};
@@ -184,7 +187,7 @@ module.exports = async function refinementVisual(browser, target, evidenceDir) {
       assert(oldEnergy.interiorSamples>100&&newEnergy.interiorSamples>100);assert(oldEnergy.meanGreenTemporalDifference>1);assert(newEnergy.meanGreenTemporalDifference<oldEnergy.meanGreenTemporalDifference*.4,JSON.stringify(gpu.temporal));
       assert.equal(gpu.samplers.legacyUse,0);assert.equal(gpu.samplers.arrayUse,1);assert.equal(gpu.samplers.atlas,0);assert.equal(gpu.samplers.layers,5);assert.equal(gpu.samplers.shadow,7);assert.equal(gpu.gl,0);
       const decoded=[];for(const im of gpu.images)decoded.push(await savePNG('gpu-fixture-'+im.name,im.png,gpu.dims));
-      record('Original figure and vegetation LOD0 match independent legacy uploads; near/mid/far source silhouettes remain solid and correctly occluded', { originalHash,samples:gpu.samples,plantLOD0:gpu.plantLOD0,plantDistances:gpu.plantDistances,occlusion:gpu.occlusion,state:gpu.state,samplers:gpu.samplers,decoded }, 'Declared raw production drawSprites framebuffer fixtures. Forced LOD0 comparison uses a separately uploaded untouched 2D atlas; production mipmapped distances use native frame arrays. Daylight farmer/VC/NVA/vegetation fixture PNGs are real WebGL output, not normal world spawns.');
+      record('Complete human photographs and vegetation LOD0 match independent uploads; near/mid/far silhouettes remain solid and occluded', { originalHash,samples:gpu.samples,plantLOD0:gpu.plantLOD0,plantDistances:gpu.plantDistances,occlusion:gpu.occlusion,state:gpu.state,samplers:gpu.samplers,decoded }, 'Declared raw production drawSprites framebuffer fixtures. Complete-image LOD0 comparison uses independently decoded and identically sized source uploads; human distances use isolated whole-image mips and vegetation uses native frame arrays. Daylight farmer/VC/NVA/vegetation fixture PNGs are real WebGL output, not normal world spawns.');
       record('Frame mipmaps contain no neighbouring magenta and reduce checker shimmer during camera motion', {mipReads:gpu.mipReads,temporal:gpu.temporal}, 'Declared hostile-neighbour synthetic atlas. Actual GPU framebufferTextureLayer reads every target mip; 24 subpixel camera positions compare interior green temporal energy against ordinary non-mipmapped legacy sampling. Synthetic result is not a universal subjective sharpness or source-detail claim.');
 
       const contact = await page.evaluate(() => {
@@ -201,10 +204,10 @@ module.exports = async function refinementVisual(browser, target, evidenceDir) {
             const floorY=(x,z)=>y+slope[0]*x+slope[1]*(z+3);ContactShadows.configure({terrainH:floorY});
             const floor=new MB();floor.quad([-4,floorY(-4,0),0],[4,floorY(4,0),0],[4,floorY(4,-10),-10],[-4,floorY(-4,-10),-10],[.65,.65,.65]);R.meshFromBuilder('refinementContactFloor',floor);
             R.setCamera([0,y+2,2],[0,-.35,-1],[0,1,0],50,.1,100,1);
-            const owner={kind:'nva',alive:true},sprite={p:[0,y,-3],h:2,w:1,cell:0,cols:8,rows:9,useCleanFigure:true,owner,motion:[0,0,0,PHOTO_ATLAS.people.frames[0].bottom]},fixture={evade:{p:[0,y+2,2]},rend:R,atm:{night:false},t:0,...(pow?{pow:{time:0}}:{})};
-            const before=JSON.stringify(sprite),cores=ContactShadows.collect(fixture,[sprite],0),body={...sprite,p:[0,y-2*sprite.motion[3],-3]};
+            const owner={kind:'nva',p:[0,y,-3],alive:true,armed:false},descriptor=PhotoSprites.describe(owner,{renderer:R,camera:[0,y+2,2]}),sprite={...descriptor,p:owner.p.slice(),owner,sourcePhotograph:true},fixture={evade:{p:[0,y+2,2]},rend:R,atm:{night:false},t:0,...(pow?{pow:{time:0}}:{})};
+            const before=JSON.stringify(sprite),cores=ContactShadows.collect(fixture,[sprite],0),body=PhotoSprites.anchor(sprite);
             const clear=()=>{R.begin();gl.clearColor(.12,.08,.15,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);R.drawMesh('refinementContactFloor',identity,1);};
-            clear();R.drawSprites('people',[body]);const plain=read();clear();R.drawGroundShadows(cores);R.drawSprites('people',[body]);const anchored=read();
+            clear();R.drawSprites(body.textureName,[body]);const plain=read();clear();R.drawGroundShadows(cores);R.drawSprites(body.textureName,[body]);const anchored=read();
             const visible=compare(plain,anchored),foot=projected(sprite.p);let footROIDarkened=0,bodyAboveChanged=0;for(let yy=0;yy<R.H;yy++)for(let xx=0;xx<R.W;xx++){const i=(yy*R.W+xx)*4,d=Math.max(Math.abs(plain[i]-anchored[i]),Math.abs(plain[i+1]-anchored[i+1]),Math.abs(plain[i+2]-anchored[i+2]));if(d>1&&Math.hypot(xx-foot[0],yy-foot[1])<24)footROIDarkened++;if(d>1&&yy>foot[1]+14&&Math.abs(xx-foot[0])<30)bodyAboveChanged++;}images.push({name:label,png:png(anchored)});
             const wall=new MB();wall.quad([-4,y,-1],[4,y,-1],[4,y+4,-1],[-4,y+4,-1],[.5,.5,.5]);R.meshFromBuilder('refinementContactWall',wall);
             clear();R.drawMesh('refinementContactWall',identity,1);const wallOnly=read();R.drawGroundShadows(cores);const wallOcclusion=compare(wallOnly,read());
@@ -217,26 +220,29 @@ module.exports = async function refinementVisual(browser, target, evidenceDir) {
       const contactImages=[];for(const im of contact.images)contactImages.push(await savePNG('gpu-contact-'+im.name,im.png,contact.dims));delete contact.images;contact.screenshots=contactImages;
       record('Boot contact cores visibly darken flat, sloped and raised POW floors without moving the body or leaking through walls',contact,'Declared actual MB floor/body/wall GPU fixtures with matching terrain sampler. Production ContactShadows.collect and drawGroundShadows perform all placement and shading. The original terrain sampler is restored in finally; no actor or physics changes.');
 
-      const replacement = await page.evaluate(() => {
-        const R=App.rend,gl=R.gl,old=R.textures.people,uploads=[],upload=gl.texImage2D;
+      const replacement = await page.evaluate(async () => {
+        const R=App.rend,gl=R.gl,old=R.textures.photo_vegetation,uploads=[],upload=gl.texImage2D;
+        const idles=PhotoCutouts.inspect(R).records.filter(r=>r.pose==='idle').map(r=>({name:r.textureName,tex:R.textures[r.textureName].tex}));
+        const image=await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=reject;im.src='assets/processed/vegetation.webp';});
         gl.texImage2D=function(){uploads.push({argc:arguments.length,width:typeof arguments[3]==='number'?arguments[3]:null,height:typeof arguments[4]==='number'?arguments[4]:null});return upload.apply(this,arguments);};
-        try {R.texFromCanvas('people',FIGIMG);}finally{gl.texImage2D=upload;}
-        const first=R.textures.people,firstState=SpriteLayers.inspect(gl);R.texFromCanvas('people',FIGIMG);const second=R.textures.people;
-        App.game.render(1/60);return {oldArrayDeleted:!gl.isTexture(old.arrayTex),old2DDeleted:!gl.isTexture(old.tex),firstArrayDeleted:!gl.isTexture(first.arrayTex),first2DDeleted:!gl.isTexture(first.tex),newArrayLive:gl.isTexture(second.arrayTex),new2DLive:gl.isTexture(second.tex),uploads,firstState,current:SpriteLayers.inspect(gl),gl:gl.getError()};
+        try {R.texFromCanvas('photo_vegetation',image);}finally{gl.texImage2D=upload;}
+        const first=R.textures.photo_vegetation,firstState=SpriteLayers.inspect(gl);R.texFromCanvas('photo_vegetation',image);const second=R.textures.photo_vegetation;
+        return {oldArrayDeleted:!gl.isTexture(old.arrayTex),old2DDeleted:!gl.isTexture(old.tex),firstArrayDeleted:!gl.isTexture(first.arrayTex),first2DDeleted:!gl.isTexture(first.tex),newArrayLive:gl.isTexture(second.arrayTex),new2DLive:gl.isTexture(second.tex),completeIdlesPreserved:idles.every(r=>R.textures[r.name].tex===r.tex&&gl.isTexture(r.tex)),legacyAtlasUploaded:!!R.textures.people,uploads,firstState,current:SpriteLayers.inspect(gl),photos:PhotoCutouts.inspect(R),gl:gl.getError()};
       });
-      assert(replacement.oldArrayDeleted&&replacement.old2DDeleted&&replacement.firstArrayDeleted&&replacement.first2DDeleted&&replacement.newArrayLive&&replacement.new2DLive);assert(replacement.uploads.some(u=>u.width===1&&u.height===1));assert(replacement.uploads.every(u=>u.width===1&&u.height===1));assert.equal(replacement.firstState.liveArrays,2);assert.equal(replacement.current.liveArrays,2);assert(replacement.current.bytes<40*1024*1024);assert.equal(replacement.gl,0);
-      record('Repeated real photograph replacement deletes both prior handles and retains only two arrays plus one-pixel legacy proxies',replacement,'Actual renderer texFromCanvas replacement twice with untouched FIGIMG. gl.isTexture proves deletion, real texImage2D interception proves only a 1×1 legacy proxy upload, and live array accounting remains bounded.');
+      assert(replacement.oldArrayDeleted&&replacement.old2DDeleted&&replacement.firstArrayDeleted&&replacement.first2DDeleted&&replacement.newArrayLive&&replacement.new2DLive&&replacement.completeIdlesPreserved);assert.equal(replacement.legacyAtlasUploaded,false);assert(replacement.uploads.some(u=>u.width===1&&u.height===1));assert(replacement.uploads.every(u=>u.width===1&&u.height===1));assert.equal(replacement.firstState.liveArrays,1);assert.equal(replacement.current.liveArrays,1);assert(replacement.current.bytes<20*1024*1024);assert(replacement.photos.bytes<=replacement.photos.budget);assert.equal(replacement.gl,0);
+      record('Repeated vegetation replacement deletes both old handles while complete human images remain resident',replacement,'Actual renderer texFromCanvas replacement twice with the unchanged vegetation source. Real texture deletion and 1x1 array proxies are checked; the removed people atlas is not recreated.');
 
       const loss = await page.evaluate(() => {
-        const R=App.rend,g=App.game;window.__refinementRecovery={renderer:R,game:g,aircraft:JSON.stringify(g.ac),powStage:g.pow.stage,actors:JSON.stringify(g.evade.searchers),people:R.textures.people.arrayTex,plants:R.textures.photo_vegetation.arrayTex};
+        const R=App.rend,g=App.game;window.__refinementRecovery={renderer:R,game:g,aircraft:JSON.stringify(g.ac),powStage:g.pow.stage,actors:JSON.stringify(g.evade.searchers),photos:PhotoCutouts.inspect(R).records.filter(r=>r.pose==='idle').map(r=>({name:r.textureName,tex:R.textures[r.textureName].tex})),plants:R.textures.photo_vegetation.arrayTex};
         const ext=R.gl.getExtension('WEBGL_lose_context');if(!ext)return false;window.__refinementLoss=ext;ext.loseContext();return true;
       });
       assert(loss);await page.waitForFunction(()=>App.graphicsContextLost&&App.game?.paused&&!App.rend,null,{polling:50});await page.waitForTimeout(200);await page.evaluate(()=>__refinementLoss.restoreContext());
-      await page.waitForFunction(()=>!App.graphicsContextLost&&App.rend&&App.rend!==__refinementRecovery.renderer&&App.game?.paused&&App.rend.textures.people?.layers===72&&App.rend.textures.photo_vegetation?.layers===48,null,{polling:50});
-      const restored=await page.evaluate(()=>{const R=App.rend,g=App.game,b=__refinementRecovery;g.render(1/60);return{sameGame:g===b.game,sameAircraft:JSON.stringify(g.ac)===b.aircraft,sameActors:JSON.stringify(g.evade.searchers)===b.actors,sameStage:g.pow.stage===b.powStage,newPeople:R.textures.people.arrayTex!==b.people&&R.gl.isTexture(R.textures.people.arrayTex),newPlants:R.textures.photo_vegetation.arrayTex!==b.plants&&R.gl.isTexture(R.textures.photo_vegetation.arrayTex),memory:SpriteLayers.inspect(R.gl),gl:R.gl.getError()};});
-      assert(restored.sameGame&&restored.sameAircraft&&restored.sameActors&&restored.sameStage&&restored.newPeople&&restored.newPlants);assert.equal(restored.memory.liveArrays,2);assert(restored.memory.bytes<40*1024*1024);assert.equal(restored.gl,0);
+      await page.waitForFunction(()=>!App.graphicsContextLost&&App.rend&&App.rend!==__refinementRecovery.renderer&&App.game?.paused,null,{polling:50});
+      await page.evaluate(()=>App.game.render(0));await installCompletePhotoFixture(page);await installCompletePhotoFixture.waitPOWVegetation(page);
+      const restored=await page.evaluate(()=>{const R=App.rend,g=App.game,b=__refinementRecovery;g.render(1/60);return{sameGame:g===b.game,sameAircraft:JSON.stringify(g.ac)===b.aircraft,sameActors:JSON.stringify(g.evade.searchers)===b.actors,sameStage:g.pow.stage===b.powStage,newPeople:b.photos.every(r=>R.textures[r.name]?.tex!==r.tex&&R.gl.isTexture(R.textures[r.name]?.tex)),newPlants:R.textures.photo_vegetation.arrayTex!==b.plants&&R.gl.isTexture(R.textures.photo_vegetation.arrayTex),memory:SpriteLayers.inspect(R.gl),gl:R.gl.getError()};});
+      assert(restored.sameGame&&restored.sameAircraft&&restored.sameActors&&restored.sameStage&&restored.newPeople&&restored.newPlants);assert.equal(restored.memory.liveArrays,1);assert(restored.memory.bytes<20*1024*1024);assert.equal(restored.gl,0);
       await click(page.locator('#graphicsRecovery').getByRole('button',{name:'Resume mission',exact:true}));await page.evaluate(()=>{App.game.render(1/60);App.game.syncControls();});
-      record('A true WebGL context loss restores both photograph arrays while retaining the original prison game', {restored,screenshot:await savePNG('native-restored-prison')},'WEBGL_lose_context loss/restore and native Resume mission control. Game object, aircraft, complete guard records and prison stage survive. Actual restored photograph handles and bounded allocations are checked.');
+      record('A true WebGL context loss restores complete human textures and vegetation while retaining the prison game', {restored,screenshot:await savePNG('native-restored-prison')},'WEBGL_lose_context loss/restore and native Resume mission control. Game object, aircraft, complete guard records and prison stage survive. Actual restored complete-image and vegetation-array handles and bounded allocations are checked.');
       await Promise.all(digestTasks);assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
       record('Desktop or touch layout completes real GPU fixtures with clean assets, JavaScript and WebGL state',{runtimeSHA256,errors,missing,screenshots:screenshots.filter(s=>s.includes(name+'-')).length},'Linux Chromium/SwiftShader only. iPhone landscape uses DPR3 and actual emulated touch; physical Windows GPUs, actual iPhone Safari, device FPS and subjective playability still require the user’s hardware test.');
     } catch(error) {
@@ -247,5 +253,5 @@ module.exports = async function refinementVisual(browser, target, evidenceDir) {
   assert.equal(createHash('sha256').update(await fs.readFile(originalPath)).digest('hex'),originalHash);
   await fs.rm(path.join(evidenceDir,'refinement-visual-progress.json'),{force:true});
   await fs.rm(path.join(evidenceDir,'refinement-visual-failure.json'),{force:true});
-  return {suite:'refinement-visual',passed:true,total:results.length,results,screenshots,physicalWindowsTested:false,actualIPhoneSafariTested:false,scope:'Actual Chromium/SwiftShader WebGL2: native prison and real original guard updates; explicitly declared world actor roster, source LOD0, isolated per-layer mip, moving-camera synthetic alias, photographic perspective/depth, terrain-contact and resource fixtures; true graphics context loss/recovery. Original source PNG hash preserved. Palette-limited original photographs gain filtering stability, not newly invented detail. No physical device, measured FPS or completed escape claim.'};
+  return {suite:'refinement-visual',passed:true,total:results.length,results,screenshots,physicalWindowsTested:false,actualIPhoneSafariTested:false,scope:'Actual Chromium/SwiftShader WebGL2: native prison and real original guard updates; explicitly declared world actor roster, source LOD0, isolated per-layer mip, moving-camera synthetic alias, photographic perspective/depth, terrain-contact and resource fixtures; true graphics context loss/recovery. Original source PNG hash preserved. Complete authored photographs and isolated mips are tested directly; these fixtures do not establish universal photographic fidelity. No physical device, measured FPS or completed escape claim.'};
 };

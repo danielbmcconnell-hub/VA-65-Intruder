@@ -110,10 +110,17 @@ test('loading/hidden travel synchronization never retroactively sweeps invisible
  f.g.paused=true;f.g.evade.p[2]=.8;f.W.step(f.g,.05,f.c);near(state(f).previousP[2],.8);near(state(f).clock,clock+.05);
 });
 
-test('confirmed pistol/knife hits interrupt only large-animal attacks, retain identity and allow retreat',()=>{
- for(const weapon of ['pistol','knife']){
+test('confirmed pistol, knife, recovered rifle and branch hits interrupt only large-animal attacks, retain identity and allow retreat',()=>{
+ for(const weapon of ['pistol','knife','rifle','stick']){
   const f=fixture([animal('boar')]);tick(f,1.85);assert.equal(state(f).ecology.mammals[0].state,'charge');const list=f.W.targets(f.g);assert.equal(list.length,1);assert.equal(list[0].wildlife,true);list[0].p[0]=999;near(f.W.targets(f.g)[0].p[0],0);
   assert.equal(f.W.weaponHit(f.g,'test-boar',{weapon:'fists'}),false);assert.equal(f.W.weaponHit(f.g,'missing',{weapon}),false);assert.ok(f.W.weaponHit(f.g,'test-boar',{weapon}).retreat);tick(f,4);assert.equal(f.hits.length,0);assert.equal(state(f).ecology.mammals[0].state,'flee');assert.equal(f.g.evade.searchers.length,0);assert.equal(f.g.evade.cattle.length,0);
+ }
+});
+test('rifle and branch defense preserve boar/tiger identity and nonlethal recovery across genuine ecology checkpoints',()=>{
+ for(const weapon of ['rifle','stick'])for(const kind of ['boar','tiger']){
+  const f=fixture([animal(kind,kind==='boar'?-4:-7)]);tick(f,kind==='boar'?1.85:1);const original=state(f).ecology.mammals[0],id=original.id;
+  assert.equal(f.W.weaponHit(f.g,id,{weapon:'fists'}),false);const response=f.W.weaponHit(f.g,id,{weapon});assert.equal(response.retreat,true);assert.equal(response.state,'recover');assert.equal(state(f).ecology.mammals[0],original);assert.equal(original.defenseWeapon,weapon);assert.equal(original.spent,true);assert.equal(f.W.targets(f.g)[0].alive,true);assert.equal(f.hits.length,0);
+  const saved=f.W.snapshot(f.g),restored=fixture();assert.equal(restored.W.restore(restored.g,saved),true);assert.equal(state(restored).ecology.mammals[0].id,id);assert.equal(state(restored).ecology.mammals[0].defenseWeapon,weapon);tick(restored,4);assert.equal(state(restored).ecology.mammals[0].state,'flee');assert.equal(restored.hits.length,0);assert.equal(restored.g.evade.searchers.length,0);assert.equal(restored.g.evade.cattle.length,0);assert.equal(restored.g.phase,'evade');
  }
 });
 

@@ -226,7 +226,7 @@
   return e.mammals.map(n=>{const a=SPECS[n.kind];return {id:n.id,kind:n.kind,p:n.p.slice(),alive:true,armed:false,wildlife:true,length:a.length*n.scale,height:a.height*n.scale,bodyHeight:a.height*n.scale,width:a.width*n.scale,bodyWidth:a.width*n.scale};});
  }
  function weaponHit(g,id,options={}){
-  if(!active(g)||!['pistol','knife'].includes(options.weapon))return false;
+  if(!active(g)||!['pistol','knife','rifle','stick'].includes(options.weapon))return false;
   const s=g.evade.wildlife,e=s&&s.ecology,n=e&&e.mammals.find(n=>n.id===id);if(!n)return false;
   n.defenseHits=Math.min(10,finite(n.defenseHits)+1);
   if(!n.defended){n.defended=true;n.spent=true;n.hit=true;n.speed=0;n.defenseWeapon=options.weapon;n.defendedAt=s.clock;setState(n,'recover');}
@@ -249,7 +249,7 @@
     const input=e[group][i],n=actor(input,i);if(!n||SPECS[n.kind].group!==group||group!=='colonies'&&(!Number.isFinite(input.yaw)||!STATES.has(input.state)))return false;
     for(const key of ['phase','speed','turn','rest','blocked','strikes','stateAge','warnedAt','encounterAge','chargeYaw','lastContact','lastBite','contact','activity','defenseHits','defendedAt'])if(input[key]!==undefined){if(!Number.isFinite(input[key]))return false;n[key]=input[key];}
     for(const key of ['noticed','spent','hit','defended'])if(input[key]!==undefined){if(typeof input[key]!=='boolean')return false;n[key]=input[key];}
-    if(input.defenseWeapon!==undefined){if(!['pistol','knife'].includes(input.defenseWeapon))return false;n.defenseWeapon=input.defenseWeapon;}
+    if(input.defenseWeapon!==undefined){if(!['pistol','knife','rifle','stick'].includes(input.defenseWeapon))return false;n.defenseWeapon=input.defenseWeapon;}
     n.phase=((finite(n.phase)%1)+1)%1;if(group==='colonies'){n.activity=clamp(n.activity,0,1);n.contact=clamp(n.contact,0,5);}else{n.speed=clamp(n.speed,0,8);n.blocked=clamp(n.blocked,0,60);n.rest=clamp(n.rest,0,60);n.stateAge=clamp(n.stateAge,0,1e6);n.encounterAge=clamp(n.encounterAge,0,60);n.strikes=clamp(Math.floor(n.strikes),0,1e6);}
     e[group][i]=n;
    }

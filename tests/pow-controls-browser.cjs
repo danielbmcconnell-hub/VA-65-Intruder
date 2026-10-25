@@ -19,7 +19,7 @@ module.exports=async function main(browser,target,evidenceDir) {
     const session=await page.context().newCDPSession(page);
     const touch=async(type,points=[])=>session.send('Input.dispatchTouchEvent',{type,touchPoints:points.map(p=>({...p,radiusX:7,radiusY:7,force:1}))});
     const center=async selector=>page.locator(selector).evaluate(n=>{const r=n.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2,width:r.width,height:r.height};});
-    const step=async seconds=>page.evaluate(seconds=>{for(let i=0;i<Math.ceil(seconds*20);i++)App.game.stepEvade(.05);},seconds);
+    const step=async seconds=>page.evaluate(seconds=>{for(let i=0;i<Math.ceil(seconds*20);i++){const g=App.game;if(CaptureTransition.active(g))g.update(.05);else g.stepEvade(.05);}},seconds);
     const render=async name=>{await page.evaluate(()=>{App.game.render(1/60);App.game.syncControls();});await page.screenshot({path:path.join(out,name+'.png')});};
     record('touch-only-survival-controls-hide-radio-and-weapons',await page.evaluate(()=>({passed:matchMedia('(pointer:coarse)').matches && getComputedStyle(document.getElementById('btnCrouch')).display!=='none' && ['weaponViewport','btnRadio','btnPistol','btnKnife','btnPunch','btnFire'].every(id=>getComputedStyle(document.getElementById(id)).display==='none'),dpr:devicePixelRatio,touch:matchMedia('(pointer:coarse)').matches})));
     const stick=await center('#stick'),start=await page.evaluate(()=>App.game.evade.p.slice());
@@ -33,7 +33,7 @@ module.exports=async function main(browser,target,evidenceDir) {
     record('real-touch-crouch-lowers-rendered-camera',await page.evaluate(()=>{const g=App.game;g.render(1/60);return {passed:g.evade.crouch && g.rend.eye[1]-g.evade.p[1]>1 && g.rend.eye[1]-g.evade.p[1]<1.3,crouch:g.evade.crouch,eyeHeight:g.rend.eye[1]-g.evade.p[1]};}));
     await touch('touchEnd');await step(.1);await render('01-touch-cell');
     // Move through real solids to the bunk rather than assigning an objective flag.
-    await page.evaluate(()=>{const g=App.game,b=g.pow.base;POW.move(g,g.evade,b[0]-.8-g.evade.p[0],b[2]+.9-g.evade.p[2],.32);g.evade.hdg=0;g.stepEvade(.1);POW.updateUI(g);});
+    await page.evaluate(()=>{const g=App.game,b=g.pow.base;POW.move(g,g.evade,b[0]-g.evade.p[0],b[2]-.8-g.evade.p[2],.32);g.evade.hdg=0;g.stepEvade(.1);POW.updateUI(g);});
     const interact=await center('#powHUD .pow-context-controls button:first-child');
     await touch('touchStart',[{x:interact.x,y:interact.y,id:4}]);await step(.7);
     record('real-touch-interaction-shows-partial-hold',await page.evaluate(()=>({passed:!!App.game.pow.holding && App.game.pow.holding.t>.5 && !App.game.pow.inventory.bracket && POW.ui.progress.value>0,hold:App.game.pow.holding,progress:POW.ui.progress.value})));
@@ -60,7 +60,7 @@ module.exports=async function main(browser,target,evidenceDir) {
     await page.evaluate(()=>{const g=App.game,b=g.pow.base,a=g.evade.searchers[0];for(const q of g.pow.solids)if(q.id==='browser-thin-wall')q.active=false;g.campGeo=g.campGeo.filter(q=>q.id!=='browser-thin-wall');g.pow.navVersion++;a.p=[b[0]+34,b[1],b[2]-24];a.home=a.p.slice();a.route=[a.p.slice()];a.goal=a.p.slice();a.path=[];a.sus=0;a.seen=0;a.state='patrol';a.face=-Math.PI/2;a.senseAt=0;a.grab=0;g.pow.noises=[];});
     // Keep the original ten-second pursuit budget and allow six additional
     // seconds for the readable capture transfer and prison reveal.
-    record('visible-close-guard-pursues-and-captures-through-real-physics',await page.evaluate(()=>{const g=App.game;let pursuit=false,steps=0;for(;steps<320 && g.pow.stage!=='solitary';steps++){g.stepEvade(.05);pursuit=pursuit || g.evade.searchers.some(a=>a.state==='pursuit');}return {passed:pursuit && g.pow.stage==='solitary' && g.pow.stats.recaptures===1,pursuit,stage:g.pow.stage,recaptures:g.pow.stats.recaptures,steps};}));
+    record('visible-close-guard-pursues-and-captures-through-real-physics',await page.evaluate(()=>{const g=App.game;let pursuit=false,steps=0;for(;steps<320 && g.pow.stage!=='solitary';steps++){if(CaptureTransition.active(g))g.update(.05);else g.stepEvade(.05);pursuit=pursuit || g.evade.searchers.some(a=>a.state==='pursuit');}return {passed:pursuit && g.pow.stage==='solitary' && g.pow.stats.recaptures===1,pursuit,stage:g.pow.stage,recaptures:g.pow.stats.recaptures,steps};}));
     await step(1);record('sustained-capture-transitions-once',await page.evaluate(()=>({passed:App.game.pow.stage==='solitary' && App.game.pow.stats.recaptures===1 && !CaptureTransition.active(App.game),stage:App.game.pow.stage,recaptures:App.game.pow.stats.recaptures,realCaptivityModule:!!App.game.pow.captivity})));
     await render('04-recaptured-solitary');
     // Exercise the actual GPU context lifecycle with registered river meshes.

@@ -298,7 +298,8 @@
     const motion = e.running ? 1.4 : finite(e.spd, 0) > .2 || e.moving ? 1.05 : .72;
     const water = e.waterDepth > .35 || e.swimming || s.river && !['bank', 'hidden', 'boat'].includes(s.river.mode) ? .55 : 1;
     const weather = s.river ? 1 - clamp(finite(s.river.rain, 0), 0, 1) * .37 : 1;
-    const contrast = (.35 + light * .9) * (1 - cover * .8) * posture * motion * water * weather;
+    const concealment=global.GroundItems?global.GroundItems.visibilityFactor(game,d,a):1;
+    const contrast = (.35 + light * .9) * (1 - cover * .8) * posture * motion * water * weather * concealment;
     return clamp((1 - d / reach) * contrast, d < 2.4 ? .75 : 0, 1.5);
   }
   function observe(game, a, elapsed) {

@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "source": "assets/items/pickups.png",
+  "runtime": "assets/items/pickups.webp",
+  "rawToolOutput": "/workspace/generated_images/exec-2865cdb7-b1d7-4563-aecf-6d6115e16159.png",
+  "sourceSHA256": "910bfed632843281291dc15843a43e324c3800145cea6f30d91251d842b2fe70",
+  "runtimeSHA256": "83625ddab9af6851fc24d5a07fc95996e82b1526ef1acc7f5c0df8d4e16cfb5c",
+  "size": [
+    1254,
+    1254
+  ],
+  "originalToolBytesUnchanged": true,
+  "allDecodedRGBAIdentical": true,
+  "use": "Original generated complete pickup object photographs. Source regions preserve whole objects, including rifle that crosses nominal grid boundaries.",
+  "encoding": {
+    "tool": "cwebp 1.5.0",
+    "arguments": [
+      "-lossless",
+      "-exact",
+      "-q",
+      "100",
+      "-m",
+      "6"
+    ]
+  }
+}

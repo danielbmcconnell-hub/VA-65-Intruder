@@ -1,5 +1,13 @@
 {
   "version": 1,
+  "floor": {
+    "file": "forest-floor.webp",
+    "width": 1254,
+    "height": 1254,
+    "worldSize": 3,
+    "gpuHigh": 512,
+    "gpuTouch": 384
+  },
   "plants": {
     "canopy": {
       "file": "canopy.webp",

@@ -69,7 +69,7 @@ module.exports = async function willardLifecycle(browser, target, evidenceDir) {
       await loaded(true);
       const restarted=await page.evaluate(()=>({fresh:App.game!==window.__willardRetiredCapture,elapsed:Date.now()-window.__willardCaptureAt,alive:App.game.ac.alive,phase:App.game.willard.phase}));
       assert.equal(restarted.fresh,true);assert.equal(restarted.alive,true);
-      await page.evaluate(()=>{for(let i=0;i<360;i++)window.__willardRetiredCapture.update(1/60);});
+      await page.evaluate(()=>{for(let i=0;i<780;i++)window.__willardRetiredCapture.update(1/60);});
       await page.waitForTimeout(2300); // Also exclude any legacy delayed wall-clock handoff.
       const stale=await page.evaluate(()=>({sourceClock:Date.now()-window.__willardCaptureAt,
         freshGame:App.game!==window.__willardRetiredCapture,currentPOW:!!App.game.pow,retiredPOW:!!window.__willardRetiredCapture.pow,
@@ -86,7 +86,7 @@ module.exports = async function willardLifecycle(browser, target, evidenceDir) {
       });
       await shot('retired-capture-after-native-retry');
       const stalePassed=stale.sourceClock>=2300&&stale.freshGame&&!stale.currentPOW&&!stale.retiredPOW&&!stale.powClass&&stale.powHUDHidden&&!stale.groundAudio&&stale.checkpointUnchanged&&stale.alive&&coker.returnedNothing&&coker.sameActiveGame&&coker.unchanged;
-      record('Retired capture and Coker-camp entries cannot activate prison UI/audio or overwrite a checkpoint after native Willard retry',stalePassed,{sourceSHA256,earned,ground,capture,retryBox,retryPoint,targetAtPoint,requested,restarted,stale,coker},'Original native J/two-tap ejection and all original descent frames. The real pause menu is prepared and retry scrolled into view before a declared Game.captured entry-point fixture. A trusted native mouse/touch press replaces the Game. The retired Game receives six seconds of original updates, followed by a2.3-second real wait to exclude old wall-clock callbacks; App.cokerCamp is separately called with the retired Game. No capture/POW flag, chapter callback, result or save is assigned.');
+      record('Retired capture and Coker-camp entries cannot activate prison UI/audio or overwrite a checkpoint after native Willard retry',stalePassed,{sourceSHA256,earned,ground,capture,retryBox,retryPoint,targetAtPoint,requested,restarted,stale,coker},'Original native J/two-tap ejection and all original descent frames. The real pause menu is prepared and retry scrolled into view before a declared Game.captured entry-point fixture. A trusted native mouse/touch press replaces the Game. The retired Game receives thirteen seconds of original updates, followed by a2.3-second real wait to exclude old wall-clock callbacks; App.cokerCamp is separately called with the retired Game. No capture/POW flag, chapter callback, result or save is assigned.');
 
       // One ordinary current-game frame also models how the flight loop would
       // heal stale DOM visibility; the save/audio/retired-state checks above
@@ -94,11 +94,11 @@ module.exports = async function willardLifecycle(browser, target, evidenceDir) {
       await page.evaluate(()=>{App.game.update(1/60);App.game.render(1/60);App.game.syncControls();});
       const positiveGround=await nativeGround();
       await page.evaluate(()=>{window.__willardCurrentCapture=App.game;window.__willardCurrentCaptureAt=Date.now();App.game.captured();});
-      await page.evaluate(()=>{App.game.paused=false;for(let i=0;i<360;i++)App.game.update(1/60);});
-      const positive=await page.evaluate(()=>{const g=App.game;g.render(1/60);g.syncControls();return {sameGame:g===window.__willardCurrentCapture,elapsed:Date.now()-window.__willardCurrentCaptureAt,captured:!!g._capt,stage:g.pow?.stage||null,solids:g.pow?.solids.length||0,objects:g.pow?.objects.length||0,powClass:document.body.classList.contains('pow-active'),powHUDHidden:document.getElementById('powHUD').hidden,savedStage:Store.get('pow_checkpoint',null)?.stage||null,groundAudio:!!App.audio.groundMode,gl:g.rend.gl.getError()};});
+      await page.evaluate(()=>{App.game.paused=false;for(let i=0;i<780;i++)App.game.update(1/60);});
+      const positive=await page.evaluate(()=>{const g=App.game;g.render(1/60);g.syncControls();return {sameGame:g===window.__willardCurrentCapture,elapsed:Date.now()-window.__willardCurrentCaptureAt,captured:!!g._capt,pending:!!g._capturePending,stage:g.pow?.stage||null,solids:g.pow?.solids.length||0,objects:g.pow?.objects.length||0,powClass:document.body.classList.contains('pow-active'),powHUDHidden:document.getElementById('powHUD').hidden,savedStage:Store.get('pow_checkpoint',null)?.stage||null,groundAudio:!!App.audio.groundMode,gl:g.rend.gl.getError()};});
       await shot('current-capture-still-enters-solitary');
-      const positivePassed=positive.sameGame&&positive.captured&&positive.stage==='solitary'&&positive.solids>0&&positive.objects>0&&positive.powClass&&!positive.powHUDHidden&&positive.savedStage==='solitary'&&positive.groundAudio&&positive.gl===0;
-      record('A current-game capture transfer still enters playable solitary confinement',positivePassed,{ground:positiveGround,positive},'Second native ejection/descent from the live aircraft, followed by the production Game.captured entry point and six simulated seconds of original updates. The transition must create actual prison geometry, HUD, save and ground audio.');
+      const positivePassed=positive.sameGame&&positive.captured&&!positive.pending&&positive.stage==='solitary'&&positive.solids>0&&positive.objects>0&&positive.powClass&&!positive.powHUDHidden&&positive.savedStage==='solitary'&&positive.groundAudio&&positive.gl===0;
+      record('A current-game capture transfer still enters playable solitary confinement',positivePassed,{ground:positiveGround,positive},'Second native ejection/descent from the live aircraft, followed by the production Game.captured entry point and thirteen simulated seconds of original updates. The transition must create actual prison geometry, HUD, save and ground audio.');
       record('The targeted lifecycle paths emit no JavaScript errors',errors.length===0,{errors},'Actual original custom WebGL2 and unmodified capture/start/POW systems.');
     }finally{await context.close();}
   }

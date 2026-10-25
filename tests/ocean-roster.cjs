@@ -31,7 +31,10 @@ function fixture({terrain = () => 12, random = () => .25, evade = {}} = {}) {
     AviatorCompanion: {movementFactor: () => 1},
     setTimeout() { throw new Error('Unexpected deferred scene transition in ocean fixture'); }
   };
-  const Fixture = vm.runInNewContext('(class OceanFixture {' + methods + '\n})', sandbox);
+  vm.createContext(sandbox);
+  vm.runInContext(fs.readFileSync(path.join(__dirname,'../assets/survival/ground-items.js'),'utf8'),sandbox);
+  sandbox.GroundItems.configure({terrainH:sandbox.terrainH});
+  const Fixture = vm.runInContext('(class OceanFixture {' + methods + '\n})', sandbox);
   const G = new Fixture();
   G.t = 20; G.phase = 'evade'; G.atm = {night: false}; G.mis = {escape: false};
   G.world = {saf: [{p: [0, 0, 0]}], fx: {smoke: (...args) => effects.push(args)}};

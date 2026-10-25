@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const crypto = require('node:crypto');
+const {waitCompletePhotographs}=require('./helpers/complete-photo-fixture.cjs');
 
 module.exports = async function missionChecks(browser, baseURL, output) {
   fs.mkdirSync(output, {recursive:true});
@@ -14,7 +15,7 @@ module.exports = async function missionChecks(browser, baseURL, output) {
     ]) {
       const {name,...options}=profile;
       const context=await browser.newContext(options);
-      await context.addInitScript(()=>localStorage.setItem('a6_set',JSON.stringify({quality:0,assist:0,sound:0,voices:0,invert:0,sens:1,mouse:0,seat:0})));
+      await context.addInitScript(()=>{if(location.protocol==='about:')return;localStorage.setItem('a6_set',JSON.stringify({quality:0,assist:0,sound:0,voices:0,invert:0,sens:1,mouse:0,seat:0}));});
       const page=await context.newPage();
       const errors=[], requests=[], warnings=[];
       page.on('pageerror',e=>errors.push(e.message));
@@ -36,7 +37,9 @@ module.exports = async function missionChecks(browser, baseURL, output) {
         await page.waitForFunction(id=>document.getElementById('graphicError') ||
           (App.game?.mis.id===id && document.getElementById('loader').style.display==='none' && App.game.t>0),mission.id,{timeout:45000});
         assert.equal(await page.locator('#graphicError').count(),0,'Renderer must remain usable');
-        await page.waitForFunction(()=>['nva','female_vc','militia','farmer','cow','aviator','vegetation'].every(n=>App.rend.textures['photo_'+n]),null,{timeout:30000});
+        // Complete human photographs are resident in flight; vegetation is
+        // intentionally requested only when an actual ground scene needs it.
+        await waitCompletePhotographs(page);
         if(!mission.airStart) {
           if(cdp) {
             const b=await page.locator('#pickle').boundingBox();

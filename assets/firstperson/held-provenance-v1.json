@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "assets": {
+    "stick": {
+      "source": "assets/firstperson/stick.png",
+      "runtime": "assets/firstperson/stick.webp",
+      "rawToolOutput": "/workspace/generated_images/exec-ac574774-59c7-41ef-a472-5d9827d9f644.png",
+      "size": [
+        1086,
+        1448
+      ],
+      "sourceSHA256": "5717895f9dfad68a41ae0d51415f4fc970c734866f8e00486f6d183cec5e4fa0",
+      "runtimeSHA256": "0616b28ed1f17b1767db6f3ce2c27a2bb9464f456ecf687554236059396bce4c",
+      "originalToolBytesUnchanged": true,
+      "allDecodedRGBAIdentical": true,
+      "sourceAlphaRange": [
+        0,
+        255
+      ]
+    },
+    "rifle": {
+      "source": "assets/firstperson/rifle.png",
+      "runtime": "assets/firstperson/rifle.webp",
+      "rawToolOutput": "/workspace/generated_images/exec-05da9351-f73a-40db-a797-52cbcea5b9fc.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sourceSHA256": "cbf15a1cb5c060ef6949377e9e3e3eaee371ac1057165bd4a39885bd1b577bc6",
+      "runtimeSHA256": "4cdb02d57462b8b135c6b2cb52c9375380c108cdb1e124c6cd7754727aa50857",
+      "originalToolBytesUnchanged": true,
+      "allDecodedRGBAIdentical": true,
+      "sourceAlphaRange": [
+        0,
+        254
+      ]
+    }
+  },
+  "note": "Original generated static holding photographs. Runtime applies motion to complete images; this does not supply a photographed firearm firing cycle or a volumetric object. Prior first-person photographs remain unchanged.",
+  "encoding": {
+    "tool": "cwebp 1.5.0",
+    "arguments": [
+      "-lossless",
+      "-exact",
+      "-q",
+      "100",
+      "-m",
+      "6"
+    ]
+  }
+}

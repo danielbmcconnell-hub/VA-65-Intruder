@@ -1,8 +1,6 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),cp=require('node:child_process'),crypto=require('node:crypto');
 const root=path.resolve(__dirname,'..'),site=path.join(root,'dist/site');
-fs.rmSync(site,{recursive:true,force:true});
-fs.mkdirSync(site,{recursive:true});
 // Explicit runtime allowlist. Never deploy the checkout, archive, reference_media,
 // test screenshots, Git history, node_modules or development tooling.
 const allow=['index.html','assets/atlas-metadata.js','assets/figures-original.png'];
@@ -60,6 +58,25 @@ for(const kind of ['canopy','bamboo','nipa','fern','liana','litter']){
  if(!jungle.plants[kind]?.file)throw new Error('Missing complete botanical photograph '+kind);
  addRuntimePhoto('assets/jungle',jungle.plants[kind].file);
 }
+if(!jungle.floor?.file||!Number.isFinite(jungle.floor.worldSize)||jungle.floor.worldSize<=0)throw new Error('Missing photographic forest-floor material');
+addRuntimePhoto('assets/jungle',jungle.floor.file);
+allow.push('assets/render/visual-clarity.js','assets/flight/threat-feedback.js');
+allow.push('assets/survival/ground-items.js');
+allow.push('assets/render/ground-items-render.js','assets/survival/ground-items.css','assets/items/manifest.json');
+const groundItems=JSON.parse(fs.readFileSync(path.join(root,'assets/items/manifest.json')));
+if(groundItems.version!==1||!groundItems.items)throw new Error('Invalid useful-item photo manifest');
+addRuntimePhoto('assets/items',groundItems.file);
+allow.push('assets/pow/prison-detail.js','assets/pow/prison-food.js','assets/pow/prison-food.css','assets/pow/ration-photo.js','assets/prison/manifest.json');
+const prison=JSON.parse(fs.readFileSync(path.join(root,'assets/prison/manifest.json')));
+const prisonFiles=new Set();
+function prisonMaterials(value){
+ if(typeof value==='string'&&value.endsWith('.webp')){
+  addRuntimePhoto('assets/prison',value);prisonFiles.add(value);
+ }else if(Array.isArray(value))value.forEach(prisonMaterials);
+ else if(value&&typeof value==='object')Object.values(value).forEach(prisonMaterials);
+}
+prisonMaterials(prison);
+for(const file of ['materials.webp','cell-materials.webp','ration.webp','ration-empty.webp'])if(!prisonFiles.has(file))throw new Error('Missing complete prison material registration: '+file);
 // The moving carrier, survival and demonstration integrations are mandatory
 // dependencies of index.html. Only complete runtime crew images are included.
 allow.push('assets/audio/voice-profiles.js','assets/flight/aircraft-detail.js','assets/flight/carrier-launch.js','assets/flight/mission-demo.js');
@@ -78,6 +95,7 @@ for(const role of ['yellow','green','red','blue','brown','white']){
  }
 }
 for(const name of ['fists','pistol','knife','radio','smoke-day','smoke-night'])allow.push('assets/firstperson/'+name+'.png');
+allow.push('assets/firstperson/punch-left.webp','assets/firstperson/punch-right.webp','assets/firstperson/stick.webp','assets/firstperson/rifle.webp');
 for(const name of fs.readdirSync(path.join(root,'assets/photos')))if(/\.(jpg|jpeg|png|webp)$/.test(name))allow.push('assets/photos/'+name);
 allow.push('assets/processed/vegetation.webp');
 allow.push('assets/history/manifest.json');
@@ -97,12 +115,25 @@ for(const name of ['MiG17PF_Willard_Egress_ATLAS.png','MiG17PF_Willard_Egress_AT
 for(const name of fs.readdirSync(path.join(root,'assets/willard/media/sprites')))if(/^[a-zA-Z0-9_+.-]+\.png$/.test(name))allow.push('assets/willard/media/sprites/'+name);
 allow.push('assets/vegetation.webp');
 if(new Set(allow).size!==allow.length)throw new Error('Duplicate deployment allowlist item');
+// A newly integrated startup module must never disappear from a release just
+// because the development server can read files outside this explicit list.
+const startup=fs.readFileSync(path.join(root,'index.html'),'utf8');
+for(const tag of startup.matchAll(/<(?:script|link)\b[^>]*>/gi)){
+ for(const match of tag[0].matchAll(/(?:src|href)=["']([^"']+)["']/g)){
+  const dependency=match[1].replace(/^\.\//,'').split(/[?#]/)[0];
+  if(dependency.startsWith('assets/')&&!allow.includes(dependency))throw new Error('Startup dependency missing from runtime allowlist: '+dependency);
+ }
+}
+for(const file of allow)if(!fs.statSync(path.join(root,file)).isFile())throw new Error('Runtime source is not a regular file: '+file);
+fs.rmSync(site,{recursive:true,force:true});
+fs.mkdirSync(site,{recursive:true});
 for(const item of allow){const dst=path.join(site,item);fs.mkdirSync(path.dirname(dst),{recursive:true});fs.copyFileSync(path.join(root,item),dst);}
 fs.writeFileSync(path.join(site,'_headers'),'/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: same-origin\n  Cache-Control: no-cache\n');
 const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
 const files=[...allow,'_headers'].map(file=>({file,sha256:sha(fs.readFileSync(path.join(site,file)))}));
-const metadata={commit:cp.execFileSync('git',['rev-parse','HEAD'],{cwd:root}).toString().trim(),entrySHA256:sha(fs.readFileSync(path.join(site,'index.html'))),files};
+const archiveFile='Intruder_Yankee_Station_Night_Realism.zip';
+const metadata={commit:cp.execFileSync('git',['rev-parse','HEAD'],{cwd:root}).toString().trim(),entrySHA256:sha(fs.readFileSync(path.join(site,'index.html'))),archiveFile,files};
 fs.writeFileSync(path.join(root,'dist/build-manifest.json'),JSON.stringify(metadata,null,2)+'\n');
 // Python's standard-library zipper makes packaging portable in this cloud image.
-cp.execFileSync('python3',['-c',"import pathlib,zipfile; p=pathlib.Path('dist/site'); z=zipfile.ZipFile('dist/Intruder_Yankee_Station_Wildlife_Jungle.zip','w',zipfile.ZIP_DEFLATED); [z.write(f,f.relative_to(p)) for f in sorted(p.rglob('*')) if f.is_file()]; z.close()"],{cwd:root});
-console.log('Built runtime-only Netlify folder and ZIP: dist/site, dist/Intruder_Yankee_Station_Wildlife_Jungle.zip ('+allow.length+' game files)');
+cp.execFileSync('python3',['-c',"import pathlib,sys,zipfile; p=pathlib.Path(sys.argv[1]); z=zipfile.ZipFile(sys.argv[2],'w',zipfile.ZIP_DEFLATED); [z.write(f,f.relative_to(p)) for f in sorted(p.rglob('*')) if f.is_file()]; z.close()",site,path.join(root,'dist',archiveFile)],{cwd:root});
+console.log('Built runtime-only folder and ZIP: dist/site, dist/'+archiveFile+' ('+allow.length+' game files)');

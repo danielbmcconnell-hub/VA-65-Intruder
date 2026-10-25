@@ -30,14 +30,19 @@ module.exports=async(browser,target,evidenceDir)=>{
    results.push({profile:name,name:'History closes and Ready Room remains usable',passed:true,errors});
    await page.evaluate(()=>App.startPOW());
    await page.waitForFunction(()=>App.game?.pow&&document.getElementById('loader').style.display==='none',null,{timeout:90000});
-   await page.evaluate(()=>{App.screen='game';POW.begin(App.game,'solitary');App.game.paused=false;POW.Captivity.open(App.game,'history')});
+   await page.evaluate(()=>{
+    // Bound native SwiftShader rendering after real startup. Keep the original
+    // game/update path and trusted DOM clicks; the paused checks below still
+    // call the real simulation on each observed animation frame.
+    App.frame=()=>{};App.screen='game';POW.begin(App.game,'solitary');App.game.paused=false;POW.Captivity.open(App.game,'history');
+   });
    const panel=page.locator('#pow-captivity');
    for(const [key,label] of [['denton','Jeremiah Denton photograph'],['stockdale','James Stockdale photograph']]){
     const prior=key==='stockdale';await page.evaluate(prior=>{App.game.paused=prior;App.keys.KeyW=1;App.game.pow.touchInteract=true},prior);
     if(options.hasTouch)await panel.getByRole('button',{name:label,exact:true}).tap();else await panel.getByRole('button',{name:label,exact:true}).click();
     const opened=await page.evaluate(async()=>{const im=document.querySelector('#powHistory img');await im.decode();return {asset:im.dataset.asset,paused:App.game.paused,key:App.keys.KeyW,touch:App.game.pow.touchInteract,time:App.game.pow.time,p:App.game.evade.p.slice(),minute:App.game.pow.captivity.minute}});
     assert.equal(opened.asset,key);assert.equal(opened.paused,true);assert.equal(opened.key,0);assert.equal(opened.touch,false);
-    await page.evaluate(()=>new Promise(resolve=>{let frames=0;const step=()=>++frames===5?resolve():requestAnimationFrame(step);requestAnimationFrame(step)}));
+    await page.evaluate(()=>new Promise(resolve=>{let frames=0;const step=()=>{if(!App.game.paused)App.game.update(1/60);++frames===5?resolve():requestAnimationFrame(step)};requestAnimationFrame(step)}));
     const frozen=await page.evaluate(()=>({time:App.game.pow.time,p:App.game.evade.p.slice(),minute:App.game.pow.captivity.minute}));
     assert.deepEqual(frozen,{time:opened.time,p:opened.p,minute:opened.minute});
     if(key==='denton')await page.keyboard.press('Escape');else await page.getByRole('button',{name:'Close history',exact:true}).click();
@@ -46,7 +51,7 @@ module.exports=async(browser,target,evidenceDir)=>{
     results.push({profile:name,name:key+' captivity link pauses safely and restores prior state',passed:true,observed:{opened,closed}});
    }
    assert.deepEqual(errors,[]);
-  }finally{await context.close()}
+  }catch(error){const state=await page.evaluate(()=>({screen:App.screen,phase:App.game?.phase,paused:App.game?.paused,stage:App.game?.pow?.stage,p:App.game?.evade?.p,tab:App.game?.pow?.captivity?.tab,open:App.game?.pow?.captivity?.open,viewer:!!document.getElementById('powHistory'),panel:document.getElementById('pow-captivity')?.textContent?.slice(0,2000)})).catch(()=>null);await fs.writeFile(path.join(evidenceDir,name+'-photos-failure.json'),JSON.stringify({passed:false,error:error.stack||String(error),results,state,errors},null,2)+'\n');throw error}finally{await context.close()}
  }
  return {scope:'Actual Chromium image decoding and native aspect rendering on desktop and touch layout; no physical iPhone Safari claim',results,physicalIPhoneTested:false};
 };

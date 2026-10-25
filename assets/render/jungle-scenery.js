@@ -6,11 +6,11 @@
   const KINDS=Object.freeze(['canopy','bamboo','nipa','fern','liana','litter']);
   const HEIGHTS=Object.freeze({canopy:13.6,bamboo:7.4,nipa:4.3,fern:1.35,liana:10.8,litter:1.2});
   const PROFILES=Object.freeze([
-    Object.freeze({total:112,canopy:34,understory:42,range:96,wind:0}),
-    Object.freeze({total:176,canopy:52,understory:66,range:136,wind:20}),
-    Object.freeze({total:240,canopy:72,understory:90,range:166,wind:32})
+    Object.freeze({total:112,canopy:34,understory:42,floor:14,soft:4,range:96,wind:0}),
+    Object.freeze({total:176,canopy:52,understory:66,floor:24,soft:8,range:136,wind:20}),
+    Object.freeze({total:240,canopy:72,understory:90,floor:36,soft:12,range:166,wind:32})
   ]);
-  const LIMITS=Object.freeze({cell:18,cellUpdates:4,candidatesPerCell:3,fineCell:6,fineUpdates:3,fineCache:128,terrainSamples:72,queueSamples:18,solidChecks:36,cache:256,maxDesktopEdge:1024,maxTouchEdge:768,desktopBytes:24*1024*1024,touchBytes:14*1024*1024});
+  const LIMITS=Object.freeze({cell:18,cellUpdates:4,candidatesPerCell:3,fineCell:4.5,fineUpdates:2,fineCache:128,terrainSamples:72,queueSamples:18,solidChecks:36,cache:256,maxDesktopEdge:1024,maxTouchEdge:768,desktopBytes:24*1024*1024,touchBytes:14*1024*1024});
   const renderers=new WeakMap(),games=new WeakMap();let terrain=null,jungle=null,revision=0;
   const finite=(n,f=0)=>Number.isFinite(n)?n:f;
   const point=p=>Array.isArray(p)&&p.length>=3&&p.slice(0,3).every(Number.isFinite);
@@ -24,7 +24,7 @@
   const quality=r=>clamp(Math.round(finite(r&&r.quality,1)),0,2);
   const eligible=g=>!!(g&&g.evade&&(!g.phase||g.phase==='evade')&&!g.pow&&!g.evade.camp&&!g.evade.river&&point(g.evade.p)&&terrain);
   function configure(o){if(!o||typeof o.terrainH!=='function')return false;if(terrain!==o.terrainH||jungle!==o.jungle){terrain=o.terrainH;jungle=typeof o.jungle==='function'?o.jungle:null;revision++;}return true;}
-  function renderer(r){let s=renderers.get(r);if(!s){s={status:'idle',records:new Map(),failures:[],bytes:0,promise:null,touch:false};renderers.set(r,s);}return s;}
+  function renderer(r){let s=renderers.get(r);if(!s){s={status:'idle',records:new Map(),floor:null,floorStatus:'idle',expectedSources:KINDS.length,failures:[],bytes:0,promise:null,touch:false};renderers.set(r,s);}return s;}
   function state(g,r){let s=games.get(g);if(!s||s.world!==g.world||s.evade!==g.evade||s.revision!==revision){s={world:g.world,evade:g.evade,revision,cells:new Map(),fine:new Map(),anchors:new Map(),scenery:[],established:new Set(),obstacles:[],pending:[],ids:new Set(),counts:{},samples:0,queueSamples:0,solidChecks:0,fineUpdates:0,updates:0,skipped:0,wind:0};games.set(g,s);}return s;}
   function measure(width,height,pixels){
     if(!Number.isSafeInteger(width)||!Number.isSafeInteger(height)||width<=0||height<=0||!pixels||pixels.length!==width*height*4)throw Error('Invalid botanical RGBA source');
@@ -44,6 +44,7 @@
       try{
         const response=await root.fetch(options.manifest||'assets/jungle/manifest.json');if(!response.ok)throw Error('Botanical manifest HTTP '+response.status);
         const manifest=await response.json();if(manifest.version!==1||!manifest.plants)throw Error('Invalid botanical manifest');
+        s.expectedSources=KINDS.length+(manifest.floor?1:0);s.floorStatus=manifest.floor?'loading':'absent';
         for(const kind of KINDS){
           const spec=manifest.plants[kind];if(!spec||typeof spec.file!=='string'||!/^[a-z0-9_-]+\.(png|webp)$/.test(spec.file))throw Error('Missing complete botanical source '+kind);
           try{
@@ -61,11 +62,29 @@
             s.records.set(kind,{kind,textureName:name,file:spec.file,sourceWidth:im.naturalWidth,sourceHeight:im.naturalHeight,bytes,...measured});s.bytes+=bytes;cv.width=cv.height=1;
           }catch(error){if(s.failures.length<KINDS.length)s.failures.push({kind,message:String(error&&error.message||error)});}
         }
+        if(manifest.floor){
+          s.floorStatus='loading';
+          try{
+            const spec=manifest.floor;
+            if(!spec||typeof spec.file!=='string'||!/^[a-z0-9_-]+\.webp$/.test(spec.file)||!Number.isFinite(spec.worldSize)||spec.worldSize<1||spec.worldSize>8)throw Error('Invalid photographic forest-floor material');
+            const im=await new Promise((resolve,reject)=>{const image=new root.Image();image.onload=()=>resolve(image);image.onerror=()=>reject(Error('Forest-floor image failed: '+spec.file));image.src='assets/jungle/'+spec.file;});
+            if(!current()||r.gl&&r.gl.isContextLost())return inspect(null,r);
+            if(im.naturalWidth!==im.naturalHeight||im.naturalWidth<1024||im.naturalWidth!==spec.width||im.naturalHeight!==spec.height)throw Error('Forest-floor photograph must retain its complete high-resolution square source');
+            const edge=s.touch?384:512,cv=root.document.createElement('canvas');cv.width=cv.height=edge;const ctx=cv.getContext('2d',{willReadFrequently:true});if(!ctx)throw Error('Forest-floor decode canvas unavailable');ctx.imageSmoothingQuality='high';ctx.drawImage(im,0,0,edge,edge);
+            const pixels=ctx.getImageData(0,0,edge,edge).data;for(let i=3;i<pixels.length;i+=4)if(pixels[i]!==255)throw Error('Forest-floor material must be fully opaque');
+            const bytes=mipBytes(edge,edge),budget=s.touch?LIMITS.touchBytes:LIMITS.desktopBytes;if(s.bytes+bytes>budget)throw Error('Forest-floor material exceeds the shared botanical texture budget');
+            const name='jungle_floor',gl=r.gl,before=gl&&typeof gl.getParameter==='function'?{active:gl.getParameter(gl.ACTIVE_TEXTURE),texture:gl.getParameter(gl.TEXTURE_BINDING_2D),flip:gl.getParameter(gl.UNPACK_FLIP_Y_WEBGL),premultiplied:gl.getParameter(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL)}:null;let T;
+            try{T=r.texFromCanvas(name,cv);if(!T||!T.tex)throw Error('Forest-floor GPU upload unavailable');if(gl){gl.bindTexture(gl.TEXTURE_2D,T.tex);gl.generateMipmap(gl.TEXTURE_2D);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.REPEAT);}}
+            finally{if(before){gl.activeTexture(before.active);gl.bindTexture(gl.TEXTURE_2D,before.texture);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,before.flip);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,before.premultiplied);}}
+            s.floor={textureName:name,file:spec.file,sourceWidth:im.naturalWidth,sourceHeight:im.naturalHeight,width:edge,height:edge,worldSize:spec.worldSize,bytes,opaque:true};s.bytes+=bytes;s.floorStatus='ready';cv.width=cv.height=1;
+          }catch(error){s.floorStatus='error';s.failures.push({kind:'floor',message:String(error&&error.message||error)});}
+        }else s.floorStatus='absent';
         s.status=s.records.size?'ready':'error';return inspect(null,r);
       }catch(error){s.status='error';s.failures.push({kind:'manifest',message:String(error&&error.message||error)});return inspect(null,r);}
     })();return s.promise;
   }
   function ready(r){const s=r&&renderers.get(r);return !!(s&&s.status==='ready'&&s.records.size);}
+  function floorTexture(r){const s=r&&renderers.get(r),record=s&&s.floor,T=record&&r.textures&&r.textures[record.textureName];if(!s||s.floorStatus!=='ready'||!T||!T.tex||s.current&&!s.current()||r.gl&&(r.gl.isContextLost()||typeof r.gl.isTexture==='function'&&!r.gl.isTexture(T.tex)))return null;return {...record,tex:T.tex,w:record.width,h:record.height,ready:true};}
   function beginFrame(g,r){if(!g||!r)return false;const s=state(g,r);s.renderer=r;s.pending.length=0;s.scenery.length=0;s.ids.clear();s.counts={};s.samples=s.queueSamples=s.solidChecks=s.fineUpdates=s.updates=s.skipped=s.wind=0;return eligible(g);}
   function anchor(record,p,height,eye,tint){
     if(!record||!point(p)||!point(eye)||!Number.isFinite(height)||height<=0||!Number.isFinite(record.bodyFraction)||record.bodyFraction<=0)return null;
@@ -79,21 +98,27 @@
     const distance=Math.hypot(p[0]-r.eye[0],p[2]-r.eye[2]),range=(kind==='fern'||kind==='litter')?profile.range*.45:profile.range;
     if(distance>=range||distance<(kind==='litter'?0:kind==='fern'?1.15:['canopy','liana','bamboo'].includes(kind)?.2:2.0))return true;
     const fade=1-smooth(range*.82,range,distance);if(fade<=.015)return true;
-    const variation=.92+hash(Math.floor(p[0]*10),Math.floor(p[2]*10),seed)*.13,tint=[variation*.97,variation,variation*.92];
-    const sprite=anchor(record,p,height*fade,r.eye,tint);if(!sprite)return false;
+    const variation=.88+hash(Math.floor(p[0]*10),Math.floor(p[2]*10),seed)*.15,tint=[variation*.99,variation,variation*.96];
+    // Mirror complete photographs, never an atlas fragment. Mirroring also
+    // mirrors the measured source root, so the trunk cannot slide off its
+    // collision centre as the view turns.
+    const flip=kind!=='litter'&&hash(Math.floor(p[0]*10),Math.floor(p[2]*10),seed+113)<.5;
+    const sprite=anchor(flip?{...record,center:1-record.center}:record,p,height*fade,r.eye,tint);if(!sprite)return false;
+    sprite.flip=flip;
     sprite.id=id;sprite.groundRoot=p.slice();s.pending.push(sprite);s.ids.add(id);s.counts[kind]=(s.counts[kind]||0)+1;return true;
   }
   function queue(g,r,mesh,p,scale){
     if(!eligible(g)||!r||!point(r.eye)||!point(p)||!['tree','palm','bamboo','bush'].includes(mesh))return false;
     try{if(jungle&&!jungle(p[0],p[2]))return false;}catch(_){return false;}
     const rs=renderers.get(r);if(!rs||rs.status!=='ready')return false;
-    const seed=Math.floor(p[0]*17.31+p[2]*41.73),kind=mesh==='tree'?(hash(seed,7,4)<.25?'liana':'canopy'):mesh==='palm'?'nipa':mesh==='bamboo'?'bamboo':hash(seed,4,8)<.45?'fern':'litter';
+    const seed=Math.floor(p[0]*17.31+p[2]*41.73),kind=mesh==='tree'?(hash(seed,7,4)<.25?'liana':'canopy'):mesh==='palm'?'nipa':mesh==='bamboo'?'bamboo':'fern';
     if(!rs.records.has(kind))return false;const s=state(g,r),profile=PROFILES[quality(r)],distance=Math.hypot(p[0]-r.eye[0],p[2]-r.eye[2]);if(distance>=profile.range)return true;
-    const id=mesh+':'+p[0].toFixed(3)+':'+p[2].toFixed(3);if(!s.scenery.some(c=>c.id===id))s.scenery.push({kind,p:p.slice(),height:HEIGHTS[kind]*clamp(finite(scale&&scale[1],1),.45,2),seed,id,distance});
+    const size=.78+hash(seed,11,83)*.42;
+    const id=mesh+':'+p[0].toFixed(3)+':'+p[2].toFixed(3);if(!s.scenery.some(c=>c.id===id))s.scenery.push({kind,p:p.slice(),height:HEIGHTS[kind]*size*clamp(finite(scale&&scale[1],1),.45,2),seed,id,distance});
     return true;
   }
   function queueScenery(g,r){
-    const s=state(g,r),profile=PROFILES[quality(r)],oldCanopy=Math.floor(profile.canopy*.5),cap=profile.total-profile.understory-(quality(r)===0?8:12)-3;
+    const s=state(g,r),profile=PROFILES[quality(r)],oldCanopy=Math.floor(profile.canopy*.5),cap=profile.total-profile.understory-profile.floor-profile.soft-3;
     for(const c of s.scenery.sort((a,b)=>a.distance-b.distance||a.id.localeCompare(b.id))){
       if(s.pending.length>=cap)break;if(['canopy','liana'].includes(c.kind)&&finite(s.counts.canopy)+finite(s.counts.liana)>=oldCanopy)continue;
       let y=s.anchors.get(c.id);if(y===undefined){if(s.queueSamples>=LIMITS.queueSamples)continue;s.queueSamples++;try{y=sample(s,c.p[0],c.p[2]);}catch(_){y=NaN;}s.anchors.set(c.id,y);while(s.anchors.size>LIMITS.cache*2)s.anchors.delete(s.anchors.keys().next().value);}
@@ -109,7 +134,7 @@
       if(![h,dx,dz].every(Number.isFinite)||h<1.1||Math.max(Math.abs(dx),Math.abs(dz))>.48)continue;
       let forest=true;try{forest=!jungle||jungle(x,z);}catch(_){forest=false;}
       if(!forest)continue;
-      const pick=hash(ix,iz,n*3+3),kind=n===0?(pick<.28?'liana':'canopy'):n===1?(h<8&&pick<.35?'nipa':'bamboo'):pick<.48?'fern':'litter',size=['canopy','liana'].includes(kind)?1.12+hash(ix,iz,n*3+4)*.45:.72+hash(ix,iz,n*3+4)*.68;
+      const pick=hash(ix,iz,n*3+3),kind=n===0?(pick<.28?'liana':'canopy'):n===1?(h<8&&pick<.35?'nipa':'bamboo'):'fern',size=['canopy','liana'].includes(kind)?.66+hash(ix,iz,n*3+4)*.64:.72+hash(ix,iz,n*3+4)*.68;
       out.push({kind,p:[x,h,z],height:HEIGHTS[kind]*size,seed:n,id:'understory:'+ix+':'+iz+':'+n,radius:['canopy','liana'].includes(kind)?.48*size:kind==='bamboo'?.34*size:0});
     }
     return out;
@@ -128,23 +153,28 @@
     candidates.sort((a,b)=>a.distance-b.distance||a.id.localeCompare(b.id));return candidates.slice(0,profile.understory);
   }
   function fineLeaves(g,r,options={}){
-    const s=state(g,r),cx=Math.round(g.evade.p[0]/LIMITS.fineCell),cz=Math.round(g.evade.p[2]/LIMITS.fineCell),cells=[],out=[];
+    const s=state(g,r),profile=PROFILES[quality(r)],cx=Math.round(g.evade.p[0]/LIMITS.fineCell),cz=Math.round(g.evade.p[2]/LIMITS.fineCell),cells=[],out=[];
     for(let z=-2;z<=2;z++)for(let x=-2;x<=2;x++)if(x*x+z*z<=5)cells.push([cx+x,cz+z,x*x+z*z]);cells.sort((a,b)=>a[2]-b[2]||a[0]-b[0]||a[1]-b[1]);
     for(const [x,z]of cells){
       const id=x+':'+z;let rows=s.fine.get(id);
       if(!rows){
         if(s.fineUpdates>=LIMITS.fineUpdates)continue;s.fineUpdates++;rows=[];
-        for(let i=0;i<2;i++){
-          const px=(x+(hash(x,z,i*3+701)-.5)*.7)*LIMITS.fineCell,pz=(z+(hash(x,z,i*3+702)-.5)*.7)*LIMITS.fineCell;let h,dx,dz,forest;
+        // One low fern and two independent leaf patches per small cell make
+        // clustered cover rather than a row of identical tall trees. The same
+        // eighteen terrain samples as before amortize over two cells/frame.
+        for(let i=0;i<3;i++){
+          const px=(x+(hash(x,z,i*3+701)-.5)*.92)*LIMITS.fineCell,pz=(z+(hash(x,z,i*3+702)-.5)*.92)*LIMITS.fineCell;let h,dx,dz,forest;
           try{h=sample(s,px,pz);dx=sample(s,px+.6,pz)-h;dz=sample(s,px,pz+.6)-h;forest=!jungle||jungle(px,pz);}catch(_){continue;}
-          if(!forest||![h,dx,dz].every(Number.isFinite)||h<7||Math.max(Math.abs(dx),Math.abs(dz))>.48)continue;
-          rows.push({id:'floor-leaf:'+x+':'+z+':'+i,kind:'litter',p:[px,h,pz],height:HEIGHTS.litter*(1.25+hash(x,z,i+703)*.2),seed:i});
+          if(!forest||![h,dx,dz].every(Number.isFinite)||h<1.1||Math.max(Math.abs(dx),Math.abs(dz))>.48)continue;
+          const kind=i===0?'fern':'litter',height=HEIGHTS[kind]*(i===0?.35+hash(x,z,i+703)*.4:1.15+hash(x,z,i+703)*.45);
+          rows.push({id:(i===0?'floor-fern:':'floor-leaf:')+x+':'+z+':'+i,kind,p:[px,h,pz],height,seed:i});
         }
         s.fine.set(id,rows);while(s.fine.size>LIMITS.fineCache)s.fine.delete(s.fine.keys().next().value);
       }
-      for(const row of rows){const d=Math.hypot(row.p[0]-g.evade.p[0],row.p[2]-g.evade.p[2]);if(d>10)continue;if(row.blocked===undefined){if(s.solidChecks>=LIMITS.solidChecks)continue;s.solidChecks++;try{row.blocked=!!(options.solid&&options.solid(row.p[0],row.p[2],.1));}catch(_){row.blocked=true;}}if(!row.blocked)out.push({...row,p:row.p.slice(),distance:d});}
+      for(const row of rows){const d=Math.hypot(row.p[0]-g.evade.p[0],row.p[2]-g.evade.p[2]);if(d>11||row.kind==='fern'&&d<1.15)continue;if(row.blocked===undefined){if(s.solidChecks>=LIMITS.solidChecks)continue;s.solidChecks++;try{row.blocked=!!(options.solid&&options.solid(row.p[0],row.p[2],.1));}catch(_){row.blocked=true;}}if(!row.blocked)out.push({...row,p:row.p.slice(),distance:d});}
     }
-    return out.sort((a,b)=>a.distance-b.distance||a.id.localeCompare(b.id)).slice(0,quality(r)===0?8:12);
+    out.sort((a,b)=>a.distance-b.distance||a.id.localeCompare(b.id));let leaves=0,ferns=0;
+    return out.filter(row=>row.kind==='fern'?ferns++<profile.soft:leaves++<profile.floor);
   }
   function populate(g,r,options){
     if(!eligible(g)||!renderers.get(r)?.records.size)return [];queueScenery(g,r);
@@ -191,7 +221,7 @@
     if(!eligible(g)||!base||!jungle)return base;let inside=false;try{inside=jungle(g.evade.p[0],g.evade.p[2]);}catch(_){}if(!inside)return base;
     return {...base,fogDens:Math.max(finite(base.fogDens),.00135+clamp(finite(base.wet),0,1)*.00055),fogHeight:Math.max(2200,finite(base.fogHeight))};
   }
-  function inspect(g,r){const s=g&&games.get(g),rs=r&&renderers.get(r);return {eligible:eligible(g),count:s?s.pending.length:0,obstacles:obstacles(g),counts:s?{...s.counts}:{},terrainSamples:s?s.samples:0,queueSamples:s?s.queueSamples:0,solidChecks:s?s.solidChecks:0,fineUpdates:s?s.fineUpdates:0,fineCache:s?s.fine.size:0,cellUpdates:s?s.updates:0,cache:s?s.cells.size:0,wind:s?s.wind:0,plants:s?s.pending.map(p=>({kind:p.plantKind,p:p.p.slice(),groundRoot:p.groundRoot.slice(),h:p.h,w:p.w,id:p.id})):[],status:rs?rs.status:'idle',bytes:rs?rs.bytes:0,budget:rs&&rs.touch?LIMITS.touchBytes:LIMITS.desktopBytes,records:rs?[...rs.records.values()].map(v=>({...v,bounds:v.bounds.slice()})):[],failures:rs?rs.failures.map(v=>({...v})):[]};}
-  function dispose(r){const rs=renderers.get(r);if(!rs)return false;for(const record of rs.records.values()){const T=r.textures&&r.textures[record.textureName];if(T&&T.tex&&r.gl&&!r.gl.isContextLost())r.gl.deleteTexture(T.tex);if(r.textures)delete r.textures[record.textureName];}renderers.delete(r);return true;}
-  root.JungleScenery=Object.freeze({configure,load,ready,beginFrame,queue,populate,plan,draw,obstacles,blockedAt,shadowSprites,floorMode,atmosphere,anchor,measure,habitat,inspect,dispose,kinds:KINDS,profiles:PROFILES,limits:LIMITS});
+  function inspect(g,r){const s=g&&games.get(g),rs=r&&renderers.get(r);return {eligible:eligible(g),count:s?s.pending.length:0,obstacles:obstacles(g),counts:s?{...s.counts}:{},terrainSamples:s?s.samples:0,queueSamples:s?s.queueSamples:0,solidChecks:s?s.solidChecks:0,fineUpdates:s?s.fineUpdates:0,fineCache:s?s.fine.size:0,cellUpdates:s?s.updates:0,cache:s?s.cells.size:0,wind:s?s.wind:0,plants:s?s.pending.map(p=>({kind:p.plantKind,p:p.p.slice(),groundRoot:p.groundRoot.slice(),h:p.h,w:p.w,id:p.id,flip:!!p.flip})):[],status:rs?rs.status:'idle',bytes:rs?rs.bytes:0,budget:rs&&rs.touch?LIMITS.touchBytes:LIMITS.desktopBytes,expectedSources:rs?rs.expectedSources:KINDS.length,readySources:rs?rs.records.size+(floorTexture(r)?1:0):0,floor:rs?{status:rs.floorStatus,...(rs.floor||{}),ready:!!floorTexture(r)}:{status:'idle',ready:false},records:rs?[...rs.records.values()].map(v=>({...v,bounds:v.bounds.slice()})):[],failures:rs?rs.failures.map(v=>({...v})):[]};}
+  function dispose(r){const rs=renderers.get(r);if(!rs)return false;for(const record of [...rs.records.values(),...(rs.floor?[rs.floor]:[])]){const T=r.textures&&r.textures[record.textureName];if(T&&T.tex&&r.gl&&!r.gl.isContextLost())r.gl.deleteTexture(T.tex);if(r.textures)delete r.textures[record.textureName];}renderers.delete(r);return true;}
+  root.JungleScenery=Object.freeze({configure,load,ready,floorTexture,beginFrame,queue,populate,plan,draw,obstacles,blockedAt,shadowSprites,floorMode,atmosphere,anchor,measure,habitat,inspect,dispose,kinds:KINDS,profiles:PROFILES,limits:LIMITS});
 })(typeof window!=='undefined'?window:globalThis);

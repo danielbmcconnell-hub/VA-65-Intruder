@@ -73,7 +73,7 @@ module.exports = async function captivityBrowser(browser, target, evidenceDir) {
     await page.waitForFunction(() => window.App && window.POW && POW.Captivity, null, { timeout: 30000 });
     await page.evaluate(() => App.startPOW());
     await page.waitForFunction(() => App.game?.pow && document.getElementById('loader').style.display === 'none', null, { timeout: 90000 });
-    await page.evaluate(() => { App.screen = 'fixture'; POW.begin(App.game, 'solitary'); App.game.paused = false; });
+    await page.evaluate(() => { App.frame = () => {}; App.screen = 'game'; POW.begin(App.game, 'solitary'); App.game.paused = false; });
     const geometry = await page.evaluate(() => {
       const g = App.game, s = g.pow, left = s.solids.find(q => q.id === 'cell-left'), right = s.solids.find(q => q.id === 'cell-right');
       const initial = g.evade.p.slice();
@@ -206,6 +206,11 @@ module.exports = async function captivityBrowser(browser, target, evidenceDir) {
     // already earn those prerequisites. Food and observation must still be
     // performed through the live contextual controls; no eligibility is seeded.
     const mealPrompt = await heldCellInteraction('cell-tray');
+    assert.equal(await page.evaluate(() => PrisonFood.active(App.game)), true, 'Held ration interaction opens its actual inspection view');
+    await page.locator('#prisonFood').getByRole('button', { name: 'Eat today’s ration', exact: true }).click();
+    assert.equal(await page.evaluate(() => PrisonFood.eaten(App.game)), true, 'The native Eat control invokes the existing daily meal');
+    await page.locator('#prisonFood').getByRole('button', { name: 'Close ration view', exact: true }).click();
+    assert.equal(await page.evaluate(() => PrisonFood.active(App.game)), false);
     assert.equal(await page.evaluate(() => App.game.pow.captivity.pacing.meal), true);
     const doorPrompt = await heldCellInteraction('cell-door');
     if (await panel.getByRole('button', { name: 'Ask for water and a pause', exact: true }).isVisible()) {

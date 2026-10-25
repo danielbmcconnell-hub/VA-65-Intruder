@@ -2,13 +2,14 @@
 // Production WebGL shadows on an explicit slope mesh and the unchanged native
 // clipmap. Camera/ground samples are declared fixtures, not flown missions.
 const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path');
+const {waitCompletePhotographs}=require('./helpers/complete-photo-fixture.cjs');
 module.exports=async function(browser,target,evidenceDir){
  const checks=[],screenshots=[],errors=[],out=path.join(evidenceDir,'terrain-shadows');await fs.mkdir(out,{recursive:true});
  for(const layout of [{name:'desktop',viewport:{width:1280,height:720}},{name:'iphone-layout-chromium',viewport:{width:844,height:390},deviceScaleFactor:3,isMobile:true,hasTouch:true}]){
   const {name,...options}=layout,context=await browser.newContext(options),page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
   try{
    await context.addInitScript(()=>{localStorage.setItem('a6_set',JSON.stringify({quality:0,sound:0,voices:0,assist:1,sens:1}));localStorage.setItem('a6_sawkeys','1')});
-   await page.goto(target,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.App&&window.TerrainShadows);await page.click('#bootFly');await page.waitForFunction(()=>App.game?.st&&App.rend?.textures?.people,null,{timeout:90000});
+   await page.goto(target,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.App&&window.TerrainShadows);await page.click('#bootFly');await page.waitForFunction(()=>App.game?.st,null,{timeout:90000});await waitCompletePhotographs(page);
    const data=await page.evaluate(()=>{
     App.screen='fixture';App.game.paused=true;const R=App.rend,gl=R.gl,M=TerrainShadows;R.quality=0;R.floatBuf=false;R.resize(420,360,1);R.setEpisode(null);R.setFires([]);R.setAtmos({...R.atm,amb:[.5,.5,.5],sunCol:[0,0,0],gnd:[0,0,0],horizon:[.1,.1,.1],zenith:[.1,.1,.1],fogDens:0,night:false});
     const read=()=>{const b=new Uint8Array(R.W*R.H*4);gl.readPixels(0,0,R.W,R.H,gl.RGBA,gl.UNSIGNED_BYTE,b);return b;};

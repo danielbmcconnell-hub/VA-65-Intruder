@@ -117,6 +117,13 @@ test('generic leaf-litter surfaces render horizontally with 12mm lift before wil
  for(let i=0;i<6;i++){M.drawSurfaces(g,r,items);assert.ok(M.inspect(r).surfaceTerrainSamples<=20);assert.equal(M.ready(r),false);}
  const s=M.inspect(r);assert.equal(s.surfaceDraws,20);for(const patch of s.lastSurfaces){near(patch.groundLift,.012);for(const p of patch.vertices)near(p[1],10+.2*p[0]-.1*p[2]+.012);}
 });
+test('pickup surfaces use their actual floor sampler and bounded lift with cache invalidation between field and raised banks',()=>{
+ const {M,r,g}=fixture(),record={referenceWidth:.9,bodyHeight:.8,textureName:'pickup'},base={id:'pickup:food',p:[2,80,1],yaw:.4,record,length:.4,width:.3,groundLift:.028,floorKey:'field',floorAt:(x,z)=>80+.03*x-.02*z};r.textures.pickup={tex:{}};
+ M.drawSurfaces(g,r,[base]);let s=M.inspect(r);assert.equal(s.surfaceDraws,1);assert.equal(s.surfaceTerrainSamples,5);for(const p of s.lastSurfaces[0].vertices)near(p[1],base.floorAt(p[0],p[2])+.028);near(s.lastSurfaces[0].groundLift,.028);
+ M.drawSurfaces(g,r,[base]);assert.equal(M.inspect(r).surfaceTerrainSamples,0,'Stable same-floor item reuses its four-corner surface');
+ M.drawSurfaces(g,r,[{...base,floorKey:'riverbank',floorAt:()=>126.35}]);s=M.inspect(r);assert.equal(s.surfaceTerrainSamples,5);for(const p of s.lastSurfaces[0].vertices)near(p[1],126.378);
+ M.drawSurfaces(g,r,[{...base,floorKey:'riverbank',floorAt:()=>126.35,groundLift:5}]);near(M.inspect(r).lastSurfaces[0].groundLift,.08,'External surfaces cannot request an unbounded hover offset');
+});
 
 
 test('off-center whole-body poses keep their actual world pivot when the shader turns the registered quad',()=>{

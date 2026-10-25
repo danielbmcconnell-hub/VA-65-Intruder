@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const {waitCompletePhotographs}=require('./helpers/complete-photo-fixture.cjs');
 
 // Actual WebGL browser tests. An explicit starting fixture enters the river;
 // all subsequent section/landing progress uses real input, current, collision,
@@ -43,9 +44,9 @@ module.exports = async function powM22RiverBrowser(browser, target, evidenceDir)
       await page.waitForFunction(() => window.App && window.POW && POW.River && POW.AI);
       await page.evaluate(() => App.start(MISSIONS.find(mission => mission.escape)));
       await page.waitForFunction(() => App.game?.st && document.getElementById('loader').style.display === 'none', null, { timeout: 90000 });
-      await page.waitForFunction(() => ['nva', 'farmer', 'vegetation'].every(name => App.rend.textures['photo_' + name]), null, { timeout: 30000 });
+      await waitCompletePhotographs(page);
       await page.evaluate(() => {
-        App.screen = 'fixture'; App.game.paused = false;
+        App.frame = () => {}; App.screen = 'game'; App.game.paused = false;
         for (const id of ['teach', 'teachPeek', 'legend']) document.getElementById(id)?.classList.remove('on');
         document.activeElement?.blur?.();
         const G = App.game;

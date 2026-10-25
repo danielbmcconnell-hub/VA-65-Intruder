@@ -556,7 +556,7 @@
       modify(s, 'physical', .012 * dt);
     } else if (onBank) {
       r.mode = r.resting ? 'hidden' : 'bank'; r.submerged = false; r.eyeHeight = i.crouch || r.resting ? .82 : 1.56;
-      const speed = (i.run && !i.crouch ? 2.9 : i.crouch ? .8 : 1.6) * speedScale;
+      const speed = (i.run && !i.crouch ? 2.9 : i.crouch ? .8 : 1.6) * speedScale * (root.GroundItems?root.GroundItems.movementFactor(game):1);
       if (!r.resting) move(game, (Math.sin(e.hdg) * i.forward + Math.cos(e.hdg) * i.strafe) * speed * dt,
         (-Math.cos(e.hdg) * i.forward + Math.sin(e.hdg) * i.strafe) * speed * dt);
       e.p[1] = r.waterY + .35;

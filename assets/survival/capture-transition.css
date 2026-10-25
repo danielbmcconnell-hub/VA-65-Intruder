@@ -4,6 +4,12 @@
 #captureTransition h2{font-size:30px;line-height:1.15;margin:0 0 13px;color:#ece3cb}
 #captureTransition button{margin-top:12px;min-height:44px}
 #captureTransition button[hidden]{display:none!important}
+#captureTransition .capture-card[hidden]{display:none!important}
+#captureTransition .capture-peek{position:absolute;bottom:16px;right:16px;max-width:180px;background:rgba(6,12,14,.84);font-size:12px}
+#captureTransition[data-stage="holding"]{align-items:flex-end;justify-content:flex-start}
+#captureTransition[data-stage="holding"] .capture-card{max-width:360px;font-size:13px;padding:12px 16px;margin-bottom:4px}
+#captureTransition[data-stage="holding"] h2{font-size:22px;margin-bottom:8px}
+@media(max-height:440px){#captureTransition[data-stage="holding"] .capture-card{max-width:310px;font-size:12px}#captureTransition[data-stage="holding"] .capture-label{display:none}}
 body.capture-active #weaponViewport,body.capture-active #radioViewport,body.capture-active #signalViewport,body.capture-active #powHUD,body.capture-active #pow-captivity,body.capture-active .tc:not(#pauseBtn),body.capture-active #hudbar,body.capture-active #hud,body.capture-active #radio,body.capture-active #flightCoach{visibility:hidden!important}
 body.capture-active #pauseBtn{z-index:94}
 body.capture-active #pauseVeil{z-index:96}

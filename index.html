@@ -619,6 +619,10 @@ body.desktop #hudbar{display:flex}
 #weaponViewport[data-weapon=fists]{--fist-width:min(100vw,144vh);width:var(--fist-width);height:44vh;bottom:0}
 #weaponViewport[data-weapon=fists] img{position:absolute;top:calc(14vh - var(--fist-width)*.68);height:auto}
 #weaponViewport[data-weapon=knife]{left:calc(50% + 15vh);bottom:-40px;width:calc(44.4vh + 35.6px);height:calc(50vh + 40px)}
+#weaponViewport[data-weapon=rifle]{left:50%;bottom:-20vh;width:min(94vw,93vh);height:min(62.6667vw,62vh);overflow:visible}
+#weaponViewport[data-weapon=stick]{left:calc(50% + 20vh);bottom:-44px;width:min(48vw,51vh);height:min(64vw,68vh);overflow:visible}
+body.pow-active.pow-field-equipment #weaponViewport{display:block!important}
+body.pow-active.pow-field-equipment:not(.desktop) #btnFire{display:flex!important}
 /* The accepted survival transmission owns the left hand; right-hand equipment
    remains selected. No extra transmission, timer or rescue state is created. */
 #radioViewport{display:none;position:absolute;pointer-events:none;z-index:8;
@@ -840,6 +844,7 @@ body.desktop #hudbar{display:flex}
 <script id="bootstrap-status">(function(){var box=document.getElementById('runtimeHelp');box.textContent='Starting game controls…';window.addEventListener('error',function(e){if(e.target!==window||!e.message)return;if(box){box.hidden=false;box.textContent='Game error: '+e.message+' ('+(e.lineno||'?')+':'+(e.colno||'?')+')';}});window.addEventListener('unhandledrejection',function(e){if(box){box.hidden=false;box.textContent='Startup issue: '+String(e.reason||'unknown')+' — use the hosted web package in Safari.';}});})();</script>
 
 <link rel="stylesheet" href="assets/pow/core.css">
+<link rel="stylesheet" href="assets/pow/prison-food.css">
 <script src="assets/atlas-metadata.js"></script>
 <script src="assets/sprites/atlas-metadata.js"></script>
 <script src="assets/survival/ammunition.js"></script>
@@ -861,6 +866,9 @@ body.desktop #hudbar{display:flex}
 <script src="assets/pow/episode-audio.js"></script>
 <script src="assets/pow/figure-motion.js"></script>
 <script src="assets/pow/memory-detail.js"></script>
+<script src="assets/pow/prison-detail.js"></script>
+<script src="assets/pow/ration-photo.js"></script>
+<script src="assets/pow/prison-food.js"></script>
 <link rel="stylesheet" href="assets/pow/episode-actions.css">
 <script src="assets/flight/coach.js"></script>
 <script src="assets/flight/strike-board.js"></script>
@@ -875,6 +883,8 @@ body.desktop #hudbar{display:flex}
 <script src="assets/flight/tactical-approach.js"></script>
 <script src="assets/flight/visual-materials.js"></script>
 <script src="assets/flight/aircraft-detail.js"></script>
+<script src="assets/render/visual-clarity.js"></script>
+<script src="assets/flight/threat-feedback.js"></script>
 <script src="assets/flight/airframe-feedback.js"></script>
 <script src="assets/render/sprite-layers.js"></script>
 <script src="assets/render/photo-cutouts.js"></script>
@@ -894,6 +904,9 @@ body.desktop #hudbar{display:flex}
 <script src="assets/survival/ground-view.js"></script>
 <script src="assets/survival/equipment-view.js"></script>
 <script src="assets/survival/ground-combat.js"></script>
+<script src="assets/survival/ground-items.js"></script>
+<script src="assets/render/ground-items-render.js"></script>
+<link rel="stylesheet" href="assets/survival/ground-items.css">
 <script src="assets/survival/capture-transition.js"></script>
 <link rel="stylesheet" href="assets/survival/capture-transition.css">
 <script src="assets/render/terrain-shadows.js"></script>
@@ -2552,6 +2565,7 @@ class Renderer {
     `, GLSL_NOISE + GLSL_TERRAIN + GLSL_ATMOS + GLSL_SHADOW + FlightVisualMaterials.glsl + `
       in vec3 vW; in float vFine; in float vOcc; in vec3 vTN; out vec4 o;
       uniform vec3 uCam; uniform float uWet, uDetail, uGroundJungle;
+      uniform sampler2D uForestFloor; uniform float uForestFloorReady, uForestFloorScale;
       void main(){
         float dcam = distance(vW, uCam);
         /* Smooth, from the height field's own gradient. The old
@@ -2878,6 +2892,13 @@ class Renderer {
             float soilGrain = vnoise(vW.xz*2.7 + 5.3);
             vec3 floorSoil = mix(vec3(0.14,0.105,0.058), vec3(0.27,0.20,0.112), leafVariation);
             floorSoil *= 0.88 + 0.24*soilGrain;
+            if (uForestFloorReady > 0.5) {
+              vec2 floorUV = vW.xz / max(0.5, uForestFloorScale);
+              vec3 photoA = texture(uForestFloor, floorUV).rgb;
+              vec3 photoB = texture(uForestFloor, mat2(0.8,-0.6,0.6,0.8)*floorUV*0.47+vec2(0.31,0.73)).rgb;
+              vec3 photographicFloor = pow(max(mix(photoA, photoB, 0.24),vec3(0.0)),vec3(2.2));
+              floorSoil = mix(floorSoil, photographicFloor, 0.92);
+            }
             alb = mix(alb, floorSoil, floorWeight);
             // The floor follows its actual earth slope. Crown-shaped bump
             // lighting belongs to the aerial canopy above this surface.
@@ -3075,7 +3096,7 @@ class Renderer {
         vSurfaceLocal = aP; vSurfaceNormal = aN;
         gl_Position = uVP * wp;
       }
-    `, GLSL_NOISE + GLSL_ATMOS + GLSL_SHADOW + (window.EpisodeGLSL || '') + FlightVisualMaterials.glsl + AircraftDetail.glsl + `
+    `, GLSL_NOISE + GLSL_ATMOS + GLSL_SHADOW + (window.EpisodeGLSL || '') + FlightVisualMaterials.glsl + AircraftDetail.glsl + PrisonDetail.glsl + RationPhoto.glsl + `
       in vec3 vW, vN, vC; in vec4 vTint; out vec4 o;
       in vec3 vSurfaceLocal, vSurfaceNormal;
       uniform float uDetail;
@@ -3156,6 +3177,8 @@ class Renderer {
           nB = normalize(vN - (tgt*(gx-t2) + bit*(gy-t2)) * 1.5 * fine);
         }
         }
+        alb = prisonSurface(alb,vW,normalize(vN));
+        alb = rationSurface(alb,vSurfaceLocal);
         vec3 vNs = vN; vec3 vN2 = nB;
         float diff0 = max(dot(vN2, uSunDir),0.0);
         float vis = sunVis(vW, vNs, diff0);
@@ -3182,7 +3205,7 @@ class Renderer {
            grey and white shine and matt olive drab does not. */
         vec3 hv = normalize(uSunDir + vd);
         float gloss = clamp(dot(alb, vec3(0.333)) * 1.9 + 0.10, 0.0, 0.90);
-        vec4 airFinish = aircraftLighting(alb);
+        vec4 airFinish = prisonLighting(aircraftLighting(alb));
         if(carrierDeck)airFinish=vec4(.055,18.0,.022,.006);
         col += uSunCol * pow(max(dot(vN2, hv), 0.0), airFinish.y) * gloss * 0.62 * vis * airFinish.x;
         col += uSunCol * pow(max(dot(vN2, hv), 0.0), 7.0) * gloss * 0.045 * vis * airFinish.x;
@@ -3205,7 +3228,7 @@ class Renderer {
           if(uFireN>0)light+=fireLight(vW,normalize(vN))*episodeOcclusion(vW,uFires[0].xyz,normalize(vN));
           col = alb * light + alb * vTint.a;
           if (uEpisodeMaterial > 0.5 && vN.y > 0.6) col = episodeWater(vW,uCam,vN);
-          else col += skyUp * fres * 0.065;
+          else col += skyUp * fres * (uPrisonKind>4.5?0.0:0.065);
           o = vec4(episodeFog(col,vW,uCam),1.0);
         } else o = vec4(applyFog(col, vW, uCam), 1.0);
       }
@@ -3439,7 +3462,7 @@ class Renderer {
       void main(){ vT = aP*0.5+0.5; gl_Position = vec4(aP,0.0,1.0); }`, `
       in vec2 vT; out vec4 o;
       uniform sampler2D uS, uB; uniform float uBloom, uTime, uGrain, uFlash, uVig, uExp, uNight;
-      vec3 aces(vec3 x){ return clamp((x*(2.51*x+0.03))/(x*(2.43*x+0.59)+0.14), 0.0, 1.0); }
+      ${VisualClarity.glsl}
       void main(){
         vec3 c = texture(uS,vT).rgb;
         vec3 bl = texture(uB,vT).rgb;
@@ -3447,54 +3470,14 @@ class Renderer {
         c += vec3(1.0,0.85,0.66)*uFlash;
         c *= uExp;
 
-        /* Film grade, in the order a colourist would work: tone map, then
-           contrast about middle grey, then saturation, then a split tone.
-           Done before the vignette so the corners do not get crushed twice. */
-        c = aces(c);
-        c = clamp((c - 0.5) * 1.17 + 0.5 + 0.010, 0.0, 1.0);
-        /* Measured against the Navy film this game is set inside.
-           Sampling the airborne frames in the cruise book gives a very
-           consistent signature: mean luminance 0.52, median 0.54 —
-           which this already matched — but a 1st percentile of 0.115
-           against the renderer's 0.249, and a red-minus-blue of -0.08
-           against the renderer's +0.01.
-
-           In words: the real footage has shadows with something in
-           them and a distinctly cool cast, and the render had neither.
-           It was uniformly milky, because nothing on screen was ever
-           allowed to get properly dark. This pulls the bottom of the
-           curve down without touching the middle or the top, which is
-           what a film toe actually does, and then cools the whole
-           frame by the measured amount. */
-        {
-          float lp = dot(c, vec3(0.2126, 0.7152, 0.0722));
-          /* The toe has to be a toe. At a 0.42 knee it was reaching up
-             into the midtones and crushing every surface the sun did
-             not hit — the fin of the aeroplane, which is a vertical
-             plate lit only by sky, went from mid grey to near black.
-             A film toe works on the bottom fifth of the range. */
-          float toe = smoothstep(0.0, 0.20, lp);               // 1 above the deep shadows
-          c *= mix(0.62, 1.0, toe);                            // deepen only the very low end
-          c += vec3(0.013, 0.010, 0.009) * (1.0 - toe);        // ...but keep film's lifted base
-          c += vec3(-0.055, -0.008, 0.062) * (1.0 - lp*0.55);  // the cool cast, strongest low
-        }
-        c = clamp(c, 0.0, 1.0);
-        float l = dot(c, vec3(0.2126, 0.7152, 0.0722));
-        /* Daylight saturation was pushed thirty per cent, which turned a
-           hazy tropical afternoon into a golf course. Kodachrome was
-           saturated; it was not that saturated, and the extra contrast
-           carries more of the look than the extra colour did. */
-        c = clamp(mix(vec3(l), c, mix(1.10, 0.58, uNight)), 0.0, 1.0);
-        /* Shadows toward teal, highlights toward amber. A sixtieth of a stop
-           either way — enough that the eye reads film stock, not enough to
-           notice as a colour cast. */
-        c += vec3(-0.016, 0.000, 0.026) * (1.0 - l);
-        c += vec3( 0.022, 0.008,-0.014) * l;
+        c = clarityGrade(c, clamp(uNight, 0.0, 1.0));
 
         float v = 1.0 - uVig*pow(length(vT-0.5)*1.42, 2.8);
         c *= clamp(v, 0.0, 1.0);
-        float g = fract(sin(dot(vT*vec2(1.0+uTime*0.001), vec2(12.9898,78.233)))*43758.5453);
-        c += (g-0.5)*uGrain;
+        if (uGrain > 0.0) {
+          float g = fract(sin(dot(vT*vec2(1.0+uTime*0.001), vec2(12.9898,78.233)))*43758.5453);
+          c += (g-0.5)*uGrain;
+        }
         o = vec4(clamp(c, 0.0, 1.0), 1.0);
       }`);
   }
@@ -3874,6 +3857,14 @@ class Renderer {
     gl.uniformMatrix4fv(p.u.uVP, false, this.matVP);
     gl.uniform1f(p.u.uMtn, mtn); gl.uniform1f(p.u.uSeed, seed); gl.uniform1f(p.u.uWet, wet);
     gl.uniform1f(p.u.uGroundJungle, groundJungle ? 1 : 0);
+    const floorTexture = groundJungle ? JungleScenery.floorTexture(this) : null;
+    // NearGround owns unit 8. Keep photographic albedo separate from the
+    // floating-point height correction used by the terrain vertex shader.
+    gl.activeTexture(gl.TEXTURE0+12);
+    gl.bindTexture(gl.TEXTURE_2D, floorTexture ? floorTexture.tex : this.textures?.wear?.tex || null);
+    gl.uniform1i(p.u.uForestFloor, 12);
+    gl.uniform1f(p.u.uForestFloorReady, floorTexture ? 1 : 0);
+    gl.uniform1f(p.u.uForestFloorScale, floorTexture?.worldSize || 3);
     const N = this.cmN;
     const lv = this.quality === 0 ? this.cmLevels - 1 : this.cmLevels;
     for (let L = 0; L < lv; L++) {
@@ -4131,13 +4122,18 @@ class Renderer {
         layout(location=0) in vec3 aP; layout(location=1) in vec3 aN; layout(location=2) in vec3 aC;
         layout(location=3) in mat4 iM; layout(location=7) in vec4 iC;
         uniform mat4 uVP;
-        out vec3 vW, vN, vC;
-        void main(){ vec4 wp = iM*vec4(aP,1.0); vW = wp.xyz; vN = normalize(mat3(iM)*aN); vC = aC;
+        out vec3 vW, vN, vC, vL;
+        void main(){ vec4 wp = iM*vec4(aP,1.0); vW = wp.xyz; vN = normalize(mat3(iM)*aN); vC = aC; vL = aP;
           gl_Position = uVP*wp; }
       `, GLSL_NOISE + GLSL_ATMOS + `
-        in vec3 vW, vN, vC; out vec4 o;
-        uniform vec3 uCam;
+        in vec3 vW, vN, vC, vL; out vec4 o;
+        uniform vec3 uCam; uniform float uRotorKind, uRotorTime;
+        ${AircraftDetail.rotorGLSL}
         void main(){
+          if (uRotorKind > 0.5) {
+            vec4 rotor = rotorMotion(vL, vW, vN, uRotorKind, uRotorTime);
+            o = vec4(applyFog(rotor.rgb, vW, uCam), rotor.a); return;
+          }
           vec3 vd = normalize(uCam - vW);
           vec3 n = faceforward(vN, -vd, vN);
           float fr = pow(1.0 - max(dot(n, vd), 0.0), 3.4);
@@ -4153,6 +4149,8 @@ class Renderer {
     }
     const p = this.pGlass;
     gl.useProgram(p); this._atmosUniforms(p);
+    gl.uniform1f(p.u.uRotorKind, AircraftDetail.rotorKind(name));
+    gl.uniform1f(p.u.uRotorTime, Number.isFinite(this.time) ? this.time : 0);
     gl.uniformMatrix4fv(p.u.uVP, false, this.matVP);
     gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.depthMask(false); gl.disable(gl.CULL_FACE);
@@ -4171,6 +4169,8 @@ class Renderer {
     gl.uniform1f(p.u.uEpisodeMaterial,name==='powWater'?1:0);
     gl.uniform1f(p.u.uSurfaceKind, FlightVisualMaterials.kind(name));
     gl.uniform1f(p.u.uAircraftKind, AircraftDetail.kind(name));
+    PrisonDetail.bind(this,p,name);
+    RationPhoto.bind(this,p,name);
     gl.uniformMatrix4fv(p.u.uVP, false, this.matVP);
     gl.bindVertexArray(m.vao);
     gl.bindBuffer(gl.ARRAY_BUFFER, m.inst);
@@ -4208,6 +4208,7 @@ class Renderer {
   end(time, flash, exposure) {
     const gl = this.gl;
     const ngt = this.atm && this.atm.night ? 1 : 0;
+    const clarity = VisualClarity.profile(ngt);
     gl.disable(gl.DEPTH_TEST); gl.disable(gl.CULL_FACE); gl.bindVertexArray(this.fsq);
     if (this.bloomOn) {
     // bright pass
@@ -4233,11 +4234,11 @@ class Renderer {
     gl.useProgram(this.pComp);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, this.texScene); gl.uniform1i(this.pComp.u.uS, 0);
     gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, this.texB1); gl.uniform1i(this.pComp.u.uB, 1);
-    gl.uniform1f(this.pComp.u.uBloom, this.bloomOn ? (ngt ? 0.85 : 0.52) : 0.0);
+    gl.uniform1f(this.pComp.u.uBloom, this.bloomOn ? clarity.bloom : 0.0);
     gl.uniform1f(this.pComp.u.uTime, time);
-    gl.uniform1f(this.pComp.u.uGrain, ngt ? 0.040 : 0.020);
+    gl.uniform1f(this.pComp.u.uGrain, clarity.grain);
     gl.uniform1f(this.pComp.u.uFlash, flash || 0);
-    gl.uniform1f(this.pComp.u.uVig, ngt ? 0.50 : 0.34);
+    gl.uniform1f(this.pComp.u.uVig, clarity.vignette);
     gl.uniform1f(this.pComp.u.uNight, this.atm.nightContrast > 0 ? ngt : this.episode ? ngt*.65 : ngt);
     gl.uniform1f(this.pComp.u.uExp, exposure || 1);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
@@ -8326,10 +8327,10 @@ class World {
 
   launchSam(site, ac) {
     const p = [site.p[0], site.p[1] + 3, site.p[2]];
-    this.sams.push({ p, v: [0, 90, 0], t: 0, alive: true, target: ac, armed: 0 });
+    const missile = { p, v: [0, 90, 0], t: 0, alive: true, target: ac, armed: 0 };
+    this.sams.push(missile);
     this.launchWarn = 5;
-    this.fx.explosion([p[0], p[1] + 1, p[2]], 1.1, true);
-    for (let i = 0; i < 26; i++) this.fx.smoke([p[0] + rnd(-9, 9), p[1] + rnd(0, 4), p[2] + rnd(-9, 9)], [0.4, 0.38, 0.36], rnd(6, 13), rnd(3, 7), [rnd(-6, 6), rnd(1, 5), rnd(-6, 6)], 1.2);
+    FlightThreatFeedback.recordLaunch(this, site, missile);
   }
 
   hitAircraft(ac, sev, src, position) {
@@ -8429,8 +8430,7 @@ class World {
       const sp = Math.min(660, vlen(a.v) + 190 * dt);
       a.v = vmul(nd, sp);
       a.p = vadd(a.p, vmul(a.v, dt));
-      this.fx.smoke(a.p, [0.42, 0.42, 0.42], 2.4, 2.2, [0, 0, 0], 0.4);
-      this.fx.glow(a.p, [1, 0.7, 0.35], 2.4, 0.16);
+      FlightThreatFeedback.trail(this.fx, a, dt, 'arm');
       if (d < 22 || a.p[1] < terrainH(a.p[0], a.p[2]) || a.t > 40) {
         this.detonate(a.p, 1.9, 30, 70, 'arm'); this.arms.splice(i, 1);
       }
@@ -8448,8 +8448,7 @@ class World {
       const nd = vnorm(vadd(cur, vmul(vsub(want, cur), clamp(dt * rate, 0, 1))));
       s.v = vmul(nd, sp);
       s.p = vadd(s.p, vmul(s.v, dt));
-      this.fx.glow(s.p, [1, 0.8, 0.45], 4.5, 0.12);
-      this.fx.smoke(s.p, [0.5, 0.48, 0.46], 4.5, 3.6, [0, 0, 0], 0.5);
+      FlightThreatFeedback.trail(this.fx, s, dt, 'sam');
       const gh = terrainH(s.p[0], s.p[2]);
       if (d < 46) {
         this.fx.explosion(s.p, 2.0, false);
@@ -9565,6 +9564,7 @@ class Cockpit {
      game and being in it. */
   drawCockpit(st, small) {
     const g = this.g, W = this.W, H = this.H;
+    const palette = VisualClarity.cockpit(st.night);
     const coam = H * 0.615;                 // top of the glareshield, centre
     const rise = H * 0.055;                 // how much the corners sit above it
     g.save();
@@ -9577,13 +9577,13 @@ class Cockpit {
     g.quadraticCurveTo(W * 0.74, coam + rise * 0.50, W + 2, coam - rise);
     g.lineTo(W + 2, H + 2); g.closePath();
     const pf = g.createLinearGradient(0, coam - rise, 0, H);
-    pf.addColorStop(0.00, '#2d3335');       // the lip, catching sky
-    pf.addColorStop(0.055, '#171c1e');
-    pf.addColorStop(0.42, '#101416');
-    pf.addColorStop(1.00, '#070a0b');
+    pf.addColorStop(0.00, palette.top);       // the lip, catching sky
+    pf.addColorStop(0.055, palette.lip);
+    pf.addColorStop(0.42, palette.middle);
+    pf.addColorStop(1.00, palette.base);
     g.fillStyle = pf; g.fill();
     // a hard highlight along the very top edge of the coaming
-    g.strokeStyle = 'rgba(176,186,190,.50)'; g.lineWidth = 1.6;
+    g.strokeStyle = palette.rim; g.lineWidth = 1.6;
     g.beginPath();
     g.moveTo(-2, coam - rise);
     g.quadraticCurveTo(W * 0.26, coam + rise * 0.50, W * 0.5, coam + rise * 0.62);
@@ -9591,7 +9591,7 @@ class Cockpit {
     g.stroke();
 
     /* ---- side consoles, angling in at the bottom corners ---- */
-    g.fillStyle = 'rgba(26,31,33,.96)';
+    g.fillStyle = palette.console;
     for (const sx of [0, 1]) {
       g.beginPath();
       const x0 = sx ? W + 2 : -2, xi = sx ? W - W * 0.17 : W * 0.17;
@@ -9605,7 +9605,7 @@ class Cockpit {
     const frame = (path, w, light) => {
       g.lineCap = 'round';
       g.strokeStyle = '#0d1113'; g.lineWidth = w; path(); g.stroke();
-      g.strokeStyle = light ? 'rgba(168,178,183,.42)' : 'rgba(132,142,148,.26)';
+      g.strokeStyle = light ? palette.frameLight : palette.frameDim;
       g.lineWidth = Math.max(1, w * 0.26);
       g.save(); g.translate(0, -w * 0.30); path(); g.stroke(); g.restore();
     };
@@ -10332,7 +10332,8 @@ class Cockpit {
 
     // panel metal
     const pg = g.createLinearGradient(0, 0, 0, H);
-    pg.addColorStop(0, '#1b2026'); pg.addColorStop(0.5, '#12171c'); pg.addColorStop(1, '#0b0f13');
+    const palette = VisualClarity.cockpit(st.night);
+    pg.addColorStop(0, st.night ? palette.top : '#1b2026'); pg.addColorStop(0.5, st.night ? palette.middle : '#12171c'); pg.addColorStop(1, st.night ? palette.base : '#0b0f13');
     g.fillStyle = pg; g.fillRect(0, 0, W, H);
 
     const r = clamp(Math.min(W * 0.26, H * 0.40), 78, 235);
@@ -11592,7 +11593,30 @@ const App = {
     for(const [id,weapon] of [['btnPistol','pistol'],['btnKnife','knife'],['btnPunch','fists']])
       $('#'+id).onclick=()=>{const e=this.game&&this.game.evade;if(e&&!e.frozen)e.weaponWant=weapon;};
     $('#btnSurrender').onclick=()=>{if(this.game)this.game.raiseHands();};
-    WillardPresentation.bindButton($('#btnFire'),()=>{const e=this.game&&this.game.evade;if(e&&!e.frozen)e.attackWant=1;});
+    let fireHold=null;
+    const beginGroundFire=event=>{
+      const game=this.game,e=game&&game.evade;
+      if(this.screen!=='game'||!e||game.paused||e.frozen||e.held||game.pow?.modalOpen||game.pow?.captivity?.open)return;
+      fireHold={game,actor:e,id:event.pointerId};e.primaryAttackDown=true;e.attackWant=1;
+    };
+    const releaseGroundFire=(event,cancel=false)=>{
+      if(!fireHold||event&&event.pointerId!==fireHold.id)return;
+      fireHold.actor.primaryAttackDown=false;if(cancel)fireHold.actor.attackWant=0;fireHold=null;
+    };
+    const fireButton=$('#btnFire');
+    fireButton.addEventListener('pointerdown',event=>{event.preventDefault();event.stopPropagation();beginGroundFire(event);fireButton.setPointerCapture?.(event.pointerId);});
+    fireButton.addEventListener('pointercancel',event=>releaseGroundFire(event,true));
+    fireButton.addEventListener('pointermove',event=>{
+      if(!fireHold||fireHold.id!==event.pointerId)return;
+      const r=fireButton.getBoundingClientRect();
+      if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)releaseGroundFire(event,true);
+    });
+    fireButton.addEventListener('lostpointercapture',event=>releaseGroundFire(event,true));
+    fireButton.onclick=event=>{if(event.detail===0){const e=this.game?.evade;if(e&&!this.game.paused&&!e.frozen)e.attackWant=1;}};
+    window.addEventListener('pointerup',event=>releaseGroundFire(event),true);
+    window.addEventListener('pointercancel',event=>releaseGroundFire(event,true),true);
+    window.addEventListener('blur',()=>releaseGroundFire(null,true));
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseGroundFire(null,true);});
     WillardPresentation.bindButton($('#btnScope'), () => this.toggleScope());
     /* The note card folds away on a tap and comes back on a tap. On a
        phone it covers a third of the screen, and there was no way to get
@@ -11665,6 +11689,7 @@ const App = {
     let drag = null;
     stack.addEventListener('pointerdown', e => {
       if (e.target.closest('.tc')) return;
+      if(e.pointerType==='mouse'&&e.button===0&&this.game?.evade&&e.target.tagName==='CANVAS')beginGroundFire(e);
       drag = { x: e.clientX, y: e.clientY, moved: 0 };
     });
     stack.addEventListener('pointermove', e => {
@@ -11769,8 +11794,10 @@ const App = {
         ['Look up / down', 'Q / E'],
         ['Survival radio', 'R'],
         ['Pop smoke', 'G'],
-        ['Draw / holster the .38', 'F'],
-        ['Fire', 'Space'],
+        ['Pick up nearby supplies / draw pistol', 'F'],
+        ['Punch with a free hand', 'Space · one press per punch'],
+        ['Use selected weapon', 'Left mouse button'],
+        ['Carried supplies', 'Supplies button'],
         ['Knife', 'V'],
         ['Hands up / surrender', 'X']
       ] : [
@@ -11795,6 +11822,8 @@ const App = {
         ['Pop smoke', 'SMOKE'],
         ['Draw / holster the .38', 'PISTOL'],
         ['Fire', 'the red FIRE button'],
+        ['Punch with a free hand', 'Punch free hand'],
+        ['Pick up / equip supplies', 'nearby pickup / Supplies buttons'],
         ['Knife', 'KNIFE'],
         ['Hands up / surrender', 'HANDS UP']
       ];
@@ -12765,7 +12794,7 @@ const App = {
       <dt>Gear &amp; hook</dt><dd>GEAR, or G. They come down together, as they did.</dd>
       <dt>Speedbrake</dt><dd>B.</dd>
       <dt>Ripple</dt><dd>R cycles the interval — 1, 2, 4, 8 bombs per release.</dd>
-      <dt>Eject</dt><dd>J fires both seats. On the chute A and D steer; on the ground W walks, Shift runs, R is the survival radio, F draws the .38, Space fires, V is the knife.</dd>
+      <dt>Eject</dt><dd>J fires both seats. On the chute A and D steer. On land W walks, Shift runs, R uses the radio, F picks up nearby supplies or draws the pistol, V selects the knife, and Space punches with a free hand. Left click or the touch FIRE/ATTACK button uses the selected weapon.</dd>
       <dt>Slew to next</dt><dd>X puts the crosshairs on whatever is due next — the checkpoint, the offset point, the target.</dd>
       <dt>View</dt><dd>V for an outside view. Pause with Escape.</dd>
     </dl></div>`;
@@ -13357,7 +13386,11 @@ const App = {
 
   pause(on) {
     if (!this.game) return;
+    // Record held punch input while the simulation is still paused. A press
+    // made in the menu must not become a fresh attack when play resumes.
+    if(!on&&this.game.paused&&this.game.evade)GroundCombat.stepPunch(this.game,1/60,!!this.keys.Space);
     this.game.paused = on;
+    if(on&&this.game.evade){this.game.evade.primaryAttackDown=false;this.game.evade.attackWant=0;this.game.evade.punchWant=0;}
     if(typeof FlightStrikeBoard!=='undefined')FlightStrikeBoard.render(this.game);
     $('#pauseVeil').classList.toggle('on', on);
     if (!on) return;
@@ -14024,8 +14057,7 @@ class Game {
                 'That was close. Still with you.']), 'bad'); }
 
     if (W.launchWarn > 0)
-      say('sam', R ? 'SAM. I am going down and right — hold what you have.'
-                   : 'SAM in the air. Get the nose down and go right.', 'bad', 25);
+      say('sam', 'Launch warning. Watch the threat bearing; keep the aircraft moving.', 'bad', 25);
 
     /* The guns are up and the target is not designated yet. In the right
        seat that is the pilot leaning on you; in the left seat it is the
@@ -14289,7 +14321,8 @@ class Game {
       if (e.swimming) return IS_TOUCH
         ? 'STICK SWIMS — RUN MAKES A STRONGER STROKE · RADIO CALLS FOR RESCUE · SMOKE SIGNALS THE HELICOPTER'
         : 'W SWIMS — SHIFT MAKES A STRONGER STROKE · R CALLS FOR RESCUE · G SIGNALS WITH SMOKE';
-      if (e.drawn) return 'SPACE FIRES — six rounds, and every one of them is heard  ·  F holsters  ·  V is the knife';
+      if(e.weaponMode==='rifle')return (IS_TOUCH?'FIRE BUTTON':'LEFT CLICK FIRES')+' · '+GroundItems.rifleAmmo(this)+' RIFLE ROUNDS · BOTH HANDS OCCUPIED · SUPPLIES TO STOW';
+      if (e.drawn) return (IS_TOUCH?'FIRE BUTTON':'LEFT CLICK FIRES')+' · SPACE PUNCHES WITH THE EMPTY HAND · F HOLSTERS · V KNIFE';
       if (e.radio < 1) return 'R WORKS THE SURVIVAL RADIO — W walks, SHIFT runs (and runs is seen)  ·  F draws the .38';
       const dp = Math.hypot(e.pickup[0] - e.p[0], e.pickup[1] - e.p[2]);
       return 'GET TO THE PICKUP — ' + Math.round(dp) + ' m  ·  stay in cover, moving is what they see';
@@ -14799,7 +14832,7 @@ class Game {
     const run = (K.ShiftLeft || K.ShiftRight || g.run) ? 1 : 0;
     /* A leg wound from the first minute is carried for the rest of it:
        a man who has been shot through the thigh does not run. */
-    const hk = (e.hurt ? 0.62 : 1) * (e.crouch ? 0.52 : 1) * Wildlife.movementFactor(this) * AviatorCompanion.movementFactor(this);
+    const hk = (e.hurt ? 0.62 : 1) * (e.crouch ? 0.52 : 1) * Wildlife.movementFactor(this) * AviatorCompanion.movementFactor(this) * GroundItems.movementFactor(this);
     if (e.handsUp && (run && Math.abs(fwd)>0.2 || K.Space || K.KeyV || e.attackWant)) {
       e.handsUp=false; e.handsT=0; A.radio('CREW','Breaking away. Move!', 'warn');
     }
@@ -14962,7 +14995,7 @@ class Game {
       const hasSight = this._groundAwareness(e,s,120);
       const vis = (hasSight ? 1 : 0) * clamp((1 - dm / 260), 0, 1)
       * (e.running ? 1 : e.crouch ? (spd !== 0 ? 0.15 : 0.02) : spd !== 0 ? 0.45 : 0.06)
-        * (e.river ? 0.12 + cover * 1.55 : 0.35 + cover * 0.9) * day;
+        * (e.river ? 0.12 + cover * 1.55 : 0.35 + cover * 0.9) * day * GroundItems.visibilityFactor(this,dm,s);
       /* In the mud and the reeds a man who is not moving fast is very
          hard to pick out, which is the only reason the escape is
          survivable at all. On an ordinary bail-out the search party is
@@ -15501,6 +15534,7 @@ class Game {
   _groundAwareness(e,s,range=120){
     if(s.armed===undefined)s.armed=!['farmer','villager'].includes(s.kind);
     const dx=e.p[0]-s.p[0],dz=e.p[2]-s.p[2],d=Math.hypot(dx,dz),heading=Math.atan2(dx,-dz);
+    range=Math.max(14,range*GroundItems.visibilityFactor(this,d,s));
     if(!Number.isFinite(s.face))s.face=heading;
     const changed=!s._sightFrom || Math.hypot(s.p[0]-s._sightFrom[0],s.p[2]-s._sightFrom[1])>.6
       || !s._sightTo || Math.hypot(e.p[0]-s._sightTo[0],e.p[2]-s._sightTo[1])>.6
@@ -16071,6 +16105,28 @@ class Game {
     }
     return true;
   }
+  _handPunch(dt,e,A,K,blocked=false) {
+    const primary=e.weaponMode==='fists'&&!!(e.attackWant||e.primaryAttackDown);
+    const event=GroundCombat.stepPunch(this,dt,!!(K.Space||e.punchWant||primary),{blocked});
+    if(e.punchWant)e.punchWant=0;
+    if(primary)e.attackWant=0;
+    for(const contact of event.contacts){
+      const hit=GroundCombat.target(this,e,{
+        floorAt:p=>this.pow?p[1]:e.camp?this.campY:Math.max(terrainH(p[0],p[2]),0),
+        eyeHeight:GroundView.eyeHeight(this,e.crouch?1.16:1.68),
+        bodyHeight:o=>PhotoSprites.describe(o,{camera:this.rend.eye,renderer:this.rend})?.h||1.76,
+        lineOfSight:o=>this.pow?POW.los(this,[e.p[0],e.p[1]+1.3,e.p[2]],[o.p[0],o.p[1]+1.3,o.p[2]]):this._groundLineOfSight(e.p,o.p,e)
+      });
+      if(!hit||hit.distance>contact.reach+(hit.isCow?.55:0))continue;
+      const o=hit.actor;GroundItems.observe(this,o);
+      o.flinch=this.t;o.stunUntil=this.t+1.1;o.hurt=1;o.kick={a:e.hdg,v:1.25};
+      if(hit.isCow){o.walk=3;this._panicAtCow(e,o);}
+      else if(o.armed){o.seen=1;o.sus=1.35;o.goal=e.p.slice();}
+      GroundItems.dropped(this,o);
+      e.noise=Math.max(e.noise||0,.33);A.audio.burst('thunk',.18);
+    }
+    return event;
+  }
   _weapons(dt, e, A, K) {
     if (!e.weaponMode) e.weaponMode = e.drawn ? 'pistol' : 'fists';
     // Inventory belongs to the carried equipment, not the ammunition count.
@@ -16082,8 +16138,8 @@ class Game {
       }
       e.weaponWant=null;
     }
-    const attack=!!(K.Space||e.attackWant);
-    const oldKeys=e._weaponKeys||{},keys={KeyF:!!K.KeyF,KeyV:!!K.KeyV,KeyP:!!K.KeyP};
+    const attack=!!(e.attackWant||e.primaryAttackDown);
+    const oldKeys=e._weaponKeys||{},keys={KeyF:!!K.KeyF&&!e._pickupKeyConsumed,KeyV:!!K.KeyV,KeyP:!!K.KeyP};
     e._weaponKeys=keys;
     if (keys.KeyF && !oldKeys.KeyF) {
       e._drawT=this.t;
@@ -16096,6 +16152,7 @@ class Game {
       e._selectFistsT=this.t; e.weaponMode='fists'; e.drawn=0;
     }
     if(e.handsUp) { e.weaponMode='fists'; e.drawn=0; }
+    this._handPunch(dt,e,A,K,!!(e.swimming||this.pow?.traversal||this.pow?.modalOpen||this.pow?.captivity?.open));
 
     /* Everything in front of him that can be hit: the people, and the
        cattle standing in the same field. One target list, so the sight
@@ -16106,10 +16163,10 @@ class Game {
       eyeHeight:typeof GroundView!=='undefined'?GroundView.eyeHeight(this,eyeHeight):eyeHeight,
       bodyHeight:o=>{const pose=PhotoSprites.describe(o,{camera:this.rend.eye,renderer:this.rend});
         return pose?pose.h:1.76;},
-      lineOfSight:o=>this._groundLineOfSight(e.p,o.p,e)
+      lineOfSight:o=>this.pow?POW.los(this,[e.p[0],e.p[1]+1.3,e.p[2]],[o.p[0],o.p[1]+1.3,o.p[2]]):this._groundLineOfSight(e.p,o.p,e)
     };
     let sight=GroundCombat.target(this,e,targetOptions);
-    if((e.weaponMode==='pistol'||e.weaponMode==='knife') && WildlifeRender.ready(this.rend)){
+    if(['pistol','knife','rifle','stick'].includes(e.weaponMode) && WildlifeRender.ready(this.rend)){
       const animals=Wildlife.targets(this);
       if(animals.length){
         const animalSight=WildlifeTargeting.target(this,e,{...targetOptions,actors:animals,camera:this.rend.eye});
@@ -16132,7 +16189,7 @@ class Game {
        key, and shooting somebody at arm's length felt like nothing at
        all, which is the opposite of the truth. */
     const spray = (o, n, big) => {
-      const gy0 = Math.max(terrainH(o.p[0], o.p[2]), 0);
+      const gy0 = this.pow?o.p[1]:Math.max(terrainH(o.p[0], o.p[2]), 0);
       try {
         for (let i = 0; i < n; i++)
           this.world.fx.glow([o.p[0] + rnd(-0.2, 0.2), gy0 + (big ? 0.9 : 1.25), o.p[2] + rnd(-0.2, 0.2)],
@@ -16150,6 +16207,7 @@ class Game {
         return;
       }
       /* Knocked off the line of the shot. */
+      GroundItems.observe(this,o);
       const ka = Math.atan2(o.p[0] - e.p[0], -(o.p[2] - e.p[2]));
       o.kick = { a: ka, v: lethal ? 2.6 : 1.7 };
       o.flinch = this.t;
@@ -16174,7 +16232,8 @@ class Game {
         return;
       }
       o.alive = false; o.downAt = this.t;
-      o.p = [o.p[0], 0, o.p[2]];
+      if(!this.pow)o.p = [o.p[0], 0, o.p[2]];
+      GroundItems.dropped(this,o);
       /* Going over. For the next three quarters of a second he is off
          his feet, arcing back along the line of the shot, and then he
          is on the ground. The kick above carries him; this says which
@@ -16187,7 +16246,7 @@ class Game {
           ? 'That was somebody’s cow. They will find it.'
           : 'You have shot a cow. Half the hamlet heard that.', 'warn');
       } else {
-        e.kills++;
+        e.kills=(e.kills||0)+1;
         A.radio('CREW', quiet ? 'Quiet. Nobody else saw that — move.'
           : 'One down. That was heard for half a mile.', 'warn');
       }
@@ -16243,21 +16302,37 @@ class Game {
         e.heard = (e.heard || 0) + 1;
       }
     }
-    // V11: left hand fists, right hand knife/fitting: one unified ATTACK input.
-    if(attack && e.weaponMode!=='pistol' && this.t-(e._meleeT||-9)>.54 && !e.handsUp){
+    if(attack && e.weaponMode==='rifle' && this.t-(e._rifleTriggerT||-9)>.18 && !e.handsUp){
+      e._rifleTriggerT=this.t;e.attackWant=0;
+      if(GroundItems.spendRifle(this)){
+        e.muzzle=.10;e.noise=1;e.actionT=this.t;A.audio.burst('gun',.55);
+        this.shake=Math.max(this.shake||0,.25);
+        if(closest&&Math.random()<(cd<8?1:clamp(1-cd/120,.18,.92)))strike(closest,cIsCow,cd<20||Math.random()<.65,false);
+        this._alertWitnesses(e,e.p,850);
+        e.spawn=Math.min(e.spawn||10,2);
+      }else A.audio.burst('thunk',.14);
+    }
+    // Primary attack uses the selected tool. Space is always an empty-hand
+    // punch, and can never discharge a firearm or swing the occupied hand.
+    if(attack && (e.weaponMode==='knife'||e.weaponMode==='stick') && this.t-(e._meleeT||-9)>.54 && !e.handsUp){
       e._meleeT=this.t; e.attackWant=0;
       e.actionT=this.t;
       const knife=e.weaponMode==='knife' && (e.hasKnife || e.fitting);
-      const reach=knife?(e.fitting?2.05:2.8):1.7;
+      const reach=knife?(e.fitting?2.05:2.8):2.35;
       A.audio.burst('thunk',knife?.27:.18);
       if(closest && cd < reach+(cIsCow?.55:0)){
         // A punch incapacitates briefly instead of acting like a knife.
         if(!knife){
-          closest.flinch=this.t;closest.stunUntil=this.t+1.1;
+          if(closest.wildlife)strike(closest,false,false,true);
+          else {
+          GroundItems.observe(this,closest);
+          closest.flinch=this.t;closest.stunUntil=this.t+2.2;
           closest.hurt=1;closest.kick={a:e.hdg,v:1.25};
           if(!cIsCow && closest.armed){closest.seen=1;closest.sus=1.35;closest.goal=[...e.p];}
           if(cIsCow){closest.walk=3;this._panicAtCow(e,closest);}
+          GroundItems.dropped(this,closest);
           A.radio('CREW',cIsCow?'The cow bolts away.':'He staggers. Get clear before he recovers.','warn');
+          }
         } else {
           const lethal=cIsCow?Math.random()<.55:Math.random()<.74;
           strike(closest,cIsCow,lethal,lethal);
@@ -17276,7 +17351,7 @@ class Game {
       A.audio.setRadAlt(ac.onDeck ? 9e9 : ac.radalt * M2FT, ac.alive);
     }
     W.launchWarn = Math.max(0, W.launchWarn - dt);
-    if (W.launchWarn > 0 && !this._lw) { this._lw = 1; A.radio('BN', 'LAUNCH! SAM at our four o\'clock — get down!', 'bad'); }
+    if (W.launchWarn > 0 && !this._lw) { this._lw = 1; const call = FlightThreatFeedback.launchCall(W, ac); A.radio('BN', call ? call.text : 'LAUNCH! Surface-to-air missile — watch for the smoke!', 'bad'); }
     if (W.launchWarn <= 0) this._lw = 0;
   }
 
@@ -17470,6 +17545,8 @@ class Game {
   /* ---------------- render ---------------- */
   render(dt) {
     const R = this.rend, ac = this.ac, W = this.world, A = this.app;
+    PrisonDetail.prepare(this);
+    RationPhoto.prepare(this);
     prepareGroundEcology(this);
     PhotoCutouts.beginFrame(R);
     JungleScenery.beginFrame(this,R);
@@ -17528,7 +17605,8 @@ class Game {
     } else {
       let lights=FlightImmersion.lights(this,ac.p,typeof FlightStrikeEffects!=='undefined'?FlightStrikeEffects.lights(W,ac.p,R.quality):W.fires,R.quality);
       if(FlightStrikeScene.active(this))lights=lights.concat(FlightStrikeScene.lights(this,ac.p,R.quality)).slice(0,R.quality===0?4:8);
-      R.setFires(lights);
+      const launchLights = FlightThreatFeedback.transientLights(W).map(l=>[...l.position,l.intensity,l.radius,l.rgb]);
+      R.setFires(launchLights.concat(lights).slice(0,R.quality===0?4:8));
     }
     const ax = bodyAxes(ac.yaw, ac.pitch, ac.roll);
     const asp = R.W / R.H;
@@ -17602,7 +17680,9 @@ class Game {
       eye = vadd(eye, [rnd(-s, s) * 0.2, rnd(-s, s) * 0.2, rnd(-s, s) * 0.2]);
       fwd = vnorm(vadd(fwd, [rnd(-s, s) * 0.004, rnd(-s, s) * 0.004, rnd(-s, s) * 0.004]));
     }
-    R.setCamera(eye, fwd, up, this.willard && this.willard.rear ? WillardPresentation.rearFov(this) : this.extView ? 55 : 62, this.evade ? .12 : this.chute ? .35 : 1.2, 60000, asp);
+    const holdingView=PrisonDetail.holdingCamera(this);
+    if(holdingView){eye=holdingView.eye;fwd=holdingView.fwd;up=holdingView.up;}
+    R.setCamera(eye, fwd, up, holdingView?holdingView.fov:this.willard && this.willard.rear ? WillardPresentation.rearFov(this) : this.extView ? 55 : 62, holdingView?holdingView.near:this.evade ? .12 : this.chute ? .35 : 1.2, 60000, asp);
     if(this.willard && !this.evade && !this.chute)FlightRouteScene.ensureMeshes(R);
     if(FlightStrikeScene.active(this))FlightStrikeScene.ensureMeshes(R);
 
@@ -17710,23 +17790,27 @@ class Game {
       const lamps=episodeProfile && episodeProfile.lights || [];
       const lampIDs={'bulb':'cell-bulb','lamp:-22':'yard-west','lamp:22':'yard-east','river-landmark-ferry-lantern':'ferry-lantern'};
       for (const g2 of this.campGeo) {
-        let tint=g2.t || [1,1,1,0];
+        const visual=PrisonFood.decorate(this,PrisonDetail.decorate(this,g2));
+        if(!visual)continue;
+        let tint=visual.t || [1,1,1,0];
         const lamp=lamps.find(l=>l.id===lampIDs[g2.id]);
         if(lamp && lamp.on===false)tint=[tint[0]*.38,tint[1]*.38,tint[2]*.38,0];
-        push(g2.m,g2.p,[g2.y,0,0],g2.scale || [g2.s,g2.s,g2.s],tint);
+        push(visual.m,visual.p,[visual.y||0,0,0],visual.scale || [visual.s,visual.s,visual.s],tint);
       }
+      PrisonDetail.instances(this,push);
     }
+    PrisonDetail.fieldInstances(this,push);
     /* People from the terrain and the search party share one billboard pass.
        `sprites` was initialized before World.clutter() above. */
-    const photoActors=(this.evade?this.evade.searchers.concat(this.evade.locals||[]).map(actor=>({actor,cow:false}))
+    const photoActors=(holdingView?PrisonDetail.fieldActors(this).map(actor=>({actor,cow:false})):(this.evade?this.evade.searchers.concat(this.evade.locals||[]).map(actor=>({actor,cow:false}))
       .concat((this.evade.cattle||[]).map(actor=>({actor,cow:true}))):[])
-      .concat(AviatorCompanion.actors(this).map(actor=>({actor,cow:false})))
+      .concat(AviatorCompanion.actors(this).map(actor=>({actor,cow:false}))))
       .sort((a,b)=>Math.hypot(a.actor.p[0]-R.eye[0],a.actor.p[2]-R.eye[2])-Math.hypot(b.actor.p[0]-R.eye[0],b.actor.p[2]-R.eye[2]));
     // Allocate high-resolution gait slots to nearby people and cattle first.
     // Sorting this render-only copy never changes AI or collision iteration.
     for (const {actor:sc,cow} of photoActors) {
       if(!cow&&sc.alive===false&&sc.downAt===undefined)continue;
-      const gy=sc.companion||sc.swimming||sc.airborne?sc.p[1]:cow?Math.max(terrainH(sc.p[0],sc.p[2]),0):this.pow?sc.p[1]:this.evade&&this.evade.camp?this.campY:Math.max(terrainH(sc.p[0],sc.p[2]),0);
+      const gy=holdingView||sc.companion||sc.swimming||sc.airborne?sc.p[1]:cow?Math.max(terrainH(sc.p[0],sc.p[2]),0):this.pow?sc.p[1]:this.evade&&this.evade.camp?this.campY:Math.max(terrainH(sc.p[0],sc.p[2]),0);
       const face=Number.isFinite(sc.face)?sc.face:sc.goal?Math.atan2(sc.goal[0]-sc.p[0],-(sc.goal[2]-sc.p[2])):0;
       const descriptor=PhotoSprites.describe({...sc,face,...(cow?{kind:'cow'}:{})},{camera:R.eye,renderer:R,game:this,owner:sc,moving:cow?(sc.walk||0)>0:(sc.spd||0)>.25});
       if(descriptor && descriptor.photoCutout && R.textures && R.textures[descriptor.textureName]){
@@ -17915,7 +17999,7 @@ class Game {
     if (R.shadowBegin(focus, onFoot ? 240 : 0)) {
       R.shadowTerrain(TER.mtn, TER.seed);
       for (const [name, data, n] of packed)
-        if (name !== 'canopy' && name !== 'jollyDisc' && name !== 'sandyDisc')
+        if (name !== 'canopy' && name !== 'sandyGlass' && name !== 'jollyGlass' && name !== 'jollyDisc' && name !== 'sandyDisc' && !RationPhoto.photographic(name))
           R.shadowMesh(name, data, n);
       R.shadowEnd();
     }
@@ -17926,11 +18010,12 @@ class Game {
     R.drawTerrain(TER.mtn, TER.seed, this.atm.wet, JungleScenery.floorMode(this));
     R.drawSea(this.t, this.atm.wave, [W.carrier.p[0], W.carrier.p[2], W.carrier.hdg]);
     for (const [name, data, n] of packed)
-      if (name !== 'canopy' && name !== 'jollyDisc' && name !== 'sandyDisc')
+      if (name !== 'canopy' && name !== 'sandyGlass' && name !== 'jollyGlass' && name !== 'jollyDisc' && name !== 'sandyDisc')
         R.drawMesh(name, data, n);
     /* Shadows go down before the things that cast them, so a man is drawn
        over his own patch of darker ground rather than under it. */
     if (this._blobsN) R.drawGroundShadows(this._blobs);
+    GroundItemsRender.queue(this,R,sprites);
     /* The painted people, after the opaque geometry so their alpha
        edges blend against what is actually behind them, and before
        the glass and the particles. */
@@ -17966,7 +18051,7 @@ class Game {
        are the same problem — a surface you look through that still
        catches the light. */
     for (const [name, data, n] of packed)
-      if (name === 'canopy' || name === 'jollyDisc' || name === 'sandyDisc')
+      if (name === 'canopy' || name === 'sandyGlass' || name === 'jollyGlass' || name === 'jollyDisc' || name === 'sandyDisc')
         R.drawGlass(name, data, n);
     R.drawParticles(W.fx.smk, false);
     // ground lights, culled by range, drawn with the additive pass so they bloom
@@ -18043,6 +18128,8 @@ class Game {
     return transmitting;
   }
   _updateWeaponView(){
+    EquipmentView.renderHands(this);
+    GroundItemsRender.renderUI(this);
     const signaling=this._updateSignalView();
     const transmitting=this._updateRadioView(signaling);
     const view=document.getElementById('weaponViewport'),art=document.getElementById('weaponArt');
@@ -18050,15 +18137,16 @@ class Game {
     view.dataset.radioActive=String(transmitting);
     view.dataset.signalActive=String(signaling);
     const e=this.evade;
-    if(!e || e.frozen || e.handsUp){view.style.display='none';return;}
+    if(!e || e.frozen || e.handsUp){view.style.display='none';document.body.classList.remove('pow-field-equipment');return;}
     view.style.display='block';
     const mode=e.weaponMode || (e.drawn?'pistol':'fists');
     view.dataset.weapon=mode;
     if(this._lastWeaponArt!==mode){
       this._lastWeaponArt=mode;
-      art.src=FIRSTPERSON_ART[mode]||FIRSTPERSON_ART.fists;
+      art.src=EquipmentView.weaponArt(mode)||FIRSTPERSON_ART.fists;
     }
-    EquipmentView.render(this,view,art);
+    const equippedVisible=EquipmentView.render(this,view,art);
+    document.body.classList.toggle('pow-field-equipment',!!this.pow&&equippedVisible);
   }
 
   syncControls() {
@@ -18074,7 +18162,7 @@ class Game {
     const e5 = this.evade, pb = $('#btnPistol'), kb = $('#btnKnife'), fb=$('#btnPunch');
     if (pb) {
       const has = !!(e5 && (e5.hasPistol===undefined?!e5.camp&&!e5.river:e5.hasPistol));
-      pb.classList.toggle('on', !!(e5 && e5.drawn));
+      pb.classList.toggle('on', !!(e5 && e5.weaponMode==='pistol' && e5.drawn));
       pb.classList.toggle('none', !has);
       pb.firstChild.nodeValue = has ? ('Pistol ' + e5.rounds) : 'No gun';
     }
@@ -18085,7 +18173,7 @@ class Game {
       kb.classList.toggle('on',!!(e5 && e5.weaponMode==='knife'));
     }
     if(fb)fb.classList.toggle('on',!!(e5 && (e5.weaponMode||'fists')==='fists'));
-    const fireBtn=$('#btnFire');if(fireBtn)fireBtn.textContent=e5 && e5.weaponMode==='pistol'?'FIRE':'ATTACK';
+    const fireBtn=$('#btnFire');if(fireBtn)fireBtn.textContent=e5 && ['pistol','rifle'].includes(e5.weaponMode)?'FIRE':'ATTACK';
     /* The radio and the smoke, which is the whole rescue, told the same
        way: lit when that is the thing to do now, dimmed and relabelled
        when there is nothing on the other end of it. */
@@ -18197,7 +18285,7 @@ class Game {
     const cv = W.carrier, sd = Math.hypot(cv.p[0] - ac.p[0], cv.p[2] - ac.p[2]);
     if (!ac.onDeck && sd > 650 && this.phase !== 'done') ss = proj([cv.p[0], 22, cv.p[2]], 'SHIP', 36);
     return {
-      dt: 1 / 60, p: ac.p, v: ac.v, yaw: ac.yaw, pitch: ac.pitch, roll: ac.roll, aoa: ac.aoa,
+      dt: 1 / 60, night: !!this.atm?.night, p: ac.p, v: ac.v, yaw: ac.yaw, pitch: ac.pitch, roll: ac.roll, aoa: ac.aoa,
       ias: ac.ias, alt: ac.p[1], radalt: ac.radalt, vs: ac.vs, fuel: ac.fuel, gLoad: ac.gLoad,
       bombs: ac.bombs, arms: ac.arms, bombsMax: this.bombsMax, ripple: this.ripple,
       armMode: this.mis.type === 'ironhand' && ac.arms > 0,
@@ -18256,9 +18344,48 @@ App.frame = function(now) {
 
 /* Milestone 2: additive first-person POW chapters using the existing renderer. */
 POW.ctx = { Game, App, MB, terrainH, Store, clamp, PI, TAU, firstPersonArt:FIRSTPERSON_ART,photoAtlas:PHOTO_ATLAS };
+PrisonDetail.configure({POW,MB,terrainH});
+RationPhoto.configure({MB});
+GroundItems.configure({terrainH,
+  floorAt:(g,x,z)=>g.pow?POW.floorY(g,x,z,g.evade.p[1]):terrainH(x,z),
+  notice:(g,text)=>g.app.radio('CREW',text,'')
+});
+GroundItemsRender.configure({App,terrainH});
 if(POW.FigureMotion)POW.FigureMotion.configure({metadata:PHOTO_ATLAS.people});
 PhotoSprites.configure(PHOTO_ATLAS);
 POW.install();
+const _handsMountPOW=POW.mountUI;
+POW.mountUI=function(){
+  const result=_handsMountPOW.apply(this,arguments),tools=document.querySelector('#powHUD .pow-tools');
+  if(tools&&!document.getElementById('powFreePunch')){
+    const button=document.createElement('button');button.id='powFreePunch';button.type='button';button.textContent='Punch · Space';
+    button.onclick=event=>{
+      event.preventDefault();event.stopPropagation();const game=App.game;
+      if(game?.pow&&!game.paused&&!game.pow.modalOpen&&!game.pow.captivity?.open&&!game.pow.traversal&&game.evade&&!game.evade.frozen)game.evade.punchWant=1;
+    };tools.appendChild(button);
+  }
+  return result;
+};
+const _handsUpdatePOW=POW.updateUI;
+POW.updateUI=function(game){
+  const result=_handsUpdatePOW.apply(this,arguments),button=document.getElementById('powFreePunch');
+  if(button){const slots=GroundCombat.hands(game);button.disabled=!!(!game||game.paused||game.pow?.modalOpen||game.pow?.captivity?.open||game.pow?.traversal||
+    game.pow?.river&&!['bank','hidden'].includes(game.pow.river.mode)||POW.EpisodeActions?.busy(game)||slots.left&&slots.right);}
+  return result;
+};
+const _itemsStartGroundPhase=Game.prototype._startGroundPhase;
+Game.prototype._startGroundPhase=function(){
+  const result=_itemsStartGroundPhase.apply(this,arguments);
+  if(this.evade){GroundCombat.resetPunch(this);GroundCombat.stepPunch(this,1/60,!!this.app.keys.Space,{blocked:true});}
+  return result;
+};
+const _itemsPOWBegin=POW.begin;
+POW.begin=function(game){
+  const result=_itemsPOWBegin.apply(this,arguments);
+  if(game.evade){GroundCombat.resetPunch(game);GroundCombat.stepPunch(game,1/60,!!game.app.keys.Space,{blocked:true});}
+  return result;
+};
+PrisonFood.install({Game,MB,App});
 FlightCoach.install({Game,App,Store});
 FlightStrikeBoard.install({App,Store});
 MISSIONS.push(WillardMission.definition);
@@ -18305,8 +18432,24 @@ Game.prototype.debrief=function(){const before=this.result,result=_strikeDebrief
 const _originalStepEvade = Game.prototype.stepEvade;
 Game.prototype.stepEvade = function(dt) {
   const wasPOW=!!this.pow,actor=this.evade;
+  if(actor){
+    GroundItems.step(this,dt);
+    const pickupDown=!!(this.app.keys.KeyF||this.app.gctl?.pickup);
+    if(!pickupDown)actor._pickupKeyConsumed=false;
+    if(GroundItems.handle(this,pickupDown))actor._pickupKeyConsumed=true;
+  }
+  const wasClimbing=!!(this.pow?.traversal||this.app.keys.Space&&this.pow?.focus?.climb);
+  const pendingPrimary=actor&&actor.attackWant;
   const before=actor&&Array.isArray(actor.p)?actor.p.slice(0,3):null;
   const result=wasPOW?POW.tick(this,dt):_originalStepEvade.call(this,dt);
+  if(wasPOW&&actor===this.evade&&!this.paused){
+    const s=this.pow,river=s.river;
+    const busy=!!(wasClimbing||s.traversal||s.modalOpen||s.captivity?.open||POW.Mindscape?.active(this)||POW.EpisodeActions?.busy(this)||
+      river&&!['bank','hidden'].includes(river.mode));
+    if(!busy&&pendingPrimary)actor.attackWant=1;
+    if(!busy&&['hanoi','river'].includes(s.stage))this._weapons(dt,actor,this.app,this.app.keys);
+    else this._handPunch(dt,actor,this.app,this.app.keys,busy);
+  }
   if(!wasPOW && POW.FigureMotion)POW.FigureMotion.step(this,dt);
   PhotoMotion.step(this,dt);
   if(this.evade && this.evade===actor && !wasPOW && !document.hidden && !LandingWater.swimming(this) && WildlifeRender.ready(this.rend)){

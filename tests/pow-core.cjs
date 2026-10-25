@@ -21,14 +21,16 @@ function fixture() {
   return {P,game,document,storage,sandbox};
 }
 function ticks(P,game,seconds) { for(let i=0;i<Math.ceil(seconds*10);i++)P.tick(game,.1); }
-function obtainBracket(P,game) {const s=game.pow;game.evade.p.splice(0,3,-.8,s.base[1],.9);assert(P.interact(game,'bunk-bracket'));}
-function openDoor(P,game) {obtainBracket(P,game);const s=game.pow;game.evade.p.splice(0,3,.35,s.base[1],-2.9);assert(P.interact(game,'door-fitting'));}
+function obtainBracket(P,game) {const s=game.pow;game.evade.p.splice(0,3,0,s.base[1],-.8);assert(P.interact(game,'bunk-bracket'));}
+function openDoor(P,game) {obtainBracket(P,game);const s=game.pow;game.evade.p.splice(0,3,0,s.base[1],-3.0);assert(P.interact(game,'door-fitting'));}
 
 test('flat pad height, zero-world origin, feet-height cell position and locked door collision',()=>{
   const {P,game}=fixture(),s=game.pow,e=game.evade,y=s.base[1];
   assert.equal(y,6);assert.equal(s.base[0],0);assert.equal(s.base[2],0);
   assert.deepEqual(Array.from(game.cellPos),[0,y,0]);
-  assert(P.blocked(game,2.8,0,.32,y));
+  assert(P.blocked(game,1.21,-.8,.32,y),'The narrow cell wall blocks the player capsule');
+  assert(!P.blocked(game,0,-.8,.32,y),'The central aisle remains walkable');
+  for(const x of [-.85,.85])assert(P.blocked(game,x,-.8,.32,y),'Both raised side slabs have real body collision');
   e.p.splice(0,3,0,y,0);P.move(game,e,0,-12,.32);
   assert(e.p[2]>-3.22,'a long movement cannot tunnel through the locked door');
   assert(!s.flags.doorOpen);P.interact(game,'door-fitting');assert(!s.flags.doorOpen,'hardware requires concealed bracket');
@@ -48,9 +50,9 @@ test('physical corridor, staircase, roof, rope descent and street crossing form 
 
 test('keyboard interaction requires the full hold duration and release between objects',()=>{
   const {P,game}=fixture(),s=game.pow,e=game.evade;
-  e.p.splice(0,3,-.8,s.base[1],.9);game.app.keys.KeyF=1;ticks(P,game,1);assert(!s.inventory.bracket);
+  e.p.splice(0,3,0,s.base[1],-.8);game.app.keys.KeyF=1;ticks(P,game,1);assert(!s.inventory.bracket);
   ticks(P,game,.6);assert(s.inventory.bracket);game.app.keys.KeyF=0;P.tick(game,.1);
-  e.p.splice(0,3,.35,s.base[1],-2.9);game.app.keys.KeyF=1;ticks(P,game,3.6);assert(!s.flags.doorOpen);
+  e.p.splice(0,3,0,s.base[1],-3.0);game.app.keys.KeyF=1;ticks(P,game,3.6);assert(!s.flags.doorOpen);
   ticks(P,game,.95);assert(s.flags.doorOpen);
 });
 

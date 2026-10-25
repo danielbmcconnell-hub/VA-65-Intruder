@@ -26,7 +26,7 @@ module.exports = async function onboardingBrowser(browser, target, evidenceDir) 
       checks.push({ name: layout.name + ': ' + name, passed: true, observed });
       console.log('PASS m22-onboarding ' + layout.name + ' ' + name);
     };
-    const click = locator => layout.hasTouch ? locator.tap() : locator.click();
+    const click = async locator => { await page.evaluate(() => { if (window.App?.screen === 'ready' && window.__onboardingNativeFrame && App.frame !== window.__onboardingNativeFrame) { App.frame = window.__onboardingNativeFrame; requestAnimationFrame(t => App.frame(t)); } }); return layout.hasTouch ? locator.tap() : locator.click(); };
     const tick = seconds => page.evaluate(seconds => {
       const count = Math.ceil(seconds * 20);
       for (let i = 0; i < count; i++) App.game.stepEvade(Math.min(.05, seconds - i * .05));
@@ -120,7 +120,7 @@ async function verifyChapterEntries({ page, click, tick, screenshot, record }) {
     await page.locator('#powChapter [data-pow-chapter="' + chapter + '"]').waitFor({ state: 'visible' });
     await click(page.locator('#powChapter [data-pow-chapter="' + chapter + '"]'));
     await page.waitForFunction(stage => App.game?.pow?.stage === stage && document.getElementById('loader').style.display === 'none', expectedStage, { timeout: 90000 });
-    await page.evaluate(() => { App.screen = 'fixture'; App.game.paused = false; for (const key of Object.keys(App.keys)) App.keys[key] = 0; App.gctl.pitch = App.gctl.roll = 0; });
+    await page.evaluate(() => { window.__onboardingNativeFrame ||= App.frame; App.frame = () => {}; App.screen = 'game'; App.game.paused = false; for (const key of Object.keys(App.keys)) App.keys[key] = 0; App.gctl.pitch = App.gctl.roll = 0; });
     await tick(.1);
     const entry = await page.evaluate(() => {
       const g = App.game, s = g.pow;
@@ -144,7 +144,7 @@ async function verifyTutorial({ page, click, tick, heldKey, heldAction, touchMov
   async function launch(chapter, stage) {
     await click(page.locator('#powChapter [data-pow-chapter="' + chapter + '"]'));
     await page.waitForFunction(stage => App.game?.pow?.stage === stage && document.getElementById('loader').style.display === 'none', stage, { timeout: 90000 });
-    await page.evaluate(() => { App.screen = 'fixture'; App.game.paused = false; for (const key of Object.keys(App.keys)) App.keys[key] = 0; App.gctl.pitch = App.gctl.roll = 0; });
+    await page.evaluate(() => { window.__onboardingNativeFrame ||= App.frame; App.frame = () => {}; App.screen = 'game'; App.game.paused = false; for (const key of Object.keys(App.keys)) App.keys[key] = 0; App.gctl.pitch = App.gctl.roll = 0; });
     await tick(.1);
   }
   const state = () => page.evaluate(() => ({ ...POW.Guidance.state(App.game) }));
@@ -186,7 +186,7 @@ async function verifyTutorial({ page, click, tick, heldKey, heldAction, touchMov
   assert.deepEqual(afterRestore.p, beforeRestore.p); assert.deepEqual(afterRestore.guidance, beforeRestore.guidance); assert.deepEqual(beforeRestore.saved, beforeRestore.guidance); assert.equal(afterRestore.complete, false);
   record('Real Save and Continue controls restore a partly learned tutorial and the exact physical position', afterRestore);
 
-  await walkTo(-.8, .9);
+  await walkTo(0, -.8);
   await page.evaluate(() => { App.game.evade.hdg = -Math.PI / 2; App.game.evade.pitchCmd = App.game.evade.look = 0; }); await tick(.1);
   if (layout.hasTouch) {
     await touch('touchStart', [{ x: 510, y: 165, id: 2 }]);
@@ -289,7 +289,7 @@ async function verifyLegacySaveMigration({ page, click, tick, launch, screenshot
   await click(savedChapters.locator('summary'));
   await click(savedChapters.getByRole('button', { name: 'Resume October escape', exact: true }));
   await page.waitForFunction(() => App.game?.pow?.stage === 'cell' && document.getElementById('loader').style.display === 'none', null, { timeout: 90000 });
-  await page.evaluate(() => { App.screen = 'fixture'; App.game.paused = false; for (const key of Object.keys(App.keys)) App.keys[key] = 0; App.gctl.pitch = App.gctl.roll = 0; });
+  await page.evaluate(() => { window.__onboardingNativeFrame ||= App.frame; App.frame = () => {}; App.screen = 'game'; App.game.paused = false; for (const key of Object.keys(App.keys)) App.keys[key] = 0; App.gctl.pitch = App.gctl.roll = 0; });
   await tick(.2);
   const resumed = await page.evaluate(() => {
     const g = App.game, S = POW.ctx.Store;
@@ -343,7 +343,7 @@ async function verifyPreciseTargets({ page, click, tick, heldKey, heldAction, to
   await click(page.locator('#pauseBtn')); await click(page.locator('#pauseVeil').getByRole('button', { name: 'Ready Room', exact: true }));
   await click(page.locator('#powChapter [data-pow-chapter="solitary"]'));
   await page.waitForFunction(() => App.game?.pow?.stage === 'solitary' && document.getElementById('loader').style.display === 'none', null, { timeout: 90000 });
-  await page.evaluate(() => { App.screen = 'fixture'; App.game.paused = false; for (const key of Object.keys(App.keys)) App.keys[key] = 0; App.gctl.pitch = App.gctl.roll = 0; });
+  await page.evaluate(() => { window.__onboardingNativeFrame ||= App.frame; App.frame = () => {}; App.screen = 'game'; App.game.paused = false; for (const key of Object.keys(App.keys)) App.keys[key] = 0; App.gctl.pitch = App.gctl.roll = 0; });
   if (await page.locator('#powHUD [data-guide-skip]').isVisible()) await click(page.locator('#powHUD [data-guide-skip]'));
   await walkTo(0, -.80);
   await page.evaluate(() => { App.game.evade.hdg = 0; App.game.evade.pitchCmd = App.game.evade.look = 0; }); await tick(.1);
@@ -383,5 +383,5 @@ async function verifyPracticeAccounting({ page, click, tick, screenshot, record 
   await click(page.locator('#tabs [data-tab="ops"]'));
   await click(page.locator('#powChapter [data-pow-chapter="solitary"]'));
   await page.waitForFunction(() => App.game?.pow?.stage === 'solitary' && document.getElementById('loader').style.display === 'none', null, { timeout: 90000 });
-  await page.evaluate(() => { App.screen = 'fixture'; App.game.paused = false; }); await tick(.2);
+  await page.evaluate(() => { window.__onboardingNativeFrame ||= App.frame; App.frame = () => {}; App.screen = 'game'; App.game.paused = false; }); await tick(.2);
 }

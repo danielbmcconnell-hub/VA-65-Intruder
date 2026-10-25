@@ -29,6 +29,7 @@
     return {status:s.status,ready:s.records.size,expected:s.expected,bytes:s.bytes,budget:s.budget,
       failures:s.failures.slice(),records:[...s.records.values()].map(copy),
       motions:{records:[...s.motionRecords.values()].map(copy),clips:[...s.clips.values()].map(c=>({subject:c.subject,clip:c.clip,frames:c.frames,ready:[...s.motionRecords.values()].filter(r=>r.subject===c.subject&&r.clip===c.clip).length,plates:c.plates.slice()})),
+        plates:[...s.plates.values()].map(p=>({url:p.url,bytes:p.bytes,sourceWidth:p.im.naturalWidth,sourceHeight:p.im.naturalHeight})),loadingPlates:[...s.plateJobs.keys()],
         bytes:[...s.motionRecords.values()].reduce((sum,r)=>sum+r.bytes,0),cpuBytes:s.cpuBytes,cpuBudget:s.cpuBudget,failures:s.motionFailures.slice(),evictions:s.evictions,
         retries:[...s.retries].map(([url,r])=>({url,attempts:r.attempts,retryInMs:Math.max(0,Math.ceil(r.next-now()))}))}};
   }
@@ -137,7 +138,7 @@
     if(!renderer||!renderer.gl)return null;
     const prior=context(renderer);if(prior)return prior.promise;
     const s={status:'loading',renderer,options,records:new Map(),subjects:{},expected:0,bytes:0,budget:(options.touch?48:80)*1024*1024,failures:[],promise:null,
-      clips:new Map(),motionRecords:new Map(),poseJobs:new Map(),plates:new Map(),plateJobs:new Map(),motionFailures:[],retries:new Map(),pinned:new Set(),flipActors:new WeakMap(),use:0,evictions:0,cpuBytes:0,cpuBudget:(options.touch?64:128)*1024*1024};
+      clips:new Map(),motionRecords:new Map(),poseJobs:new Map(),plates:new Map(),plateJobs:new Map(),motionFailures:[],retries:new Map(),pinned:new Set(),flipActors:new WeakMap(),lastMotion:new WeakMap(),use:0,evictions:0,cpuBytes:0,cpuBudget:(options.touch?64:128)*1024*1024};
     contexts.set(renderer,s);
     s.promise=(async()=>{
       try{
@@ -218,26 +219,41 @@
     const requestedPose=pose;
     // Threat recognition alone is not a shooting pose. Pursuers keep their
     // actual armed running frames; an explicitly firing/stunned actor stops.
-    if(!suspended&&(near||swimming)&&actor.alive!==false&&(swimming||!actor.crouch&&!actor.crouched&&!actor.stunned&&!actor.firing)&&motion&&motion.enabled&&motion.moving){
+    const locomotion=!suspended&&(near||swimming)&&actor.alive!==false&&(swimming||!actor.crouch&&!actor.crouched&&!actor.stunned&&!actor.firing)&&motion&&motion.enabled&&motion.moving;
+    const remembered=s.lastMotion.get(owner);
+    if(!locomotion||swimming||remembered&&(remembered.subject!==name||remembered.clip!==motion.clip))s.lastMotion.delete(owner);
+    if(locomotion){
       const clip=s.clips.get(name+':'+motion.clip);
       if(clip){
-        const frame=Math.floor(((finite(motion.phase)%1+1)%1)*clip.frames)%clip.frames,stored=clip.order?clip.order[frame]:frame,index=Math.floor(stored/(clip.cols*clip.rows));
-        const next=(frame+1)%clip.frames,nextStored=clip.order?clip.order[next]:next,nextPlate=Math.floor(nextStored/(clip.cols*clip.rows));
+        const frame=Math.floor(((finite(motion.phase)%1+1)%1)*clip.frames)%clip.frames;
         // Authored in-between plates can be interleaved in semantic order.
-        // Prefetch the next actual gait pose, not the next physical PNG file.
-        const currentKey=name+':'+clip.clip+':'+frame,nextKey=name+':'+clip.clip+':'+next,needed=new Set();
-        if(!s.motionRecords.has(currentKey))needed.add(index);
-        if(!s.motionRecords.has(nextKey))needed.add(nextPlate);
+        // Two upcoming poses give an interleaved next plate time to decode,
+        // without warming a whole clip or any unrelated subject. CPU plates
+        // retain the existing LRU; only the current pose uploads to the GPU.
+        const needed=new Set();
+        for(let ahead=0;ahead<=2;ahead++){
+          const upcoming=(frame+ahead)%clip.frames,key=name+':'+clip.clip+':'+upcoming,stored=clip.order?clip.order[upcoming]:upcoming;
+          if(!s.motionRecords.has(key))needed.add(Math.floor(stored/(clip.cols*clip.rows)));
+        }
         for(const i of needed)plate(s,clip,i);
-        const animated=motionRecord(s,clip,frame)||(swimming&&s.motionRecords.get(name+':swim:0'));
+        let animated=motionRecord(s,clip,frame)||(swimming&&s.motionRecords.get(name+':swim:0')),held=false;
+        // Decoding an interleaved plate must not flash a standing photograph
+        // into a moving gait. Hold only this actor's last complete photograph
+        // from this same clip, and only while its owned GPU texture is live.
+        // Remembering a key does not pin it between frames or defeat the LRU.
+        if(!animated&&!swimming){
+          const last=s.lastMotion.get(owner),prior=last&&s.motionRecords.get(last.key),texture=prior&&s.renderer.textures[prior.textureName],gl=s.renderer.gl;
+          if(prior&&prior.resident&&texture&&texture.tex&&(!gl.isTexture||gl.isTexture(texture.tex))){animated=touch(s,prior);held=true;}
+        }
         if(animated){
+          if(!swimming&&!held)s.lastMotion.set(owner,{subject:name,clip:clip.clip,key:animated.key});
           s.pinned.add(animated.key);let flip=!!s.flipActors.get(owner);
           let right=[1,0];
           if(options.camera&&actor.p&&motion.velocity){const dx=options.camera[0]-actor.p[0],dz=options.camera[2]-actor.p[2],length=Math.hypot(dx,dz)||1,travel=(motion.velocity[0]*dz-motion.velocity[1]*dx)/length;
             right=[dz/length,-dx/length];
             if(Math.abs(travel)>.08){flip=clip.facing==='left'?travel>0:travel<0;s.flipActors.set(owner,flip);}}
           const registration=clip.registration&&clip.registration[animated.frame];
-          return descriptor(animated,s,swimming?{...options,height:clip.worldHeight}:options,name,clip.clip,animated.frame,{photoBodyFraction:clip.bodyHeight,photoBaseline:registration?registration.baseline:clip.baseline,photoCenter:registration?registration.center:.5,photoRight:right,flip,...(swimming?{photoSwimming:true}:{}),...(animated.frame!==frame?{photoPendingFrame:frame}:{})});
+          return descriptor(animated,s,swimming?{...options,height:clip.worldHeight}:options,name,clip.clip,animated.frame,{photoBodyFraction:clip.bodyHeight,photoBaseline:registration?registration.baseline:clip.baseline,photoCenter:registration?registration.center:.5,photoRight:right,flip,...(swimming?{photoSwimming:true}:{}),...(held?{photoHeldFrame:true}:{}),...(animated.frame!==frame?{photoPendingFrame:frame}:{})});
         }
       }
     }

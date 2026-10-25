@@ -32,7 +32,7 @@ module.exports = async function pacingBrowser(browser, target, evidenceDir) {
     };
     async function frozen() {
       await page.waitForFunction(() => App.game?.pow?.stage === 'solitary' && document.getElementById('loader').style.display === 'none', null, { timeout: 90000 });
-      await page.evaluate(() => { App.screen = 'fixture'; App.game.paused = false; for (const key of Object.keys(App.keys)) App.keys[key] = 0; App.gctl.pitch = App.gctl.roll = 0; });
+      await page.evaluate(() => { App.frame = () => {}; App.screen = 'game'; App.game.paused = false; for (const key of Object.keys(App.keys)) App.keys[key] = 0; App.gctl.pitch = App.gctl.roll = 0; });
     }
     async function held(locator, seconds, physical = false) {
       await locator.scrollIntoViewIfNeeded();
@@ -157,7 +157,13 @@ module.exports = async function pacingBrowser(browser, target, evidenceDir) {
       assert.equal(contact.received, 1); assert.equal(contact.sent, 1); assert.equal(contact.cursor, 1); assert.deepEqual(contact.known, []);
       record('Counted actual visible row/column pulses and transmitted a real matrix-derived reply with live guards', { incoming, outgoing, contact });
 
-      const meal = await environmental('cell-tray'); assert.equal(await page.evaluate(() => App.game.pow.captivity.pacing.meal), true);
+      const meal = await environmental('cell-tray');
+      assert.equal(await page.evaluate(() => PrisonFood.active(App.game)), true, 'Held ration interaction opens its actual inspection view');
+      await click(page.locator('#prisonFood').getByRole('button', { name: 'Eat today’s ration', exact: true }));
+      assert.equal(await page.evaluate(() => PrisonFood.eaten(App.game)), true, 'The native Eat control invokes the existing daily meal');
+      await click(page.locator('#prisonFood').getByRole('button', { name: 'Close ration view', exact: true }));
+      assert.equal(await page.evaluate(() => PrisonFood.active(App.game)), false);
+      assert.equal(await page.evaluate(() => App.game.pow.captivity.pacing.meal), true);
       await environmental('cell-door');
       if (await button('Ask for water and a pause').isVisible()) { await click(button('Ask for water and a pause')); await environmental('cell-door'); }
       assert.equal(await page.evaluate(() => App.game.pow.captivity.observations), 1);

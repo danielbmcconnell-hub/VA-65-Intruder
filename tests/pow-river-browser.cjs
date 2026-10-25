@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const {waitCompletePhotographs,waitPOWVegetation}=require('./helpers/complete-photo-fixture.cjs');
 
 // Fixture-assisted actual-browser suite. The initial stage is explicitly the
 // river; this does not establish completion of the cell/street chapters or a
@@ -49,10 +50,8 @@ module.exports = async function powRiverBrowser(browser, target, evidenceDir) {
     await page.evaluate(() => App.start(MISSIONS.find(mission => mission.escape)));
     await page.waitForFunction(() => App.game?.st && document.getElementById('loader').style.display === 'none',
       null, { timeout: 90000 });
-    await page.waitForFunction(() => FIGIMG && ['nva', 'farmer', 'vegetation']
-      .every(name => App.rend.textures['photo_' + name]), null, { timeout: 30000 });
     await page.evaluate(() => {
-      App.screen = 'fixture'; // Stop automatic frames; invoke the actual methods below.
+      App.frame = () => {}; App.screen = 'game'; // Stop automatic frames; invoke the actual methods below.
       App.game.paused = false;
       document.getElementById('teach').classList.remove('on');
       document.getElementById('teachPeek').classList.remove('on');
@@ -93,6 +92,7 @@ module.exports = async function powRiverBrowser(browser, target, evidenceDir) {
       };
       helper.reset();
     });
+    await waitCompletePhotographs(page);await page.evaluate(()=>App.game.render(0));await waitPOWVegetation(page);
     info = await page.evaluate(() => ({ mission: App.game.mis.title, initialFixtureStage: 'river',
       webgl: App.rend.gl.getParameter(App.rend.gl.VERSION),
       renderer: App.rend.gl.getParameter(App.rend.gl.RENDERER), quality: App.rend.quality }));

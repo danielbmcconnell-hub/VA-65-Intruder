@@ -1,0 +1,12 @@
+.ground-items-ui{position:absolute;left:50%;bottom:max(70px,calc(env(safe-area-inset-bottom) + 64px));transform:translateX(-50%);z-index:31;display:flex;align-items:center;justify-content:center;gap:8px;pointer-events:none;font:13px/1.35 system-ui,sans-serif;color:#f5f2e6;max-width:calc(100% - 32px)}
+.ground-items-ui[hidden],.ground-items-ui [hidden]{display:none!important}
+.ground-items-ui button{pointer-events:auto;min-height:40px;padding:9px 12px;border:1px solid #b3ac8b;background:#172019f0;color:#fff9df;border-radius:5px;cursor:pointer;font:inherit;touch-action:manipulation}
+.ground-items-ui button:hover,.ground-items-ui button:focus-visible{background:#344432;outline:2px solid #e1d49c;outline-offset:2px}
+.ground-items-ui button:disabled{opacity:.5;cursor:default}
+.ground-items-ui button[aria-pressed=true]{border-color:#e8d27f;background:#38432b}
+#groundItemPickup{border-color:#f2d37b;background:#303e20f5;font-weight:650}
+#groundItemsPanel{pointer-events:auto;position:absolute;left:50%;bottom:calc(100% + 10px);transform:translateX(-50%);width:min(400px,calc(100vw - 44px));box-sizing:border-box;padding:14px;border:1px solid #a99f7a;border-radius:8px;background:#111b15f5;box-shadow:0 12px 35px #0009;max-height:min(340px,calc(100dvh - 150px));overflow:auto;overscroll-behavior:contain}
+.ground-items-heading{display:flex;justify-content:space-between;align-items:center;gap:16px}.ground-items-heading button{min-height:36px;padding:5px 10px}
+.ground-items-actions{display:flex;flex-wrap:wrap;gap:7px}.ground-items-ui p{margin:10px 0}.ground-items-hint{color:#d4d3c4;font-size:12px}
+@media(pointer:coarse){.ground-items-ui{bottom:max(53px,calc(env(safe-area-inset-bottom) + 48px));font-size:12px}.ground-items-ui button{min-height:44px;padding:9px 11px}#groundItemsPanel{max-height:calc(100dvh - 125px);padding:10px}.ground-items-heading button{min-height:44px}}
+@media(max-height:440px){.ground-items-ui{bottom:max(48px,calc(env(safe-area-inset-bottom) + 44px))}#groundItemsPanel{max-height:calc(100dvh - 112px)}.ground-items-ui p{margin:7px 0}}

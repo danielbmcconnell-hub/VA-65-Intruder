@@ -787,7 +787,7 @@
     return true;
   }
 
-  let ui = null, currentGame = null;
+  let ui = null, currentGame = null, historyView = null;
   function dom(tag, text, cls) {
     const e = root.document.createElement(tag); if (text !== undefined) e.textContent = text; if (cls) e.className = cls; return e;
   }
@@ -806,6 +806,30 @@
   }
   function para(parent, text, cls) { const e = dom('p', text, cls); parent.appendChild(e); return e; }
   function row(parent) { const e = dom('div', undefined, 'pow-row'); parent.appendChild(e); return e; }
+  function clockLabel(c) { return clock(c) + ' · ' + (isNight(c) ? 'Night shackling: restricted movement' : 'Daytime: limited legroom') + ' · 1 real second = 1 simulated minute'; }
+  function conditionLabel(stats) { return 'Condition ' + Math.round(stats.physical) + ' · fatigue ' + Math.round(stats.fatigue) + ' · memory ' + Math.round(stats.memory) + ' · morale ' + Math.round(stats.morale) + ' · hope ' + Math.round(stats.hope); }
+  function refreshHistory(game) {
+    const h = historyView, c = state(game), panel = ui;
+    if (!h || !panel || h.game !== game || h.pow !== game.pow || c.tab !== 'history' ||
+        h.photos !== root.POWPhotos || h.flashback !== P.DentonFlashback || h.solidarity !== P.Solidarity) return false;
+    const update = (selector, text) => { const node = panel.querySelector(selector); if (node && node.textContent !== text) node.textContent = text; };
+    update('[data-captivity-day]', 'Solitary · day ' + game.pow.day);
+    update('[data-captivity-clock]', clockLabel(c));
+    update('[data-captivity-condition]', conditionLabel(game.pow.stats));
+    update('[data-captivity-feedback]', c.feedback);
+    const events = c.events.slice(-8), logs = c.logs.slice(-12);
+    const eventKey = JSON.stringify(events), logKey = JSON.stringify(logs);
+    if (eventKey !== h.eventKey) {
+      h.eventKey = eventKey; h.events.replaceChildren();
+      if (!events.length) para(h.events, 'Weekly events, transfer notices and interviews will appear as time passes.');
+      for (const event of events.reverse()) para(h.events, 'Day ' + event.day + ': ' + event.text);
+    }
+    if (logKey !== h.logKey) {
+      h.logKey = logKey; h.logs.replaceChildren();
+      for (const event of logs.reverse()) para(h.logs, 'Day ' + event.day + ': ' + event.message, 'pow-dim');
+    }
+    return true;
+  }
   function open(game, tab) {
     if (!game || !game.pow) return;
     const c = state(game); c.tab = tab || 'notebook'; c.open = true; currentGame = game;
@@ -831,18 +855,22 @@
     if (!root.document || !game || !game.pow) return;
     const c = state(game), panel = ensureUI();
     if (!c.open || !activitiesAvailable(game)) { panel.style.display = 'none'; return; }
+    // Clock/condition changes must not detach a history button between a
+    // trusted pointer-down and click. Refresh only its live text and records.
+    if (c.tab === 'history' && refreshHistory(game)) { panel.style.display = 'block'; return; }
+    historyView = null;
     // Rebuilding only when a task changes preserves touch holds and keyboard focus.
     const active = root.document.activeElement, focus = active && panel.contains(active) ? active.textContent : null;
     panel.replaceChildren(); panel.style.display = 'block';
     const top = dom('div', undefined, 'pow-top'); panel.appendChild(top);
-    const title = dom('div'); top.appendChild(title); title.appendChild(dom('h2', 'Solitary · day ' + game.pow.day));
-    para(title, clock(c) + ' · ' + (isNight(c) ? 'Night shackling: restricted movement' : 'Daytime: limited legroom') + ' · 1 real second = 1 simulated minute', 'pow-dim');
+    const title = dom('div'); top.appendChild(title); const day = dom('h2', 'Solitary · day ' + game.pow.day); day.setAttribute('data-captivity-day', ''); title.appendChild(day);
+    para(title, clockLabel(c), 'pow-dim').setAttribute('data-captivity-clock', '');
     btn(top, 'Return to cell', () => close(game));
-    para(panel, 'Condition ' + Math.round(game.pow.stats.physical) + ' · fatigue ' + Math.round(game.pow.stats.fatigue) + ' · memory ' + Math.round(game.pow.stats.memory) + ' · morale ' + Math.round(game.pow.stats.morale) + ' · hope ' + Math.round(game.pow.stats.hope), 'pow-dim pow-stat');
+    para(panel, conditionLabel(game.pow.stats), 'pow-dim pow-stat').setAttribute('data-captivity-condition', '');
     const nav = row(panel);
     for (const [id, label] of [['notebook', 'Notebook'], ['car', 'Engine'], ['architecture', 'House'], ['city', 'City'], ['memory', 'Memory'], ['tap', 'Tap code'], ['exercise', 'Exercise / anchor'], ['rest', 'Rest / time'], ['history', 'Context / log']]) btn(nav, label, () => open(game, id), false, c.tab === id ? 'pow-active' : '');
     if(P.Solidarity)btn(nav,'Prisoner network',()=>open(game,'network'),false,c.tab==='network'?'pow-active':'');
-    const feedback = para(panel, c.feedback, 'pow-feedback'); feedback.setAttribute('role', 'status'); feedback.setAttribute('aria-live', 'polite');
+    const feedback = para(panel, c.feedback, 'pow-feedback'); feedback.setAttribute('role', 'status'); feedback.setAttribute('aria-live', 'polite'); feedback.setAttribute('data-captivity-feedback', '');
     const tab = c.tab;
     if (tab === 'car') renderCar(game, panel);
     else if (tab === 'architecture') renderArchitecture(game, panel);
@@ -1024,10 +1052,11 @@
     if(P.DentonFlashback)btn(row(panel),'Denton Morse flashback · May 1966',()=>P.DentonFlashback.open(game));
     para(panel,'The Alcatraz communication chapter begins in late October 1967. Identities and messages in this schematic network do not establish exact neighboring cells or reproduce real conversations. Smithsonian material documents individual, windowless cells and constant lighting; the game’s approximate three-by-nine-foot room differs from the four-by-nine-foot cell described for Sam Johnson.');
     panel.appendChild(dom('h3', 'Changing camp events'));
-    if (!c.events.length) para(panel, 'Weekly events, transfer notices and interviews will appear as time passes.');
-    for (const event of c.events.slice(-8).reverse()) para(panel, 'Day ' + event.day + ': ' + event.text);
+    const events = dom('div'); events.setAttribute('data-history-events', ''); panel.appendChild(events);
     panel.appendChild(dom('h3', 'Your activity record'));
-    for (const event of c.logs.slice(-12).reverse()) para(panel, 'Day ' + event.day + ': ' + event.message, 'pow-dim');
+    const logs = dom('div'); logs.setAttribute('data-history-record', ''); panel.appendChild(logs);
+    historyView = { game, pow: game.pow, photos: root.POWPhotos, flashback: P.DentonFlashback, solidarity: P.Solidarity, events, logs };
+    refreshHistory(game);
   }
 
   function tickPlayback(game, dt) {
@@ -1117,7 +1146,7 @@
     state(game);
     const wall = s.objects.find(obj => obj.id === 'wall-contact');
     if (wall) { wall.action = g => open(g, 'tap'); wall.name = 'Listen and transmit the five-by-five tap code'; wall.enabled = () => true; }
-    object(game, 'mental-notebook', 'Remembered projects and personal anchors', -1.4, 0.65, 0.8, g => open(g, 'notebook'), { radius: 1.1, view: false, enabled: () => !!s.inventory.bracket });
+    object(game, 'mental-notebook', 'Remembered projects and personal anchors', -.47, 0.65, -.25, g => open(g, 'notebook'), { radius: 1.1, view: false, enabled: () => !!s.inventory.bracket });
   }
   function stepCell(game, dt) {
     if (!game || !game.pow || game.pow.stage !== 'cell') return;

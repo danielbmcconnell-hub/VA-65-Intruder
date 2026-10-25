@@ -4,6 +4,7 @@ const fs = require('node:fs/promises');
 const fsSync = require('node:fs');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
+const installCompletePhotoFixture = require('./helpers/complete-photo-fixture.cjs');
 
 // Actual custom-WebGL acceptance supplement. Native entries and controls are
 // followed by declared camera, actor-roster and isolated GPU fixtures. The
@@ -189,6 +190,7 @@ module.exports = async function tacticalVisualBrowser(browser, target, evidenceD
       await click(page.locator('#bootGo')); await click(page.locator('#powChapter button').filter({ hasText: 'Enter the prison' }));
       await page.waitForFunction(() => App.game?.pow?.stage === 'cell' && document.getElementById('loader').style.display === 'none', null, { polling: 50 });
       await freeze();
+      await installCompletePhotoFixture(page); await installCompletePhotoFixture.waitPOWVegetation(page);
       const prisonEntry = await page.evaluate(() => { const g = App.game; g.render(1 / 60); g.syncControls(); return { phase: g.phase, stage: g.pow.stage, frozen: g.evade.frozen, solids: g.pow.solids.length, actors: g.evade.searchers.length, active: document.body.classList.contains('pow-active'), gl: App.rend.gl.getError() }; });
       assert.equal(prisonEntry.phase, 'evade'); assert.equal(prisonEntry.stage, 'cell'); assert(!prisonEntry.frozen && prisonEntry.active); assert(prisonEntry.solids > 20 && prisonEntry.actors > 0); assert.equal(prisonEntry.gl, 0);
       const cellShot = await shot('native-cell-environment');
@@ -235,14 +237,14 @@ module.exports = async function tacticalVisualBrowser(browser, target, evidenceD
         const g = App.game, R = App.rend, b = g.pow.base, list = __tacticalActorFixture.actors, origin = [b[0] + 9, b[1] + 1.55, b[2] + 22];
         const camera = R.setCamera, draw = R.drawSprites, calls = [];
         R.setCamera = function () { return camera.call(this, origin, [0, -.035, -1], [0, 1, 0], 58, .1, 60000, this.W / this.H); };
-        R.drawSprites = function (texture, sprites) { for (const s of sprites) { const match = list.find(a => Math.hypot(a.p[0] - s.p[0], a.p[2] - s.p[2]) < .12); if (match) { const meta = PHOTO_ATLAS.people.frames[s.cell]; calls.push({ kind: match.kind, texture, cell: s.cell, visibleHeight: s.h * meta.height, feet: s.p[1] + s.h * meta.bottom, worldFeet: match.p[1], width: s.w, sourceAspect: (PHOTO_ATLAS.people.width / 8) / (PHOTO_ATLAS.people.height / 9), renderedAspect: s.w / s.h, motion: s.motion }); } } return draw.apply(this, arguments); };
+        R.drawSprites = function (texture, sprites) { for (const s of sprites) { const match = list.find(a => a === s.owner); if (match) calls.push({ kind: match.kind, texture, ...__completePhotoFixture.meta(s), worldFeet: match.p[1] }); } return draw.apply(this, arguments); };
         try { g.render(1 / 60); } finally { R.setCamera = camera; R.drawSprites = draw; }
-        return { calls, eye: origin, gl: R.gl.getError(), alphaTexture: R.textures.people.premultiplied, source: FIGIMG.getAttribute('src') };
+        return { calls, eye: origin, gl: R.gl.getError(), legacyAtlasUploaded: !!R.textures.people, state: PhotoCutouts.inspect(R) };
       });
-      assert.equal(groundedRender.calls.length, 3); assert.equal(groundedRender.source, 'assets/figures-original.png'); assert.equal(groundedRender.alphaTexture, true); assert.equal(groundedRender.gl, 0);
-      for (const a of groundedRender.calls) { assert.equal(a.texture, 'people'); assert(Math.abs(a.feet - a.worldFeet) < .001); assert(Math.abs(a.renderedAspect - a.sourceAspect) < .001); assert(a.visibleHeight > 1.2 && a.visibleHeight < 1.9); assert(a.motion && a.motion[1] > .1); }
+      assert.equal(groundedRender.calls.length, 3); assert.equal(groundedRender.legacyAtlasUploaded, false); assert.equal(groundedRender.state.status, 'ready'); assert.equal(groundedRender.gl, 0);
+      for (const a of groundedRender.calls) { assert.match(a.texture, /^photo_hr_/); assert.equal(a.complete, true); assert.equal(a.cols, 1); assert.equal(a.rows, 1); assert.equal(a.cell, 0); assert(a.liveTexture); assert(Math.abs(a.feet - a.worldFeet) < .001); assert(Math.abs(a.renderedAspect - a.sourceAspect) < .001); assert(a.visibleHeight > 1.2 && a.visibleHeight < 1.9); assert.ok(!a.motion); }
       const peopleShot = await shot('fixture-photographic-farmer-vc-nva-prison');
-      record('Production renderer draws intact farmer, VC and NVA photographs with exact source aspect and ground anchors', { groundedRender, screenshot: peopleShot }, 'Declared prison-yard camera fixture renders complete production world plus real moving actor fixture. Captured draw descriptors are after original atlas anchoring, with foot positions reconstructed from actual metadata. Screenshot is decoded and checked for visible image data.');
+      record('Production renderer draws intact farmer, VC and NVA photographs with exact source aspect and ground anchors', { groundedRender, screenshot: peopleShot }, 'Declared prison-yard camera fixture renders complete production world plus real moving actor fixture. Captured complete-image descriptors retain authored pose registration, with foot positions reconstructed from current baseline metadata. Screenshot is decoded and checked for visible image data.');
 
       const stopped = await page.evaluate(() => {
         const g = App.game, list = __tacticalActorFixture.actors;
@@ -257,7 +259,7 @@ module.exports = async function tacticalVisualBrowser(browser, target, evidenceD
       for (const a of stopped.settled) { assert(a.pose.stride < .02); assert(a.pose.speed < .02); assert(a.phaseDelta < .001); assert.equal(a.pose.teleported, false); }
       record('Walking settles smoothly into idle without marching in place or changing civilian identity', stopped, 'The declared roster is reset to an in-place patrol dwell through authored fixture state and original guard schedule/path data. Real stepEvade is advanced for 3.25 seconds; FigureMotion must settle and stop accumulating stride phase.');
 
-      const gpu = await page.evaluate(() => {
+      const gpu = await page.evaluate(async () => {
         const R = App.rend, gl = R.gl, saved = { quality: R.quality, float: R.floatBuf, atm: R.atm, episode: R.episode, time: R.time };
         R.quality = 0; R.floatBuf = false; R.resize(384, 384, 1);
         const fixtureDimensions = { width: R.W, height: R.H };
@@ -269,21 +271,20 @@ module.exports = async function tacticalVisualBrowser(browser, target, evidenceD
         const compare = (a, b) => { let changed = 0, covered = 0, lost = 0; for (let i = 0; i < a.length; i += 4) { const delta = Math.max(Math.abs(a[i] - b[i]), Math.abs(a[i + 1] - b[i + 1]), Math.abs(a[i + 2] - b[i + 2])); const fg = a[i] > 2 || Math.abs(a[i + 1] - 64) > 2 || a[i + 2] > 2, bg = b[i] <= 2 && Math.abs(b[i + 1] - 64) <= 2 && b[i + 2] <= 2; if (delta > 3) changed++; if (fg) covered++; if (fg && bg && delta > 3) lost++; } return { changed, covered, lost }; };
         const png = pixels => { const c = document.createElement('canvas'); c.width = R.W; c.height = R.H; const ctx = c.getContext('2d'), data = ctx.createImageData(R.W, R.H); for (let y = 0; y < R.H; y++) data.data.set(pixels.subarray(y * R.W * 4, (y + 1) * R.W * 4), (R.H - 1 - y) * R.W * 4); ctx.putImageData(data, 0, 0); return c.toDataURL('image/png'); };
         const samples = [], images = [];
-        for (const [kind, cell] of [['farmer', 48], ['vc', 24], ['nva', 0]]) {
-          const frame = PHOTO_ATLAS.people.frames[cell], foot = frame.bottom;
-          const aspect = (PHOTO_ATLAS.people.width / 8) / (PHOTO_ATLAS.people.height / 9);
-          const s = { p: [0, -2 * foot, -3], h: 2, w: 2 * aspect, cell, cols: 8, rows: 9 };
-          clear(); R.drawSprites('people', [s]); const source = read();
-          clear(); R.drawSprites('people', [{ ...s, motion: [0, 0, 0, foot] }]); const neutral = read();
-          clear(); R.drawSprites('people', [{ ...s, motion: [Math.PI / 2, 1, 0, foot] }]); const moving = read();
-          clear(); R.drawSprites('people', [{ ...s, p: [0, -2 * foot, -6], motion: [0, 0, 0, foot] }]); const distant = read();
+        for (const [kind, subject] of [['farmer', 'farmer'], ['vc', 'militia'], ['nva', 'nva']]) {
+          const F = __completePhotoFixture; await F.prepare(subject, 'walk');
+          const sprite = F.sprite(subject), movingSprite = F.sprite(subject, [0, 0, -3], { clip: 'walk', phase: .25 }), farSprite = F.sprite(subject, [0, 0, -6]);
+          clear(); R.drawSprites(sprite.textureName, [sprite]); const source = read();
+          clear(); R.drawSprites(sprite.textureName, [{ ...sprite }]); const neutral = read();
+          clear(); R.drawSprites(movingSprite.textureName, [movingSprite]); const moving = read();
+          clear(); R.drawSprites(farSprite.textureName, [farSprite]); const distant = read();
           const neutralDiff = compare(source, neutral), motionDiff = compare(neutral, moving), distantCovered = compare(distant, distant).covered;
-          samples.push({ kind, cell, anchorBottom: foot, sourceAspect: aspect, neutral: neutralDiff, motion: motionDiff, nearPixels: neutralDiff.covered, distantPixels: distantCovered, areaRatio: neutralDiff.covered / distantCovered });
-          images.push({ name: kind + '-intact-near', png: png(neutral) }, { name: kind + '-moving-near', png: png(moving) });
+          samples.push({ kind, source: F.meta(sprite), moving: F.meta(movingSprite), neutral: neutralDiff, motion: motionDiff, nearPixels: neutralDiff.covered, distantPixels: distantCovered, areaRatio: neutralDiff.covered / distantCovered });
+          images.push({ name: kind + '-complete-near', png: png(neutral) }, { name: kind + '-authored-walk-near', png: png(moving) });
         }
         const wall = new MB(); wall.quad([-2, 0, -2], [2, 0, -2], [2, 2, -2], [-2, 2, -2], [.5, .5, .5]); R.meshFromBuilder('tacticalGPUWall', wall);
         const identity = new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,1,1,1,0]);
-        clear(); R.drawMesh('tacticalGPUWall', identity, 1); const wallOnly = read(); R.drawSprites('people', [{ p: [0, 0, -3], h: 2, w: 1, cell: 0, cols: 8, rows: 9, motion: [Math.PI / 2, 1, .5, 0] }]); const occluded = read();
+        clear(); R.drawMesh('tacticalGPUWall', identity, 1); const wallOnly = read(); const behind = __completePhotoFixture.sprite('nva'); R.drawSprites(behind.textureName, [behind]); const occluded = read();
         const occlusion = compare(wallOnly, occluded), state = { depthWrites: gl.getParameter(gl.DEPTH_WRITEMASK), depthTest: gl.isEnabled(gl.DEPTH_TEST), blending: gl.isEnabled(gl.BLEND), culling: gl.isEnabled(gl.CULL_FACE) }, error = gl.getError();
         const leaf = PHOTO_ATLAS.vegetation.frames[7], wholeHeight = 3.5 / leaf.height, plant = { p: [0, -leaf.bottom * wholeHeight, -6], h: wholeHeight, w: 3, cell: 7, cols: 8, rows: 6, motion: [0, 0, 0, leaf.bottom] };
         R.quality = 1; R.time = 0; clear(); R.drawSprites('photo_vegetation', [plant]); const foliage0 = read();
@@ -306,10 +307,10 @@ module.exports = async function tacticalVisualBrowser(browser, target, evidenceD
         R.floatBuf = saved.float; R.quality = saved.quality; R.setAtmos(saved.atm); R.setEpisode(saved.episode); R.time = saved.time; R.resize(window.innerWidth, window.innerHeight, window.devicePixelRatio || 1);
         return { samples, occlusion, state, error, foliage, images, fixtureDimensions };
       });
-      for (const sample of gpu.samples) { assert(sample.neutral.covered > 1000); assert.equal(sample.neutral.lost, 0); assert(sample.neutral.changed < sample.neutral.covered * .05); assert(sample.motion.changed > 50); assert(sample.areaRatio > 3.5 && sample.areaRatio < 4.5); }
-      record('Actual GPU sprites retain solid source silhouettes, articulate visibly and scale by perspective distance', { sourcePhotographSHA256, samples: gpu.samples }, 'Explicit production drawSprites GPU fixture at identical near/far distances. Neutral shared-vertex grid is compared pixel-for-pixel with the source quad; 2× distance must yield approximately ¼ image area. This is not a claim of new photographic walking footage.');
+      for (const sample of gpu.samples) { assert.equal(sample.source.complete, true); assert.equal(sample.source.cols, 1); assert.equal(sample.source.rows, 1); assert.notEqual(sample.source.asset, sample.moving.asset); assert(sample.neutral.covered > 1000); assert.equal(sample.neutral.lost, 0); assert(sample.neutral.changed < sample.neutral.covered * .05); assert(sample.motion.changed > 50); assert(sample.areaRatio > 3.5 && sample.areaRatio < 4.5); }
+      record('Actual GPU complete photographs retain solid silhouettes, distinct authored poses and perspective scaling', { sourcePhotographSHA256, samples: gpu.samples }, 'Explicit production drawSprites GPU fixture at identical near/far distances. A held current cutout is compared pixel-for-pixel, authored walk selection must change the image, and 2× distance must yield approximately ¼ image area. Authored poses are not recorded film or a physical-device frame-rate measurement.');
       assert.equal(gpu.occlusion.changed, 0); assert.deepEqual(gpu.state, { depthWrites: true, depthTest: true, blending: false, culling: true }); assert.equal(gpu.error, 0);
-      record('Opaque walls fully occlude moving photographic people and sprite passes restore depth/alpha/culling state', { occlusion: gpu.occlusion, state: gpu.state, error: gpu.error }, 'Declared real MB wall plus articulated source figure drawn behind it using production GPU shaders. Final framebuffer is unchanged by the occluded figure.');
+      record('Opaque walls fully occlude moving photographic people and sprite passes restore depth/alpha/culling state', { occlusion: gpu.occlusion, state: gpu.state, error: gpu.error }, 'Declared real MB wall plus current complete photograph drawn behind it using production GPU shaders. Final framebuffer is unchanged by the occluded figure.');
       assert(gpu.foliage.change.changed > 100); assert.equal(gpu.foliage.baseChanged, 0); assert.equal(gpu.foliage.gl, 0);
       assert(gpu.foliage.mediumBatches.some(b => b.count === gpu.foliage.articulatedVertices && b.instances === 60)); assert(gpu.foliage.mediumBatches.some(b => b.count === 4 && b.instances === 10)); assert(gpu.foliage.lowBatches.every(b => b.count === 4));
       record('Photographic vegetation moves gently above an immobile ground anchor with a strict 60-plant medium-quality budget', gpu.foliage, 'Declared actual vegetation cutout GPU fixture at production time 0 and 3 seconds. Lower visible base pixels must remain unchanged. Real draw-call capture verifies 60 near articulated plants plus ten ordinary quads at medium quality, and only ordinary quads at low quality. No source photograph edits.');

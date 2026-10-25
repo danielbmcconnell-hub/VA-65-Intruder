@@ -41,7 +41,7 @@
     const r=state(game);
     for(let i=0;i<3;i++){
       const id='episode-pebble-pile:'+i;
-      if(i<r.pileRemaining)geometry(game,id,at(game,1.30+(i-1)*.13,.065,1.75+(i%2)*.12),[.12,.09,.13]);else remove(game,id);
+      if(i<r.pileRemaining)geometry(game,id,at(game,.14+(i-1)*.10,.065,.28+(i%2)*.08),[.09,.07,.10]);else remove(game,id);
     }
   }
   function collect(game){
@@ -64,7 +64,7 @@
   }
   function markTamper(game){
     const r=state(game);if(!game.pow.flags.doorOpen || r.tamper.triggered)return;
-    r.tamper.triggered=true;r.tamper.p=at(game,.55,.80,-3.58);r.tamper.at=clock(game);
+    r.tamper.triggered=true;r.tamper.p=at(game,.30,.80,-3.58);r.tamper.at=clock(game);
   }
   function concealFitting(game){
     if(!supported(game) || !game.pow.flags.doorOpen)return false;const r=state(game);markTamper(game);
@@ -77,8 +77,8 @@
     const r=state(game),s=game.pow;
     if(s.stage==='cell' || s.stage==='compound'){
       showPile(game);
-      register(game,'episode-pebbles','Collect the three loose floor stones',at(game,1.30,.12,1.75),()=>collect(game),{enabled:()=>state(game).pileRemaining>0});
-      register(game,'episode-conceal-fitting','Cover fresh marks on the loose door fitting',at(game,.55,.8,-3.40),()=>concealFitting(game),{hold:2.4,radius:1.2,enabled:()=>!!game.pow.flags.doorOpen && !state(game).tamper.concealed});
+      register(game,'episode-pebbles','Collect the three loose floor stones',at(game,.14,.12,.28),()=>collect(game),{enabled:()=>state(game).pileRemaining>0});
+      register(game,'episode-conceal-fitting','Cover fresh marks on the loose door fitting',at(game,.30,.8,-3.40),()=>concealFitting(game),{hold:2.4,radius:1.2,enabled:()=>!!game.pow.flags.doorOpen && !state(game).tamper.concealed});
     }
     for(const lamp of lights(game))if(point(lamp.switchPosition)){
       const id='episode-lamp:'+lamp.id;

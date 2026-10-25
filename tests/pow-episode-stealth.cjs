@@ -12,16 +12,18 @@ function fixture(flat=true){
   P.ctx={terrainH:()=>0,Store:{get:(key,value)=>storage.has(key)?storage.get(key):value,set:(key,value)=>storage.set(key,JSON.parse(JSON.stringify(value)))}};
   const game={ac:{p:[0,2,0]},app:{keys:{},gctl:{},set:{sound:0}},world:{_cells:new Map()},setHour(){}};
   P.begin(game,'cell');
-  if(flat){Object.assign(game.pow,{stage:'compound',base:[0,0,0],solids:[],surfaces:[],objects:[],flags:{},nav:{minX:-20,maxX:20,minZ:-20,maxZ:20,cell:1}});game.campGeo=[];game.evade.p=[1.3,0,.95];game.evade.searchers=[];game.pow.p=game.evade.p;game.pow.actors=game.evade.searchers;}
+  if(flat){Object.assign(game.pow,{stage:'compound',base:[0,0,0],solids:[],surfaces:[],objects:[],flags:{},nav:{minX:-20,maxX:20,minZ:-20,maxZ:20,cell:1}});game.campGeo=[];game.evade.p=[1.3,0,.95];game.evade.look=game.evade.pitchCmd=0;game.evade.searchers=[];game.pow.p=game.evade.p;game.pow.actors=game.evade.searchers;}
   const E=P.EpisodeStealth;E.enter(game);
   const calls=[],realNoise=P.AI.noise;P.AI.noise=(...args)=>{calls.push({p:Array.from(args[1]),loudness:args[2],kind:args[3],source:args[4]});return realNoise(...args);};
   function step(seconds,dt=.05){for(let i=0;i<Math.ceil(seconds/dt);i++){game.pow.time+=dt;P.AI.step(game,dt);E.step(game,dt);}}
-  function gather(){game.evade.hdg=Math.PI;assert(P.interact(game,'episode-pebbles'));assert.equal(E.state(game).stones,3);}
+  // Flat flight scenarios keep their declared launch point; collection is
+  // separately exercised from the actual reachable pile approach.
+  function gather(){const launch=game.evade.p.slice();game.evade.p.splice(0,3,0,game.pow.base[1],-.15);game.evade.hdg=Math.PI;assert(P.interact(game,'episode-pebbles'));assert.equal(E.state(game).stones,3);if(flat)game.evade.p.splice(0,3,...launch);}
   return {P,E,game,storage,calls,step,gather,sandbox};
 }
 
 test('reachable held floor interaction collects three finite stones without modifying required escape tools',()=>{
-  const {P,E,game}=fixture();game.evade.hdg=Math.PI;game.app.keys.KeyF=1;
+  const {P,E,game}=fixture();game.evade.p.splice(0,3,0,game.pow.base[1],-.15);game.evade.hdg=Math.PI;game.app.keys.KeyF=1;
   for(let i=0;i<10;i++)P.tick(game,.1);assert.equal(E.state(game).stones,0);
   for(let i=0;i<6;i++)P.tick(game,.1);assert.equal(E.state(game).stones,3);assert.equal(E.state(game).pileRemaining,0);
   game.app.keys.KeyF=0;P.tick(game,.1);assert(!P.interact(game,'episode-pebbles'));assert(!game.pow.inventory.bracket);assert(!game.pow.inventory.rope);
@@ -77,8 +79,8 @@ test('an actual guard hears the remote impact, investigates its location and fol
 test('physical cell walls keep a landing inside, while an actual throw through the opened door lures a guard to its remote impact',()=>{
   for(const open of [false,true]){
     const {P,E,game,step}=fixture(false),b=game.pow.base;
-    game.evade.p.splice(0,3,b[0]+1.3,b[1],b[2]+.95);game.evade.hdg=Math.PI;assert(P.interact(game,'episode-pebbles'));
-    if(open){game.evade.p.splice(0,3,b[0]-.8,b[1],b[2]+.9);assert(P.interact(game,'bunk-bracket'));game.evade.p.splice(0,3,b[0]+.35,b[1],b[2]-2.9);game.evade.hdg=0;assert(P.interact(game,'door-fitting'));}
+    game.evade.p.splice(0,3,b[0],b[1],b[2]-.15);game.evade.hdg=Math.PI;assert(P.interact(game,'episode-pebbles'));
+    if(open){game.evade.p.splice(0,3,b[0],b[1],b[2]-.8);assert(P.interact(game,'bunk-bracket'));game.evade.p.splice(0,3,b[0],b[1],b[2]-3.0);game.evade.hdg=0;assert(P.interact(game,'door-fitting'));}
     game.evade.p.splice(0,3,b[0]+.15,b[1],b[2]-2.25);game.evade.hdg=0;
     const p=[b[0]+2,b[1],b[2]-6],guard=P.AI.makeActor({id:'real-cell-listener',p,route:[p],face:Math.PI/2,dwell:100});game.evade.searchers=[guard];game.pow.actors=game.evade.searchers;
     assert(E.throwStone(game));step(.8);const landed=E.state(game).impacts[0];assert(landed);
@@ -105,19 +107,19 @@ test('throwing is blocked in dialogs, traversal, busy hands and non-episode chap
 
 test('fresh door evidence is noticed only by a nearby facing guard with a real unobstructed sightline',()=>{
   const {P,E,game,step}=fixture(false),b=game.pow.base;
-  game.evade.p.splice(0,3,b[0]-.8,b[1],b[2]+.9);assert(P.interact(game,'bunk-bracket'));
-  game.evade.p.splice(0,3,b[0]+.35,b[1],b[2]-2.9);game.evade.hdg=0;assert(P.interact(game,'door-fitting'));
-  const guard=P.AI.makeActor({id:'inspect-lock',p:[b[0]+2,b[1],b[2]-5.5],route:[[b[0]+2,b[1],b[2]-5.5]],face:0,dwell:100});game.evade.searchers=[guard];game.pow.actors=game.evade.searchers;
+  game.evade.p.splice(0,3,b[0],b[1],b[2]-.8);assert(P.interact(game,'bunk-bracket'));
+  game.evade.p.splice(0,3,b[0],b[1],b[2]-3.0);game.evade.hdg=0;assert(P.interact(game,'door-fitting'));
+  const guard=P.AI.makeActor({id:'inspect-lock',p:[b[0]+1.7,b[1],b[2]-5.5],route:[[b[0]+1.7,b[1],b[2]-5.5]],face:0,dwell:100});game.evade.searchers=[guard];game.pow.actors=game.evade.searchers;
   E.step(game,.1);assert(!guard.evidenceFound,'a guard looking away cannot know the fitting was disturbed');
-  guard.face=Math.atan2(.55-2,-(-3.58+5.5));game.pow.solids.push({id:'sight-screen',x:b[0]+1.3,z:b[2]-4.3,hw:1,hl:.05,yMin:b[1],yMax:b[1]+3});E.step(game,.1);assert(!guard.evidenceFound);
+  guard.face=Math.atan2(.30-1.7,-(-3.58+5.5));game.pow.solids.push({id:'sight-screen',x:b[0]+1.3,z:b[2]-4.3,hw:1,hl:.05,yMin:b[1],yMax:b[1]+3});E.step(game,.1);assert(!guard.evidenceFound);
   game.pow.solids.find(q=>q.id==='sight-screen').active=false;E.step(game,.1);assert(guard.evidenceFound);assert.equal(guard.state,'investigate');
   assert.deepEqual(Array.from(guard.goal),[b[0],b[1],b[2]-5.1]);assert.equal(E.state(game).tamper.seenBy.length,1);assert(!game.pow.complete);
 });
 
 test('concealing actual fitting marks preserves the open physical doorway and prior guard memory',()=>{
   const {P,E,game}=fixture(false),b=game.pow.base;
-  game.evade.p.splice(0,3,b[0]-.8,b[1],b[2]+.9);P.interact(game,'bunk-bracket');game.evade.p.splice(0,3,b[0]+.35,b[1],b[2]-2.9);game.evade.hdg=0;P.interact(game,'door-fitting');E.step(game,.1);
-  const guard=P.AI.makeActor({id:'already-saw',p:[b[0]+2,b[1],b[2]-5.5],face:Math.atan2(.55-2,-(-3.58+5.5))});game.evade.searchers=[guard];game.pow.actors=game.evade.searchers;E.step(game,.1);
+  game.evade.p.splice(0,3,b[0],b[1],b[2]-.8);P.interact(game,'bunk-bracket');game.evade.p.splice(0,3,b[0],b[1],b[2]-3.0);game.evade.hdg=0;P.interact(game,'door-fitting');E.step(game,.1);
+  const guard=P.AI.makeActor({id:'already-saw',p:[b[0]+1.7,b[1],b[2]-5.5],face:Math.atan2(.30-1.7,-(-3.58+5.5))});game.evade.searchers=[guard];game.pow.actors=game.evade.searchers;E.step(game,.1);
   assert(P.interact(game,'episode-conceal-fitting'));assert(E.state(game).tamper.concealed);assert(game.pow.flags.doorOpen);assert(!game.pow.solids.find(s=>s.id==='cell-door').active);assert.equal(guard.state,'investigate');assert(guard.evidenceFound);
   const snap=E.snapshot(game);E.enter(game,snap);assert(E.state(game).tamper.concealed);assert(!game.campGeo.some(q=>q.id==='episode-door-evidence'));
 });
@@ -140,8 +142,8 @@ test('hand and impact events accompany real launch/landing exactly once and neve
 
 test('dark local evidence stays unseen at a distance while a null or absent scene profile is safe',()=>{
   const {P,E,game}=fixture(false),b=game.pow.base;
-  game.evade.p.splice(0,3,b[0]-.8,b[1],b[2]+.9);P.interact(game,'bunk-bracket');game.evade.p.splice(0,3,b[0]+.35,b[1],b[2]-2.9);game.evade.hdg=0;P.interact(game,'door-fitting');
-  const guard=P.AI.makeActor({id:'night-evidence',p:[b[0]+2,b[1],b[2]-5.5],face:Math.atan2(.55-2,-(-3.58+5.5))});game.evade.searchers=[guard];game.pow.actors=game.evade.searchers;
+  game.evade.p.splice(0,3,b[0],b[1],b[2]-.8);P.interact(game,'bunk-bracket');game.evade.p.splice(0,3,b[0],b[1],b[2]-3.0);game.evade.hdg=0;P.interact(game,'door-fitting');
+  const guard=P.AI.makeActor({id:'night-evidence',p:[b[0]+1.7,b[1],b[2]-5.5],face:Math.atan2(.30-1.7,-(-3.58+5.5))});game.evade.searchers=[guard];game.pow.actors=game.evade.searchers;
   P.EpisodeScene={renderState:()=>null,lightAt:()=>.01};assert.doesNotThrow(()=>E.decorate(game));E.step(game,.1);assert(!guard.evidenceFound);
   P.EpisodeScene.lightAt=()=>.9;E.step(game,.1);assert(guard.evidenceFound,'illumination and local LOS permit a close inspection');
 });

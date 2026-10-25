@@ -26,8 +26,9 @@ async function main(browser,target,evidenceDir) {
     await page.evaluate(() => App.start(MISSIONS.find(m => m.escape)));
     await page.waitForFunction(() => App.game?.st && document.getElementById('loader').style.display === 'none', null, { timeout: 90000 });
     await page.evaluate(() => {
-      App.screen = 'fixture'; // Stop automatic simulation/rendering; invoke real methods explicitly below.
-      App.game.paused = true;
+      App.frame = () => {}; // Stop the scheduler; real gameplay methods retain their normal active-screen and pause guards.
+      App.screen = 'game';
+      App.game.paused = false;
       App.game.t = 20;
       document.getElementById('legend').classList.remove('on');
     });
@@ -72,7 +73,7 @@ async function main(browser,target,evidenceDir) {
         const e = { p, hdg: 0, t: 0, rounds, drawn: 0, weaponMode: 'knife', lastShot: -99, kills: 0, noise: 0, searchers: [s], locals: [], cattle: [],
           pickup: [p[0] + 300, p[2]], chute: [p[0], p[2]], radio: 0, rescue: 0, eta: 120, exposure: 0 };
         G.t += 2;
-        G._weapons(1 / 60, e, App, { Space: true });
+        e.attackWant = 1; G._weapons(1 / 60, e, App, {});
         G.evade = e;
         G.syncControls();
         G.render(1 / 60);
@@ -94,7 +95,7 @@ async function main(browser,target,evidenceDir) {
       G.evade = e; G.phase = 'evade'; G._capt = 0;
       for (let i = 0; i < 300 && G.evade; i++) { G.t += 1 / 60; G.stepEvade(1 / 60); }
       G.render(1 / 60);
-      return { fixture: 'one live armed local at two metres, raised hands, five seconds of real stepEvade with automatic simulation paused', expected: 'near armed local accepts surrender and begins the ground-view capture transition',
+      return { fixture: 'one live armed local at two metres, raised hands, five seconds of real stepEvade with the frame scheduler stopped', expected: 'near armed local accepts surrender and begins the ground-view capture transition',
         actual: { phase: G.phase, handsTime: e.handsT, seen: s.seen, separation: Math.hypot(e.p[0] - s.p[0], e.p[2] - s.p[2]), hasEvade: !!G.evade },
         passed: G.phase==='evade' && G.evade===e && CaptureTransition.active(G) && e.handsT>1.1 };
     }) });
@@ -146,7 +147,7 @@ async function main(browser,target,evidenceDir) {
       const s = { p: [x, 0, z + 1.25], goal: [x, 0, z - 1.25], alive: true, armed: true, face: 0, kind: 'nva' };
       const e = { ...old, p: [x, 0, z - 1.25], hdg: Math.PI, searchers: [s], weaponMode: 'pistol', drawn: 1, rounds: 1, lastShot: -99 };
       G.t += 2; const wallBlocked = G._campSolidAt(x, z, 0.1);
-      G._weapons(1 / 60, e, App, { Space: true });
+      e.attackWant = 1; G._weapons(1 / 60, e, App, {});
       return { fixture: 'real camp wall between player and enemy, .38 fired from 2.5 metres', expected: 'solid wall blocks revolver hit', actual: { wallBlocked, wounds: s.wounds || 0, remainingRounds: e.rounds },
         passed: wallBlocked && !s.wounds && e.rounds===0 };
     }) });
@@ -169,22 +170,23 @@ async function main(browser,target,evidenceDir) {
     // Mission11's legacy menu and automatic dawn recapture are superseded by
     // physical POV chapters. Exercise the real landing capture into that chapter;
     // actual river/daylight/performance outcomes are in pow-river-browser.cjs.
-    await page.evaluate(() => { const G = App.game; G._capt = 0; G._escStage = 'landing'; G.phase = 'evade'; G.captured(); G.paused=false;for(let i=0;i<360;i++)G.update(1/60);G.paused=true; });
+    await page.evaluate(() => { const G = App.game; G._capt = 0; G._escStage = 'landing'; G.phase = 'evade'; G.captured(); G.paused=false;for(let i=0;i<780;i++)G.update(1/60);G.paused=true; });
     await page.waitForFunction(() => App.game?.pow?.stage === 'cell', null, { timeout: 15000 });
     await page.evaluate(() => App.game.render(1 / 60));
     await page.screenshot({ path: path.join(out, 'ground-captured-cell.png') });
     results.push({ name: 'landing-capture-enters-physical-prison', ...await page.evaluate(() => {
       const G = App.game;
-      return { fixture: 'real captured() after Mission11 landing, six seconds of original fixed-step update through transfer and prison reveal', expected: 'live collision-backed prison, checkpoint and controls',
+      return { fixture: 'real captured() after Mission11 landing, thirteen seconds of original fixed-step update through transfer and prison reveal', expected: 'live collision-backed prison, checkpoint and controls',
         actual: { captured: G._capt, phase: G.phase, stage: G.pow.stage, solids: G.pow.solids.length, frozen: G.evade.frozen }, passed: G._capt===1 && G.phase==='evade' && G.pow.stage==='cell' && G.pow.solids.length>20 && !G.evade.frozen };
     }) });
 
-    for(const result of results){result.status=result.passed?'passed':'failed';assert.ok(result.passed,result.name);}
+    for(const result of results)result.status=result.passed?'passed':'failed';
     const report = { scope: 'Fixture-assisted Chromium browser checks using Milestone 1 Game methods and actual custom WebGL 2 rendering. No source edits or method stubs. Not human gameplay completion or physical iPhone Safari validation.',
       targetUrl, info, results, browserErrors: errors, reproducedDefects: results.filter(r => r.reproduced).length,
       knownDefectsNotReproduced: results.filter(r => r.status === 'known-defect-not-reproduced').map(r => r.name),
       passingChecks: results.filter(r=>r.passed).length };
     fs.writeFileSync(path.join(out, 'ground-reproduction.json'), JSON.stringify(report, null, 2) + '\n');
+    for(const result of results)assert.ok(result.passed,result.name+' '+JSON.stringify(result.actual));
     console.log('PASS: '+results.length+' ground rendering, combat, collision and capture regressions');
     if (errors.length) throw new Error('Unexpected browser JavaScript errors: ' + errors.join('; '));
     const failures = results.filter(r => r.status === 'unexpected-check-failure');

@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "file": "materials.webp",
+  "width": 1774,
+  "height": 887,
+  "regions": {
+    "plaster": [
+      0,
+      0,
+      887,
+      887
+    ],
+    "metal": [
+      887,
+      0,
+      887,
+      887
+    ]
+  },
+  "gpu": {
+    "high": 512,
+    "touch": 384
+  },
+  "ration": {
+    "file": "ration.webp",
+    "width": 1536,
+    "height": 1024,
+    "empty": {
+      "file": "ration-empty.webp",
+      "width": 1536,
+      "height": 1024
+    },
+    "gpu": {
+      "high": [
+        1024,
+        683
+      ],
+      "touch": [
+        768,
+        512
+      ],
+      "budgetBytes": {
+        "high": 8388608,
+        "touch": 4194304
+      }
+    }
+  },
+  "note": "Original generated visual assets guided by supplied prison and meal photographs. Reconstructed appearance, not an architectural survey or a universal historical ration.",
+  "cellMaterials": {
+    "file": "cell-materials.webp",
+    "width": 1774,
+    "height": 887,
+    "regions": {
+      "plaster": [
+        0,
+        0,
+        887,
+        887
+      ],
+      "metal": [
+        887,
+        0,
+        887,
+        887
+      ]
+    }
+  }
+}

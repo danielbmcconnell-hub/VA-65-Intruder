@@ -1,13 +1,14 @@
 'use strict';
 
 // Real Chromium WebGL2 fixtures execute the shipped renderer and active
-// episode shaders. They use the intact supplied photographic people texture,
+// episode shaders. They use the current complete photographic cutouts,
 // plus explicitly authored MB wall/blocker/water geometry. They do not stand
 // in for the separate normal-patrol gameplay acceptance suite.
 const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const installCompletePhotoFixture = require('./helpers/complete-photo-fixture.cjs');
 
 module.exports = async function episodeRenderer(browser, target, evidenceDir) {
   const originalPath = path.join(__dirname, '..', 'assets', 'figures-original.png');
@@ -31,13 +32,13 @@ module.exports = async function episodeRenderer(browser, target, evidenceDir) {
       await page.locator('#bootFly').click();
       await page.waitForFunction(() => App.game?.st || document.getElementById('graphicError'), null, { timeout: 90000 });
       assert.equal(await page.locator('#graphicError').count(), 0);
-      await page.waitForFunction(() => typeof FIGIMG !== 'undefined' && FIGIMG && App.rend?.textures?.people?.w > 1000, null, { timeout: 30000 });
-      const result = await page.evaluate(() => {
+      await installCompletePhotoFixture(page);
+      const result = await page.evaluate(async () => {
         // Pause ordinary rendering while reading these explicit scene targets.
         App.game.paused = true; App.screen = 'gpu-fixture';
         const R = App.rend, gl = R.gl, save = { quality: R.quality, float: R.floatBuf, atmos: R.atm, episode: R.episode, time: R.time };
         const drain = () => { const list = []; for (let n = 0; n < 16; n++) { const error = gl.getError(); if (!error) break; list.push(error); } return list; };
-        const inheritedErrors = drain(), photograph = { width: R.textures.people.w, height: R.textures.people.h, source: FIGIMG.getAttribute('src') };
+        const inheritedErrors = drain(), F = __completePhotoFixture, photograph = { legacyAtlasUploaded: !!R.textures.people, state: PhotoCutouts.inspect(R) };
         R.quality = 0; R.floatBuf = false; R.resize(384, 384, 1);
         R.setCamera([0, 1, 0], [0, 0, -1], [0, 1, 0], 50, .1, 100, 1);
         R.setAtmos({ ...R.atm, amb: [.8, .8, .8], gnd: [0, 0, 0], sunCol: [0, 0, 0], horizon: [0, 0, 0], zenith: [0, 0, 0], fogDens: 0, overcast: 0 });
@@ -70,18 +71,20 @@ module.exports = async function episodeRenderer(browser, target, evidenceDir) {
         };
         const imageTargets = [], frames = [];
         R.setEpisode(profile, { p: [0, 0, 0], solids: [] });
-        for (const [name, cell] of [['guard', 0], ['vc', 24], ['kneeling-vc', 32], ['farmer', 48]]) {
-          const sprite = { p: [0, 0, -3], h: 2, w: 1, cell, cols: 8, rows: 9 };
-          clear(); R.drawSprites('people', [sprite]); const quad = read();
-          clear(); R.drawSprites('people', [{ ...sprite, motion: [0, 0, 0, 0] }]); const neutral = read();
-          clear(); R.drawSprites('people', [{ ...sprite, motion: [Math.PI / 2, 1, 0, 0] }]); const stride = read();
-          frames.push({ name, cell, neutral: difference(quad, neutral), stride: difference(neutral, stride) });
-          if (name === 'guard' || name === 'farmer') { imageTargets.push({ name: name + '-neutral', png: png(neutral) }, { name: name + '-stride', png: png(stride) }); }
+        for (const [name, subject] of [['guard', 'nva'], ['vc', 'militia'], ['farmer', 'farmer']]) {
+          await F.prepare(subject, 'walk');
+          const idle = F.sprite(subject), walk0 = F.sprite(subject, [0, 0, -3], { clip: 'walk', phase: 0 }), walk4 = F.sprite(subject, [0, 0, -3], { clip: 'walk', phase: .25 });
+          clear(); R.drawSprites(idle.textureName, [idle]); const quad = read();
+          clear(); R.drawSprites(idle.textureName, [{ ...idle }]); const neutral = read();
+          clear(); R.drawSprites(walk0.textureName, [walk0]); const first = read();
+          clear(); R.drawSprites(walk4.textureName, [walk4]); const stride = read();
+          frames.push({ name, idle: F.meta(idle), first: F.meta(walk0), next: F.meta(walk4), neutral: difference(quad, neutral), stride: difference(first, stride) });
+          imageTargets.push({ name: name + '-complete-idle', png: png(neutral) }, { name: name + '-authored-walk', png: png(stride) });
         }
         const wall = new MB(); wall.quad([-2, 0, -2], [2, 0, -2], [2, 2, -2], [-2, 2, -2], [.5, .5, .5]);
         R.meshFromBuilder('episodeGPUWall', wall);
         clear(); R.drawMesh('episodeGPUWall', instance, 1); const wallOnly = read();
-        R.drawSprites('people', [{ p: [0, 0, -3], h: 2, w: 1, cell: 0, cols: 8, rows: 9, motion: [Math.PI / 2, 1, .5, 0] }]);
+        const behind = F.sprite('nva', [0, 0, -3]); R.drawSprites(behind.textureName, [behind]);
         const behindWall = read(), occlusion = difference(wallOnly, behindWall);
         const finalState = { depthWrites: gl.getParameter(gl.DEPTH_WRITEMASK), blending: gl.isEnabled(gl.BLEND), culling: gl.isEnabled(gl.CULL_FACE) };
         const litWall = new MB(); litWall.quad([-3, -1, -6], [3, -1, -6], [3, 3, -6], [-3, 3, -6], [.6, .6, .6]);
@@ -126,22 +129,21 @@ module.exports = async function episodeRenderer(browser, target, evidenceDir) {
         return { version: gl.getParameter(gl.VERSION), photograph, inheritedErrors, gpuErrors, frames, occlusion, finalState, illumination, relevantLowLight, coneOn, coneAway, ripple, imageTargets };
       });
       assert.match(result.version, /^WebGL 2/);
-      assert.equal(result.photograph.source, 'assets/figures-original.png');
+      assert.equal(result.photograph.legacyAtlasUploaded, false); assert.equal(result.photograph.state.status, 'ready');
       assert.deepEqual(result.inheritedErrors, []); assert.deepEqual(result.gpuErrors, []);
       console.log('GPU episode fixture observations ' + JSON.stringify({ layout: layout.name, frames: result.frames, illumination: result.illumination, ripple: result.ripple }));
       for (const frame of result.frames) {
         assert.ok(frame.neutral.foreground > 1000, 'The intact ' + frame.name + ' source photograph actually draws');
-        // Tessellated interpolation may round a few sampled colour channels
-        // differently from the original two triangles. It must preserve the
-        // whole silhouette and stay within tiny 8-bit sampling differences.
-        assert.ok(frame.neutral.max <= 12 && frame.neutral.meanForegroundError < .5 && frame.neutral.changedForeground <= Math.max(3, frame.neutral.foreground * .05), 'Neutral grid keeps photograph continuity: ' + JSON.stringify(frame));
-        assert.equal(frame.neutral.lost, 0, 'Neutral articulation introduces no new transparent holes in ' + frame.name);
-        assert.ok(frame.stride.changed > 50, 'The shipped shader visibly moves the photograph with actual stride phase: ' + JSON.stringify(frame));
+        assert.equal(frame.neutral.changed, 0, 'A held complete photograph has stable coverage');
+        assert.equal(frame.neutral.lost, 0, 'Complete photographs introduce no transparent body holes');
+        for (const pose of [frame.idle, frame.first, frame.next]) { assert.equal(pose.complete, true); assert.equal(pose.cols, 1); assert.equal(pose.rows, 1); assert.equal(pose.cell, 0); assert.equal(pose.liveTexture, true); assert.ok(!pose.motion); assert.ok(Math.abs(pose.sourceAspect-pose.renderedAspect)<1e-6); }
+        assert.notEqual(frame.first.asset, frame.next.asset);
+        assert.ok(frame.stride.changed > 50, 'Distinct authored walking photographs visibly change the actual framebuffer: ' + JSON.stringify(frame));
       }
-      record('Intact guard, VC, kneeling VC and farmer photographs stay solid on the neutral grid and visibly articulate', { sourceHash, photograph: result.photograph, frames: result.frames });
+      record('Complete guard, VC and farmer images retain solid coverage and show distinct authored walking poses', { sourceHash, photograph: result.photograph, frames: result.frames });
       assert.equal(result.occlusion.changed, 0, 'The actual opaque wall fully occludes the articulated original figure');
       assert.deepEqual(result.finalState, { depthWrites: true, blending: false, culling: true });
-      record('Articulated original photograph respects wall depth and restores alpha/depth/cull state', result.occlusion);
+      record('Complete photograph respects wall depth and restores alpha/depth/cull state', result.occlusion);
       assert.ok(result.illumination.on[0] > result.illumination.off[0] + 50, 'Enabled local light visibly illuminates the actual mesh');
       assert.ok(result.illumination.on[0] > result.illumination.on[1] * 1.4 && result.illumination.on[1] > result.illumination.on[2] * 1.4, 'Warm light keeps its intended colour');
       assert.ok(result.illumination.shadow[0] <= result.illumination.off[0] + 2, 'Solid physical blocker casts an actual shader shadow on the visible wall');
@@ -166,7 +168,7 @@ module.exports = async function episodeRenderer(browser, target, evidenceDir) {
   assert.deepEqual(browserErrors, []);
   return { suite: 'episode-renderer', checks, screenshots, browserErrors, limitations: [
     'Real Chromium/SwiftShader WebGL2 and simulated iPhone layouts; physical Windows GPU, iPhone Safari and device frame rate remain manual checks.',
-    'Photograph continuity uses the shipped intact people texture; walls, local-light blocker and flat water are declared GPU fixtures, not normal-patrol gameplay.',
-    'Photographic stride uses authored bounded geometry articulation. The source photographs do not contain a recorded full walking animation.'
+    'Photograph continuity uses the current complete-cutout textures; walls, local-light blocker and flat water are declared GPU fixtures, not normal-patrol gameplay.',
+    'Walking uses authored photographic poses, not recorded film or legacy atlas geometry articulation.'
   ] };
 };

@@ -118,24 +118,36 @@
     visual(game,'pad','powMud',37,-.55,15,155,.55,155);
     visual(game,'lane','powDark',60,.012,-23,35,.014,3.25);
     // Escape chamber: continuous wall geometry, a real removable door, barred slot.
-    solid(game,'cell-west','powStone',-2.8,1.55,0,.20,1.55,3.6);
-    solid(game,'cell-east','powStone',2.8,1.55,0,.20,1.55,3.6);
-    solid(game,'cell-back','powStone',0,1.55,3.6,3,1.55,.20);
-    solid(game,'cell-front-left','powStone',-1.95,1.55,-3.6,1.05,1.55,.20);
-    solid(game,'cell-front-right','powStone',1.95,1.55,-3.6,1.05,1.55,.20);
-    solid(game,'cell-lintel','powStone',0,2.8,-3.6,.90,.30,.20);
-    solid(game,'cell-roof','powStone',0,3.25,0,3,.15,3.8);
-    solid(game,'cell-door','powWood',0,1.24,-3.6,.88,1.24,.095);
-    visual(game,'door-hatch','powDark',0,1.95,-3.72,.26,.21,.025);
-    for(let i=-2;i<=2;i++)visual(game,'door-bars:'+i,'powMetal',i*.10,1.95,-3.76,.018,.21,.021);
-    visual(game,'door-bolt','powMetal',.59,1.05,-3.73,.24,.045,.045);
-    visual(game,'fitting','powMetal',.55,.65,-3.74,.08,.11,.055);
-    solid(game,'bunk','powWood',-1.83,.23,.9,.55,.23,1.24);
-    visual(game,'bunk-mat','powMud',-1.83,.50,.9,.54,.038,1.22,[1.55,1.34,1.11,0]);
-    for(const z of [-.15,1.95])visual(game,'bedpost:'+z,'powWood',-2.18,.55,z,.045,.32,.045);
-    visual(game,'water-pot','powMetal',1.96,.22,2.52,.19,.22,.19);
-    visual(game,'bulb-wire','powMetal',0,2.83,-.4,.015,.27,.015);
-    visual(game,'bulb','powPale',0,2.5,-.4,.075,.075,.075,[1.35,1.08,.65,.4]);
+    // Reconstructed photographic cell: 2.4m clear width, 4.2m inside length,
+    // a narrow central aisle and two collision-backed concrete sleeping slabs.
+    // Its original door plane stays at -3.6m, joining the existing corridor.
+    visual(game,'cell-floor','powStone',0,-.033,-1.40,1.20,.035,2.10);
+    solid(game,'cell-west','powStone',-1.36,1.55,-1.375,.16,1.55,2.225);
+    solid(game,'cell-east','powStone',1.36,1.55,-1.375,.16,1.55,2.225);
+    solid(game,'cell-back','powStone',0,1.55,.86,1.52,1.55,.16);
+    solid(game,'cell-front-left','powStone',-1.01,1.55,-3.6,.55,1.55,.16);
+    solid(game,'cell-front-right','powStone',1.01,1.55,-3.6,.55,1.55,.16);
+    solid(game,'cell-lintel','powStone',0,3.055,-3.6,.46,.045,.16);
+    visual(game,'cell-arched-transom','powStone',0,2.755,-3.6,.51,.275,.16);
+    solid(game,'cell-roof','powStone',0,3.22,-1.375,1.52,.12,2.385);
+    solid(game,'cell-door','powMetal',0,1.22,-3.6,.46,1.22,.095);
+    visual(game,'door-hatch','powDark',0,1.42,-3.72,.11,.12,.025);
+    for(let i=-1;i<=1;i++)visual(game,'door-bars:'+i,'powMetal',i*.065,1.42,-3.76,.012,.12,.021);
+    visual(game,'door-bolt','powMetal',.30,1.05,-3.73,.12,.028,.036);
+    visual(game,'fitting','powMetal',.30,.77,-3.74,.052,.08,.045);
+    for(const side of [-1,1]){
+      const x=side*.85,id=side<0?'bunk':'bunk-right';
+      solid(game,id,'powWood',x,.235,-1.03,.35,.235,1.47);
+      visual(game,'ankle-bar:'+side,'powMetal',x,.56,-2.18,.29,.022,.025);
+      for(const offset of [-.12,.12]){
+        for(const edge of [-1,1])visual(game,'ankle-link:'+side+':'+offset+':'+edge,'powMetal',x+offset+edge*.041,.595,-2.18,.010,.044,.020);
+        visual(game,'ankle-link-top:'+side+':'+offset,'powMetal',x+offset,.639,-2.18,.050,.010,.020);
+      }
+    }
+    visual(game,'bunk-mat','powMud',-.85,.49,-.38,.30,.020,.74,[1.03,.94,.78,0]);
+    visual(game,'water-pot','powMetal',.87,.18,-3.09,.13,.18,.13);
+    visual(game,'bulb-wire','powMetal',0,2.88,-1.28,.010,.16,.010);
+    visual(game,'bulb','powPale',0,2.70,-1.28,.045,.055,.045,[1.10,.86,.57,.25]);
     // Corridor is open to a courtyard at the west and the stairs at its east end.
     solid(game,'corridor-north','powStone',7.15,1.50,-7.8,9.85,1.5,.18);
     remove(game,'corridor-north');
@@ -217,19 +229,19 @@
     solid(game,'level-east-n','powDark',109,4,-42,.3,4,22);
     solid(game,'level-east-s','powDark',109,4,42,.3,4,62);
     s.cellDoor=[b[0],b[1]+1.1,b[2]-3.6];
-    P.object(game,'bunk-bracket','Inspect the bunk · concealed door bracket',-1.62,.7,.9,()=>{
+    P.object(game,'bunk-bracket','Inspect the bunk · concealed door bracket',-.47,.55,-.8,()=>{
       if(s.inventory.bracket)return P.notify(game,'You already carry the concealed bracket.');
       s.inventory.bracket=true;s.flags.bunkSearched=true;game.evade.fitting=1;
       P.notify(game,'A small metal bracket is loose beneath the sleeping mat. Keep it quiet.');noise(game,.10,'bunk');P.save(game);
     },{hold:1.5,enabled:()=>!s.inventory.bracket,view:false});
-    P.object(game,'wall-contact','Tap a covert message through the wall',-2.53,1.15,.2,()=>{
+    P.object(game,'wall-contact','Tap a covert message through the wall',-1.18,1.15,-3.05,()=>{
       s.flags.wallContact=true;s.stats.hope=Math.min(100,s.stats.hope+5);s.stats.morale=Math.min(100,s.stats.morale+4);
       P.notify(game,'Two quiet taps answer: wait for footsteps to pass, then work the door fitting.');noise(game,.10,'wall-tap');P.save(game);
     },{hold:1.3,radius:1.15,enabled:()=>!s.flags.wallContact});
-    P.object(game,'door-fitting','Loosen the locking hardware',.5,1.0,-3.46,()=>{
+    P.object(game,'door-fitting','Loosen the locking hardware',.30,1.0,-3.46,()=>{
       if(!s.inventory.bracket)return P.notify(game,'Search the bunk for something narrow enough to work the fitting.');
       s.flags.doorOpen=true;remove(game,'cell-door');remove(game,'door-hatch');remove(game,'door-bars');remove(game,'door-bolt');remove(game,'fitting');
-      visual(game,'door-open','powWood',-1,1.24,-4.48,.095,1.24,.88);
+      visual(game,'door-open','powMetal',-.46,1.22,-4.06,.095,1.22,.46);
       P.notify(game,'The bolt drops clear. The door is open. Walk into the corridor and turn right toward the stairs.');noise(game,.45,'door');P.save(game);
     },{hold:4.5,radius:1.65,enabled:()=>!s.flags.doorOpen,canHold:()=>!!s.inventory.bracket,noise:.25});
     P.object(game,'roof-rope','Take the highlighted coiled rope',21,3.65,-22,()=>{
@@ -249,11 +261,12 @@
     P.object(game,'alley-rest','Rest briefly behind the handcart',49,.8,-19,()=>{
       s.stats.fatigue=Math.max(0,s.stats.fatigue-12);s.stats.physical=Math.min(100,s.stats.physical+2);P.notify(game,'Breathing slows. Watch the street before moving again.');
     },{hold:5,enabled:()=>s.stage==='hanoi',view:false});
-    if(s.flags.doorOpen){remove(game,'cell-door');remove(game,'door-hatch');remove(game,'door-bars');remove(game,'door-bolt');remove(game,'fitting');visual(game,'door-open','powWood',-1,1.24,-4.48,.095,1.24,.88);}
+    if(s.flags.doorOpen){remove(game,'cell-door');remove(game,'door-hatch');remove(game,'door-bars');remove(game,'door-bolt');remove(game,'fitting');visual(game,'door-open','powMetal',-.46,1.22,-4.06,.095,1.22,.46);}
     if(s.inventory.rope){remove(game,'roof-rope');showHookGuide();}
     if(s.flags.outside)visual(game,'escape-rope','powWood',27.7,2.1,-24,.035,2.1,.035,[2,1.7,1.3,0]);
   }
   P.begin = function (game,stage,saved) {
+    const carriedGroundItems=global.GroundItems && global.GroundItems.snapshot(game);
     if(P.Mindscape && P.Mindscape.active(game))P.Mindscape.close(game,true);
     if(P.DentonFlashback)P.DentonFlashback.close();
     stage=stage || 'cell';const old=game.pow, prior=game.evade;
@@ -273,7 +286,7 @@
     const feedbackPrefs=P.ctx && P.ctx.Store?P.ctx.Store.get('pow_feedback_preferences',{}) || {}:{};
     s.feedbackHints=saved && saved.feedbackHints!==undefined?saved.feedbackHints:feedbackPrefs.hints!==undefined?feedbackPrefs.hints!==false:prefs.feedbackHints!==false;
     if(s.captivity)s.captivity.open=false;
-    const p=[origin[0]+.3,ground,origin[2]+.5];
+    const p=[origin[0],ground,origin[2]+(stage==='cell'?.28:-.30)];
     game.evade={camp:true,p,hdg:0,look:0,pitchCmd:0,t:0,radio:-1,rounds:0,hasPistol:false,hasKnife:false,drawn:0,weaponMode:'fists',fitting:s.inventory.bracket?1:0,alive:true,radius:.32,lastShot:-99,kills:0,noise:0,chute:[origin[0],origin[2]],searchers:[],locals:[],spawn:1e9,found:0,exposure:0,expose:0,sus:0,alarm:0,prep:0,pickup:[origin[0]+26,origin[2]-24],goal:[origin[0]+26,origin[2]-24],origin:[origin[0],origin[2]],A:27,B:36,held:0,frozen:0};
     s.p=game.evade.p;s.actors=game.evade.searchers;game.phase='evade';game.chute=null;game.ejected=true;game.extView=false;game.paused=false;game._solitaryActive=false;game.campY=ground;game.campOrigin=[origin[0],origin[2]];game.cellPos=[origin[0],ground,origin[2]];game._escStage='pow';
     if(game.world){game.world.campOrigin=game.campOrigin;if(game.world._cells)game.world._cells.clear();}
@@ -288,6 +301,15 @@
     else if(stage==='compound'){game.evade.p[2]=origin[2]-5.6;s.flags.doorOpen=true;buildPrison(game);}
     else if(stage==='hanoi'){s.flags.doorOpen=true;s.flags.outside=true;game.evade.p[0]=origin[0]+29.1;game.evade.p[2]=origin[2]-24;buildPrison(game);}
     if(saved && saved.p && !saved.complete){game.evade.p.splice(0,3,...saved.p);game.evade.hdg=saved.hdg || 0;game.evade.look=saved.look || 0;game.evade.pitchCmd=game.evade.look;}
+    if(stage==='cell'){
+      const e=game.evade,b=s.base,z=e.p[2]-b[2],x=e.p[0]-b[0];
+      if(!saved)e.look=e.pitchCmd=-.18;
+      // Earlier checkpoints used a much wider room. Keep those owners inside
+      // the reconstructed aisle instead of restoring them inside a new bunk.
+      const insideCell=Math.abs(x)<=.88&&z>=-3.12&&z<=.38;
+      const openCorridor=!!s.flags.doorOpen&&x>=-2.38&&x<=16.65&&z>=-7.62&&z<-3.12;
+      if(!(insideCell||openCorridor)||Math.abs(e.p[1]-b[1])>.10||P.blocked(game,e.p[0],e.p[2],.32,e.p[1]))e.p.splice(0,3,b[0],b[1],b[2]+.28);
+    }
     if(P.AI && P.AI.enter)P.AI.enter(game,stage);
     if(saved && saved.ai && P.AI && P.AI.restore)P.AI.restore(game,saved.ai);
     if(P.Feedback && P.Feedback.restore)P.Feedback.restore(game,saved && saved.feedback);
@@ -301,6 +323,11 @@
       if(typeof document!=='undefined')document.body.classList.toggle('rseat',!!game.rightSeat);
     }
     if(P.FigureMotion)P.FigureMotion.reset(game);
+    if(global.GroundItems){
+      if(['cell','compound','solitary','regular'].includes(s.stage))global.GroundItems.confiscate(game);
+      else if(saved && saved.groundItems)global.GroundItems.restore(game,saved.groundItems);
+      else if(carriedGroundItems)global.GroundItems.carry(game,carriedGroundItems);
+    }
         s.p=game.evade.p;s.actors=game.evade.searchers;
     P.activate(true);P.mountUI();if(P.ui)P.ui.end.hidden=true;P.updateUI(game);
     P.notify(game,stage==='cell'?'Search the bunk, contact the man through the wall, and work the door fitting when the guard moves away.':stage==='hanoi'?'Stay in the shadows. Follow the dark lane east to the riverbank.':stage==='compound'?'Move through the corridor to the stairs. The roof leads across the east wall.':'Your body is here. Move and interact with the objects around you.');
@@ -364,6 +391,7 @@
     if(P.EpisodeStealth && P.EpisodeStealth.snapshot)snap.episodeStealth=P.EpisodeStealth.snapshot(game);
     if(P.EpisodeActions && P.EpisodeActions.snapshot)snap.episodeActions=P.EpisodeActions.snapshot(game);
     if(global.SurvivalAmmunition)snap.ammunition=global.SurvivalAmmunition.snapshot(game);
+    if(global.GroundItems){const items=global.GroundItems.snapshot(game);if(items)snap.groundItems=items;}
     const sortie=global.FlightSortieCheckpoint && global.FlightSortieCheckpoint.snapshot(game);if(sortie)snap.sortie=sortie;
     if(s.practice)snap.practice=s.practice;
     snap.feedbackHints=s.feedbackHints!==false;
@@ -406,7 +434,7 @@
     e.hdg=(e.hdg+turn*dt*1.65)%TAU;
     e.pitchCmd=clamp((e.pitchCmd || 0)+((k.KeyQ?1:0)-(k.KeyE?1:0))*dt*.9,-.85,1.2);
     e.look=e.pitchCmd;
-    s.input={forward:clamp((k.KeyW || k.ArrowUp?1:0)-(k.KeyS || k.ArrowDown?1:0)+(g.pitch || 0),-1,1),strafe:locked?right:0,run:!!(k.ShiftLeft || k.ShiftRight || g.run),crouch:!!(k.KeyC || g.crouch),interact:!!(k.KeyF || s.touchInteract),climb:!!(k.Space || s.touchClimb)};
+    s.input={forward:clamp((k.KeyW || k.ArrowUp?1:0)-(k.KeyS || k.ArrowDown?1:0)+(g.pitch || 0),-1,1),strafe:locked?right:0,run:!!(k.ShiftLeft || k.ShiftRight || g.run),crouch:!!(k.KeyC || g.crouch),interact:!!(k.KeyF&&!e._pickupKeyConsumed || s.touchInteract),climb:!!(k.Space || s.touchClimb)};
     e.crouch=s.input.crouch;e.weaponWant=null;e.attackWant=0;
   }
   P.tick = function (game,dt) {
@@ -428,7 +456,7 @@
       if(f>=1){s.flags.outside=true;s.flags.roofCrossed=true;s.traversal=null;P.transition(game,'hanoi');}
     } else if(!s.customMovement) {
       const motion=s.motion || {},fatigue=s.stats.fatigue || 0;
-      const speed=(Number.isFinite(motion.speed)?motion.speed:2.05)*(s.movementScale || 1)*(input.crouch?.49:input.run?1.9:1)*(fatigue>80?.70:1)*(s.stats.physical<40?.70:1);
+      const speed=(Number.isFinite(motion.speed)?motion.speed:2.05)*(s.movementScale || 1)*(input.crouch?.49:input.run?1.9:1)*(fatigue>80?.70:1)*(s.stats.physical<40?.70:1)*(global.GroundItems?.movementFactor(game)||1);
       const forward=input.forward,strafe=input.strafe,norm=Math.max(1,Math.hypot(forward,strafe));
       P.move(game,e,(Math.sin(e.hdg)*forward+Math.cos(e.hdg)*strafe)/norm*speed*dt,(-Math.cos(e.hdg)*forward+Math.sin(e.hdg)*strafe)/norm*speed*dt,motion.radius || .32);
       e.moving=Math.hypot(e.p[0]-was[0],e.p[2]-was[1])>.001;e.running=e.moving && input.run && !input.crouch;

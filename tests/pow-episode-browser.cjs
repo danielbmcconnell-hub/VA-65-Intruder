@@ -84,11 +84,11 @@ module.exports = async function episodeBrowser(browser, target, evidenceDir) {
       if (session) await click(page.locator('#powHUD [data-episode-throw]'));
       else {
         // The production hotkey is intentionally limited to the game screen.
-        // Briefly restore that real screen during the trusted key gesture;
-        // automatic RAF is suspended again before deterministic stepping.
+        // Keep the real active screen during the trusted key gesture;
+        // the declared fixed-clock flag suspends automatic RAF.
         await page.evaluate(() => { App.screen = 'game'; });
         try { await page.keyboard.down('r'); await page.keyboard.up('r'); }
-        finally { await page.evaluate(() => { App.screen = 'fixture'; }); }
+        finally { await page.evaluate(() => { App.screen = 'game'; }); }
       }
       await tick(.05);
     }
@@ -105,7 +105,7 @@ module.exports = async function episodeBrowser(browser, target, evidenceDir) {
       await page.waitForFunction(() => window.App && window.POW?.EpisodeScene && POW.EpisodeStealth && POW.EpisodeActions, null, { timeout: 30000 });
       await click(page.locator('#bootGo')); await click(page.locator('#powChapter [data-pow-chapter="escape"]'));
       await page.waitForFunction(() => App.game?.pow?.stage === 'cell' && document.getElementById('loader').style.display === 'none', null, { timeout: 90000 });
-      await page.evaluate(() => { window.__episodeFixedClock=true; App.screen = 'fixture'; App.game.paused = false; for (const k of Object.keys(App.keys)) App.keys[k] = 0; App.gctl.pitch = App.gctl.roll = 0; });
+      await page.evaluate(() => { window.__episodeFixedClock=true; App.screen = 'game'; App.game.paused = false; for (const k of Object.keys(App.keys)) App.keys[k] = 0; App.gctl.pitch = App.gctl.roll = 0; });
       if (await page.locator('#powHUD [data-guide-skip]').isVisible()) await click(page.locator('#powHUD [data-guide-skip]'));
       const initial = await page.evaluate(() => ({ stage: App.game.pow.stage, webgl: App.game.rend.gl.getParameter(App.game.rend.gl.VERSION), normalPatrols: App.game.evade.searchers.map(a => ({ id: a.id, p: a.p.slice(), route: a.route.map(p => p.slice()), schedule: { ...a.schedule } })) }));
       assert.match(initial.webgl, /WebGL 2/); assert.ok(initial.normalPatrols.length >= 4); record('Original playable cell starts with the unmodified active patrol roster', initial);
@@ -144,7 +144,7 @@ async function exerciseCellAndPebbles(h) {
     try {
       await touch('touchStart', [{ x: 520, y: 155, id: 2 }]);
       await touch('touchMove', [{ x: 555, y: 165, id: 2 }]); await touch('touchEnd');
-    } finally { await page.evaluate(() => { App.screen='fixture'; }); }
+    } finally { await page.evaluate(() => { App.screen='game'; }); }
     const stick = await center('#stick');
     await touch('touchStart', [{ x: stick.x, y: stick.y, id: 1 }]);
     await touch('touchMove', [{ x: stick.x, y: stick.y - (stick.width / 2 - 10) * .68, id: 1 }]);
@@ -158,14 +158,14 @@ async function exerciseCellAndPebbles(h) {
   await page.keyboard.down('w'); await tick(5); await page.keyboard.up('w');
   const barrier = await page.evaluate(() => ({ z: App.game.evade.p[2] - App.game.pow.base[2], stage: App.game.pow.stage, locked: !App.game.pow.flags.doorOpen }));
   assert.ok(barrier.z > -3.2 && barrier.locked && barrier.stage === 'cell'); record('The original closed cell door blocks held forward movement', barrier);
-  await walk(.8, 1.35);
+  await walk(0, -.15);
   const gathered = await hold('episode-pebbles');
   const finite = await page.evaluate(() => ({ stones: App.game.pow.episodeStealth.stones, pileRemaining: App.game.pow.episodeStealth.pileRemaining, meshes: App.game.campGeo.filter(q => q.id.startsWith('episode-pebble-pile:')).length }));
   assert.equal(finite.stones, 3); assert.equal(finite.pileRemaining, 0); assert.equal(finite.meshes, 0);
   record('A real held interaction collects exactly three physical pebbles', { ...finite, inventory: gathered.inventory });
   // Throw at the closed front wall. The projectile travels before it can emit
   // the impact event; collision uses the same real door as the walking test.
-  await walk(.25, -.5);
+  await walk(0, -.5);
   await page.evaluate(() => { App.game.evade.hdg = 0; App.game.evade.look = App.game.evade.pitchCmd = 0; });
   let watcher;
   for (let n = 0; n < 300; n++) {
@@ -185,7 +185,7 @@ async function exerciseCellAndPebbles(h) {
   assert.equal(impact.event.kind, 'solid'); assert.equal(impact.event.surface, 'cell-door'); assert.equal(impact.projectile.impacted, true);
   assert.deepEqual(impact.noise.p, impact.event.p); assert.match(impact.noise.source, /^episode-stone:/); assert.ok(impact.guards.length > 0 && impact.guards.every(q => q.state === 'investigate' && !q.blocked));
   record('A swept stone hits the real closed door and guards investigate the actual impact', { beforeThrow, airborne, impact });
-  await walk(-.8, .9);
+  await walk(0, -.8);
   await page.evaluate(() => { App.game.evade.pitchCmd = App.game.evade.look = -.5; });
   await hold('bunk-bracket', .8, async () => {
     const pose = await page.evaluate(() => ({ view: POW.EpisodeActions.view(App.game), left: document.querySelector('[data-action-left]')?.style.transform, right: document.querySelector('[data-action-right]')?.style.transform }));
@@ -194,7 +194,7 @@ async function exerciseCellAndPebbles(h) {
   });
   assert.equal(await page.evaluate(() => !!App.game.pow.inventory.bracket), false);
   const bracket = await hold('bunk-bracket'); assert.equal(bracket.inventory.bracket, true);
-  await walk(-.8, -.8); await walk(-1.98, -.73); await hold('wall-contact');
+  await walk(0, -3.0); await walk(-.65, -3.0); await hold('wall-contact');
   assert.equal(await page.locator('#pow-captivity').isVisible(), true, 'The real wall interaction opens covert communication');
   const panel = page.locator('#pow-captivity');
   await h.click(panel.getByRole('button', { name: 'Listen / replay message', exact: true }));
@@ -225,7 +225,7 @@ async function exerciseCellAndPebbles(h) {
   assert.equal(contact.flags.wallContact, true); assert.equal(contact.received, 1);
   await h.click(panel.getByRole('button', { name: 'Return to cell', exact: true })); await tick(.2);
   record('Physical bunk search and counted covert wall communication establish real prisoner contact', { counted, contact });
-  await walk(1.6, -2.25);
+  await walk(.5, -3.0);
   const lit = await page.evaluate(() => ({ value: POW.EpisodeScene.lightAt(App.game, [App.game.pow.base[0], App.game.pow.base[1] + 1.1, App.game.pow.base[2]], { requireLOS: true }), lights: POW.EpisodeScene.renderState(App.game).lights }));
   await hold('episode-lamp:cell-bulb');
   const dark = await page.evaluate(() => ({ on: App.game.pow.episodeScene.lamps['cell-bulb'], value: POW.EpisodeScene.lightAt(App.game, [App.game.pow.base[0], App.game.pow.base[1] + 1.1, App.game.pow.base[2]], { requireLOS: true }), lights: POW.EpisodeScene.renderState(App.game).lights }));
@@ -234,10 +234,10 @@ async function exerciseCellAndPebbles(h) {
   record('Reachable physical lamp switch changes illumination and real stealth light', { lit, dark });
   const progress = await page.evaluate(() => ({ p: App.game.evade.p.slice(), time: App.game.pow.time, inventory: { ...App.game.pow.inventory }, stealth: POW.EpisodeStealth.snapshot(App.game), scene: POW.EpisodeScene.snapshot(App.game), ai: POW.AI.snapshot(App.game) }));
   await h.click(page.locator('#powHUD').getByRole('button', { name: 'Save', exact: true }));
-  await page.waitForFunction(time => POW.ctx.Store.get('pow_checkpoint', null)?.time === time, progress.time);
+  await page.waitForFunction(time => POW.ctx.Store.get('pow_checkpoint', null)?.time === time, progress.time,{polling:50,timeout:30000});
   await page.evaluate(() => { window.__episodeBeforeContinue = App.game.pow; });
   await h.click(page.locator('#powHUD').getByRole('button', { name: 'Continue', exact: true }));
-  await page.waitForFunction(p => App.game.pow !== window.__episodeBeforeContinue && App.game.evade.p.every((v, i) => Math.abs(v - p[i]) < 1e-8) && App.game.pow.time > 0, progress.p);
+  await page.waitForFunction(p => App.game.pow !== window.__episodeBeforeContinue && App.game.evade.p.every((v, i) => Math.abs(v - p[i]) < 1e-8) && App.game.pow.time > 0, progress.p,{polling:50,timeout:30000});
   const resumed = await page.evaluate(() => ({ p: App.game.evade.p.slice(), time: App.game.pow.time, inventory: { ...App.game.pow.inventory }, stealth: POW.EpisodeStealth.snapshot(App.game), scene: POW.EpisodeScene.snapshot(App.game), ai: POW.AI.snapshot(App.game) }));
   assert.deepEqual(resumed, progress, 'Actual Save/Continue must preserve finite stones, light switches, physical work, player position and live patrol memory');
   record('Real Save and Continue preserve episode inventory, illumination, physical work and patrol memory', resumed);
@@ -246,7 +246,7 @@ async function exerciseCellAndPebbles(h) {
 
 async function completeNormalEpisode(h) {
   const { page, tick, shot, walk, hold, throwStone, record } = h;
-  await walk(.3, -2.68);
+  await walk(0, -3.0);
   const bolt = await page.evaluate(() => App.game.campGeo.find(q => q.id === 'door-bolt').p.slice());
   await hold('door-fitting', 3.4, async () => {
     const work = await page.evaluate(() => ({ view: POW.EpisodeActions.view(App.game), bolt: App.game.campGeo.find(q => q.id === 'door-bolt')?.p.slice(), open: !!App.game.pow.flags.doorOpen, barrier: App.game.pow.solids.find(q => q.id === 'cell-door')?.active !== false }));
@@ -272,16 +272,16 @@ async function completeNormalEpisode(h) {
   // Seeing a prisoner at the open doorway can correctly override the sound.
   // Withdraw behind the actual cell wall, observe the guard finish his check,
   // and leave when his unmodified patrol has physically cleared the door.
-  await walk(1.6, -1.5);
+  await walk(.65, -3.0);
   let clearance;
   for (let n = 0; n < 900; n++) {
     clearance = await page.evaluate(() => { const g = App.game, a = g.evade.searchers.find(a => a.id === 'corridor-sentry'), roof = g.evade.searchers.find(a => a.id === 'roof-watch'); return { time: g.pow.time, x: a.p[0] - g.pow.base[0], z: a.p[2] - g.pow.base[2], state: a.state, visible: a.visible, seen: a.seen, roofZ: roof.p[2] - g.pow.base[2], roofState: roof.state }; });
     if (clearance.x < -4) break; await tick(.2);
   }
   assert.ok(clearance.x < -4, 'Observe the westbound corridor patrol before taking the quiet eastbound escape route: ' + JSON.stringify(clearance));
-  await walk(.3, -2.68);
+  await walk(0, -3.0);
   record('Hiding behind the cell wall and observing the live guard creates a physical departure window', clearance);
-  await walk(.3, -5.6, { crouch: true });
+  await walk(0, -5.6, { crouch: true });
   assert.equal(await page.evaluate(() => App.game.pow.stage), 'compound');
   await walk(.3, -6.85, { crouch: true });
   await walk(14, -6.85, { crouch: true });

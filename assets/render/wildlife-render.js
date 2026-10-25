@@ -84,14 +84,15 @@
  }
  function ready(r){return !!(r&&states.get(r)?.status==='ready');}
  function shape(record,a){
-  const length=finite(a.length,1),width=finite(a.width,.1),h=finite(a.height,.1);return {length:length/Math.max(.1,record.referenceWidth),width:width/Math.max(.1,record.bodyHeight),lift:.012+Math.min(.04,h*.15)};
+  const length=finite(a.length,1),width=finite(a.width,.1),h=finite(a.height,.1);return {length:length/Math.max(.1,record.referenceWidth),width:width/Math.max(.1,record.bodyHeight),lift:Number.isFinite(a.groundLift)?clamp(a.groundLift,.012,.08):.012+Math.min(.04,h*.15)};
  }
  function groundPatch(r,s,a,record,id,world,budget=LIMITS.groundUpdates){
   if(!terrain||!point(a.p))return null;if(s.groundWorld!==world||s.groundRevision!==revision){s.ground.clear();s.groundWorld=world;s.groundRevision=revision;}
   const box=shape(record,a),yaw=finite(a.yaw),forward=[Math.sin(yaw),-Math.cos(yaw)],across=[Math.cos(yaw),Math.sin(yaw)],corners=[[0,0],[1,0],[1,1],[0,1]].map(uv=>{const x=(uv[0]-.5)*box.length,z=(uv[1]-.5)*box.width;return [a.p[0]+forward[0]*x+across[0]*z,a.p[2]+forward[1]*x+across[1]*z];});
-  let patch=s.ground.get(id),reuse=patch&&Math.hypot(a.p[0]-patch.x,a.p[2]-patch.z)<.035&&Math.abs(Math.atan2(Math.sin(yaw-patch.yaw),Math.cos(yaw-patch.yaw)))<.08&&Math.abs(box.length-patch.length)<.01&&Math.abs(box.width-patch.width)<.01;
+  const floorAt=typeof a.floorAt==='function'?a.floorAt:terrain,floorKey=typeof a.floorKey==='string'?a.floorKey:null;
+  let patch=s.ground.get(id),reuse=patch&&patch.floorKey===floorKey&&Math.hypot(a.p[0]-patch.x,a.p[2]-patch.z)<.035&&Math.abs(Math.atan2(Math.sin(yaw-patch.yaw),Math.cos(yaw-patch.yaw)))<.08&&Math.abs(box.length-patch.length)<.01&&Math.abs(box.width-patch.width)<.01;
   if(!reuse){if(s.groundUpdates>=budget)return null;s.groundUpdates++;let heights;
-   try{const sample=(x,z)=>{s.groundSamples++;return terrain(x,z);};heights=corners.map(p=>sample(...p));const center=sample(a.p[0],a.p[2]);if(!heights.every(Number.isFinite)||!Number.isFinite(center)||Math.max(...heights)-Math.min(...heights)>Math.max(.25,box.length*.9)||Math.abs(heights.reduce((sum,n)=>sum+n,0)/4-center)>.15)return null;patch={x:a.p[0],z:a.p[2],yaw,length:box.length,width:box.width,corners:corners.map(p=>p.slice()),heights,center};s.ground.delete(id);s.ground.set(id,patch);while(s.ground.size>LIMITS.groundCache)s.ground.delete(s.ground.keys().next().value);}catch(_){return null;}
+   try{const sample=(x,z)=>{s.groundSamples++;return floorAt(x,z);};heights=corners.map(p=>sample(...p));const center=sample(a.p[0],a.p[2]);if(!heights.every(Number.isFinite)||!Number.isFinite(center)||Math.max(...heights)-Math.min(...heights)>Math.max(.25,box.length*.9)||Math.abs(heights.reduce((sum,n)=>sum+n,0)/4-center)>.15)return null;patch={x:a.p[0],z:a.p[2],yaw,length:box.length,width:box.width,floorKey,corners:corners.map(p=>p.slice()),heights,center};s.ground.delete(id);s.ground.set(id,patch);while(s.ground.size>LIMITS.groundCache)s.ground.delete(s.ground.keys().next().value);}catch(_){return null;}
   }
   const du=[patch.corners[1][0]-patch.corners[0][0],patch.corners[1][1]-patch.corners[0][1]],dv=[patch.corners[3][0]-patch.corners[0][0],patch.corners[3][1]-patch.corners[0][1]],det=du[0]*dv[1]-du[1]*dv[0],dhU=patch.heights[1]-patch.heights[0],dhV=patch.heights[3]-patch.heights[0],sx=det?(dhU*dv[1]-dhV*du[1])/det:0,sz=det?(du[0]*dhV-dv[0]*dhU)/det:0,nLength=Math.hypot(sx,1,sz),normal=[-sx/nLength,1/nLength,-sz/nLength];
   const vertices=corners.map((p,i)=>[p[0],reuse?patch.center+(p[0]-patch.x)*sx+(p[1]-patch.z)*sz+box.lift:patch.heights[i]+box.lift,p[1]]),data=[];for(const i of [0,1,2,0,2,3])data.push(...vertices[i],...[[0,0],[1,0],[1,1],[0,1]][i],...normal);
@@ -119,7 +120,7 @@
  function drawSurfaces(g,r,items){
   if(!r||!g||!Array.isArray(items)||!terrain)return 0;const s=state(r);groundProgram(r,s);
   const surface=s.surfaces||(s.surfaces={ground:new Map(),groundWorld:null,groundRevision:-1,groundUpdates:0,groundSamples:0});surface.groundUpdates=surface.groundSamples=0;const patches=[];
-  for(const item of items){if(!item||!point(item.p)||!item.record||!r.textures[item.record.textureName])continue;const a={p:item.p,yaw:finite(item.yaw),length:item.length,width:item.width,height:0},patch=groundPatch(r,surface,a,item.record,String(item.id),g.world,4);if(patch)patches.push(patch);}
+  for(const item of items){if(!item||!point(item.p)||!item.record||!r.textures[item.record.textureName])continue;const a={p:item.p,yaw:finite(item.yaw),length:item.length,width:item.width,height:0,floorAt:item.floorAt,floorKey:item.floorKey,groundLift:item.groundLift},patch=groundPatch(r,surface,a,item.record,String(item.id),g.world,4);if(patch)patches.push(patch);}
   patches.sort((a,b)=>Math.hypot(b.vertices[0][0]-r.eye[0],b.vertices[0][2]-r.eye[2])-Math.hypot(a.vertices[0][0]-r.eye[0],a.vertices[0][2]-r.eye[2]));s.surfaceDrawCalls=drawGround(r,s,patches);s.surfaceDraws=patches.length;s.lastSurfaces=patches.map(p=>({id:p.id,vertices:p.vertices.map(v=>v.slice()),normal:p.normal.slice(),groundLift:p.groundLift,textureName:p.textureName}));return patches.length;
  }
  function draw(g,r,viewOverride){

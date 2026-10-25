@@ -41,7 +41,7 @@ module.exports=async function(browser,target,evidenceDir){
     }
     async function screenshot(name){await page.evaluate(()=>{App.game.render(1/60);App.game.syncControls();});const file=layout.name+'-'+name+'.png';await page.screenshot({path:path.join(out,file)});screenshots.push('pow-m22-escape/'+file);}
     async function begin(){
-      await page.evaluate(()=>{POW.begin(App.game,'regular');if(POW.Guidance?.skip)POW.Guidance.skip(App.game);App.screen='fixture';App.game.paused=false;for(const key of Object.keys(App.keys))App.keys[key]=0;App.gctl.pitch=App.gctl.roll=0;window.__m22InitialGuards=App.game.evade.searchers.map(a=>({id:a.id,p:a.p.slice(),schedule:JSON.parse(JSON.stringify(a.schedule))}));});
+      await page.evaluate(()=>{POW.begin(App.game,'regular');if(POW.Guidance?.skip)POW.Guidance.skip(App.game);App.frame=()=>{};App.screen='game';App.game.paused=false;for(const key of Object.keys(App.keys))App.keys[key]=0;App.gctl.pitch=App.gctl.roll=0;window.__m22InitialGuards=App.game.evade.searchers.map(a=>({id:a.id,p:a.p.slice(),schedule:JSON.parse(JSON.stringify(a.schedule))}));});
     }
     async function intro(cloth){
       if(cloth){await walk(1.25,-.8);const actual=await hold('regular-cloth');assert(actual.regular.inventory.cloth);}
