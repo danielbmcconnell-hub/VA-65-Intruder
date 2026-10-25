@@ -88,6 +88,7 @@ test('coach disappears in menus, pause, captivity, parachute, death and complete
 test('cleanup is appropriate during departure but does not raise gear near the returning ship', () => {
   const f = fixture(), g = air(f); g.ac.gear = true; g.departed = true;
   assert.equal(f.C.cue(g).id, 'gear-speed-limit');
+  assert.match(f.C.cue(g).text, /retract gear and hook/);assert.match(f.C.cue(g).text, /interlock applies when lowering/);
   g.ac.ias = 120; assert.equal(f.C.cue(g).id, 'clean-up');
   g.ac.p[2] = 6000; assert.notEqual(f.C.cue(g).id, 'clean-up');
 });
