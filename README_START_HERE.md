@@ -1,6 +1,8 @@
 # Intruder: Yankee Station — Codex handoff
 
-The combined wildlife, jungle, carrier and survival release is on `wildlife-jungle`. See [the current report](docs/WILDLIFE_JUNGLE_AND_CARRIER_REPORT.md) for source-bound verification, the private complete-game download and scope limits. Actual iPhone Safari remains untested.
+The photographic movement, useful pickups, aircraft, jungle and prison realism release is on `night-realism`. See [the current report](docs/NIGHT_REALISM_REPORT.md) for the private complete-game download, source-bound verification and graphics/device limits. Actual iPhone Safari remains untested.
+
+The preceding combined wildlife, jungle, carrier and survival release remains on `wildlife-jungle`. See [its report](docs/WILDLIFE_JUNGLE_AND_CARRIER_REPORT.md) for source-bound verification, the private complete-game download and scope limits. Actual iPhone Safari remains untested.
 
 The preceding photographic movement release remains on `highres-fluid-movement`. See [the motion report](docs/PHOTOGRAPHIC_MOTION_REPORT.md) for the complete pose inventory, timing behavior, reproducible checks and deployment instructions. The original transfer notes below describe the earlier baseline; use the current report and recorded evidence when assessing those issues. Actual iPhone Safari remains untested.
 

@@ -1,3 +1,11 @@
+# Clarity, movement and night/prison realism — latest complete game
+
+[Download the private complete-game ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/archive/refs/heads/night-realism-site.zip) (GitHub sign-in required). [Report and local play](../docs/NIGHT_REALISM_REPORT.md) · [Reviewed renderer images](night-realism-screenshots/) · [Original scoped test evidence](night-realism-tests.json).
+
+Adds a neutral crisp display finish, actual-bearing missile warnings and bounded motor effects, repaired aircraft interiors/glazing and rotor presentation, complete-pose loading continuity, independent photographic hands and useful ground pickups, photographic jungle ground cover, prison materials, a dismissible meal view and a continuous capture/holding transition. All 48 registered browser suites passed on the preserved baseline. The released source has one explicitly reviewed demonstration-controller amendment, verified by 991 fresh CPU runner cases, all twelve mission successes and current packaged-runtime checks; the report preserves those source scopes. Finite photographic billboards and rendered aircraft retain the limitations described in the report. Physical-device performance and actual iPhone Safari are untested; no live Netlify deployment was performed.
+
+Earlier releases follow unchanged.
+
 # Wildlife, jungle, carrier and survival — latest complete game
 
 [Download complete game ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/archive/refs/heads/wildlife-jungle-site.zip) (private GitHub sign-in required). [Report/deployment](../docs/WILDLIFE_JUNGLE_AND_CARRIER_REPORT.md) · [Reviewed renderer evidence](wildlife-jungle-screenshots/).
