@@ -26,6 +26,7 @@ module.exports = async function missionChecks(browser, baseURL, output) {
       const sourceSha256 = crypto.createHash('sha256').update(await response.text()).digest('hex');
       await page.waitForFunction(()=>window.App && App.screen==='boot');
       await page.click('#bootGo');
+      await page.evaluate(()=>{window.__missionNativeFrame=App.frame;window.__missionFrameStopped=false;});
       await page.click('#tabs [data-tab="set"]');
       await page.getByRole('button',{name:'Unlock all missions',exact:true}).click();
       assert.equal(await page.locator('#readyBody .mcard').count(),12);
@@ -33,13 +34,19 @@ module.exports = async function missionChecks(browser, baseURL, output) {
       for(let i=0;i<11;i++) {
         await page.locator('#readyBody .mcard').nth(i).click();
         const mission=await page.evaluate(()=>({id:App.mission.id,title:App.mission.title,airStart:!!App.mission.airStart}));
+        // Restore genuine startup scheduling only while the new game initializes.
+        await page.evaluate(()=>{if(window.__missionFrameStopped){App.frame=window.__missionNativeFrame;window.__missionFrameStopped=false;requestAnimationFrame(t=>App.frame(t));}});
         await page.getByRole('button',{name:'Man Aircraft',exact:true}).click();
         await page.waitForFunction(id=>document.getElementById('graphicError') ||
-          (App.game?.mis.id===id && document.getElementById('loader').style.display==='none' && App.game.t>0),mission.id,{timeout:45000});
+          (App.game?.mis.id===id && document.getElementById('loader').style.display==='none' && App.game.t>0),mission.id,{polling:50,timeout:45000});
         assert.equal(await page.locator('#graphicError').count(),0,'Renderer must remain usable');
         // Complete human photographs are resident in flight; vegetation is
         // intentionally requested only when an actual ground scene needs it.
         await waitCompletePhotographs(page);
+        // Native startup has completed. Bound the software renderer while
+        // trusted controls drive the original fixed-step game below; its
+        // explicit render and screenshot still use real WebGL.
+        await page.evaluate(()=>{App.frame=()=>{};window.__missionFrameStopped=true;});
         if(!mission.airStart) {
           if(cdp) {
             const b=await page.locator('#pickle').boundingBox();
