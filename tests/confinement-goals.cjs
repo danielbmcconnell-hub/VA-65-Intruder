@@ -91,3 +91,14 @@ test('a secondary touch cannot open a summary while another control owns the pri
 test('a reused summary cannot acquire a second fallback listener and double-toggle',()=>{
  const {G,node}=summaryFixture();assert.equal(G.bindSummaryTouch(node),false);node.emit('pointerdown',finger());node.emit('pointerup',finger());assert.equal(node.activations,1);
 });
+function overlayFixture(value='',priority=''){
+ const {G}=fixture(),listeners=new Map(),values=new Map(value?[['visibility',{value,priority}]]:[]);values.set('display',{value:'flex',priority:''});
+ const overlay={style:{getPropertyValue(k){return values.get(k)?.value||'';},getPropertyPriority(k){return values.get(k)?.priority||'';},setProperty(k,value,priority=''){values.set(k,{value,priority});},removeProperty(k){values.delete(k);}}},menu={open:false,isConnected:true,addEventListener(k,f){listeners.set(k,f);},removeEventListener(k,f){if(listeners.get(k)===f)listeners.delete(k);}};
+ const binding=G.bindMenuOverlay(menu,overlay);return {G,menu,overlay,binding,values,toggle(open){menu.open=open;listeners.get('toggle')?.();},listenerCount:()=>listeners.size};
+}
+test('Camp opening suspends only context-overlay visibility and restores its exact prior presentation on close',()=>{
+ for(const [value,priority]of [['',''],['visible','important'],['hidden','']]){const f=overlayFixture(value,priority);f.toggle(true);f.binding.sync();assert.deepEqual(f.values.get('visibility'),{value:'hidden',priority:'important'});assert.deepEqual(f.values.get('display'),{value:'flex',priority:''});f.toggle(false);assert.equal(f.overlay.style.getPropertyValue('visibility'),value);assert.equal(f.overlay.style.getPropertyPriority('visibility'),priority);assert.deepEqual(f.values.get('display'),{value:'flex',priority:''});}
+});
+test('context-overlay suspension is idempotent and restores the original style on menu cleanup or disconnection',()=>{
+ const f=overlayFixture('visible','important');assert.equal(f.G.bindMenuOverlay(f.menu,f.overlay),f.binding);assert.equal(f.listenerCount(),1);f.toggle(true);f.binding.dispose();assert.equal(f.listenerCount(),0);assert.deepEqual(f.values.get('visibility'),{value:'visible',priority:'important'});const next=f.G.bindMenuOverlay(f.menu,f.overlay);assert.notEqual(next,f.binding);f.menu.isConnected=false;next.sync();assert.deepEqual(f.values.get('visibility'),{value:'visible',priority:'important'});
+});

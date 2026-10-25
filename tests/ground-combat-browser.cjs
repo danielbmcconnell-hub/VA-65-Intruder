@@ -32,6 +32,95 @@ module.exports=async function(browser,target,evidenceDir){
    await page.keyboard.down('Space');let freePunch;
    try{freePunch=await page.evaluate(before=>{const g=App.game;for(let i=0;i<40;i++){g.t+=1/60;g._weapons(1/60,g.evade,App,App.keys);}return {rounds:g.evade.rounds,mode:g.evade.weaponMode,expended:SurvivalAmmunition.view(g).bulletsExpended-before,punch:GroundCombat.inspectPunch(g)};},punchBefore);}finally{await page.keyboard.up('Space');await page.evaluate(()=>App.game._weapons(1/60,App.game.evade,App,App.keys));}
    assert.equal(freePunch.rounds,6);assert.equal(freePunch.mode,'pistol');assert.equal(freePunch.expended,0);assert.equal(freePunch.punch.serial,1);record('Native held Space makes one free-hand punch while the selected pistol retains every round',freePunch);
+   // Native selection and input cover the held-tool paths separately from the
+   // legacy target/occlusion fixtures above. Only the actor's starting encounter
+   // is declared; original input, weapon acceptance, animation and ledger run.
+   const activate=async selector=>options.hasTouch?page.locator(selector).tap():page.locator(selector).click();
+   const advancePrimary=seconds=>page.evaluate(seconds=>{
+    const g=App.game,e=g.evade,r=Math.random;let left=seconds;
+    Math.random=()=>0;try{while(left>1e-10){const dt=Math.min(left,1/60);g.t+=dt;g._weapons(dt,e,App,App.keys);EquipmentView.step(g,dt,0);left-=dt;}}finally{Math.random=r;}
+    g.render(0);g.syncControls();return {mode:e.weaponMode,rounds:e.rounds,action:e.actionT??null,melee:e._meleeT??null,queued:e.attackWant||0,held:!!e.primaryAttackDown,
+      bullets:SurvivalAmmunition.view(g).bulletsExpended,punch:GroundCombat.inspectPunch(g),equipment:EquipmentView.inspect(g),target:{alive:e.searchers[0]?.alive,wounds:e.searchers[0]?.wounds||0}};
+   },seconds);
+   const select=async mode=>{
+    await page.evaluate(()=>{const g=App.game;__combatSet(0,2);g.evade.weaponMode='fists';g.evade.drawn=0;GroundCombat.resetPunch(g);EquipmentView.reset(g);g.render(0);g.syncControls();});
+    await activate(mode==='knife'?'#btnKnife':'#btnPistol');
+    const selected=await advancePrimary(1/60);assert.equal(selected.mode,mode);
+    return selected;
+   };
+   const knifeBefore=await select('knife');
+   if(!options.hasTouch)assert.equal(await page.evaluate(()=>document.activeElement.id),'btnKnife','Native weapon-selector focus must not block T');
+   await page.keyboard.down('t');const knifeFirst=await advancePrimary(.12);await page.keyboard.down('t');const knifeHeld=await advancePrimary(.95);await page.keyboard.up('t');
+   assert.equal(knifeFirst.rounds,6);assert.equal(knifeFirst.target.alive,false);assert.ok(knifeFirst.action>0);assert.equal(knifeFirst.equipment.pulses,1);
+   assert.equal(knifeHeld.action,knifeFirst.action);assert.equal(knifeHeld.equipment.pulses,1);assert.equal(knifeHeld.bullets,knifeBefore.bullets);assert.equal(knifeHeld.queued,0);
+   record('Original Knife selector then native T accepts one animated stab; repeated held key cannot replay it',{before:knifeBefore,first:knifeFirst,held:knifeHeld});
+   const pistolBefore=await select('pistol');await page.keyboard.down('t');const pistolFirst=await advancePrimary(.12);await page.keyboard.down('t');const pistolHeld=await advancePrimary(1.1);await page.keyboard.up('t');
+   assert.equal(pistolFirst.rounds,5);assert.equal(pistolFirst.bullets-pistolBefore.bullets,1);assert.equal(pistolFirst.equipment.pulses,1);
+   assert.equal(pistolHeld.rounds,5);assert.equal(pistolHeld.bullets,pistolFirst.bullets);assert.equal(pistolHeld.equipment.pulses,1);
+   record('Native T fires the selected pistol once with exact ammunition accounting and no held-key replay',{before:pistolBefore,first:pistolFirst,held:pistolHeld});
+   await select('knife');await page.keyboard.down('Space');const knifePunch=await advancePrimary(1/60),knifePunchHeld=await advancePrimary(.6);await page.keyboard.up('Space');await advancePrimary(1/60);
+   assert.ok(knifePunch.punch.left);assert.equal(knifePunch.punch.right,null);assert.equal(knifePunch.punch.hands.right,'knife');assert.equal(knifePunch.punch.serial,1);
+   assert.equal(knifePunchHeld.punch.serial,1);assert.equal(knifePunchHeld.rounds,6);assert.equal(knifePunchHeld.action,null);assert.equal(knifePunchHeld.equipment.pulses,0);
+   record('Native Space with a held knife animates only the empty left hand and never stabs or spends a round',{first:knifePunch,held:knifePunchHeld});
+   await select('knife');
+   const actionButton=await page.locator('#btnFire').evaluate(b=>{const r=b.getBoundingClientRect();return {text:b.textContent,label:b.getAttribute('aria-label'),rect:{x:r.x,y:r.y,width:r.width,height:r.height},hit:document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)===b,keyboardHint:getComputedStyle(b,'::after').content};});
+   assert.equal(actionButton.text,'STAB');assert.match(actionButton.label,/stab.*knife/i);assert.equal(actionButton.hit,true);assert.ok(actionButton.rect.width>=44&&actionButton.rect.height>=44);
+   if(!options.hasTouch){assert.ok(actionButton.rect.height<=44);assert.match(actionButton.keyboardHint,/T/);}
+   await activate('#btnFire');const buttonStab=await advancePrimary(.12);assert.equal(buttonStab.equipment.pulses,1);assert.equal(buttonStab.rounds,6);assert.equal(buttonStab.target.alive,false);
+   await page.waitForFunction(()=>{const a=document.getElementById('weaponArt');return a.complete&&a.naturalWidth>0;});
+   record('Visible STAB action is an actual unobscured native hit target and accepts the selected knife',{actionButton,accepted:buttonStab});await shot('native-stab-action-and-prompt');
+   if(!options.hasTouch){
+    const locked=[];
+    for(const mode of ['knife','pistol']){
+     const before=await select(mode);await page.mouse.move(600,250);await page.keyboard.press('y');
+     await page.waitForFunction(()=>document.pointerLockElement===document.getElementById('stack'),null,{timeout:5000});
+     await page.evaluate(()=>{window.__lockedPrimaryTarget=null;document.getElementById('stack').addEventListener('pointerdown',event=>{if(event.isTrusted&&event.pointerType==='mouse'&&event.button===0)window.__lockedPrimaryTarget=event.target.id;},{once:true});});
+     await page.mouse.down();assert.equal(await page.evaluate(()=>App.game.evade.primaryAttackDown),true);
+     const actual=await advancePrimary(.12);await page.mouse.up();
+     assert.equal(await page.evaluate(()=>window.__lockedPrimaryTarget),'stack','Actual locked browser input must retarget to #stack');
+     assert.equal(actual.equipment.pulses,1);assert.equal(actual.rounds,mode==='pistol'?5:6);assert.equal(actual.bullets-before.bullets,mode==='pistol'?1:0);
+     locked.push({mode,before,actual,target:await page.evaluate(()=>window.__lockedPrimaryTarget)});
+     await page.evaluate(()=>document.exitPointerLock());await page.waitForFunction(()=>!document.pointerLockElement);
+    }
+    record('Real browser pointer lock acquired by native Y accepts retargeted knife and pistol primary clicks',locked);
+   }
+   // Real Controls, Supplies and Pause interactions must consume primary input
+   // while open. A genuine key queued immediately before opening is discarded.
+   const blocked=[];
+   for(const menu of ['controls','supplies','pause']){
+    const before=await select('pistol');
+    await page.keyboard.press('t');assert.equal(await page.evaluate(()=>App.game.evade.attackWant),1);
+    if(menu==='controls')await activate('#btnKeys');else if(menu==='supplies')await activate('#groundItemsToggle');else await activate('#pauseBtn');
+    await page.waitForFunction(()=>!App.game.evade.attackWant&&!App.game.evade.primaryAttackDown);
+    await page.keyboard.down('t');await page.keyboard.down('t');
+    const open=await advancePrimary(.05);assert.equal(open.rounds,6);assert.equal(open.queued,0);
+    if(menu==='controls')await activate('#legend [data-close-controls]');else if(menu==='supplies')await activate('#groundItemsClose');else await page.keyboard.press('Escape');
+    const resumed=await advancePrimary(1.1);await page.keyboard.up('t');assert.equal(resumed.rounds,6);assert.equal(resumed.bullets,before.bullets);assert.equal(resumed.queued,0);
+    blocked.push({menu,open,resumed});
+   }
+   record('Actual Controls Supplies and Pause discard queued primary actions and held menu keys cannot fire on close',blocked);
+   const focusBefore=await select('pistol');
+   await page.evaluate(()=>{const input=document.createElement('input');input.id='combatFocusFixture';input.setAttribute('aria-label','Declared text-focus input fixture');Object.assign(input.style,{position:'fixed',top:'120px',left:'20px',zIndex:'9999'});document.body.appendChild(input);});
+   await page.locator('#combatFocusFixture').fill('t');await page.keyboard.press('t');const typed=await advancePrimary(.05);
+   assert.equal(typed.rounds,6);assert.equal(typed.queued,0);assert.equal(typed.bullets,focusBefore.bullets);
+   await page.locator('#combatFocusFixture').evaluate(n=>n.remove());const afterTyping=await advancePrimary(1.1);assert.equal(afterTyping.rounds,6);
+   record('Native typing in a declared focused text input does not queue a weapon action during or after focus',{typed,afterTyping});
+   // Declared UI-visibility fixture: briefly expose the original POW HUD over
+   // this field encounter, without granting a POW stage, escape or equipment.
+   // Attribute changes exercise the real mounted Camp/Condition details and
+   // native T input while no unrelated text field holds focus.
+   const powReading=[];
+   for(const selector of ['.pow-tools-menu','.pow-condition']){
+    const before=await select('pistol');
+    const wasHidden=await page.evaluate(()=>{const n=document.getElementById('powHUD'),old=n.hidden;n.hidden=false;return old;});
+    await page.keyboard.press('t');assert.equal(await page.evaluate(()=>App.game.evade.attackWant),1);
+    const visible=await page.locator('#powHUD '+selector).evaluate(n=>{n.open=true;return n.getClientRects().length>0;});assert.equal(visible,true);
+    await page.waitForFunction(()=>!App.game.evade.attackWant&&!App.game.evade.primaryAttackDown);
+    await page.keyboard.press('t');assert.equal(await page.evaluate(()=>App.game.evade.attackWant||0),0);
+    await page.locator('#powHUD '+selector).evaluate(n=>{n.open=false;});await page.evaluate(hidden=>{document.getElementById('powHUD').hidden=hidden;},wasHidden);
+    const after=await advancePrimary(1.1);assert.equal(after.rounds,6);assert.equal(after.bullets,before.bullets);powReading.push({selector,visible,after});
+   }
+   record('Declared original Camp and Condition visibility consumes queued attacks and blocks native T without a later shot',powReading);
    const occlusion=await page.evaluate(()=>{const G=App.game;G.startCamp(1);const E=G.evade;E.locals=[];E.cattle=[];let fixture;for(const wall of G.campGeo){const d=G._solidHalf(wall.m,wall.s||1);if(!d)continue;const cs=Math.cos(wall.y||0),sn=Math.sin(wall.y||0);for(const side of [-1,1]){const x=wall.p[0]+side*(d[0]+.355)*cs,z=wall.p[2]+side*(d[0]+.355)*sn;if(G._campSolidAt(x,z,.35)||Math.hypot(x-E.p[0],z-E.p[2])<2)continue;const rows=[];for(const alive of [true,false]){const actor={p:[x,0,z],goal:[x+2,0,z],kind:'nva',armed:true,alive,kick:{a:Math.atan2(-side*cs,side*sn),v:3.4},downAt:G.t};E.searchers=[actor];const before=actor.p.slice();G._stepReactions(.2,E);rows.push({alive,before,after:actor.p.slice(),blocked:G._campSolidAt(actor.p[0],actor.p[2],.35),moved:Math.hypot(actor.p[0]-before[0],actor.p[2]-before[2])})}fixture={wall:{m:wall.m,p:wall.p,half:d,y:wall.y},rows};break}if(fixture)break}if(!fixture)throw Error('No original camp-wall fixture');return fixture});
    assert.ok(occlusion.rows.every(r=>!r.blocked&&r.moved<.02));record('original swept collision stops both living and fallen NPC knockback at a real camp wall',occlusion);await shot('original-wall-stops-reaction');
    const volume=await page.evaluate(()=>{const G=App.game;const a=__combatSet(0,8),e=G.evade;const options={floorAt:p=>p[1],eyeHeight:1.68};e.p[1]=0;a.p[1]=5;let q=GroundCombat.target(G,e,options);const flat=q===null;e.look=Math.atan2(5,8)+.04;q=GroundCombat.target(G,e,options);const raised=q&&q.actor===a;e.look=0;a.p[1]=0;const nearer={...a,p:[e.p[0],0,e.p[2]-4]};e.locals=[nearer];q=GroundCombat.target(G,e,options);const nearest=q&&q.actor===nearer;return {flat,raised,nearest}});assert.deepEqual(volume,{flat:true,raised:true,nearest:true});record('declared floor and nearer-body fixtures respect vertical placement and physical occlusion order',volume);

@@ -4,7 +4,7 @@
  'use strict';
  const P=root.POW;if(!P)throw Error('POW core must load before confinement goals.');
  const finite=(n,d=0)=>Number.isFinite(n)?n:d,clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
- const PROJECTS=['car','architecture','city','memory'],touchSummaries=new WeakSet();let installed=false;
+ const PROJECTS=['car','architecture','city','memory'],touchSummaries=new WeakSet(),menuOverlays=new WeakMap();let installed=false,mountedHUD=null;
  function view(game){
   const s=game&&game.pow,c=s&&s.captivity;if(!s||!c||s.stage!=='solitary')return null;
   const stats=s.stats||{},day=Math.max(1,finite(s.day,1)),rewards=c.rewards||{},daily=c.daily||{},tap=c.tap||{},vent=c.vent||{};
@@ -43,7 +43,21 @@
  function el(tag,text,cls){const n=root.document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
  function current(){return P.ctx&&P.ctx.App&&P.ctx.App.game;}
  function blurInside(node){const a=root.document.activeElement;if(a&&node.contains(a)&&a.blur)a.blur();}
- function closeMenu(menu){if(!menu)return;menu.open=false;blurInside(menu);}
+ function closeMenu(menu){if(!menu)return;menu.open=false;menuOverlays.get(menu)?.sync();blurInside(menu);}
+ function bindMenuOverlay(menu,overlay){
+  if(!menu||!overlay||!overlay.style)return null;
+  if(menuOverlays.has(menu))return menuOverlays.get(menu);
+  let before=null;
+  const restore=()=>{if(!before)return;if(before.value)overlay.style.setProperty('visibility',before.value,before.priority);else overlay.style.removeProperty('visibility');before=null;};
+  const sync=()=>{
+   if(menu.open&&menu.isConnected!==false){
+    if(!before)before={value:overlay.style.getPropertyValue('visibility'),priority:overlay.style.getPropertyPriority('visibility')};
+    overlay.style.setProperty('visibility','hidden','important');
+   }else restore();
+  };
+  const binding={sync,dispose(){restore();menu.removeEventListener('toggle',sync);menuOverlays.delete(menu);}};
+  menu.addEventListener('toggle',sync);menuOverlays.set(menu,binding);sync();return binding;
+ }
  function bindSummaryTouch(summary){
   if(!summary||typeof summary.addEventListener!=='function'||touchSummaries.has(summary))return false;
   touchSummaries.add(summary);let press=null,touchClickUntil=0;
@@ -72,20 +86,23 @@
   return true;
  }
  function attachHUD(){
-  const u=P.ui;if(!root.document||!u||u.confinementGoals)return;
+  const u=P.ui;if(mountedHUD&&(mountedHUD.ui!==u||mountedHUD.menu.isConnected===false)){mountedHUD.overlay?.dispose();mountedHUD=null;}
+  if(!root.document||!u||u.confinementGoals)return;
   const tools=u.root.querySelector('.pow-tools'),menu=el('details',undefined,'pow-tools-menu'),summary=el('summary','Camp menu'),actions=el('div',undefined,'pow-menu-actions');
   if(tools){const children=Array.from(tools.children);menu.appendChild(summary);menu.appendChild(actions);for(const n of children)actions.appendChild(n);tools.appendChild(menu);menu.addEventListener('toggle',()=>{if(menu.open){for(const d of u.header.querySelectorAll('details[open]'))d.open=false;if(root.HUDLayout&&root.HUDLayout.closePanels)root.HUDLayout.closePanels('pow-menu');}else blurInside(menu);});actions.addEventListener('click',event=>{if(event.target.closest('button'))closeMenu(menu);});}
   const row=el('div',undefined,'pow-goals-toolbar'),condition=u.header.querySelector('.pow-condition'),button=el('button','Goals / progress','pow-goals-open');button.type='button';button.setAttribute('data-confinement-goals','');button.addEventListener('click',()=>{const g=current();if(g&&P.Captivity){closeMenu(menu);P.Captivity.open(g,'goals');}});
   if(condition)row.appendChild(condition);row.appendChild(button);u.header.insertBefore(row,u.river||null);
   if(condition)condition.addEventListener('toggle',()=>{if(condition.open)closeMenu(menu);});
   for(const node of [summary,condition&&condition.querySelector('summary'),u.settings&&u.settings.querySelector('summary')])bindSummaryTouch(node);
-  u.confinementGoals={row,button,condition,summary:condition&&condition.querySelector('summary'),menu,lastGame:null};
+  const contextOverlay=bindMenuOverlay(menu,u.root.querySelector('.pow-context-controls'));mountedHUD={ui:u,menu,overlay:contextOverlay};
+  u.confinementGoals={row,button,condition,summary:condition&&condition.querySelector('summary'),menu,contextOverlay,lastGame:null};
  }
  function renderHUD(game){
   attachHUD();const u=P.ui,g=u&&u.confinementGoals;if(!g)return;const model=view(game);g.button.hidden=!model;
   const modal=!!(game&&game.pow&&(game.pow.modalOpen||game.pow.captivity&&game.pow.captivity.open));
   if(modal)closeMenu(g.menu);
   if(g.lastGame!==game){closeMenu(g.menu);if(g.condition)g.condition.open=false;g.lastGame=game;}
+  if(u.root.hidden)closeMenu(g.menu);else g.contextOverlay?.sync();
   if(!model){if(g.summary)g.summary.textContent='Condition';return;}
   if(g.summary)g.summary.textContent='Body '+Math.round(model.condition[0].value)+' · Mind '+Math.round(model.condition[1].value)+' · Hope '+Math.round(model.condition[2].value);
   g.button.textContent='Goals · '+model.dailyDone+'/'+model.dailyTotal;
@@ -128,5 +145,5 @@
   },true);
   return true;
  }
- P.ConfinementGoals=Object.freeze({view,renderHUD,renderPanel,install,bindSummaryTouch});install();
+ P.ConfinementGoals=Object.freeze({view,renderHUD,renderPanel,install,bindSummaryTouch,bindMenuOverlay});install();
 })(typeof window!=='undefined'?window:globalThis);

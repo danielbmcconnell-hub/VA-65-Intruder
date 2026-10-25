@@ -36,6 +36,16 @@ test('ordinary missions begin with optional coaching off; practice can enable it
   f.C.setEnabled(false, f.game, false); assert.equal(f.C.enabled(f.game), false);
   const another = fixture(); f.C.setEnabled(true, f.game, false); assert.equal(f.C.enabled(another.game), false);
 });
+test('B/N guidance defaults on only without a saved choice and never changes pilot or flight controls', () => {
+  const f = fixture(), g = f.game; g.rightSeat = true;
+  const before = JSON.stringify(g); assert.equal(f.C.enabled(g), true); f.C.tick(g, .1); assert.equal(JSON.stringify(g), before);
+  assert.equal(f.C.enabled({ ...g, rightSeat: false }), false);
+  function Game() {} Game.prototype.update = function () {}; Game.prototype.debrief = function () {};
+  const writes = [], App = { game: g, screen: 'game' };
+  f.C.install({ Game, App, Store: { get: (_, fallback) => { assert.equal(fallback, null); return false; }, set: (...args) => writes.push(args) } });
+  assert.equal(f.C.enabled(g), false); assert.equal(f.C.enabled({ ...g }), false); assert.deepEqual(writes, []);
+  f.C.uninstall();
+});
 test('snapshot reads correct aircraft/radar units without modifying source fields', () => {
   const f = fixture(), g = air(f); g.ac.p = [0, 304.8, 1852]; g.ac.ias = 100; g.ac.radalt = 60.96; g.ac.roll = Math.PI / 6;
   g.world.nav = { ex: 300, ez: 400, fixes: 2 }; const before = JSON.stringify(g), d = f.C.snapshot(g);
@@ -81,6 +91,34 @@ test('out-of-range checkpoints do not falsely claim a visible or close radar fix
 test('blind target instruction preserves coordinate attacks and navigation error consequences', () => {
   const f = fixture(), g = air(f); g.world.blind = true;
   const p = f.C.cue(g); assert.equal(p.id, 'blind-designation'); assert.match(p.text, /does not paint/); assert.match(p.text, /Navigation error/);
+});
+test('offset guidance follows the actual first lock, second lock and shifted designation states', () => {
+  const f = fixture(), g = air(f); g.rightSeat = true;
+  g.world.oap = { label: 'River bridge', p: [0, 0, 0], brg: 90, rng: 1200 };
+  let before = JSON.stringify(g), p = f.C.cue(g); assert.equal(p.id, 'offset-acquire'); assert.match(p.text, /River bridge/); assert.match(p.text, /LOCK again/); assert.equal(JSON.stringify(g), before);
+  g.world.designated = { p: [0, 0, 0], label: 'OFFSET POINT' }; g.world.oapLocked = true;
+  before = JSON.stringify(g); p = f.C.cue(g); assert.equal(p.id, 'offset-shift'); assert.match(p.text, /crosshairs there/); assert.match(p.text, /Enter \/ LOCK again/); assert.equal(JSON.stringify(g), before);
+  g.world.oapLocked = false; g.world.designated = { p: [1200, 0, 0], offset: true };
+  assert.equal(f.C.cue(g).id, 'solution-wait');
+  g.mis.noRelease = true; g.world.oapLocked = true; assert.equal(f.C.cue(g).id, 'weapons-tight');
+});
+test('B/N bomb consent explains the real master-arm linkage while ARM missile shots require separate presses', () => {
+  const f = fixture(), g = air(f); g.rightSeat = true; g.world.designated = { p: [0, 0, 0] }; g.sol = { valid: true, az: 0, tRel: 4 };
+  let p = f.C.cue(g); assert.match(p.text, /Hold Space \/ COMMIT/); assert.match(p.text, /sets MASTER ARM/); assert.match(p.text, /release returns SAFE/);
+  g.app.gctl.commit = 1; p = f.C.cue(g); assert.equal(p.id, 'attack-consent'); assert.match(p.text, /pilot flies the needles/); assert.match(p.text, /let go after bombs away/);
+  g.mis.type = 'ironhand'; g.ac.arms = 2; g.world.radar = { alive: true, emitting: true };
+  const before = JSON.stringify(g); p = f.C.cue(g); assert.equal(p.id, 'arm-emitting'); assert.match(p.text, /Press Space \/ COMMIT once/); assert.match(p.text, /release before another shot/); assert.equal(JSON.stringify(g), before);
+});
+test('a completed weapons-tight mission advances to B/N return monitoring without treating empty stores as completion', () => {
+  const f = fixture(), g = air(f, 'recce'); g.rightSeat = true; g.ac.bombs = 0; g.ac.arms = 0;
+  assert.equal(f.C.cue(g).id, 'weapons-tight'); g.egressCalled = true;
+  const before = JSON.stringify(g), p = f.C.cue(g); assert.equal(p.id, 'egress'); assert.match(p.text, /pilot is returning/); assert.match(p.text, /TACAN bearing and DME/); assert.equal(JSON.stringify(g), before);
+});
+test('the native egress flag takes priority while subset mission targets remain alive', () => {
+  const f = fixture(), g = air(f); g.mis.id = 'm7'; g.rightSeat = true;
+  g.world.targets = [{ alive: false }, { alive: false }, { alive: false }, { alive: false }, { alive: true }, { alive: true }];
+  g.egressCalled = true;
+  const before = JSON.stringify(g), p = f.C.cue(g); assert.equal(p.id, 'egress'); assert.equal(p.facts.remainingTargets, 2); assert.match(p.text, /pilot is returning/); assert.equal(JSON.stringify(g), before);
 });
 test('valid attack guidance follows actual bank, azimuth, solution and held-consent fields', () => {
   const f = fixture(), g = air(f); g.world.designated = { p: [0, 0, 0] }; g.world.lock = true; g.sol = { valid: true, az: 0, tRel: 4.3 };

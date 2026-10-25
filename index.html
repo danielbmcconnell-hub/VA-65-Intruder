@@ -404,7 +404,9 @@ body.onfoot #btnFire{display:flex}
    to use them in, and whether the one you want is available yet — and
    hidden, the whole rescue came down to remembering that R did
    something, from a card you are allowed to dismiss. */
-body.onfoot.desktop #btnFire{display:none}
+body.onfoot.desktop #btnFire{display:flex;width:112px;height:44px;border-radius:5px;
+  font-size:12px;letter-spacing:.06em;flex-direction:column;gap:2px}
+body.onfoot.desktop #btnFire::after{content:'T / click';font:10px var(--ff-mono);letter-spacing:0}
 #btnRun.on{background:rgba(242,105,27,.30);border-color:var(--tiger);color:#ffd9bc}
 .sbtn.none{opacity:.34}
 .sbtn.on{background:rgba(242,105,27,.30);border-color:var(--tiger);color:#ffd9bc}
@@ -6687,9 +6689,9 @@ const TEACH_COMMON = [
  {at:'navstart', hold:1, t:'Navigating',
   b:'The blue diamond on the scope is where the system THINKS the next checkpoint is. The feature itself paints wherever it really is. The gap between them is the error. Slew onto the real return and press ENTER, and the computer learns where it is — do that at every checkpoint and the target will be where it says it is.',
   k:'SLEW TO THE REAL RETURN · ENTER'},
- {at:'rightseat', t:'The Right Seat',
-  b:'He flies, you fight. Give him steers — C puts him on your crosshairs, the comma and full stop keys move him five degrees. Find the target on the scope, lock it, and hold consent through release. The computer drops the bombs, not the pilot.',
-  k:'C — STEER · ENTER — LOCK · SPACE — CONSENT'},
+ {at:'rightseat', t:'You Are the B/N — Your Job',
+  b:'The pilot launches, flies and lands. You run navigation and the attack. 1: Open CHART and read the route. 2: On SCOPE, slew onto each real checkpoint return and use LOCK for a navigation fix. 3: Identify the briefed target and LOCK it; STEER sends the pilot toward your crosshairs. 4: On a cleared bomb run, hold Space through release; this also sets MASTER ARM. Let go after bombs away and monitor the return. Weapons-tight: retain every weapon. Emergency: J ejects both seats, or tap EJECT twice.',
+  k:'CHART → RADAR FIXES → TARGET LOCK → HOLD CONSENT'},
  {at:'offset', t:'Offset Aiming',
   b:'That hard return is not the target — it is the point you measure from. The target will not paint at all. Lock again and the computer walks the designation out along the briefed bearing and range, and attacks a place neither of you can see.',
   k:'LOCK AGAIN TO SHIFT TO THE TARGET'},
@@ -11611,14 +11613,33 @@ const App = {
       $('#'+id).onclick=()=>{const e=this.game&&this.game.evade;if(e&&!e.frozen)e.weaponWant=weapon;};
     $('#btnSurrender').onclick=()=>{if(this.game)this.game.raiseHands();};
     let fireHold=null;
+    const groundAttackBlocked=()=>{
+      const game=this.game,e=game?.evade,focus=document.activeElement;
+      const shown=id=>{const n=document.getElementById(id);return !!(n&&!n.hidden&&n.getClientRects().length&&getComputedStyle(n).visibility!=='hidden');};
+      return this.screen!=='game'||!e||game.paused||e.frozen||e.held||e.handsUp||e.swimming||game.result||game._capturePending||game._solitaryActive||this.graphicsContextLost||document.hidden||
+        game.pow&&(game.pow.modalOpen||game.pow.captivity?.open||game.pow.traversal||!['hanoi','river'].includes(game.pow.stage)||
+          game.pow.river&&!['bank','hidden'].includes(game.pow.river.mode)||POW.Mindscape?.active(game)||POW.EpisodeActions?.busy(game))||
+        !!focus?.closest?.('input,textarea,select,[contenteditable=true],[role=dialog][aria-modal=true]')||
+        Array.from(document.querySelectorAll('#powHUD .pow-tools-menu[open],#powHUD .pow-condition[open]')).some(n=>!n.hidden&&n.getClientRects().length&&getComputedStyle(n).visibility!=='hidden')||
+        ['pauseVeil','captVeil','debriefVeil','legend','knee'].some(id=>document.getElementById(id)?.classList.contains('on'))||
+        ['groundItemsPanel','pow-captivity','prisonFood'].some(shown);
+    };
+    const queueGroundAttack=()=>{
+      if(groundAttackBlocked())return false;
+      this.game.evade.attackWant=1;return true;
+    };
     const beginGroundFire=event=>{
       const game=this.game,e=game&&game.evade;
-      if(this.screen!=='game'||!e||game.paused||e.frozen||e.held||game.pow?.modalOpen||game.pow?.captivity?.open)return;
+      if(!queueGroundAttack())return;
       fireHold={game,actor:e,id:event.pointerId};e.primaryAttackDown=true;e.attackWant=1;
     };
     const releaseGroundFire=(event,cancel=false)=>{
       if(!fireHold||event&&event.pointerId!==fireHold.id)return;
       fireHold.actor.primaryAttackDown=false;if(cancel)fireHold.actor.attackWant=0;fireHold=null;
+    };
+    const cancelGroundFire=()=>{
+      releaseGroundFire(null,true);const e=this.game?.evade;
+      if(e){e.primaryAttackDown=false;e.attackWant=0;}
     };
     const fireButton=$('#btnFire');
     fireButton.addEventListener('pointerdown',event=>{event.preventDefault();event.stopPropagation();beginGroundFire(event);fireButton.setPointerCapture?.(event.pointerId);});
@@ -11629,11 +11650,21 @@ const App = {
       if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)releaseGroundFire(event,true);
     });
     fireButton.addEventListener('lostpointercapture',event=>releaseGroundFire(event,true));
-    fireButton.onclick=event=>{if(event.detail===0){const e=this.game?.evade;if(e&&!this.game.paused&&!e.frozen)e.attackWant=1;}};
+    fireButton.onclick=event=>{if(event.detail===0)queueGroundAttack();};
     window.addEventListener('pointerup',event=>releaseGroundFire(event),true);
     window.addEventListener('pointercancel',event=>releaseGroundFire(event,true),true);
-    window.addEventListener('blur',()=>releaseGroundFire(null,true));
-    document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseGroundFire(null,true);});
+    window.addEventListener('blur',cancelGroundFire);
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelGroundFire();});
+    document.addEventListener('focusin',()=>{if(groundAttackBlocked())cancelGroundFire();});
+    // A queued tap or held trigger belongs to the live scene. Opening a menu
+    // discards it, so closing that menu cannot discharge a stored attack.
+    const attackOverlays=new Set(['pauseVeil','captVeil','debriefVeil','legend','knee','groundItemsPanel','pow-captivity','prisonFood']);
+    new MutationObserver(records=>{
+      const e=this.game?.evade;
+      if(e&&(e.attackWant||e.primaryAttackDown)&&records.some(r=>r.type==='childList'||attackOverlays.has(r.target.id)||r.attributeName==='open'&&r.target.matches('#powHUD .pow-tools-menu,#powHUD .pow-condition'))&&groundAttackBlocked()){
+        cancelGroundFire();
+      }
+    }).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','hidden','style','open']});
     WillardPresentation.bindButton($('#btnScope'), () => this.toggleScope());
     /* The note card folds away on a tap and comes back on a tap. On a
        phone it covers a third of the screen, and there was no way to get
@@ -11685,6 +11716,7 @@ const App = {
       this.mouseLocked = on;
       $('#btnMouse').classList.toggle('on', on);
       if (!on && this.gctl) { this.gctl.mx = 0; this.gctl.my = 0; }
+      if(!on)cancelGroundFire();
     });
     // mouse flying: pointer lock, stick recentres when you stop moving
     $('#stack').addEventListener('mousemove', e => {
@@ -11706,7 +11738,8 @@ const App = {
     let drag = null;
     stack.addEventListener('pointerdown', e => {
       if (e.target.closest('.tc')) return;
-      if(e.pointerType==='mouse'&&e.button===0&&this.game?.evade&&e.target.tagName==='CANVAS')beginGroundFire(e);
+      if(e.pointerType==='mouse'&&e.button===0&&this.game?.evade&&
+        (e.target.tagName==='CANVAS'||document.pointerLockElement===stack&&e.target===stack))beginGroundFire(e);
       drag = { x: e.clientX, y: e.clientY, moved: 0 };
     });
     stack.addEventListener('pointermove', e => {
@@ -11736,6 +11769,9 @@ const App = {
       /* On the ground these keys belong to the man, not the aeroplane:
          V is the knife, F draws the revolver and R is the survival radio. */
       const onFoot = this.game && this.game.evade;
+      // T uses the selected tool once. Space remains the independent free-hand
+      // punch; an ignored menu key never becomes a held trigger on resume.
+      if(e.code==='KeyT'&&onFoot){if(queueGroundAttack())e.preventDefault();return;}
       if (e.code === 'KeyV' && !onFoot) { if (this.game?.willard) WillardPresentation.camera(this.game); else if (this.game) this.game.extView = !this.game.extView; }
        if (e.code === 'KeyX' && onFoot) this.game.raiseHands();
       if (e.code === 'KeyG' && !onFoot) this.toggleGear();
@@ -11813,7 +11849,7 @@ const App = {
         ['Pop smoke', 'G'],
         ['Pick up nearby supplies / draw pistol', 'F'],
         ['Punch with a free hand', 'Space · one press per punch'],
-        ['Use selected weapon', 'Left mouse button'],
+        ['Use selected weapon', 'T / left mouse button'],
         ['Carried supplies', 'Supplies button'],
         ['Knife', 'V'],
         ['Hands up / surrender', 'X']
@@ -11838,7 +11874,7 @@ const App = {
         ['Survival radio', 'RADIO'],
         ['Pop smoke', 'SMOKE'],
         ['Draw / holster the .38', 'PISTOL'],
-        ['Fire', 'the red FIRE button'],
+        ['Use selected weapon', 'STAB / FIRE / STRIKE button'],
         ['Punch with a free hand', 'Punch free hand'],
         ['Pick up / equip supplies', 'nearby pickup / Supplies buttons'],
         ['Knife', 'KNIFE'],
@@ -12777,15 +12813,15 @@ const App = {
     const c = el('div', 'card');
     c.innerHTML = `<div class="head"><span class="l">The Attack, Step by Step</span><span class="eyebrow">Right seat</span></div>
     <div class="body">
-      <p class="dim">The Intruder does not bomb by looking at the ground. It bombs by measuring. Here is the loop you will fly in every mission in this game, and it is the loop the crews flew.</p>
+      <p class="dim"><strong>Playing as the B/N:</strong> you navigate, identify and designate the target, and give release consent. The computer pilot launches, flies your steers and the attack needles, then returns and lands. Your job is to give him the correct route and target. Carrier practice and weapons-tight reconnaissance use their own briefed objectives.</p>
       ${[
-        ['Get to the run-in.', 'Coast in at the briefed altitude and point the aeroplane at the target area. Low, if people are shooting.'],
-        ['Open the scope.', 'The BN\'s station. On a phone, the SCOPE button; on a keyboard, TAB. The AN/APQ-92 sweeps a 90° sector ahead of you and paints what it can see — and, importantly, does not paint what is hidden behind a ridge.'],
+        ['Read the route and give a steer.', 'Open CHART (M). In the right seat, STEER (C) sends the pilot toward your radar crosshairs; comma and period nudge his heading by five degrees on keyboard. He handles the flying.'],
+        ['Take the radar fixes first.', 'Open SCOPE (Tab). Drag to slew, or use X then arrows on keyboard. Match each briefed checkpoint to its real radar return and use LOCK (Enter). A fix reduces navigation error; watch SYS ERR. It does not designate a target.'],
         ['Find the target.', 'Hard, man-made things return brightly: bridges, tanks, buildings, ships. Rivers and sea return almost nothing, so coastlines and waterways show as black shapes. Learn to read the shape, not to look for a picture.'],
-        ['Slew and lock.', 'Drag the crosshairs onto the return and tap LOCK (Enter on a keyboard). The AN/APQ-112 track radar takes over and starts measuring range and bearing continuously.'],
-        ['Fly the needles.', 'Back in the pilot\'s seat, the VDI grows two amber bars. The vertical one is your steering error — centre it. The horizontal one descends toward the middle as the release point approaches.'],
-        ['Consent.', 'Hold COMMIT (space bar). You are not pressing a button to drop bombs; you are telling the computer it may. The AN/ASQ-61 releases when its own solution says so.'],
-        ['Get out.', 'One pass. Turn off the target, get low, and go home. Crews who went round for another look are a significant fraction of the crews who did not come back.']
+        ['Designate the briefed target.', 'Slew onto the identified return and use LOCK (Enter). On an offset attack, LOCK the briefed landmark, keep the crosshairs there and LOCK again to shift onto the target. On a blind attack, fix first, then LOCK the briefed coordinate ring.'],
+        ['Let the pilot fly the needles.', 'Stay in the right seat. After designation the computer pilot turns onto the target and follows the solution. Monitor steering error, height, fuel and threats; a designation alone is not a valid release solution.'],
+        ['Hold bomb consent through release.', 'Hold COMMIT (Space) when cleared. Holding also sets MASTER ARM; letting go returns SAFE. The ASQ-61 selects the release point. After bombs away, release consent. In Iron Hand, press COMMIT once per ARM missile while the radar transmits, releasing between shots. Weapons-tight means no releases.'],
+        ['Monitor the return and recovery.', 'When the objectives are complete or bombs are gone, the computer pilot returns to the ship. Check CHART, TACAN bearing, DME, fuel, gear and hook; watch for ACLS COUPLED. If the pilot is incapacitated, the stick or W A S D becomes yours. J ejects both seats; on touch, tap EJECT twice.']
       ].map((s, i) => `<div class="stepnum"><b>${(i + 1).toString().padStart(2, '0')}</b><div><strong>${s[0]}</strong><br><span class="dim">${s[1]}</span></div></div>`).join('')}
       <div class="note"><em>Why this matters:</em> in 1966 every other attack aircraft in the fleet needed to see the target. The Intruder did not. That is the entire argument for the aeroplane, and it is why one squadron could fly 37 percent of a week's sorties while the rest of the air wing sat on the deck.</div>
     </div>`;
@@ -13005,7 +13041,19 @@ const App = {
       </dl></div>`;
     b.appendChild(c);
     const e = el('div', 'card');
+    const bnConsent = IS_DESKTOP ? 'Space / COMMIT' : 'COMMIT';
+    const bnTask = m.type === 'carrier_only'
+      ? '1. Read CHART and follow the pattern. 2. Monitor fuel, TACAN bearing and DME. 3. Check gear, hook and ACLS during recovery.'
+      : m.noRelease || m.type === 'recce'
+        ? '1. Read CHART and follow the identification track. 2. Watch the contact identification and objective count. 3. Keep consent released and retain all weapons. 4. Monitor the return and recovery.'
+        : m.type === 'ironhand'
+          ? '1. Navigate using CHART and radar fixes. 2. Watch for the transmitting Fan Song. 3. Press ' + bnConsent + ' once per ARM missile; release between shots. 4. Designate and attack the launchers with bomb consent, then monitor recovery.'
+          : '1. Read CHART; slew onto each checkpoint return and LOCK for a navigation fix. 2. Identify the briefed target and LOCK; STEER sends the pilot toward your crosshairs. On offset attacks, LOCK the landmark twice; on blind attacks, LOCK the coordinate ring. 3. Hold ' + bnConsent + ' through the cleared bomb solution. 4. Release after bombs away; monitor navigation, fuel and recovery.';
+    const bnBrief = (this.set.seat | 0) === 1 && !m.escape && !m.willard
+      ? '<div class="note" data-bn-brief><strong>Your job: bombardier/navigator.</strong> The pilot launches, flies and lands. You manage navigation and the mission tasks below.<br>' + bnTask + '<br>' + (m.type === 'carrier_only' || m.noRelease || m.type === 'recce' ? '' : 'Holding bomb consent also sets MASTER ARM; letting go returns SAFE. ') + 'Emergency: ' + (IS_DESKTOP ? 'J ejects both seats.' : 'tap EJECT twice to eject both seats.') + '</div>'
+      : '';
     e.innerHTML = `<div class="head"><span class="l">Execution</span></div><div class="body">
+      ${bnBrief}
       ${m.steps.map((s, i) => `<div class="stepnum"><b>${(i + 1).toString().padStart(2, '0')}</b><div>${s}</div></div>`).join('')}
       <div class="note"><em>History:</em> ${m.note}</div></div>`;
     b.appendChild(e);
@@ -14338,8 +14386,10 @@ class Game {
       if (e.swimming) return IS_TOUCH
         ? 'STICK SWIMS — RUN MAKES A STRONGER STROKE · RADIO CALLS FOR RESCUE · SMOKE SIGNALS THE HELICOPTER'
         : 'W SWIMS — SHIFT MAKES A STRONGER STROKE · R CALLS FOR RESCUE · G SIGNALS WITH SMOKE';
-      if(e.weaponMode==='rifle')return (IS_TOUCH?'FIRE BUTTON':'LEFT CLICK FIRES')+' · '+GroundItems.rifleAmmo(this)+' RIFLE ROUNDS · BOTH HANDS OCCUPIED · SUPPLIES TO STOW';
-      if (e.drawn) return (IS_TOUCH?'FIRE BUTTON':'LEFT CLICK FIRES')+' · SPACE PUNCHES WITH THE EMPTY HAND · F HOLSTERS · V KNIFE';
+      if(e.weaponMode==='rifle')return (IS_TOUCH?'FIRE BUTTON':'T / LEFT CLICK FIRES')+' · '+GroundItems.rifleAmmo(this)+' RIFLE ROUNDS · BOTH HANDS OCCUPIED · SUPPLIES TO STOW';
+      if(e.weaponMode==='knife')return (IS_TOUCH?'STAB BUTTON USES THE KNIFE':'T / LEFT CLICK STABS')+' · SPACE PUNCHES WITH THE EMPTY HAND'+(e.hasPistol?' · F DRAWS THE .38':'');
+      if(e.weaponMode==='stick')return (IS_TOUCH?'STRIKE BUTTON SWINGS THE BRANCH':'T / LEFT CLICK SWINGS THE BRANCH')+' · SPACE PUNCHES WITH THE EMPTY HAND';
+      if (e.drawn) return (IS_TOUCH?'FIRE BUTTON':'T / LEFT CLICK FIRES')+' · SPACE PUNCHES WITH THE EMPTY HAND · F HOLSTERS · V KNIFE';
       if (e.radio < 1) return 'R WORKS THE SURVIVAL RADIO — W walks, SHIFT runs (and runs is seen)  ·  F draws the .38';
       const dp = Math.hypot(e.pickup[0] - e.p[0], e.pickup[1] - e.p[2]);
       return 'GET TO THE PICKUP — ' + Math.round(dp) + ' m  ·  stay in cover, moving is what they see';
@@ -18194,7 +18244,12 @@ class Game {
       kb.classList.toggle('on',!!(e5 && e5.weaponMode==='knife'));
     }
     if(fb)fb.classList.toggle('on',!!(e5 && (e5.weaponMode||'fists')==='fists'));
-    const fireBtn=$('#btnFire');if(fireBtn)fireBtn.textContent=e5 && ['pistol','rifle'].includes(e5.weaponMode)?'FIRE':'ATTACK';
+    const fireBtn=$('#btnFire');if(fireBtn){
+      const selected=e5?.weaponMode||'fists',action={pistol:'FIRE',rifle:'FIRE',knife:'STAB',stick:'STRIKE',fists:'PUNCH'}[selected]||'PUNCH';
+      fireBtn.textContent=action;
+      fireBtn.title=(IS_TOUCH?'Tap ':'T / left click: ')+action.toLowerCase()+' with '+selected+'. Space punches with a free hand.';
+      fireBtn.setAttribute('aria-label',fireBtn.title);
+    }
     /* The radio and the smoke, which is the whole rescue, told the same
        way: lit when that is the thing to do now, dimmed and relabelled
        when there is nothing on the other end of it. */

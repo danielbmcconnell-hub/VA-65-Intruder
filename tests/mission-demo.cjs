@@ -14,6 +14,7 @@ function fixture(options={}){
   debrief(){this.app.prog.done[this.mis.id]=1;Store.set('prog',this.app.prog);this.result={pass:true};}
   objState(){return [['Attack','pending',false],['Return','pending',false]];}
  }
+ if(options.pilot)Game.prototype.autoFly=options.pilot;
  const missions=Array.from({length:12},(_,i)=>({id:i===11?'willard':'m'+(i+1),num:String(i+1),title:'Mission '+(i+1),type:i===0?'carrier_only':'strike',obj:[['Attack','targets'],['Return','trap']]}));
  const App={set:{seat:0,assist:1,mouse:1},prog:{done:{m1:1},grade:{m1:'A'}},keys:{},gctl:{},screen:'ready',game:null,hud:{scope:false,slewTo(){calls.push('slew');return true;}},frame(){calls.push('frame');},renderReady(){calls.push('ready');},show(id){this.screen=id;},start(m){this._missionStart=(this._missionStart||0)+1;this.show('game');this.game=new Game(this,m);},lockTarget(){calls.push('lock');},toggleGear(){this.game.ac.gear=!this.game.ac.gear;this.game.ac.hook=this.game.ac.gear;}};
  vm.runInNewContext(source,{window,console});const M=window.MissionDemo;
@@ -157,6 +158,22 @@ test('Iron Hand climbs only after actual radar range clears26.5km and then turns
 test('one locked maritime point uses SINGLE without area-ripple scatter or pre-awarded target damage',()=>{
  const f=fixture(),g=f.start('m4');g.mis.type='maritime';g.ac.onDeck=false;g.ac.gear=false;g.ripple=2;g.world.targets=Array.from({length:3},(_,i)=>({kind:'boat',p:[500+i*1500,0,-12000],spd:16,yaw:1,alive:true,hp:60}));g.world.designated=g.world.targets[0];g.world.lock=true;g.sol={valid:true,tRel:4,az:0};const before=clone({targets:g.world.targets,bombs:g.ac.bombs,p:g.ac.p});
  g.update(.02);assert.equal(g.ripple,1);assert.equal(g.app.gctl.commit,1);assert.deepEqual(clone({targets:g.world.targets,bombs:g.ac.bombs,p:g.ac.p}),before);assert.match(f.M.lesson(g,'attack').control,/R.*SINGLE.*SPACE/);assert.match(f.M.lesson(g,'attack').watch,/one point shot/);assert.equal(g.result,null);f.M.stop(false);
+});
+
+test('mountain interdiction retains its first area ripple and refines only after actual impacts',()=>{
+ const f=fixture(),g=f.start('m7');g.ac.onDeck=false;g.ac.gear=false;g.world.targets=Array.from({length:6},(_,i)=>({p:[500+i*150,5,-12000],alive:true,hp:55}));g.world.designated=g.world.targets[0];g.sol={valid:true,tRel:4,az:0};const before=clone({targets:g.world.targets,bombs:g.ac.bombs,p:g.ac.p});
+ g.update(.02);assert.equal(g.ripple,2);assert.match(f.M.lesson(g,'attack').watch,/initial area ripple/);assert.deepEqual(clone({targets:g.world.targets,bombs:g.ac.bombs,p:g.ac.p}),before);
+ g.world.score.dropped=2;g.world.bombs=[{p:[0,300,0]}];g.update(.02);assert.equal(g.ripple,2,'release alone cannot switch tactics');assert.equal(f.M.snapshot(g).stage,'assess');g.world.bombs=[];for(let i=0;i<13;i++)g.update(.25);assert.equal(g.ripple,2,'elapsed flight time without recorded impacts cannot switch tactics');
+ g.world.score.hits=1;g.world.score.misses=1;for(let i=0;i<5;i++)g.update(.25);assert.equal(g.ripple,1);assert.match(f.M.lesson(g,'attack').control,/R.*SINGLE.*SPACE/);assert.match(f.M.lesson(g,'attack').watch,/first impacts have been assessed/);assert.deepEqual(clone({targets:g.world.targets,bombs:g.ac.bombs,p:g.ac.p}),before);assert.equal(g.result,null);f.M.stop(false);
+});
+
+test('an emergency command retains original ACLS range disengagement instead of latching ship guidance offshore',()=>{
+ // Execute the current original Game.autoFly method, rather than replacing
+ // its range housekeeping with a test implementation of the same policy.
+ const index=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8'),start=index.indexOf('  autoFly(dt, ac, W) {'),end=index.indexOf('\n  /* ---------------- flying it',start);assert.ok(start>0&&end>start);
+ const pilot=vm.runInNewContext('({'+index.slice(start,end)+'}).autoFly',{Math,PI:Math.PI,TAU:Math.PI*2,DEG:Math.PI/180,MS2KT:1.9438445,CV:{angle:.15,aim:40,wire:[20,30]},terrainH:()=>5,localToWorld:(p,h,x,y,z)=>[p[0]+x,p[1]+y,p[2]+z],worldToLocal:(p,h,q)=>q.map((n,i)=>n-p[i])});
+ const f=fixture({terrain:x=>x>3000?-60:50,pilot}),g=f.start('m7');g.ac.onDeck=false;g.ac.gear=false;g.ac.p=[0,500,0];g.ac.dmg.hyd=.9;g.ac.bombs=0;g.aclsCoupled=true;g.departed=true;g.phase='recovery';g.shipRange=8000;g._ahead=()=>0;g._apHome=1;g.objState=()=>[['Attack','complete',true],['Return','pending',false]];const before=clone({targets:g.world.targets,p:g.ac.p,crew:g.ac.crew,dmg:g.ac.dmg,bombs:g.ac.bombs});
+ g.update(.02);assert.equal(f.M.snapshot(g).stage,'emergency');assert.equal(g.aclsCoupled,true,'the director cannot clear a real coupled state inside the original9km gate');g.shipRange=10000;g.update(.02);assert.equal(g.aclsCoupled,false,'original pilot range housekeeping runs despite the emergency command');const command=f.calls.filter(c=>c[0]==='simulation').at(-1)[2];assert.equal(command.ias,310);assert.ok(Math.sin(command.hdg)>.4,'ordinary offshore command survives original housekeeping');assert.deepEqual(clone({targets:g.world.targets,p:g.ac.p,crew:g.ac.crew,dmg:g.ac.dmg,bombs:g.ac.bombs}),before);assert.equal(g.result,null);assert.equal(g.rescuedOK,undefined);f.M.stop(false);
 });
 
 test('a living airborne BN uses original ejection when the pilot dies without granting unfinished objectives',()=>{

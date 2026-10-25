@@ -5,7 +5,7 @@
   const FT = 3.280839895, KT = 1.943844492, NM = 1852, RAD = 180 / Math.PI;
   const states = new WeakMap(), overrides = new WeakMap();
   const STORE_KEY = 'flightCoach22';
-  let context = null, installed = null, savedEnabled = false, ui = null;
+  let context = null, installed = null, savedEnabled = null, ui = null;
   const finite = (value, fallback = null) => Number.isFinite(value) ? value : fallback;
   const round = value => Math.round(value);
   const validPoint = p => Array.isArray(p) && p.length >= 3 && p.every(Number.isFinite);
@@ -32,6 +32,7 @@
       checkpointLabel: checkpoint && checkpoint.label || 'route checkpoint', navErrorM: navError,
       fixes: w.nav ? finite(w.nav.fixes, 0) : null, routeLength: Array.isArray(w.route) ? w.route.length : 0,
       designated: !!w.designated, locked: !!w.lock, blind: !!w.blind,
+      offset: w.oap ? { label: w.oap.label || 'offset point', locked: !!w.oapLocked, position: bearing(w.oap.p) } : null,
       solution: game.sol && { valid: !!game.sol.valid, azimuthDeg: finite(game.sol.az) === null ? null : game.sol.az * RAD, releaseSeconds: finite(game.sol.tRel) },
       glideslopeError: finite(game.gsErr), lineupM: finite(game.lineErr), rampDistanceM: finite(game.rampD),
       waveoff: !!game.waveoff, coupled: !!game.aclsCoupled, departed: !!game.departed, egress: !!game.egressCalled,
@@ -49,7 +50,7 @@
       (!game.app || !game.app.screen || game.app.screen === 'game'));
   }
   function enabled(game) {
-    return !!(game && overrides.has(game) ? overrides.get(game) : game && game.mis && game.mis.coachPractice || savedEnabled);
+    return !!(game && overrides.has(game) ? overrides.get(game) : game && game.mis && game.mis.coachPractice || (savedEnabled === null ? game && game.rightSeat : savedEnabled));
   }
   function state(game) {
     if (!states.has(game)) states.set(game, { elapsed: 0, samples: 0, lowClearanceSeconds: 0, attackBankSeconds: 0,
@@ -69,8 +70,8 @@
   }
   function controls(game) {
     const touch = context && typeof context.touch === 'boolean' ? context.touch : !!(root.matchMedia && root.matchMedia('(pointer: coarse)').matches);
-    return touch ? { power: 'THR +', lowerPower: 'THR −', launch: 'COMMIT', gear: 'GEAR', scope: 'SCOPE', slew: 'drag the crosshairs', lock: 'LOCK', consent: 'COMMIT', steer: 'STEER', chart: 'CHART' }
-      : { power: 'Shift', lowerPower: 'Ctrl', launch: 'Space', gear: 'G', scope: 'Tab / SCOPE', slew: 'X or the radar crosshairs', lock: 'Enter / LOCK', consent: 'Space / COMMIT', steer: 'C / STEER', chart: 'M / CHART' };
+    return touch ? { power: 'THR +', lowerPower: 'THR −', launch: 'COMMIT', gear: 'GEAR', scope: 'SCOPE', slew: 'drag the crosshairs', fixSlew: 'drag', lock: 'LOCK', consent: 'COMMIT', steer: 'STEER', chart: 'CHART' }
+      : { power: 'Shift', lowerPower: 'Ctrl', launch: 'Space', gear: 'G', scope: 'Tab / SCOPE', slew: 'X, then arrows', fixSlew: 'X + arrows', lock: 'Enter / LOCK', consent: 'Space / COMMIT', steer: 'C / STEER', chart: 'M / CHART' };
   }
   function cue(game) {
     if (!isFlight(game)) return null;
@@ -80,7 +81,10 @@
     if (bn && !s.pilotAvailable) return make('pilot-unavailable', 'Emergency flying from the right seat', 'The pilot cannot fly. The existing stick or W A S D now controls the aircraft. Turn toward the ship (' + course(s.ship) + '); watch for the existing ACLS coupling indication.', 100);
     if (s.onDeck) {
       if (s.cat > 0) return make('cat-stroke', 'During the catapult stroke', bn ? 'The pilot is taking the shot. Let the aircraft fly off the bow; prepare the navigation and radar checks.' : 'Keep the controls steady through the stroke. Let the aircraft fly off the bow before easing into the climb.', 75);
-      if (bn) return make('bn-launch', 'Right seat · launch preparation', 'The existing pilot handles power and the launch. Review the route, then use ' + c.scope + ' for the radar. You navigate and designate; he flies.', 35);
+      if (bn) {
+        const task = s.type === 'carrier_only' ? 'monitor route, fuel and recovery.' : s.noRelease ? 'follow the identification track; retain every weapon.' : s.type === 'ironhand' ? 'navigate; press ' + c.consent + ' once per ARM when the radar transmits.' : 'fix navigation, identify + LOCK; hold ' + c.consent + ' for bombs.';
+        return make('bn-launch', 'B/N · pilot flies', 'The existing pilot handles power, launch and flying. You: ' + task + ' First: ' + c.chart + ' for the route.', 35);
+      }
       if (s.throttle !== null && s.throttle < .94) return make('launch-power', 'Bring up launch power', 'Throttle is ' + round(s.throttle * 100) + '%. Hold ' + c.power + ' to bring it up, then hold ' + c.launch + ' for the catapult shot.', 65);
       return make('launch-ready', 'Ready on the catapult', 'Power is up. Hold ' + c.launch + ' for the shot, then keep the controls steady until airborne.', 45);
     }
@@ -97,7 +101,7 @@
         if (s.aoaDeg !== null && s.aoaDeg < 6.6) return make('approach-fast', 'Below on-speed angle of attack', bn ? 'The indexer indicates fast. Monitor the pilot’s correction toward the green doughnut.' : 'The indexer indicates fast. Reduce power smoothly and use attitude to settle onto the green doughnut.', 73);
         return make('approach-stable', 'Ball · lineup · angle of attack', bn ? 'Monitor the green doughnut, ball and lineup. The pilot flies the approach; the coach only describes the existing indications.' : 'Maintain the green doughnut and small corrections for ball and lineup. Fly into the deck; do not flare. Be ready with power if the hook misses.', 55);
       }
-      return make('recovery-setup', 'Set up the recovery', 'Ship ' + course(s.ship) + '. ' + (bn ? 'Monitor the pilot’s approach setup and the recovery instruments.' : 'Reduce speed gradually, configure and establish the approach before taking the ball.'), 50);
+      return make('recovery-setup', bn ? 'B/N · monitor the return' : 'Set up the recovery', 'Ship ' + course(s.ship) + '. ' + (bn ? 'The pilot flies and configures the approach. Use ' + c.scope + ' to look up; monitor TACAN, fuel, gear and hook. Watch for ACLS COUPLED.' : 'Reduce speed gradually, configure and establish the approach before taking the ball.'), 50);
     }
     if (s.fuelLb !== null && s.fuelLb < 700) return make('fuel-low', 'Low fuel · prioritize recovery', round(s.fuelLb) + ' lb remains. Turn toward the ship (' + course(s.ship) + '); avoid extra attack passes and watch the engine and recovery indications.', 92);
     if (s.clearanceFt !== null && s.clearanceFt < 200 && s.knots !== null && s.knots > 100 && s.cat <= 0) return make('terrain-low', 'Check terrain clearance', 'Radar altitude is ' + round(s.clearanceFt) + ' ft. ' + (bn ? 'Warn the pilot and monitor the terrain display.' : 'Look ahead and ease away from rising terrain; barometric altitude is not clearance.'), 90);
@@ -111,19 +115,20 @@
       if (!s.departed) return make('pattern-outbound', 'Make room for the return', 'Ship ' + course(s.ship) + '. Fly away from the ship before turning back; the existing recovery phase begins after departure, not immediately after launch.', 30);
       return make('pattern-home', 'Find the moving ship', 'Ship ' + course(s.ship) + '. ' + (bn ? 'Use navigation indications to monitor the return; the pilot flies.' : 'Turn toward the TACAN bearing needle and watch DME count down. The ship continues moving.'), 35);
     }
-    if (s.noRelease) return make('weapons-tight', s.type === 'recce' ? 'Identify · retain ordnance' : 'Navigation practice · retain ordnance', s.type === 'recce' ? s.unidentified + ' contact(s) remain unidentified. Follow the briefed identification track; do not hold ' + c.consent + ' to release ordnance.' : 'This flight is not cleared for weapon release. Follow the route or return to the ship; use the chart and navigation instruments.', 65);
-    if (s.egress || (s.totalTargets > 0 && s.remainingTargets === 0) || (s.bombs === 0 && s.arms === 0)) return make('egress', 'Return after the attack', 'Ship ' + course(s.ship) + '. ' + (bn ? 'Give the pilot a return steer and monitor fuel and navigation.' : 'Turn feet wet toward the ship and prepare for recovery.'), 45);
-    if (s.type === 'ironhand' && s.arms > 0) return make(s.emitterOn ? 'arm-emitting' : 'arm-wait', 'Iron Hand · existing A-6B mission', s.emitterOn ? 'The radar is transmitting. The existing ' + c.consent + ' control fires the Standard ARM; this guidance does not fire it.' : 'The emitter is not transmitting. Watch the threat and seeker indications; do not treat a silent radar as a valid shot.', 62);
+    if (s.egress || !s.noRelease && ((s.totalTargets > 0 && s.remainingTargets === 0) || (s.bombs === 0 && s.arms === 0))) return make('egress', bn ? 'B/N · release consent, monitor home' : 'Return after the attack', 'Ship ' + course(s.ship) + '. ' + (bn ? 'Release ' + c.consent + '. The pilot is returning to the ship. Open ' + c.chart + '; monitor fuel, TACAN bearing and DME, then the recovery indications.' : 'Turn feet wet toward the ship and prepare for recovery.'), 45);
+    if (s.noRelease) return make('weapons-tight', s.type === 'recce' ? 'Identify · retain ordnance' : 'Navigation practice · retain ordnance', s.type === 'recce' ? s.unidentified + ' contact(s) remain unidentified. Follow the briefed identification track on ' + c.chart + '; do not hold ' + c.consent + ' to release ordnance.' : 'This flight is not cleared for weapon release. Follow the route on ' + c.chart + '; use the navigation instruments and retain all weapons.', 65);
+    if (s.type === 'ironhand' && s.arms > 0) return make(s.emitterOn ? 'arm-emitting' : 'arm-wait', 'Iron Hand · existing A-6B mission', s.emitterOn ? 'The radar is transmitting. Press ' + c.consent + ' once to fire a Standard ARM; release before another shot. This same control can also consent to a designated bomb solution.' : 'The emitter is not transmitting. Watch the threat and seeker indications; wait for transmission before pressing ' + c.consent + ' for the missile shot.', 62);
     if (!s.designated && s.checkpoint && s.checkpoint.rangeNM < 26000 / NM) {
       const error = s.navErrorM === null ? '' : ' · SYS ERR ' + round(s.navErrorM * 1.0936133) + ' yd';
-      return make('navigation-fix', bn ? 'Right seat · update the navigation' : 'Navigation check before attack', s.checkpointLabel + ' ' + course(s.checkpoint) + error + '. Open ' + c.scope + ', use ' + c.slew + ', then ' + c.lock + ' on the checkpoint. A fix updates the existing system; it is not a target designation.', 45);
+      return make('navigation-fix', bn ? 'B/N · take a radar fix' : 'Navigation check before attack', s.checkpointLabel + ' ' + course(s.checkpoint) + error + '. ' + c.scope + ': ' + c.fixSlew + ' onto real return; ' + c.lock + ' for a fix, not a target designation.' + (bn ? ' ' + c.steer + ' points pilot at crosshairs.' : ''), 45);
     }
+    if (s.offset && (!s.designated || s.offset.locked)) return make(s.offset.locked ? 'offset-shift' : 'offset-acquire', s.offset.locked ? 'B/N · LOCK again to shift to the target' : 'B/N · lock the offset landmark', s.offset.locked ? 'The offset landmark is locked; it is not the target. Keep the crosshairs there and press ' + c.lock + ' again to apply the briefed bearing and range. Then check the attack solution.' : s.offset.label + ' ' + course(s.offset.position) + '. The target does not paint. Use ' + c.slew + ' onto this briefed landmark, then ' + c.lock + '. You will LOCK again to shift onto the target.', 49);
     if (!s.designated) return make(s.blind ? 'blind-designation' : 'designation', s.blind ? 'Use the briefed coordinates' : 'Find and designate the target', s.blind ? 'The target does not paint. Check route fixes, use ' + c.slew + ' for the briefed ring, then ' + c.lock + '. Navigation error carries into this coordinate attack.' : 'Use ' + c.scope + ' to compare the radar returns with the briefing. Use ' + c.lock + ' on the identified return; ' + (bn ? c.steer + ' gives the pilot a steer.' : 'keep flight stable while working the radar.'), 35);
     if (game._relArm === 0 && s.bombs > 0) return make('new-run', 'One ripple per run', 'The previous ripple has released. Set up another run only if the mission and remaining fuel require it; the existing computer must re-arm on a fresh solution.', 45);
     if (!s.solution || !s.solution.valid) return make('solution-wait', 'Designation is not yet a release solution', 'The computer does not have a valid release solution. Check track, altitude and the designation; ' + (bn ? 'give the pilot a useful steer.' : 'approach smoothly with the wings settled.'), 50);
     if (s.bankDeg !== null && Math.abs(s.bankDeg) > 8) return make('attack-bank', 'Settle the attack run', 'Bank is ' + round(Math.abs(s.bankDeg)) + '°. ' + (bn ? 'Monitor the pilot holding the run steady.' : 'Ease the wings level and hold the run-in heading.') + ' The existing computer still determines release.', 58);
     if (s.solution.azimuthDeg !== null && Math.abs(s.solution.azimuthDeg) > .028 * RAD) return make('attack-align', 'Center the steering needle', 'Steering error is ' + Math.abs(s.solution.azimuthDeg).toFixed(1) + '°. ' + (bn ? 'Monitor the pilot centering the needle; keep the designation steady.' : 'Center the vertical steering needle with small corrections before expecting release.'), 55);
-    return make(s.consent ? 'attack-consent' : 'attack-ready', bn ? 'Right seat · consent through the solution' : 'Hold a steady release run', (s.solution.releaseSeconds !== null && s.solution.releaseSeconds > 0 ? 'Solution release in about ' + Math.ceil(s.solution.releaseSeconds) + ' s. ' : '') + (s.consent ? 'Consent is held. Keep the designation and needles steady; the computer chooses the instant.' : 'Hold ' + c.consent + ' through the solution when cleared. The computer releases; a tap is not a manual bomb drop.'), 48);
+    return make(s.consent ? 'attack-consent' : 'attack-ready', bn ? 'B/N · HOLD consent for bomb release' : 'Hold a steady release run', (s.solution.releaseSeconds !== null && s.solution.releaseSeconds > 0 ? 'Solution release in about ' + Math.ceil(s.solution.releaseSeconds) + ' s. ' : '') + (s.consent ? 'Consent is held; MASTER ARM is on. ' + (bn ? 'The pilot flies the needles. ' : '') + 'The computer chooses release; let go after bombs away.' : 'Hold ' + c.consent + ' through the solution when cleared. Holding also sets MASTER ARM; release returns SAFE. The computer releases; a tap is not a manual bomb drop.'), 48);
   }
   function tick(game, dt) {
     if (!isFlight(game) || !enabled(game)) { render(game); return null; }
@@ -200,7 +205,7 @@
     };
     const panel = document.createElement('div'); panel.id = 'flightCoachCue'; panel.setAttribute('data-flight-coach-cue', '');
     const title = document.createElement('strong'), text = document.createElement('span'), note = document.createElement('small');
-    note.textContent = 'Authored guidance · no changes to controls or flight model'; panel.append(title, text, note);
+    note.textContent = 'Authored guidance'; panel.append(title, text, note);
     box.append(css, toggle, panel); host.append(box); ui = { box, toggle, panel, title, text }; return ui;
   }
   function render(game) {
@@ -236,7 +241,9 @@
   function install(ctx) {
     if (!ctx || !ctx.Game || !ctx.Game.prototype || !ctx.App) return false;
     if (installed) return installed.Game === ctx.Game && installed.App === ctx.App;
-    context = ctx; savedEnabled = !!(ctx.Store && ctx.Store.get && ctx.Store.get(STORE_KEY, false));
+    context = ctx;
+    const saved = ctx.Store && ctx.Store.get ? ctx.Store.get(STORE_KEY, null) : null;
+    savedEnabled = saved === null ? null : !!saved;
     const update = ctx.Game.prototype.update, debrief = ctx.Game.prototype.debrief, show = ctx.App.show;
     if (typeof update !== 'function' || typeof debrief !== 'function') { context = null; return false; }
     const wrappedUpdate = function (dt) { const result = update.apply(this, arguments); tick(this, dt); return result; };
