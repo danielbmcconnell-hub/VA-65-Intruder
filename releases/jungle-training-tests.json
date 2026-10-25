@@ -1,0 +1,419 @@
+{
+  "recordedAt": "2026-10-25T20:02:45.244020+00:00",
+  "releaseSourceCommit": "e400ac396f841a385f654cbc25d0b682ee992494",
+  "missionOutcomeSourceCommit": "b07f32ec15479c2d3b8fa176131e50c16cec6871",
+  "sourceScope": "The final source adds only roof tone and wildlife-practice control-hint presentation to the twelve-mission-tested source. A later commit changes the packaged test to expect eight whole botanical sources rather than the retired normal-path atlas. Original mission definitions, physics, combat controls and outcome rules remain unchanged.",
+  "cpu": {
+    "passed": true,
+    "programs": 91,
+    "runnerCases": 1094,
+    "failures": 0,
+    "sourceAndExecutedCPUProgramsMatchFinalSource": true,
+    "inventory": {
+      "nodeTestPrograms": [
+        "tests/aircraft-detail.cjs",
+        "tests/airframe-feedback.cjs",
+        "tests/ammunition.cjs",
+        "tests/aviator-companion.cjs",
+        "tests/bn-target-polish.cjs",
+        "tests/captivity-history-ui.cjs",
+        "tests/captivity-keyboard.cjs",
+        "tests/capture-transition.cjs",
+        "tests/carrier-launch.cjs",
+        "tests/coastal-scenery.cjs",
+        "tests/confinement-goals.cjs",
+        "tests/contact-shadows.cjs",
+        "tests/crew-personality.cjs",
+        "tests/equipment-view.cjs",
+        "tests/flight-audio-focus.cjs",
+        "tests/flight-immersion.cjs",
+        "tests/ground-combat.cjs",
+        "tests/ground-items-render.cjs",
+        "tests/ground-items.cjs",
+        "tests/ground-view.cjs",
+        "tests/guard-motion.cjs",
+        "tests/highres-sprites.cjs",
+        "tests/hud-layout.cjs",
+        "tests/jungle-scenery.cjs",
+        "tests/landing-water.cjs",
+        "tests/launch-objective.cjs",
+        "tests/mission-demo-capture.cjs",
+        "tests/mission-demo.cjs",
+        "tests/moving-target-solution.cjs",
+        "tests/near-ground.cjs",
+        "tests/ocean-roster.cjs",
+        "tests/photo-motion.cjs",
+        "tests/photographic-sprites.cjs",
+        "tests/point-shot.cjs",
+        "tests/pow-button-input.cjs",
+        "tests/pow-core.cjs",
+        "tests/pow-episode-actions.cjs",
+        "tests/pow-episode-audio.cjs",
+        "tests/pow-episode-scene.cjs",
+        "tests/pow-episode-stealth.cjs",
+        "tests/pow-m22-escape.cjs",
+        "tests/pow-m22-feedback.cjs",
+        "tests/pow-memory-detail.cjs",
+        "tests/pow-mindscape.cjs",
+        "tests/pow-regular-confinement.cjs",
+        "tests/prison-detail.cjs",
+        "tests/prison-food.cjs",
+        "tests/quality-policy.cjs",
+        "tests/ration-photo.cjs",
+        "tests/recovery-phase.cjs",
+        "tests/route-scene.cjs",
+        "tests/solitary-demo.cjs",
+        "tests/sortie-checkpoint.cjs",
+        "tests/sprite-layers.cjs",
+        "tests/strike-checkpoint.cjs",
+        "tests/strike-effects.cjs",
+        "tests/strike-experience.cjs",
+        "tests/strike-scene.cjs",
+        "tests/strike-sensory.cjs",
+        "tests/swim-cutouts.cjs",
+        "tests/tactical-approach.cjs",
+        "tests/terrain-shadows.cjs",
+        "tests/threat-feedback.cjs",
+        "tests/village-detail.cjs",
+        "tests/visual-clarity.cjs",
+        "tests/visual-materials.cjs",
+        "tests/voice-profiles.cjs",
+        "tests/wildlife-assets.cjs",
+        "tests/wildlife-render.cjs",
+        "tests/wildlife-targeting.cjs",
+        "tests/wildlife.cjs",
+        "tests/willard-flak.cjs",
+        "tests/willard-interceptor.cjs",
+        "tests/willard-mission.cjs"
+      ],
+      "legacyAssertPrograms": [
+        "tests/bn-recognition.cjs",
+        "tests/check-pow-assets.cjs",
+        "tests/check-preservation.cjs",
+        "tests/combat-feedback.cjs",
+        "tests/figure-motion.cjs",
+        "tests/flight-coach.cjs",
+        "tests/pow-ai.cjs",
+        "tests/pow-captivity.cjs",
+        "tests/pow-denton-morse.cjs",
+        "tests/pow-m22-pacing.cjs",
+        "tests/pow-m22-river.cjs",
+        "tests/pow-river.cjs",
+        "tests/pow-solidarity.cjs",
+        "tests/strike-board.cjs",
+        "tests/strike-crew.cjs",
+        "tests/willard-presentation.cjs",
+        "tests/willard-sprites.cjs"
+      ],
+      "browserOrHelperPrograms": [
+        "tests/aircraft-detail-browser.cjs",
+        "tests/aviator-opening-browser.cjs",
+        "tests/bn-recognition-browser.cjs",
+        "tests/bn-target-polish-browser.cjs",
+        "tests/build-browser.cjs",
+        "tests/capture-transition-browser.cjs",
+        "tests/carrier-launch-browser.cjs",
+        "tests/coastal-scenery-browser.cjs",
+        "tests/confinement-goals-browser.cjs",
+        "tests/dixie-strike-browser.cjs",
+        "tests/dixie-visual-browser.cjs",
+        "tests/equipment-view-browser.cjs",
+        "tests/flight-audio-focus-browser.cjs",
+        "tests/flight-coach-browser.cjs",
+        "tests/ground-browser.cjs",
+        "tests/ground-combat-browser.cjs",
+        "tests/ground-items-browser.cjs",
+        "tests/ground-touch-browser.cjs",
+        "tests/ground-view-browser.cjs",
+        "tests/guard-motion-browser.cjs",
+        "tests/hand-edge-browser.cjs",
+        "tests/held-equipment-edge-browser.cjs",
+        "tests/highres-sprites-browser.cjs",
+        "tests/hud-layout-browser.cjs",
+        "tests/hud-opacity-browser.cjs",
+        "tests/immersion-browser.cjs",
+        "tests/jungle-fidelity-browser.cjs",
+        "tests/jungle-world-browser.cjs",
+        "tests/landing-survival-browser.cjs",
+        "tests/m24-ammunition-browser.cjs",
+        "tests/m24-strike-browser.cjs",
+        "tests/mission-browser.cjs",
+        "tests/mission-demo-tutorial-browser.cjs",
+        "tests/near-ground-browser.cjs",
+        "tests/photo-motion-browser.cjs",
+        "tests/photo-motion-loading-browser.cjs",
+        "tests/photo-motion-resilience-browser.cjs",
+        "tests/photographic-sprites-browser.cjs",
+        "tests/pow-captivity-browser.cjs",
+        "tests/pow-controls-browser.cjs",
+        "tests/pow-episode-audio-browser.cjs",
+        "tests/pow-episode-browser.cjs",
+        "tests/pow-episode-renderer.cjs",
+        "tests/pow-ground-awareness-browser.cjs",
+        "tests/pow-m21-browser.cjs",
+        "tests/pow-m21-recapture-browser.cjs",
+        "tests/pow-m22-escape-browser.cjs",
+        "tests/pow-m22-onboarding-browser.cjs",
+        "tests/pow-m22-pacing-browser.cjs",
+        "tests/pow-m22-river-browser.cjs",
+        "tests/pow-memory-detail-browser.cjs",
+        "tests/pow-photos-browser.cjs",
+        "tests/pow-prison-browser.cjs",
+        "tests/pow-river-browser.cjs",
+        "tests/prison-detail-browser.cjs",
+        "tests/prison-food-browser.cjs",
+        "tests/progression-browser.cjs",
+        "tests/quality-policy-browser.cjs",
+        "tests/radio-view-browser.cjs",
+        "tests/ration-visibility-browser.cjs",
+        "tests/refinement-visual-browser.cjs",
+        "tests/renderer-browser.cjs",
+        "tests/run-browser.cjs",
+        "tests/signal-view-browser.cjs",
+        "tests/solitary-presentation-browser.cjs",
+        "tests/sprite-layer-upload-browser.cjs",
+        "tests/strike-sensory-browser.cjs",
+        "tests/swim-gpu-audit.cjs",
+        "tests/tactical-visual-browser.cjs",
+        "tests/terrain-shadows-browser.cjs",
+        "tests/threat-feedback-browser.cjs",
+        "tests/village-detail-browser.cjs",
+        "tests/visual-clarity-adapter-browser.cjs",
+        "tests/visual-clarity-browser.cjs",
+        "tests/wildlife-browser.cjs",
+        "tests/willard-browser.cjs",
+        "tests/willard-lifecycle-browser.cjs",
+        "tests/willard-renderer-browser.cjs"
+      ]
+    }
+  },
+  "packaged": {
+    "passed": true,
+    "checks": 29,
+    "actualHTTPFiles": 316,
+    "sourceStable": true,
+    "sourceMatchesManifest": true
+  },
+  "nativeUI": {
+    "passed": true,
+    "checks": 28,
+    "suites": [
+      "mission-demo-tutorial",
+      "hud-layout"
+    ],
+    "sourceStable": true,
+    "sourceFilesMatchFinal": true
+  },
+  "nativeFoliage": {
+    "worldChecks": 8,
+    "finalGroundChecks": 10,
+    "passed": true,
+    "worldSourceStable": true,
+    "finalGroundSourceStable": true,
+    "finalGroundSourceFilesMatchFinal": true,
+    "worldScope": "Normal Mission11 flight plus explicitly declared aerial and old-geometric control cameras; final ground proof uses native jungle entry. No physical-device/FPS claim."
+  },
+  "nativeWeapons": {
+    "passed": true,
+    "checks": 33,
+    "actualHTTPSourceReceiptStable": true,
+    "scope": "Keyboard, pointer and touch with declared actor/range/wall/terrain fixtures; tested before only the wildlife-practice fists hint changed."
+  },
+  "nativeVillage": {
+    "passed": true,
+    "layouts": 2,
+    "targetModuleMatchesFinal": true,
+    "scope": "Existing procedural hamlet anchors and collision plots; declared exterior camera; no embedded village photo textures. Native military-state comparison is vacuous in this practice world; explicit marker CPU checks and actual mission/packaged strike checks protect other buildings."
+  },
+  "solitary": {
+    "passed": true,
+    "earnedTasks": 7,
+    "campaignOutcomeGranted": false,
+    "visibleCues": [
+      "memory",
+      "exercise",
+      "tap"
+    ],
+    "targetSourceFilesMatchFinal": true
+  },
+  "ration": {
+    "passed": true,
+    "layouts": 2,
+    "targetSourceFilesMatchFinal": true,
+    "scope": "Actual custom WebGL2 Chromium/SwiftShader, native solitary chooser and untouched entry actor/camera. Desktop 1280\u00d7720; phone layout 844\u00d7390 with native held touch Interact. Declared physical65/fatigue25 fixture verifies original meal callback and checkpoint; no position/camera override. Physical iPhone Safari remains untested."
+  },
+  "chutes": {
+    "sourceCommit": "e400ac396f841a385f654cbc25d0b682ee992494",
+    "scope": "Exact bytes of ten actually executed chute-specific components occur unchanged in final source. This is scoped equivalence, not a claim that the earlier entire native run had stable source.",
+    "passed": true,
+    "originalNativeSourceStable": false,
+    "nativeReportSHA256": "e77ca663aa77f6e680bfa78bb75d41294a731b888bc1ce11eaf6a9ad899bcd21",
+    "finalIndexSHA256": "13371b648ccda100c1f4220ae036d6a39e7b2d5b4f2c150daa94920db74bd952",
+    "components": [
+      {
+        "name": "seat-mesh",
+        "file": "index.html",
+        "sha256": "621dd1361ef0b11135b3ac441eb0203ae39cdde2839ab8c62bd0ccf7afe826ed",
+        "exactOccurrencesInFinalSource": 1,
+        "wholeFileEquivalent": false
+      },
+      {
+        "name": "canopy-mesh",
+        "file": "index.html",
+        "sha256": "a247710515e3e1edd5c9cc6681a4d13abe40f90443e0aceea7fd89fa1d3a30ce",
+        "exactOccurrencesInFinalSource": 1,
+        "wholeFileEquivalent": false
+      },
+      {
+        "name": "player-ejection",
+        "file": "index.html",
+        "sha256": "9be1fca91f50427b05266cc47e0cbb527433343dc1b49cb688821e892057b3d0",
+        "exactOccurrencesInFinalSource": 1,
+        "wholeFileEquivalent": false
+      },
+      {
+        "name": "player-chute-step",
+        "file": "index.html",
+        "sha256": "a89266783700b84b99cf4482156d7998eeef8b48b7672110b7f1a4c916f044a7",
+        "exactOccurrencesInFinalSource": 1,
+        "wholeFileEquivalent": false
+      },
+      {
+        "name": "native-chute-camera",
+        "file": "index.html",
+        "sha256": "d6190a1e06c0939f87947b717055e4cc5e41dbb2da6d0ceda908c98424dedba5",
+        "exactOccurrencesInFinalSource": 1,
+        "wholeFileEquivalent": false
+      },
+      {
+        "name": "chute-and-companion-render",
+        "file": "index.html",
+        "sha256": "125585fab082b1d0a597153a37a3551302bbe81de26a931270036b6b131b46a1",
+        "exactOccurrencesInFinalSource": 1,
+        "wholeFileEquivalent": false
+      },
+      {
+        "name": "native-touch-eject",
+        "file": "index.html",
+        "sha256": "5bec3ae3e611dfc6f1f1bfcba8a396e585b401984760e57c7fffb34e95fb27af",
+        "exactOccurrencesInFinalSource": 1,
+        "wholeFileEquivalent": false
+      },
+      {
+        "name": "native-keyboard-eject",
+        "file": "index.html",
+        "sha256": "2050dfe31b6197970d16dbb6009d99fb52d2721d342e1275318723b5ada2d5f0",
+        "exactOccurrencesInFinalSource": 1,
+        "wholeFileEquivalent": false
+      },
+      {
+        "name": "aviator-companion.js",
+        "file": "assets/survival/aviator-companion.js",
+        "sha256": "b34e35740c675f5c61a53769a1ede78c9957432f90157d0a327a93d9700511dd",
+        "exactOccurrencesInFinalSource": 1,
+        "wholeFileEquivalent": true
+      },
+      {
+        "name": "landing-water.js",
+        "file": "assets/survival/landing-water.js",
+        "sha256": "486fe311d20afcbcd5cc61a2b065fb42eb5cdfaa2012bfc99c41e4c9ccae0057",
+        "exactOccurrencesInFinalSource": 1,
+        "wholeFileEquivalent": true
+      }
+    ]
+  },
+  "missionDemonstrations": {
+    "passed": true,
+    "missions": 12,
+    "checks": 44,
+    "sourceStable": true,
+    "scope": "Actual original game update/physics/weapon/objective code; CPU fast-forward with ordinary HUD state refresh, no position/HP/outcome injection. Chromium initialization uses real WebGL2; any separately counted final screenshots also use that renderer; native desktop and touch-emulated UI controls are checked. Additional storage checks exercise a completed POW save and the actual Willard retry button, then explicitly invoke a failed retry debrief to verify isolation; that is not an additional mission success. Mission 11 receives up to 3,600 seconds of original update calls (360 batches) to allow a real offshore landing to reach capture and complete the camp and river route; other missions retain 1,800 seconds (180 batches). Not actual iPhone Safari, hardware FPS, or a full-speed screen recording.",
+    "outcomes": [
+      {
+        "id": "m1",
+        "passed": true,
+        "campaignUnchanged": true
+      },
+      {
+        "id": "m2",
+        "passed": true,
+        "campaignUnchanged": true
+      },
+      {
+        "id": "m3",
+        "passed": true,
+        "campaignUnchanged": true
+      },
+      {
+        "id": "m4",
+        "passed": true,
+        "campaignUnchanged": true
+      },
+      {
+        "id": "m5",
+        "passed": true,
+        "campaignUnchanged": true
+      },
+      {
+        "id": "m6",
+        "passed": true,
+        "campaignUnchanged": true
+      },
+      {
+        "id": "m7",
+        "passed": true,
+        "campaignUnchanged": true
+      },
+      {
+        "id": "m8",
+        "passed": true,
+        "campaignUnchanged": true
+      },
+      {
+        "id": "m9",
+        "passed": true,
+        "campaignUnchanged": true
+      },
+      {
+        "id": "m10",
+        "passed": true,
+        "campaignUnchanged": true
+      },
+      {
+        "id": "m11",
+        "passed": true,
+        "campaignUnchanged": true
+      },
+      {
+        "id": "willard",
+        "passed": true,
+        "campaignUnchanged": true
+      }
+    ]
+  },
+  "runtime": {
+    "phase": "create-runtime",
+    "passed": true,
+    "sourceBranch": "jungle-training",
+    "sourceHead": "e400ac396f841a385f654cbc25d0b682ee992494",
+    "testedSourceCommit": "e400ac396f841a385f654cbc25d0b682ee992494",
+    "runtimeBranch": "jungle-training-site",
+    "runtimeFiles": 316,
+    "entrySHA256": "13371b648ccda100c1f4220ae036d6a39e7b2d5b4f2c150daa94920db74bd952",
+    "manifestSHA256": "8f04f97570118db196126e537a8e75ebb1a4234102c1e4b9f5177b94226bbab3",
+    "archiveFile": "Intruder_Yankee_Station_Jungle_Training.zip",
+    "archiveBytes": 225784972,
+    "archiveSHA256": "b6745febabd41025e277986e10a1f164012badbf8fe1b11d43f06a5ab505be24",
+    "zipCRCPassed": true,
+    "protectedBlobsUnchanged": 780,
+    "oldPublishedRefsUnchanged": 77,
+    "previousCoastalZIPUnchanged": true,
+    "runtimeHead": "1e08b3fbece09827310c11da517708fefaeeb0df",
+    "runtimeTree": "2e7e821a155bb3ceddc742e2f1f9b508dd38c747",
+    "runtimeSoleParentIsTestedSource": true,
+    "sourceCheckoutUnchanged": true,
+    "recordedAt": "2026-10-25T20:01:17.655589+00:00",
+    "scope": "Source/runtime/ZIP integrity and preservation only; no gameplay rerun, push, deployment or GitHub-generated outer ZIP hash."
+  },
+  "deviceLimits": "Chromium/SwiftShader desktop and phone layout emulation. Actual iPhone Safari and hardware frame rate remain untested. Selected scenes are improved; the world is not uniformly photorealistic."
+}

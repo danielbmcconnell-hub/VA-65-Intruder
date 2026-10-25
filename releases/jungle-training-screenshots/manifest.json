@@ -1,0 +1,61 @@
+{
+  "images": [
+    {
+      "file": "forest-desktop.png",
+      "sha256": "1e2b4f74e20b1c7e646d8d2504d5423eaeaca64065f73193647078a5e0c8b8b7",
+      "scope": "Native jungle practice, final source; complete botanical and wildlife sources loaded.",
+      "reviewedDirectly": true,
+      "pixelsEdited": false
+    },
+    {
+      "file": "forest-phone.png",
+      "sha256": "c5ae6a21cb7a70457de868dd005aa0e09c396b5a0b4979b5663cd559be00a79c",
+      "scope": "Native Chromium phone-layout jungle practice; physical Safari untested.",
+      "reviewedDirectly": true,
+      "pixelsEdited": false
+    },
+    {
+      "file": "solitary-memory-phone.png",
+      "sha256": "ff44d4a34a938c26597c39e3c4e3be3e2f8f9a1f35ba3d176eb7b2353be0c5c6",
+      "scope": "Native computer demonstration showing its real visible memory cue and existing controls; target modules unchanged.",
+      "reviewedDirectly": true,
+      "pixelsEdited": false
+    },
+    {
+      "file": "ration-entry-desktop.png",
+      "sha256": "367393f7f054fa4b5112c5fb7c69c5afd240f0ec2c4206a0104c4ddc3b4ff6bc",
+      "scope": "Native solitary entry with original actor/camera and visible ration; target modules unchanged.",
+      "reviewedDirectly": true,
+      "pixelsEdited": false
+    },
+    {
+      "file": "tutorial-phone.png",
+      "sha256": "a70b1e0bebf50be8bcdeb2edce9a977a93091726903c82dc7a3409ceaf235eb4",
+      "scope": "Native original computer launch and expanded guide; WIN, progress and Next fit unscrolled.",
+      "reviewedDirectly": true,
+      "pixelsEdited": false
+    },
+    {
+      "file": "village-desktop.png",
+      "sha256": "7203f5ac285801d6f1f4f24fb1be16cc8fb87118d8e036d6ecfe54f6eed41e97",
+      "scope": "Declared exterior camera at an actual hamlet anchor; reconstructed small outbuildings, same collision plots.",
+      "reviewedDirectly": true,
+      "pixelsEdited": false
+    },
+    {
+      "file": "parachutes-desktop.png",
+      "sha256": "78526ffd36f6f852aee1bf341eb7ae75e3ade3cc5bbacce2afcbc2d46234608a",
+      "scope": "Original native ejection camera. Ten executed chute components match final source; original full-run sourceStable:false retained.",
+      "reviewedDirectly": true,
+      "pixelsEdited": false
+    },
+    {
+      "file": "knife-phone.png",
+      "sha256": "e9c5e42a382faf0377c6ff700e0a2b5f0e9033c87c4f5f1dbaf9c3d8d2315282",
+      "scope": "Native touch selected-knife action in a declared combat fixture; attack code unchanged.",
+      "reviewedDirectly": true,
+      "pixelsEdited": false
+    }
+  ],
+  "scope": "Directly reviewed original renderer screenshots, copied without editing. Fixture/earlier-component scopes are explicit per image."
+}
