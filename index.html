@@ -9817,6 +9817,8 @@ class Cockpit {
   drawCue(st) {
     if (!st.cue || !st.assist || st.extView) return;
     if (!st.evade && !st.chute && typeof MissionDemo !== 'undefined' && MissionDemo.snapshot().computerPlaying) return;
+    const crew = document.getElementById('flightStrikeCrew');
+    if (!st.evade && !st.chute && crew && !crew.hidden && crew.dataset.state === 'caption' && crew.getClientRects().length) return;
     const g = this.g, W = this.W, H = this.H;
     const y = H - 15;   // below the instrument cluster, clear of the touch controls
     g.save();
