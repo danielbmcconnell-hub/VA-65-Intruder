@@ -183,6 +183,12 @@
     else{const bl=clamp((c.open-.42)/.4,0,1);push(!s.historical&&harnessReady(g)?'chuteEmpty':'chute',[c.p[0],c.p[1]+4.6,c.p[2]],[c.drift,0,Math.sin(s.clock*.8)*.045],[bl,.55+bl*.45,bl],[1,1,1,0]);}
     return 1;
   }
+  // The descent threat owner changes actual crew condition. This small
+  // entry point keeps the companion's existing injury/slowdown ownership.
+  function receiveInjury(g,details={}){
+    const s=g&&states.get(g);if(!s||!visible(g)||!s.chute||!s.actor.alive||!(g.ac?.crew?.[s.role]>0)||!['descending','hung','falling'].includes(s.mode))return false;
+    s.injured=true;s.injuryPersistent=true;s.injuryAge=0;return true;
+  }
   function assistance(g){const s=g&&states.get(g),e=g&&g.evade;return !!(visible(g)&&s&&s.reunited&&s.order==='follow'&&!s.chute&&!['captured','rescued'].includes(s.mode)&&e&&distance(s.actor.p,e.p)<3.2&&!s.actor.swimming);}
   function movementFactor(g){const e=g&&g.evade;if(!assistance(g)||!e)return 1;const L=context.LandingWater||root.LandingWater,injured=!!e.hurt||!!(L&&typeof L.movementFactor==='function'&&L.movementFactor(g)<1);return injured?1.08:1;}
   function prepareRescue(g){
@@ -217,5 +223,5 @@
     if(typeof blocked==='function')proto._blockedAt=function(x,z,r,e){return blocked.apply(this,arguments)||blockedAt(this,x,z,r,e);};
     if(typeof sync==='function')proto.syncControls=function(){const result=sync.apply(this,arguments);hud(this);return result;};return true;
   }
-  root.AviatorCompanion=Object.freeze({configure,install,begin,step,command,actors,instances,blockedAt,view,snapshot,restore,assistance,movementFactor,prepareRescue,rescueLine,limits:Object.freeze({maxCompanions:1,maxStep:MAX_DT,reunionDistance:7,visualSearchDistance:32,callDistance:75,callCooldown:8,followDistance:2.7,helpDistance:3.2,maxMovementHelp:1.08,swimStrokeMetres:SWIM_STROKE,canopyDiameterMetres:CANOPY_DIAMETER,ejectionSideSpeedMetresPerSecond:EJECTION_SIDE_SPEED})});
+  root.AviatorCompanion=Object.freeze({configure,install,begin,step,command,actors,instances,blockedAt,view,snapshot,restore,receiveInjury,assistance,movementFactor,prepareRescue,rescueLine,limits:Object.freeze({maxCompanions:1,maxStep:MAX_DT,reunionDistance:7,visualSearchDistance:32,callDistance:75,callCooldown:8,followDistance:2.7,helpDistance:3.2,maxMovementHelp:1.08,swimStrokeMetres:SWIM_STROKE,canopyDiameterMetres:CANOPY_DIAMETER,ejectionSideSpeedMetresPerSecond:EJECTION_SIDE_SPEED})});
 })(typeof window!=='undefined'?window:globalThis);

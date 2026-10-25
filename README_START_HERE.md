@@ -1,8 +1,8 @@
 # Intruder: Yankee Station — Codex handoff
 
-The latest complete private game is on `jungle-training`: [download](https://github.com/danielbmcconnell-hub/VA-65-Intruder/archive/refs/heads/jungle-training-site.zip) · [controls, verification and limits](releases/jungle-training-notes.md). It improves photographic foliage, reconstructed rural exteriors, seven-task solitary practice, visible rations, separated parachutes and weapon feedback. W. S. McConnell’s family-supplied expressions appear in occasional B/N dialogue. On foot with the equipment carried: V knife, F pistol/contextual pickup, T or FIRE .38 / STAB KNIFE uses the weapon, Space punches with a free hand. Actual iPhone Safari remains untested.
+The latest complete private game is on `cockpit-focus`: [download](https://github.com/danielbmcconnell-hub/VA-65-Intruder/archive/refs/heads/cockpit-focus-site.zip) · [controls, verification and limits](releases/cockpit-focus-notes.md). It uses the supplied jungle references for branched, layered photographic foliage, compacts flight utilities into the COCKPIT menu, clarifies mission cues and adds visible small-arms threats during parachute descent. Actual iPhone Safari remains untested.
 
-The preceding [coastal scenery release](releases/coastline-scenery-notes.md) remains available.
+The preceding [jungle training release](releases/jungle-training-notes.md) and [coastal scenery release](releases/coastline-scenery-notes.md) remain available.
 
 Earlier release history and the original handoff follow unchanged.
 

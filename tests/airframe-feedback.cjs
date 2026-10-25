@@ -87,6 +87,20 @@ test('direct callbacks and subsequent instrument polling produce one notice per 
   for (let i = 0; i < 100; i++) f.api.tick(f.game, .01);
   assert.equal(f.api.view(f.game).emitted, 1); assert.equal(f.api.view(f.game).impacts, 1);
 });
+test('a real critical fire report survives follow-up generic and lower-priority hits without extending its expiry or losing real impact audio',()=>{
+  const f=fixture();f.actualHit(.3,'flak',[-100,300,0],.99);const first=plain(f.api.view(f.game).alert),impacts=f.api.view(f.game).impacts;
+  assert.equal(first.title,'AIRFRAME FIRE');f.advance(.1);f.api.hit(f.game,.1,'aaa');
+  assert.deepEqual(plain(f.api.view(f.game).alert),first);assert.equal(f.api.view(f.game).impacts,impacts+1);assert.ok(f.api.view(f.game).sourceCount>0);
+  f.advance(.1);f.actualHit(.2,'aaa',null,.1);assert.ok(f.ac.dmg.hyd>0);assert.deepEqual(plain(f.api.view(f.game).alert),first);
+  f.advance(8);assert.equal(f.api.view(f.game).alert,null);
+});
+test('pilot-loss instruction cannot be replaced by a generic hit and a fresh second critical change retains both affected systems',()=>{
+  const f=fixture();f.ac.crew.pilot=0;f.api.tick(f.game,.1);const fatal=plain(f.api.view(f.game).alert);
+  f.advance(.1);f.api.hit(f.game,.2,'flak');assert.deepEqual(plain(f.api.view(f.game).alert),fatal);assert.match(f.api.view(f.game).alert.detail,/manual control or eject/);
+  f.advance(.1);f.ac.dmg.fire=.4;f.api.tick(f.game,.1);const combinedFatal=f.api.view(f.game).alert;assert.equal(combinedFatal.priority,3);assert.match(combinedFatal.title,/PILOT NOT RESPONDING.*AIRFRAME FIRE/);assert.match(combinedFatal.detail,/manual control or eject/);assert.match(combinedFatal.detail,/Fire indicated/);
+  const g=fixture();g.actualHit(.3,'flak',null,.99);g.advance(.1);g.ac.crew.bn=.4;g.api.tick(g.game,.1);
+  const combined=g.api.view(g.game).alert;assert.ok(combined.systems.includes('fire')&&combined.systems.includes('bn'));assert.match(combined.title,/AIRFRAME FIRE.*B\/N INJURED/);
+});
 test('damage cards expire on simulation time and a paused redraw cannot keep them alive', () => {
   const f = fixture(); f.actualHit(.2); const a = plain(f.api.view(f.game).alert);
   for (let i = 0; i < 100; i++) { f.api.render(f.game); assert.deepEqual(plain(f.api.view(f.game).alert), a); }

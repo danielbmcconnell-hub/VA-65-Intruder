@@ -62,6 +62,11 @@ if(!jungle.crown?.file)throw new Error('Missing photographic aerial tree crown')
 addRuntimePhoto('assets/jungle',jungle.crown.file);
 if(!jungle.floor?.file||!Number.isFinite(jungle.floor.worldSize)||jungle.floor.worldSize<=0)throw new Error('Missing photographic forest-floor material');
 addRuntimePhoto('assets/jungle',jungle.floor.file);
+for(const kind of ['broadleaf','palm']){
+ const component=jungle.components?.[kind];
+ if(!component?.file||!Array.isArray(component.root)||component.root.length!==2||!component.root.every(n=>Number.isFinite(n)&&n>=0&&n<=1))throw new Error('Missing registered photographic leaf component '+kind);
+ addRuntimePhoto('assets/jungle',component.file);
+}
 allow.push('assets/render/visual-clarity.js','assets/flight/threat-feedback.js');
 allow.push('assets/render/coastal-scenery.js','assets/render/village-detail.js');
 allow.push('assets/ui/hud-layout.js','assets/ui/hud-layout.css','assets/pow/confinement-goals.js','assets/pow/confinement-goals.css');
@@ -84,7 +89,7 @@ for(const file of ['materials.webp','cell-materials.webp','ration.webp','ration-
 // The moving carrier, survival and demonstration integrations are mandatory
 // dependencies of index.html. Only complete runtime crew images are included.
 allow.push('assets/audio/crew-personality.js','assets/audio/voice-profiles.js','assets/flight/aircraft-detail.js','assets/flight/carrier-launch.js','assets/flight/mission-demo.js');
-allow.push('assets/survival/landing-water.js','assets/survival/aviator-companion.js');
+allow.push('assets/survival/landing-water.js','assets/survival/aviator-companion.js','assets/survival/descent-threats.js');
 allow.push('assets/carrier/hires/manifest.json');
 const carrier=JSON.parse(fs.readFileSync(path.join(root,'assets/carrier/hires/manifest.json')));
 if(carrier.version!==1||!carrier.roles)throw new Error('Invalid photographic deck-crew manifest');
@@ -135,7 +140,7 @@ for(const item of allow){const dst=path.join(site,item);fs.mkdirSync(path.dirnam
 fs.writeFileSync(path.join(site,'_headers'),'/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: same-origin\n  Cache-Control: no-cache\n');
 const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
 const files=[...allow,'_headers'].map(file=>({file,sha256:sha(fs.readFileSync(path.join(site,file)))}));
-const archiveFile='Intruder_Yankee_Station_Jungle_Training.zip';
+const archiveFile='Intruder_Yankee_Station_Cockpit_Focus.zip';
 const metadata={commit:cp.execFileSync('git',['rev-parse','HEAD'],{cwd:root}).toString().trim(),entrySHA256:sha(fs.readFileSync(path.join(site,'index.html'))),archiveFile,files};
 fs.writeFileSync(path.join(root,'dist/build-manifest.json'),JSON.stringify(metadata,null,2)+'\n');
 // Python's standard-library zipper makes packaging portable in this cloud image.

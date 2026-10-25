@@ -1,9 +1,9 @@
 /* One short, noninteractive instrument report. It cannot cover or intercept
    the stick, throttle, COMMIT, crew subtitle, or existing cockpit buttons. */
-#flightAirframeFeedback{position:absolute;z-index:27;left:calc(145px + env(safe-area-inset-left,0px));bottom:calc(155px + env(safe-area-inset-bottom,0px));width:min(270px,27vw);padding:7px 10px;border-left:3px solid #dfa465;border-radius:3px;background:rgba(19,23,24,.92);color:#ffe1b4;font:11px/1.35 system-ui,sans-serif;pointer-events:none;box-sizing:border-box}
+#flightAirframeFeedback{position:absolute;z-index:27;left:calc(145px + env(safe-area-inset-left,0px));bottom:calc(155px + env(safe-area-inset-bottom,0px));width:min(270px,27vw);padding:5px 8px;border-left:3px solid #dfa465;border-radius:2px;background:linear-gradient(90deg,rgba(13,18,21,.78),rgba(13,18,21,.38));color:#ffe1b4;font:11px/1.35 system-ui,sans-serif;text-shadow:0 1px 2px #000;pointer-events:none;box-sizing:border-box}
 #flightAirframeFeedback[hidden]{display:none}
-#flightAirframeFeedback small{display:block;font-size:7px;letter-spacing:.06em;color:#c4c8bc}
-#flightAirframeTitle{display:block;margin:2px 0;font-size:10px;letter-spacing:.025em}
+#flightAirframeFeedback small{display:none}
+#flightAirframeTitle{display:block;margin:0 0 2px;font-size:11px;letter-spacing:.025em}
 #flightAirframeDetail{display:block;color:#e5e6d9;font-size:10px}
 #flightAirframeFeedback[data-kind=critical]{border-color:#ff9981;color:#ffcfbf}
 @media(max-height:470px){#flightAirframeFeedback{left:calc(136px + env(safe-area-inset-left,0px));bottom:calc(141px + env(safe-area-inset-bottom,0px));width:min(238px,21vw);padding:4px 7px}#flightAirframeDetail{font-size:9px}#flightAirframeTitle{font-size:9px}}

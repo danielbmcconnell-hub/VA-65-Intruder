@@ -23,6 +23,11 @@ const server=http.createServer((req,res)=>{
   browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE||(fs.existsSync('/usr/bin/chromium')?'/usr/bin/chromium':undefined),headless:true,args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
   for(const profile of [{name:'desktop',viewport:{width:1280,height:720}},{name:'iphone-layout-chromium',viewport:{width:844,height:390},deviceScaleFactor:3,isMobile:true,hasTouch:true}]){
    const {name,...opts}=profile,ctx=await browser.newContext(opts),page=await ctx.newPage(),errors=[],missing=[];
+   const native=locator=>opts.hasTouch?locator.tap():locator.click();
+   // Utility controls keep their original owners, but flight now exposes them
+   // through the native Cockpit menu. Opening that menu closes a reading panel.
+   const utility=async selector=>{const control=page.locator(selector);if(!await control.isVisible())await native(page.locator('#hudUtilityToggle'));await native(control);};
+   const closeUtility=async()=>{const toggle=page.locator('#hudUtilityToggle');if(await toggle.isVisible()){if(await toggle.getAttribute('aria-expanded')!=='true')await native(toggle);await page.locator('#hudUtilityMenu').waitFor({state:'visible'});await native(toggle);await page.locator('#hudUtilityMenu').waitFor({state:'hidden'});}};
    page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400&&r.url().startsWith(target))missing.push(r.url())});
    await ctx.addInitScript(()=>{const raf=window.requestAnimationFrame.bind(window);window.requestAnimationFrame=cb=>window.__packagedFixedClock?0:raf(t=>{if(!window.__packagedFixedClock)cb(t)})});
    await page.goto(target,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.App);await page.click('#bootGo');await page.locator('#readyBody .mcard').first().click();await page.getByRole('button',{name:'Man Aircraft',exact:true}).click();
@@ -45,36 +50,36 @@ const server=http.createServer((req,res)=>{
    checks.push({name:name+' packaged original damage call includes family-supplied B/N expression without changing flight state',passed:true,observed:familyCall});
    observed.photosDecoded=await page.evaluate(async()=>{const sources=[IMG_HERO,IMG_PHOTO,IMG_BN_STAND,IMG_BN_CROUCH,IMG_TIGER,...Object.values(PHOTOS).map(p=>p.s)];for(const src of sources){const im=new Image();im.src=src;await im.decode();if(!(im.naturalWidth>0&&im.naturalHeight>0))throw Error('Invalid photograph '+src)}return sources.length});assert.equal(observed.photosDecoded,17);
    assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
-   await page.locator('#teach').dispatchEvent('click');
+   if(await page.locator('#teach').isVisible())await native(page.locator('#teach'));
    await page.evaluate(()=>{App.screen='game';App.game.paused=false;FlightCoach.tick(App.game,0)});
-   const toggle=page.locator('[data-flight-coach-toggle]');await toggle.waitFor({state:'visible'});
-   assert.equal(await toggle.getAttribute('aria-pressed'),'false');const before=await toggle.boundingBox();
-   if(opts.hasTouch)await toggle.tap();else await toggle.click();
+   const toggle=page.locator('[data-flight-coach-toggle]'),cockpitToggle=page.locator('#hudUtilityToggle');await cockpitToggle.waitFor({state:'visible'});
+   assert.equal(await toggle.getAttribute('aria-pressed'),'false');const before=await cockpitToggle.boundingBox();
+   await utility('[data-flight-coach-toggle]');
    await page.evaluate(()=>{const g=App.game;g.update(1/60);g.render(1/60);g.syncControls()});
    await page.waitForFunction(()=>FlightCoach.enabled(App.game)&&!document.getElementById('flightCoachCue').hidden,null,{polling:50,timeout:30000});
-   const after=await toggle.boundingBox();assert.ok(before&&after);assert.ok(Math.abs(before.x-after.x)<.5&&Math.abs(before.width-after.width)<.5,'Visible cue must not shift the native toggle');
-   if(opts.hasTouch)await toggle.tap();else await toggle.click();
+   await utility('#hudGuideDetails');await page.locator('#flightCoachCue').waitFor({state:'visible'});
+   const after=await cockpitToggle.boundingBox();assert.ok(before&&after);assert.ok(Math.abs(before.x-after.x)<.5&&Math.abs(before.width-after.width)<.5,'Visible guidance must not shift the native Cockpit toggle');
+   await utility('[data-flight-coach-toggle]');
    assert.equal(await toggle.getAttribute('aria-pressed'),'false');assert.equal(await page.evaluate(()=>FlightCoach.enabled(App.game)),false);
    const m24=await page.evaluate(()=>({ammunition:!!window.SurvivalAmmunition,board:!!window.FlightStrikeBoard,effects:!!window.FlightStrikeEffects,sortie:!!window.FlightSortieCheckpoint}));
    assert.ok(Object.values(m24).every(Boolean),'All new production modules must load from the exact package');
-   const realismModules=await page.evaluate(()=>Object.fromEntries(['VoiceProfiles','AircraftDetail','CarrierLaunch','MissionDemo','LandingWater','AviatorCompanion','Wildlife','WildlifeRender','WildlifeTargeting','JungleScenery','VisualClarity','FlightThreatFeedback','PrisonDetail','PrisonFood','RationPhoto','GroundItems','GroundItemsRender','CoastalScenery','HUDLayout','VillageDetail','CrewPersonality'].map(name=>[name,!!window[name]])));
+   const realismModules=await page.evaluate(()=>Object.fromEntries(['VoiceProfiles','AircraftDetail','CarrierLaunch','MissionDemo','LandingWater','AviatorCompanion','DescentThreats','Wildlife','WildlifeRender','WildlifeTargeting','JungleScenery','VisualClarity','FlightThreatFeedback','PrisonDetail','PrisonFood','RationPhoto','GroundItems','GroundItemsRender','CoastalScenery','HUDLayout','VillageDetail','CrewPersonality'].map(name=>[name,!!window[name]])));
    assert.ok(Object.values(realismModules).every(Boolean),'Every carrier, survival, wildlife, voice and demonstration module must load from the package');
    const groundArtwork=await page.evaluate(async()=>{const rows=[];for(const file of ['assets/firstperson/punch-left.webp','assets/firstperson/punch-right.webp','assets/items/pickups.webp','assets/firstperson/stick.webp','assets/firstperson/rifle.webp']){const image=new Image();image.src=file;await image.decode();rows.push({file,width:image.naturalWidth,height:image.naturalHeight});}return rows;});
    assert.equal(groundArtwork.length,5);assert.ok(groundArtwork.every(row=>row.width>=1024&&row.height>=600));
    checks.push({name:name+' packaged photographic left/right hand poses and useful-item atlas decode completely',passed:true,observed:groundArtwork});
    await page.evaluate(()=>{App.screen='game';App.game.paused=false;FlightStrikeBoard.render(App.game)});
-   const boardToggle=page.locator('#flightStrikeBoardToggle');await boardToggle.waitFor({state:'visible'});
-   if(opts.hasTouch)await boardToggle.tap();else await boardToggle.click();
+   await utility('#flightStrikeBoardToggle');
    await page.locator('#flightStrikePanel').waitFor({state:'visible'});
    const panel=await page.locator('#flightStrikePanel').boundingBox();assert.ok(panel);
    if(opts.hasTouch){for(const id of ['stick','pickle','btnScope','btnGear','pauseBtn']){const control=await page.locator('#'+id).boundingBox();assert.ok(control,'Packaged flight control must be visible: '+id);assert.ok(panel.x+panel.width<=control.x||control.x+control.width<=panel.x||panel.y+panel.height<=control.y||control.y+control.height<=panel.y,'Packaged worksheet must not cover '+id);}}
-   if(opts.hasTouch)await boardToggle.tap();else await boardToggle.click();
+   await closeUtility();
    assert.equal(await page.locator('#flightStrikePanel').isVisible(),false);
    checks.push({name:name+' packaged B/N worksheet opens through native input and keeps flight controls exposed',passed:true,observed:{modules:m24,panel},errors,missing});
    await page.evaluate(()=>{App.game.paused=true;App.screen='game';App.game.render(1/60)});
    checks.push({name:name+' packaged flight guidance toggles through native input without moving its target',passed:true,observed:{before,after},errors,missing});
    console.log('PASS '+name+' exact packaged native guidance toggle and stable target');
-   await page.locator('#teach').dispatchEvent('click');await page.screenshot({path:path.join(evidenceDir,'build-'+name+'-flight.png'),timeout:90000});
+   if(await page.locator('#teach').isVisible())await native(page.locator('#teach'));await page.screenshot({path:path.join(evidenceDir,'build-'+name+'-flight.png'),timeout:90000});
    checks.push({name:name+' packaged flight launches and renders with fresh default settings',passed:true,observed,errors,missing});console.log('PASS '+name+' packaged flight: default quality '+observed.quality+', '+observed.photosDecoded+' images decoded');
    // Resume the native scheduler for the real chapter's queued startup.
    await page.evaluate(()=>{window.__packagedFixedClock=false;App.show('ready');requestAnimationFrame(t=>App.frame(t))});
@@ -91,13 +96,23 @@ const server=http.createServer((req,res)=>{
    assert.equal(pow.savedSortie,'m11');assert.equal(pow.restoredSortie,'m11');assert.equal(pow.ammunition.version,1);assert.equal(pow.ammunition.bulletsExpended,0);
    // Whole botanical photographs now load in flight and captivity. The old
    // fragmented vegetation atlas remains a failure fallback, not a required upload.
-   await page.waitForFunction(()=>{if(App.rend.gl.isContextLost())throw Error('Packaged ground context lost');const j=JungleScenery.inspect(App.game,App.rend);if(j.failures.length)throw Error(JSON.stringify(j.failures));return j.status==='ready'&&j.readySources===8;},null,{polling:50,timeout:90000});
-   const refinement=await page.evaluate(()=>{const R=App.rend,gl=R.gl,plants=JungleScenery.inspect(App.game,R),cutouts=PhotoCutouts.inspect(R);return {title:document.title,modules:[!!window.SpriteLayers,!!window.PhotoCutouts,!!window.PhotoMotion,!!window.ContactShadows,!!window.QualityPolicy,!!window.GroundView,!!window.EquipmentView,!!window.GroundCombat,!!window.TerrainShadows,!!window.NearGround],cutouts:{...cutouts,records:cutouts.records.map(r=>({...r,liveTexture:gl.isTexture(R.textures[r.textureName]?.tex),textureWidth:R.textures[r.textureName]?.w,textureHeight:R.textures[r.textureName]?.h}))},plants:{...plants,records:plants.records.map(p=>({...p,liveTexture:gl.isTexture(R.textures[p.textureName]?.tex)})),floorLive:gl.isTexture(R.textures[plants.floor.textureName]?.tex),crownLive:gl.isTexture(R.textures[plants.crown.textureName]?.tex)},legacyVegetationUploaded:!!R.textures.photo_vegetation,legacyFigureUploaded:!!R.textures.people,arrays:SpriteLayers.inspect(gl),ground:GroundView.view(App.game),policy:QualityPolicy.inspect(App),gl:gl.getError()}});
+   await page.waitForFunction(()=>{if(App.rend.gl.isContextLost())throw Error('Packaged ground context lost');const j=JungleScenery.inspect(App.game,App.rend);if(j.failures.length)throw Error(JSON.stringify(j.failures));return j.status==='ready'&&j.readySources===10;},null,{polling:50,timeout:90000});
+   const refinement=await page.evaluate(()=>{const R=App.rend,gl=R.gl,plants=JungleScenery.inspect(App.game,R),cutouts=PhotoCutouts.inspect(R);return {title:document.title,modules:[!!window.SpriteLayers,!!window.PhotoCutouts,!!window.PhotoMotion,!!window.ContactShadows,!!window.QualityPolicy,!!window.GroundView,!!window.EquipmentView,!!window.GroundCombat,!!window.TerrainShadows,!!window.NearGround],cutouts:{...cutouts,records:cutouts.records.map(r=>({...r,liveTexture:gl.isTexture(R.textures[r.textureName]?.tex),textureWidth:R.textures[r.textureName]?.w,textureHeight:R.textures[r.textureName]?.h}))},plants:{...plants,records:plants.records.map(p=>({...p,liveTexture:gl.isTexture(R.textures[p.textureName]?.tex)})),components:plants.components.map(p=>({...p,liveTexture:gl.isTexture(R.textures[p.textureName]?.tex),textureWidth:R.textures[p.textureName]?.w,textureHeight:R.textures[p.textureName]?.h})),floorLive:gl.isTexture(R.textures[plants.floor.textureName]?.tex),crownLive:gl.isTexture(R.textures[plants.crown.textureName]?.tex)},legacyVegetationUploaded:!!R.textures.photo_vegetation,legacyFigureUploaded:!!R.textures.people,arrays:SpriteLayers.inspect(gl),ground:GroundView.view(App.game),policy:QualityPolicy.inspect(App),gl:gl.getError()}});
    assert.ok(refinement.title.includes('B/N Immersion & Visual Polish'));assert.ok(refinement.modules.every(Boolean));
    assert.equal(refinement.cutouts.status,'ready');assert.equal(refinement.cutouts.ready,refinement.cutouts.expected);assert.ok(refinement.cutouts.ready>=15);assert.deepEqual(refinement.cutouts.failures,[]);assert.ok(refinement.cutouts.bytes<=refinement.cutouts.budget);
    for(const subject of ['farmer','militia','female_vc','nva','aviator','cow'])for(const pose of ['idle','fallen'])assert.ok(refinement.cutouts.records.some(r=>r.subject===subject&&r.pose===pose),subject+' complete '+pose+' image must be packaged and uploaded');
    for(const r of refinement.cutouts.records){assert.ok(r.sourceWidth>=1024&&r.sourceHeight>=1024,r.key+' must use a full high-resolution source');assert.ok(Math.max(r.width,r.height)>=768,r.key+' retains useful photographic GPU resolution');if(r.pose==='idle')assert.ok(r.liveTexture,r.key+' must remain resident');if(r.resident!==false){assert.ok(r.liveTexture,r.key);assert.equal(r.textureWidth,r.width);assert.equal(r.textureHeight,r.height);}}
-   assert.equal(refinement.plants.readySources,8);assert.equal(refinement.plants.records.length,6);assert.ok(refinement.plants.records.every(p=>p.liveTexture&&Math.max(p.sourceWidth,p.sourceHeight)>=1024));assert.ok(refinement.plants.floorLive&&refinement.plants.crownLive);assert.ok(refinement.plants.bytes<=refinement.plants.budget);assert.equal(refinement.legacyVegetationUploaded,false);assert.equal(refinement.legacyFigureUploaded,false);assert.equal(refinement.arrays.liveArrays,0);assert.equal(refinement.arrays.bytes,0);assert.equal(refinement.arrays.failures,0);assert.equal(refinement.ground.height,1.68);assert.equal(refinement.policy.requested,opts.hasTouch?1:2);assert.equal(refinement.gl,0);
+   assert.equal(refinement.plants.readySources,10);assert.equal(refinement.plants.records.length,6);assert.ok(refinement.plants.records.every(p=>p.liveTexture&&Math.max(p.sourceWidth,p.sourceHeight)>=1024));assert.ok(refinement.plants.floorLive&&refinement.plants.crownLive);assert.ok(refinement.plants.bytes<=refinement.plants.budget);assert.equal(refinement.legacyVegetationUploaded,false);assert.equal(refinement.legacyFigureUploaded,false);assert.equal(refinement.arrays.liveArrays,0);assert.equal(refinement.arrays.bytes,0);assert.equal(refinement.arrays.failures,0);assert.equal(refinement.ground.height,1.68);assert.equal(refinement.policy.requested,opts.hasTouch?1:2);assert.equal(refinement.gl,0);
+   const botanicalManifest=JSON.parse(fs.readFileSync(path.join(site,'assets/jungle/manifest.json')));
+   assert.equal(refinement.plants.components.length,2);
+   for(const kind of ['broadleaf','palm']){
+    const component=refinement.plants.components.find(p=>p.kind===kind),spec=botanicalManifest.components[kind];
+    assert.ok(component?.liveTexture,kind+' photographic leaf component must be a live GPU texture');assert.equal(component.file,spec.file);
+    assert.equal(component.sourceWidth,spec.width);assert.equal(component.sourceHeight,spec.height);assert.ok(Math.max(component.sourceWidth,component.sourceHeight)>=1024);
+    const edge=opts.hasTouch?spec.gpuTouch:spec.gpuHigh,scale=Math.min(1,edge/Math.max(spec.width,spec.height));
+    assert.equal(component.textureWidth,Math.round(spec.width*scale));assert.equal(component.textureHeight,Math.round(spec.height*scale));
+    assert.ok(component.bytes>0&&component.bytes<=refinement.plants.budget);assert.deepEqual(component.root,spec.root);
+   }
    checks.push({name:name+' packaged complete high-resolution photographs and vegetation use bounded GPU resources',passed:true,observed:refinement});
    const packagedMotion=await page.evaluate(async()=>{
     const R=App.rend,gl=R.gl;PhotoCutouts.beginFrame(R);await PhotoCutouts.prepareMotion(R,'nva','walk');
@@ -163,17 +178,18 @@ const server=http.createServer((req,res)=>{
    await page.waitForFunction(()=>App.game?.mis?.id==='m2'&&!!App.game.strikeExperience&&document.getElementById('loader').style.display==='none',null,{polling:50,timeout:90000});
    await page.evaluate(()=>{const g=App.game;g.update(1/60);g.render(1/60);g.syncControls()});
    const tacticalBefore=await page.evaluate(()=>({p:App.game.ac.p.slice(),fixes:App.game.world.nav.fixes,score:{...App.game.world.score}}));
-   if(opts.hasTouch)await page.locator('#dixieApproach').tap();else await page.locator('#dixieApproach').click();
+   await utility('#dixieApproach');
    if(opts.hasTouch)await page.locator('#dixieRouteTerrain').tap();else await page.locator('#dixieRouteTerrain').click();
    const tactical=await page.evaluate(()=>({route:FlightTacticalApproach.inspect(App.game),materials:typeof FlightVisualMaterials.glsl==='string',feedback:FlightAirframeFeedback.view(App.game),p:App.game.ac.p.slice(),clearance:App.game.apAGL,fixes:App.game.world.nav.fixes,score:{...App.game.world.score},focus:document.activeElement?.id}));
    assert.equal(tactical.route.choice,'terrain');assert.equal(tactical.route.following,true);assert.equal(tactical.clearance,320);assert.ok(tactical.materials&&tactical.feedback.active);assert.deepEqual(tactical.p,tacticalBefore.p);assert.equal(tactical.fixes,tacticalBefore.fixes);assert.deepEqual(tactical.score,tacticalBefore.score);assert.notEqual(tactical.focus,'dixieRouteTerrain');
-   if(opts.hasTouch)await page.locator('#dixieApproach').tap();else await page.locator('#dixieApproach').click();
+   await utility('#dixieApproach');
    if(opts.hasTouch)await page.locator('#dixieRouteFree').tap();else await page.locator('#dixieRouteFree').click();
    assert.equal(await page.evaluate(()=>FlightTacticalApproach.inspect(App.game).following),false);
    checks.push({name:name+' packaged native terrain route and manual override preserve aircraft position, navigation fixes and score',passed:true,observed:tactical});
    const beforeDixie=await page.evaluate(()=>({p:App.game.ac.p.slice(),bombs:App.game.ac.bombs,score:{...App.game.world.score}}));
-   if(opts.hasTouch)await page.locator('#dixieRipple').tap();else await page.locator('#dixieRipple').click();
-   if(opts.hasTouch)await page.locator('#dixieLook').tap();else await page.locator('#dixieLook').click();
+   await utility('#dixieRipple');
+   await utility('#dixieLook');
+   await closeUtility();
    const dixie=await page.evaluate(()=>{const g=App.game;g.render(0);return {mission:g.mis.id,rightSeat:g.rightSeat,airborne:!g.ac.onDeck,view:FlightStrikeExperience.view(g),meshes:['bnStrikeDepot','bnStrikeRuin','bnStrikeTower'].every(n=>!!g.rend.meshes[n]),chart:FlightStrikeBoard.chart(g).features.some(f=>f.id==='dixie-road-junction'),p:g.ac.p.slice(),bombs:g.ac.bombs,score:{...g.world.score},gpuError:g.rend.gl.getError(),focused:document.activeElement?.id}});
    assert.equal(dixie.mission,'m2');assert.ok(dixie.rightSeat&&dixie.airborne&&dixie.meshes&&dixie.chart&&dixie.view.look);assert.equal(dixie.view.ripple,4);assert.notEqual(dixie.focused,'dixieLook');assert.deepEqual(dixie.p,beforeDixie.p);assert.equal(dixie.bombs,beforeDixie.bombs);assert.deepEqual(dixie.score,beforeDixie.score);assert.equal(dixie.gpuError,0);assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
    await page.screenshot({path:path.join(evidenceDir,'build-'+name+'-dixie.png'),timeout:90000});
@@ -185,9 +201,9 @@ const server=http.createServer((req,res)=>{
    if(opts.hasTouch)await page.locator('#wildlifePractice').tap();else await page.locator('#wildlifePractice').click();
    await page.waitForFunction(()=>App.game?.evade?.wildlifePractice&&document.getElementById('loader').style.display==='none',null,{polling:50,timeout:90000});
    await page.evaluate(()=>{window.__packagedFixedClock=true;App.game.paused=true;});
-   await page.waitForFunction(()=>{const j=JungleScenery.inspect(App.game,App.rend);if(j.failures.length)throw Error(JSON.stringify(j.failures));return j.status==='ready'&&j.readySources===8;},null,{polling:50,timeout:90000});
+   await page.waitForFunction(()=>{const j=JungleScenery.inspect(App.game,App.rend);if(j.failures.length)throw Error(JSON.stringify(j.failures));return j.status==='ready'&&j.readySources===10;},null,{polling:50,timeout:90000});
    const forest=await page.evaluate(()=>{const g=App.game;for(let i=0;i<16;i++)g.render(0);g.syncControls();const j=JungleScenery.inspect(g,g.rend);return {cue:g.nextCue(g.ac,g.world),mode:g.evade.weaponMode,sources:j.readySources,photos:j.count,bytes:j.bytes,budget:j.budget,gl:g.rend.gl.getError()};});
-   assert.equal(forest.mode,'fists');assert.match(forest.cue,/PUNCH/);assert.doesNotMatch(forest.cue,/RADIO/);assert.equal(forest.sources,8);assert.ok(forest.photos>0&&forest.bytes<=forest.budget);assert.equal(forest.gl,0);assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
+   assert.equal(forest.mode,'fists');assert.match(forest.cue,/PUNCH/);assert.doesNotMatch(forest.cue,/RADIO/);assert.equal(forest.sources,10);assert.ok(forest.photos>0&&forest.bytes<=forest.budget);assert.equal(forest.gl,0);assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
    await page.screenshot({path:path.join(evidenceDir,'build-'+name+'-forest.png'),timeout:90000});
    checks.push({name:name+' packaged native forest entry shows botanical photos and actual practice punch/weapon controls',passed:true,observed:forest});await ctx.close();
   }

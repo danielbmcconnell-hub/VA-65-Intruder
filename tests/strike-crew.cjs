@@ -18,21 +18,23 @@ function fixture(options = {}) {
   }
   const host = new Node('section'); host.id = 'game';
   const document = { hidden: false, getElementById: id => ids.get(id), createElement: tag => new Node(tag), addEventListener(k, fn) { (documentEvents[k] ||= []).push(fn); } };
-  const synth = { pending: false, speaking: false, said: [], cancels: 0, getVoices() { return options.voices || [{name:'Microsoft David Desktop',lang:'en-US'}]; }, speak(u) { this.said.push(u); this.speaking = true; u.onstart(); }, cancel() { this.cancels++; this.speaking = false; this.pending = false; const u = this.said.at(-1); if (u) u.onend(); } };
+  const synth = { pending: false, speaking: false, said: [], cancels: 0, getVoices() { return options.voices || [{name:'Microsoft David Desktop',lang:'en-US'}]; }, speak(u) { this.said.push(u);if(this.speaking){this.pending=true;return;}this.speaking = true;u.onstart?.(); }, cancel() { this.cancels++; this.speaking = false; this.pending = false; const u = this.said.at(-1); if (u) u.onend?.(); } };
   const window = { addEventListener(k, fn) { (events[k] ||= []).push(fn); } };
   if (options.speech !== false) { window.speechSynthesis = synth; window.SpeechSynthesisUtterance = function (text) { this.text = text; }; }
   const effects = { targets: [], flashes: [] };
   window.FlightStrikeEffects = { inspect() { return effects; } };
   const contextVM=vm.createContext({ window, document });
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../assets/audio/voice-profiles.js'),'utf8'),contextVM);
+  if(options.personality)vm.runInContext(fs.readFileSync(path.join(__dirname,'../assets/audio/crew-personality.js'),'utf8'),contextVM);
   vm.runInContext(source, contextVM);
   const game = { t: 0, phase: 'ingress', mis: { id: 'm2' }, strikeExperience: { phase: 'navigation' }, rightSeat: true, ac: { p: [0, 1000, 0], roll: 0, alive: true, bombs: 12, dmg: {} }, world: { nav: { fixes: 0 }, score: { dropped: 0, hits: 0, misses: 0 }, designated: null }, sol: null, steer: null, masterArm: false, _lastCommit: 0, rend: { eye: [0, 1000, 0], matV: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1] } };
-  const App = { game, screen: 'game', set: { sound: true }, graphicsContextLost: false }, api = window.FlightStrikeCrew;
+  const radioCalls=[];
+  const App = { game, screen: 'game', set: { sound: true }, graphicsContextLost: false, radio(who,text){radioCalls.push({who,text:window.CrewPersonality?window.CrewPersonality.line(game,who,text):text,args:Array.from(arguments)});if(options.radioSpeech)synth.speak({text});return 77;} }, api = window.FlightStrikeCrew;
   const context = { App, canSeeAftermath: () => true }; api.install(context);
   const tick = delta => { game.t += delta; api.tick(game, delta); return api.inspect(game); };
   const baseline = () => { tick(0); tick(10); };
   const click = () => ids.get('flightStrikeCrewVoice').onclick({ stopPropagation() {} });
-  return { api, window, game, App, document, context, ids, host, synth, effects, tick, baseline, click, events, documentEvents };
+  return { api, window, game, App, document, context, ids, host, synth, effects, tick, baseline, click, events, documentEvents,radioCalls };
 }
 test('opt-in scope leaves every old mission, Willard and absent experience untouched', () => {
   for (const change of [g => g.mis.id = 'm1', g => delete g.strikeExperience, g => g.willard = {}]) {
@@ -133,7 +135,57 @@ test('malformed view matrices cannot manufacture a visual smoke observation', ()
 });
 test('captions expire on simulation time with meaningful quiet intervals', () => {
   const f = fixture(); f.tick(0); for (let i = 0; i < 20; i++) f.api.render(f.game); assert.ok(f.api.inspect(f.game).caption);
-  f.tick(6); assert.equal(f.api.inspect(f.game).caption, null); assert.match(f.ids.get('flightStrikeCrewLine').textContent, /Crew listening/);
+  f.tick(6); assert.equal(f.api.inspect(f.game).caption, null); assert.equal(f.ids.get('flightStrikeCrewLine').textContent,'');assert.equal(f.ids.get('flightStrikeCrewLine').hidden,true);assert.equal(f.ids.get('flightStrikeCrew').dataset.state,'idle');assert.equal(f.ids.get('flightStrikeCrewVoice').hidden,false);
+});
+test('matching real radio acknowledgements own one caption and one speech path while native returns and family wording survive',()=>{
+  for(const [key,text,change]of [
+    ['fix','Fix on river bend. System updated.',g=>g.world.nav.fixes++],
+    ['lock','Locked. Target, range 4 miles. Computer has it.',g=>g.world.designated={}],
+    ['steer','Right 270.',g=>g.steer=-Math.PI/2],
+    ['steer','Come right to 270.',g=>g.steer=-Math.PI/2],
+    ['steer','Come left to 270.',g=>g.steer=-Math.PI/2],
+    ['steer','Steady on270.',g=>g.steer=-Math.PI/2],
+    ['lock','Attacking briefed coordinates. Computer has the point.',g=>g.world.designated={}],
+    ['release','Bombs away.',g=>g.world.score.dropped+=4]
+  ]){
+    const f=fixture({personality:true});f.baseline();f.click();change(f.game);
+    assert.equal(f.App.radio('BN',text,''),77);const after=f.tick(.1);
+    assert.equal(after.caption,null,key);assert.equal(after.suppressed,1,key);assert.equal(f.synth.said.length,0,key);assert.equal(f.radioCalls.length,1);
+    assert.equal(f.radioCalls[0].args[1],text);if(text.startsWith('Locked.'))assert.match(f.radioCalls[0].text,/Get the gold\./);
+  }
+});
+test('an acknowledgement cannot suppress a distinct weapon-safety explanation or a later fresh event',()=>{
+  const f=fixture();f.baseline();f.App.radio('BN','Fix on river bend.');f.game.masterArm=true;
+  assert.equal(f.tick(.1).caption.key,'inhibit-designation');
+  f.game.masterArm=false;f.tick(15);f.game.world.nav.fixes++;assert.equal(f.tick(.1).caption.key,'fix');
+});
+test('a native acknowledgement consumes the original event cooldown and quiet interval without adding a second caption',()=>{
+  const f=fixture();f.baseline();f.game.world.nav.fixes++;f.App.radio('BN','Fix on river bend.');assert.equal(f.tick(.1).caption,null);
+  f.tick(1.5);f.game.world.nav.fixes++;assert.equal(f.tick(.1).caption,null,'The original8s fix cooldown still applies after radio owns the first fix');
+  f.game.world.designated={};assert.equal(f.tick(.1).caption,null,'Routine acknowledgement cannot bypass the original7s quiet interval');
+  f.tick(7);f.game.world.nav.fixes++;assert.equal(f.tick(.1).caption.key,'fix');
+});
+test('a later matching native radio acknowledgement retires only its own secondary caption',()=>{
+  const f=fixture();f.baseline();f.game.world.nav.fixes++;assert.equal(f.tick(.1).caption.key,'fix');
+  f.App.radio('BN','Fix on river bend.');assert.equal(f.api.inspect(f.game).caption,null);assert.equal(f.ids.get('flightStrikeCrewLine').hidden,true);
+});
+test('a later real radio voice starts after only its matching owned guidance is retired, without a queued duplicate',()=>{
+  const f=fixture({radioSpeech:true});f.baseline();f.click();f.game.world.nav.fixes++;f.tick(.1);assert.equal(f.synth.said.length,1);
+  f.App.radio('BN','Fix on river bend.');assert.equal(f.synth.cancels,1);assert.equal(f.synth.said.length,2);assert.equal(f.synth.pending,false);assert.equal(f.synth.speaking,true);assert.equal(f.api.inspect(f.game).ownedVoices,0);
+});
+test('a distinct critical real radio call takes the floor before optional guidance can queue it',()=>{
+  const f=fixture({radioSpeech:true,personality:true});f.baseline();f.click();f.game.world.nav.fixes++;f.tick(.1);assert.equal(f.synth.said.length,1);
+  f.App.radio('BN','LAUNCH! Watch for the smoke!','bad');assert.equal(f.synth.cancels,1);assert.equal(f.synth.said.length,2);assert.equal(f.synth.pending,false);assert.equal(f.api.inspect(f.game).ownedVoices,0);assert.match(f.radioCalls[0].text,/LAUNCH!.*knuckleheads/);assert.deepEqual(f.radioCalls[0].args,['BN','LAUNCH! Watch for the smoke!','bad']);
+});
+test('the actual post-ejection radio order retires only same-game guidance before the emergency call',()=>{
+  const f=fixture({radioSpeech:true});f.baseline();f.click();f.game.world.nav.fixes++;f.tick(.1);assert.equal(f.synth.said.length,1);
+  f.game.ejected=true;f.game.phase='chute';f.game.chute={};f.game.ac.alive=false;
+  const message='Ejecting — go, go, GO.';assert.equal(f.App.radio('BN',message,'bad'),77);assert.equal(f.synth.cancels,1);assert.equal(f.synth.said.length,2);assert.equal(f.synth.pending,false);assert.equal(f.api.inspect(f.game).ownedVoices,0);assert.deepEqual(f.radioCalls[0].args,['BN',message,'bad']);
+});
+test('critical real aircraft reports take precedence over routine crew captions while weapon-inhibit guidance stays readable',()=>{
+  const f=fixture();f.window.FlightAirframeFeedback={view:()=>({alert:{systems:['fire']}})};
+  const initial=f.tick(0);assert.equal(initial.caption.key,'phase-navigation');assert.equal(initial.captionVisible,false);assert.equal(f.ids.get('flightStrikeCrewLine').hidden,true);
+  f.tick(10);f.game.masterArm=true;const warning=f.tick(.1);assert.equal(warning.caption.key,'inhibit-designation');assert.equal(warning.captionVisible,true);assert.equal(f.ids.get('flightStrikeCrewLine').hidden,false);
 });
 test('pause, menus, capture, ejection, death, graphics loss and hidden document suppress guidance', () => {
   for (const mutate of [f => f.game.paused = true, f => f.App.screen = 'ready', f => f.game.pow = {}, f => f.game.evade = {}, f => f.game.chute = {}, f => f.game.ejected = true, f => f.game.ac.alive = false, f => f.App.graphicsContextLost = true, f => f.document.hidden = true]) {
@@ -143,6 +195,13 @@ test('pause, menus, capture, ejection, death, graphics loss and hidden document 
 test('speech is optional, feature detected and OFF by default while subtitles remain', () => {
   const f = fixture(); f.tick(0); assert.equal(f.synth.said.length, 0); assert.equal(f.api.inspect(f.game).voiceEnabled, false);
   const absent = fixture({ speech: false }); absent.tick(0); assert.equal(absent.ids.get('flightStrikeCrewVoice').disabled, true); assert.ok(absent.api.inspect(absent.game).caption);
+});
+test('global silent and intercom-only preferences keep optional crew words silent without removing captions',()=>{
+  for(const voices of [0,1]){const f=fixture();f.App.set.voices=voices;f.baseline();f.click();f.game.world.nav.fixes++;const result=f.tick(.1);assert.ok(result.caption);assert.equal(result.voiceEnabled,false);assert.equal(f.synth.said.length,0);assert.equal(f.ids.get('flightStrikeCrewVoice').disabled,true);assert.match(f.ids.get('flightStrikeCrewVoice').textContent,/MUTED/);}
+});
+test('muting sound or spoken voices stops only the already-owned utterance and preserves its caption',()=>{
+  for(const setting of ['sound','voices']){const f=fixture();f.baseline();f.click();f.game.world.nav.fixes++;f.tick(.1);assert.equal(f.synth.said.length,1);f.App.set[setting]=0;f.api.render(f.game);assert.equal(f.synth.cancels,1);assert.equal(f.api.inspect(f.game).ownedVoices,0);assert.ok(f.api.inspect(f.game).caption);}
+  const f=fixture();f.baseline();f.click();f.game.world.nav.fixes++;f.tick(.1);f.synth.pending=true;f.App.set.sound=0;f.api.render(f.game);assert.equal(f.synth.cancels,0,'A later queued radio call still owns the synthesis queue');
 });
 test('native speech button activates once per click and never leaks flight keys', () => {
   const f = fixture(); f.baseline(); f.click(); assert.equal(f.api.inspect(f.game).voiceEnabled, true);

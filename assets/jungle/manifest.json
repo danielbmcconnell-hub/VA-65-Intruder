@@ -4,8 +4,8 @@
     "file": "canopy-crown.webp",
     "width": 1254,
     "height": 1254,
-    "gpuHigh": 512,
-    "gpuTouch": 448
+    "gpuHigh": 384,
+    "gpuTouch": 256
   },
   "floor": {
     "file": "forest-floor.webp",
@@ -99,6 +99,31 @@
       "baseline": 0.944335938,
       "center": 0.528927903,
       "bodyHeight": 0.908203125
+    }
+  },
+  "components": {
+    "broadleaf": {
+      "file": "broadleaf-sprig.webp",
+      "width": 1536,
+      "height": 1024,
+      "gpuHigh": 768,
+      "gpuTouch": 576,
+      "root": [
+        0,
+        0.92
+      ],
+      "intentionalStemEdge": "left"
+    },
+    "palm": {
+      "file": "coconut-frond.webp",
+      "width": 1774,
+      "height": 887,
+      "gpuHigh": 512,
+      "gpuTouch": 448,
+      "root": [
+        0.012,
+        0.32
+      ]
     }
   }
 }

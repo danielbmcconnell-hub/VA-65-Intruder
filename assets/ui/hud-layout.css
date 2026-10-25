@@ -36,3 +36,33 @@ body.hud-modal-open #landingWaterHUD{visibility:hidden!important}
 @media(orientation:portrait) and (max-width:600px){#hudUtilityDock #missionDemo>button{width:auto;max-width:190px}#hudUtilityDock #flightCoachToggle{width:136px}body.hud-layout-active.onfoot #radio{width:calc(100% - 28px);bottom:var(--hud-ground-caption-bottom,55px)!important}body.hud-layout-active #landingWaterHUD{left:12px!important;top:122px!important;width:calc(100% - 24px)!important;max-height:30dvh}}
 /* The original four action rows ended17px inside ATTACK on short screens. */
 @media(max-height:470px){body.hud-layout-active.onfoot:not(.pow-active) #fcol{bottom:calc(116px + env(safe-area-inset-bottom,0px))!important}}
+/* Cockpit reading is opt-in. The original controls and panels keep their
+   original handlers; only their presentation moves into this small rail. */
+#hudUtilityToggle,#hudUtilityMenu button{min-height:44px;padding:6px 9px;box-sizing:border-box;border:1px solid #71847e;border-radius:4px;background:rgba(8,19,23,.94);color:#ecebd5;font:600 11px/1.25 system-ui,sans-serif;pointer-events:auto;touch-action:manipulation}
+#hudUtilityToggle{width:108px;position:relative;z-index:4}
+#hudUtilityToggle[hidden],#hudUtilityMenu[hidden]{display:none!important}
+#hudUtilityMenu{position:fixed;left:var(--hud-panel-left);top:var(--hud-panel-viewport-top);width:var(--hud-panel-width);max-height:var(--hud-panel-height);overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:6px;box-sizing:border-box;background:rgba(8,19,23,.96);border:1px solid #71847e;border-radius:4px;pointer-events:auto;touch-action:pan-y;z-index:4;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+#hudUtilityMenu>button{display:block;width:100%!important;max-width:none!important;margin:0;text-align:left}
+#hudUtilityMenu>button[hidden]{display:none!important}
+#hudUtilityMenu>.hud-control-unavailable{display:none!important}
+#hudUtilityMenu .dixie-actions{display:flex;flex-wrap:wrap;gap:5px;margin:0;grid-column:1/-1}
+#hudUtilityMenu .dixie-actions button{flex:1 1 90px;max-width:none;min-height:44px}
+#hudUtilityDock>#missionDemo{width:224px!important;max-width:224px!important}
+#hudUtilityDock #missionDemo>button{position:absolute!important;right:5px!important;bottom:5px!important;left:auto!important;top:auto!important;width:52px!important;max-width:52px!important;min-height:44px!important;padding:5px!important}
+body.hud-cockpit-focus #hudUtilityDock{display:block}
+body.hud-cockpit-focus #hudUtilityDock>.hud-utility-entry:not(#missionDemo){width:0!important;height:0!important;min-height:0!important;padding:0!important;border:0!important;background:none!important}
+body.hud-cockpit-focus #hudUtilityDock .hud-utility-popover,body.hud-cockpit-focus #hudUtilityDock #teach{position:fixed!important;left:var(--hud-panel-left)!important;top:var(--hud-panel-viewport-top)!important;width:var(--hud-panel-width)!important;max-width:var(--hud-panel-width)!important;max-height:var(--hud-panel-height)!important;right:auto!important;bottom:auto!important;overflow:auto!important}
+body.hud-cockpit-focus #hudUtilityDock #dixieObjective,body.hud-cockpit-focus #hudUtilityDock #dixieTitle{display:none!important}
+body.hud-cockpit-focus #hudUtilityDock>#missionDemo{position:fixed!important;left:var(--hud-demo-left)!important;top:var(--hud-demo-top)!important;right:auto!important;bottom:auto!important;width:var(--hud-demo-width,224px)!important;max-width:var(--hud-demo-width,224px)!important;transform:none!important}
+body.hud-cockpit-focus #hudUtilityDock #missionDemo>button{position:absolute!important;right:5px!important;bottom:5px!important;left:auto!important;top:auto!important;width:52px!important;max-width:52px!important;min-height:44px!important;padding:5px!important}
+body.hud-cockpit-focus #hudUtilityDock #missionDemo .demo-actions{padding-right:56px}
+body.hud-cockpit-focus.hud-reading-open #missionDemo .demo-compact{display:none}
+body.hud-cockpit-focus #hudUtilityDock #missionDemo .demo-panel{margin:0!important}
+body.hud-cockpit-focus #hudUtilityDock #teachPeek{width:100%!important;max-width:none!important;white-space:normal;font-size:11px!important;text-align:left}
+body.hud-cockpit-focus #hudUtilityMenu #teachPeek::before{font-size:inherit}
+body.hud-layout-active.hud-cockpit-focus #radio{left:var(--hud-flight-caption-left,12px)!important;top:var(--hud-flight-caption-top,225px)!important;bottom:auto!important;width:var(--hud-flight-caption-width,224px)!important;max-width:none!important}
+body.hud-layout-active.hud-cockpit-focus #radio .rmsg{max-height:var(--hud-flight-caption-height,38px);line-height:1.25}
+body.hud-layout-active.hud-cockpit-focus #radio .rmsg:nth-last-child(n+2){display:block}
+body.hud-layout-active.hud-cockpit-focus #radio .rmsg.hud-radio-suppressed{display:none!important}
+body.hud-cockpit-focus #flightAirframeFeedback[data-kind=critical]{left:var(--hud-critical-left,12px)!important;top:var(--hud-critical-top,110px)!important;right:auto!important;bottom:auto!important;width:var(--hud-critical-width,224px)!important;max-width:var(--hud-critical-width,224px)!important;max-height:none!important;overflow:visible!important;box-sizing:border-box}
+body.hud-cockpit-focus.hud-critical-feedback #missionDemo .demo-compact{display:none}

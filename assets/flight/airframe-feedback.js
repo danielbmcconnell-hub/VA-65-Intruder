@@ -61,13 +61,20 @@
     return { direction, pan: clamp(Math.sin(relative), -1, 1), distance };
   }
   function issue(game, s, changed, kind, observed) {
-    const at = clock(game, s), labels = changed.map(key => systems[key][0]);
-    const fatalities = changed.filter(key => (key === 'pilot' || key === 'bn') && read(game)[key] <= 0);
-    let title = fatalities.length ? fatalities.map(key => key === 'pilot' ? 'PILOT NOT RESPONDING' : 'B/N NOT RESPONDING').join(' · ') : labels.length ? labels.join(' · ') : 'AIRFRAME HIT';
-    const explanations = changed.slice(0, 2).map(key => systems[key][1]);
-    if (fatalities.includes('pilot')) explanations.unshift('Take manual control or eject if the aircraft cannot be recovered.');
+    const at = clock(game, s), current = read(game);
+    let priority = changed.some(key => (key === 'pilot' || key === 'bn') && current[key] <= 0) ? 3 : changed.some(key => ['fire', 'pilot', 'bn'].includes(key)) ? 2 : changed.length ? 1 : 0;
+    // Real follow-up impacts still sound and count. They must not erase a
+    // more urgent crew/fire instruction or refresh its original expiry.
+    if (s.alert && at < s.alert.until && s.alert.priority >= 2 && priority < 2) return s.alert;
+    if (priority >= 2 && s.alert && at < s.alert.until && s.alert.priority >= 2) { changed = [...new Set(s.alert.systems.concat(changed))]; priority = Math.max(priority, s.alert.priority); }
+    const fatal = key => (key === 'pilot' || key === 'bn') && current[key] <= 0;
+    const rank = key => fatal(key) ? 3 : ['fire', 'pilot', 'bn'].includes(key) ? 2 : 1;
+    changed = changed.slice().sort((a, b) => rank(b) - rank(a));
+    const labels = changed.map(key => fatal(key) ? key === 'pilot' ? 'PILOT NOT RESPONDING' : 'B/N NOT RESPONDING' : systems[key][0]);
+    const title = labels.length ? labels.join(' · ') : 'AIRFRAME HIT';
+    const explanations = changed.slice(0, 2).map(key => key === 'pilot' && fatal(key) ? 'Take manual control or eject if the aircraft cannot be recovered.' : systems[key][1]);
     const detail = explanations.length ? explanations.slice(0, 2).join(' ') : 'Check the instruments, crew and return route.';
-    const alert = { title, detail, systems: changed.slice(), at, until: at + (changed.length ? 8 : 3.5),
+    const alert = { title, detail, systems: changed.slice(), priority, at, until: at + (changed.length ? 8 : 3.5),
       source: typeof kind === 'string' ? kind.slice(0, 24) : 'damage',
       direction: observed ? observed.direction : '', positionKnown: !!observed };
     s.alert = alert; s.history.push({ ...alert, systems: changed.slice() }); if (s.history.length > 6) s.history.shift();

@@ -37,3 +37,15 @@ test('B/N utilities occupy the column between real attack navigation and the rad
   const nav=reservations.find(r=>r.id==='B/N heading steering and ship navigation'),radar=reservations.find(r=>r.id==='radar scope');assert.ok(p.left>=nav.right+8);assert.ok(p.left+p.width<radar.left);assert.ok(p.top>=60);
  }
 });
+test('the cockpit rail and opt-in reading column leave the central view and actual controls clear',()=>{
+ for(const [width,height,controlTop]of [[1280,720,658],[844,390,264]]){
+  const reservations=H.canvasReservations({hud:{scope:false},st:{approach:false}},width,height),p=H.focusPlan(width,height,{controlTop,canvasReservations:reservations});
+  assert.ok(p.left+p.width<p.central.left,'Reading stays beside the central flight view');assert.ok(p.panelTop+p.panelHeight<=controlTop);assert.ok(p.railLeft>=Math.max(...reservations.map(r=>r.right))+12);assert.equal(p.top,10);assert.ok(p.railLeft+108<=width-100);
+ }
+});
+test('B/N opt-in panels fit between navigation text and the untouched radar disk',()=>{
+ for(const [width,height,controlTop]of [[1280,720,658],[844,390,264]]){
+  const reservations=H.canvasReservations({hud:{scope:true},st:{nav:{},route:[{}],crew:{pilot:1,bn:1}}},width,height),p=H.focusPlan(width,height,{controlTop,canvasReservations:reservations}),nav=reservations.find(r=>r.id==='B/N heading steering and ship navigation'),radar=reservations.find(r=>r.id==='radar scope');
+  assert.ok(p.left>nav.right);assert.ok(p.left+p.width<radar.left);assert.ok(p.panelTop+p.panelHeight<=controlTop);assert.equal(p.top,60);if(width===844)assert.ok(p.left+p.width<318,'The phone armament column starts at the unchanged native318px boundary');
+ }
+});

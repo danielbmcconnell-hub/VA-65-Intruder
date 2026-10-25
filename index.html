@@ -902,6 +902,7 @@ body.pow-active.pow-field-equipment:not(.desktop) #btnFire{display:flex!importan
 <script src="assets/audio/crew-personality.js"></script>
 <script src="assets/survival/landing-water.js"></script>
 <script src="assets/survival/aviator-companion.js"></script>
+<script src="assets/survival/descent-threats.js"></script>
 <script src="assets/flight/carrier-launch.js"></script>
 <script src="assets/flight/mission-demo.js"></script>
 <script src="assets/render/wildlife-render.js"></script>
@@ -5543,61 +5544,11 @@ function buildProps() {
   m = new MB();
   m.plate([[-11, -9], [11, -9], [9, 9], [-9, 9]], 1.2, 1.2, [0.16, 0.14, 0.11]);
   P.berm = m;
-  /* ---- vegetation ----
-     What was here was a loft whose every section sat at z = 0, so all its
-     rings collapsed into one plane: a flat vertical card, dark green, the
-     same from every tree. Across a hundred square kilometres of delta that
-     is what made three hundred feet look like a putting green.
-
-     Four species instead, built out of overlapping crowns so they have a
-     silhouette: a broad hardwood, a palm, a bamboo clump for the hedgerows
-     along the bunds, and low scrub. */
-  /* A hardwood, and taller than it is wide. The old one was a nine-metre
-     crown on a four-metre trunk, which from the air is a cabbage; a real
-     one in this country is twenty to twenty-five metres of clear bole
-     with the leaf in the top third of it. Six crowns rather than four,
-     at different heights and sizes, so the outline is ragged instead of
-     a dome. */
-  m = new MB();
-  m.cyl(0, 4.6, 0, 0.52, 4.6, C.bark, 5);
-  m.cyl(0.25, 8.2, 0.15, 0.34, 3.6, C.bark, 5);
-  m.blob(0, 11.6, 0, 3.3, 2.9, 3.0, C.canopyG, 8, 4);
-  m.blob(-1.9, 10.1, 1.2, 2.3, 1.9, 2.2, C.canopyD, 6, 3);
-  m.blob(1.7, 10.6, -1.4, 2.1, 1.8, 2.0, C.canopyL, 6, 3);
-  m.blob(0.4, 13.0, -0.3, 2.0, 1.6, 1.9, C.canopyL, 6, 3);
-  m.blob(-0.8, 8.6, -1.6, 1.8, 1.4, 1.7, C.canopyD, 6, 3);
-  m.blob(1.2, 12.1, 1.5, 1.7, 1.4, 1.6, C.canopyG, 6, 3);
-  P.tree = m;
-
-  // coconut palm — the tall thin one that breaks up a tree line
-  m = new MB();
-  for (let k = 0; k < 4; k++) {
-    const y0 = k * 2.3, y1 = y0 + 2.3, lean = k * 0.16;
-    m.cyl(lean * 0.6, (y0 + y1) / 2, lean * 0.3, 0.30 - k * 0.03, 1.15, C.bark, 5);
-  }
-  for (let k = 0; k < 7; k++) {
-    const a2 = k / 7 * TAU, dr = 2.9;
-    m.quad([1.45, 9.2, 0.72], [Math.cos(a2) * dr * 0.5 + 1.45, 9.9, Math.sin(a2) * dr * 0.5 + 0.72],
-           [Math.cos(a2) * dr + 1.45, 8.2, Math.sin(a2) * dr + 0.72],
-           [Math.cos(a2) * dr * 0.55 + 1.6, 8.0, Math.sin(a2) * dr * 0.55 + 0.9], C.frond);
-  }
-  m.blob(1.45, 9.3, 0.72, 1.1, 1.0, 1.1, C.canopyD, 6, 3);
-  P.palm = m;
-
-  // bamboo clump — dense, narrow, and what the field bunds are lined with
-  m = new MB();
-  for (let k = 0; k < 4; k++) {
-    const a2 = k / 4 * TAU + 0.4, r2 = 0.9 + (k % 2) * 0.5;
-    const bx = Math.cos(a2) * r2, bz = Math.sin(a2) * r2, bh = 5.4 + (k % 3) * 1.7;
-    m.cyl(bx, bh / 2, bz, 0.17, bh / 2, C.bamboo, 4);
-    m.blob(bx, bh - 1.1, bz, 1.5, 1.8, 1.4, C.canopyD, 6, 3);
-  }
-  /* Filled from the ground up. A clump of culms with the foliage only at the
-     top reads as four mushrooms on sticks, and a hedgerow of them reads as a
-     fence. Bamboo is a thicket. */
-  m.blob(0, 3.4, 0, 2.9, 2.9, 2.7, C.canopyG, 7, 4);
-  m.blob(0.4, 1.5, -0.3, 2.5, 1.6, 2.3, C.canopyD, 6, 3);
-  P.bamboo = m;
+  /* Structural foliage remains branched and leaf-shaped while photographic
+     materials load or fail. These prototypes contain no spherical crowns. */
+  P.tree = JungleScenery.buildFallback('tree', MB, C);
+  P.palm = JungleScenery.buildFallback('palm', MB, C);
+  P.bamboo = JungleScenery.buildFallback('bamboo', MB, C);
 
   /* A man on the ground, seen from another man's eye height. Enough of a
      silhouette to tell which way he is facing and whether he has seen you. */
@@ -6228,11 +6179,8 @@ function buildProps() {
   P.deckman = crewman(false);
   P.deckkneel = crewman(true);
 
-  // scrub
-  m = new MB();
-  m.blob(0, 1.15, 0, 1.85, 1.15, 1.75, C.canopyG, 6, 3);
-  m.blob(1.1, 0.8, -0.7, 1.2, 0.80, 1.15, C.canopyD, 6, 3);
-  P.bush = m;
+  // Irregular low branches and individual blades, including fallback frames.
+  P.bush = JungleScenery.buildFallback('bush', MB, C);
 
   /* ---- Vietnamese yellow cattle ----
      Bò vàng: the small zebu-type animal that is in every photograph of
@@ -9293,6 +9241,7 @@ class Cockpit {
     const g = this.g, W = this.W, H = this.H;
     g.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     g.clearRect(0, 0, W, H);
+    this._warningRects = [];
     this.assistLvl = st.assist;
     this.blink = (this.blink + st.dt) % 1;
     g.font = '11px "Share Tech Mono", monospace';
@@ -9842,39 +9791,32 @@ class Cockpit {
      whole sortie knowing only the next keystroke, which is how you end up
      over the target area not knowing you are over the target area. */
   drawTask(st) {
+    this._taskRect = null;
     if (!st.task || st.extView || st.evade || st.chute || st.teaching) return;
-    const g = this.g, W = this.W;
-    const t = st.task;
-    g.save();
-    g.textBaseline = 'middle';
-    g.shadowBlur = 0;
-    const pad = 11, y = 8, hgt = t.sub ? 36 : 22;
+    if (typeof MissionDemo !== 'undefined' && MissionDemo.snapshot().active) return;
+    const g = this.g, W = this.W, H = this.H, t = st.task;
+    // Keep the mission label between the cockpit menu and the real stores
+    // instruments. Full route descriptions remain in CHART and GUIDE.
+    const portrait = W < 600 && H > W, short = H < 500;
+    let left = portrait ? 12 : short ? 294 : 340;
+    let right = W - (portrait ? 100 : short ? 220 : 260), y = portrait ? 132 : 8;
+    if(!portrait && right-left<140){left=178;right=W-100;y=76;}
+    const width = Math.max(110, right - left), height = t.sub ? 34 : 20;
+    const fit = text => {let out = String(text);while(out.length > 1 && g.measureText(out).width > width - 18)out = out.slice(0,-1);return out.length < String(text).length ? out.trimEnd() + '…' : out;};
+    g.save();g.textBaseline = 'middle';g.textAlign = 'left';g.letterSpacing = '0px';
     g.font = '600 12px "Barlow Condensed", system-ui, sans-serif';
-    g.letterSpacing = '0.11em';
-    const w1 = g.measureText(t.main.toUpperCase()).width;
-    g.font = '10px "Share Tech Mono", monospace';
-    const w2 = t.sub ? g.measureText(t.sub).width : 0;
-    const bw = Math.min(Math.max(w1, w2) + pad * 2, W - 24);
-    const x = W / 2 - bw / 2;
-    g.fillStyle = 'rgba(6,10,14,.66)';
-    g.fillRect(x, y, bw, hgt);
-    g.fillStyle = t.hot ? 'rgba(226,69,47,.9)' : 'rgba(242,105,27,.85)';
-    g.fillRect(x, y, 2.5, hgt);
-    g.textAlign = 'center';
-    g.font = '600 12px "Barlow Condensed", system-ui, sans-serif';
-    g.fillStyle = t.hot ? '#ffb0a0' : '#ffd089';
-    g.fillText(t.main.toUpperCase(), W / 2, y + (t.sub ? 12 : 11));
-    g.letterSpacing = '0px';
-    if (t.sub) {
-      g.font = '10px "Share Tech Mono", monospace';
-      g.fillStyle = '#9fb0bd';
-      g.fillText(t.sub, W / 2, y + 26);
-    }
-    g.restore();
+    const main = fit(t.main.toUpperCase());g.font = '10px "Share Tech Mono", monospace';const sub = t.sub ? fit(t.sub) : '';
+    g.fillStyle = 'rgba(6,10,14,.25)';g.fillRect(left,y,width,height);
+    g.fillStyle = t.hot ? '#e85c45' : '#c4ad79';g.fillRect(left,y,2,height);
+    g.shadowColor = 'rgba(0,0,0,.95)';g.shadowBlur = 4;
+    g.font = '600 12px "Barlow Condensed", system-ui, sans-serif';g.fillStyle = t.hot ? '#ffb0a0' : '#f1dfb2';g.fillText(main,left+9,y+10);
+    if(sub){g.font = '10px "Share Tech Mono", monospace';g.fillStyle = '#c3d0d6';g.fillText(sub,left+9,y+25);}
+    g.restore();this._taskRect = {left,top:y,right:left+width,bottom:y+height};
   }
 
   drawCue(st) {
     if (!st.cue || !st.assist || st.extView) return;
+    if (!st.evade && !st.chute && typeof MissionDemo !== 'undefined' && MissionDemo.snapshot().computerPlaying) return;
     const g = this.g, W = this.W, H = this.H;
     const y = H - 15;   // below the instrument cluster, clear of the touch controls
     g.save();
@@ -9883,10 +9825,11 @@ class Cockpit {
     const txt = st.cue.toUpperCase();
     const w = Math.min(g.measureText(txt).width + 26, W - 36);
     g.shadowBlur = 0;
-    g.fillStyle = 'rgba(6,10,14,.72)';
+    g.fillStyle = st.evade || st.chute ? 'rgba(6,10,14,.72)' : 'rgba(6,10,14,.24)';
     g.fillRect(W / 2 - w / 2, y - 11, w, 22);
     g.strokeStyle = 'rgba(255,178,46,.55)'; g.lineWidth = 1;
-    g.strokeRect(W / 2 - w / 2, y - 11, w, 22);
+    if (st.evade || st.chute) g.strokeRect(W / 2 - w / 2, y - 11, w, 22);
+    else { g.shadowColor='rgba(0,0,0,.95)';g.shadowBlur=4; }
     g.fillStyle = '#ffd089';
     g.letterSpacing = '0.09em';
     g.fillText(txt, W / 2, y + 1);
@@ -10928,11 +10871,13 @@ class Cockpit {
 
   warnStack(st, cx, y) {
     const g = this.g;
+    if(st.onDeck && st.warnings.length===1 && /^HOLD /.test(st.warnings[0].t))y=this.H-15;
     g.save(); g.textAlign = 'center'; g.font = 'bold 12px "Share Tech Mono", monospace';
     st.warnings.forEach((w, i) => {
       const yy = y + i * 24;
       const on = w.flash ? this.blink < 0.55 : true;
       const tw = g.measureText(w.t).width + 26;
+      this._warningRects.push({left:cx-tw/2,top:yy-10,right:cx+tw/2,bottom:yy+10,label:w.t});
       g.globalAlpha = on ? 1 : 0.22;
       g.fillStyle = w.c === 'r' ? 'rgba(96,16,10,.92)' : 'rgba(92,60,8,.92)';
       g.fillRect(cx - tw / 2, yy - 10, tw, 20);
@@ -14356,7 +14301,7 @@ class Game {
      left him in. */
   currentTask(ac, W) {
     if (!ac.alive || this.phase === 'done') return null;
-    const rb = (p) => {
+    const rb = p => {
       const d = Math.hypot(p[0] - ac.p[0], p[2] - ac.p[2]);
       const b = ((Math.atan2(p[0] - ac.p[0], -(p[2] - ac.p[2])) * RAD) % 360 + 360) % 360;
       return ('00' + Math.round(b)).slice(-3) + '°  ' + (d / 1852).toFixed(1) + ' NM';
@@ -14364,30 +14309,39 @@ class Game {
     if (W.score.damage > 3.4 && !ac.onDeck)
       return { main: 'Get out', sub: 'she will not fly much longer', hot: 1 };
     if (this.mis.type === 'carrier_only')
-      return { main: ac.onDeck ? 'Launch, circle, come back and trap'
-        : (this.departed ? 'Get aboard' : 'Fly the pattern'),
-        sub: ac.onDeck ? 'three landings is the whole mission' : 'ship ' + rb(W.carrier.p) };
-    const alive = W.targets.filter(t => t.alive && !t.bonus).length;
-    const done = !alive || ac.bombs === 0;
-    if (this.phase === 'recovery' || done || this.egressCalled)
-      return { main: 'Get aboard', sub: ((this.mis.brief.origin || 'Carrier').split('(')[0].trim()) + ' ' + rb(W.carrier.p) };
-    if (ac.onDeck)
-      return { main: this.mis.brief.target, sub: 'launch, then the chart is on M' };
-    // ashore, with work to do
-    const label = (this.mis.targets && this.mis.targets.label) || 'the target';
-    if (W.designated)
-      return { main: 'Bomb the ' + label.toLowerCase(), sub: 'designated · ' + rb(W.designated.p), hot: 1 };
+      return { main: ac.onDeck ? 'Launch, circle, come back and trap' : this.departed ? 'Get aboard' : 'Fly the pattern',
+        sub: ac.onDeck ? 'launch · fly the circuit · catch a wire' : 'ship ' + rb(W.carrier.p) };
+    if (this.mis.escape) return { main: 'Survive ejection and escape', sub: 'J fires both seats · steer away from villages' };
+    const base = W.targets.filter(t => !t.bonus), definitions = this.mis.obj || [];
+    const rows = typeof this.objState === 'function' ? this.objState() : [];
+    const work = rows.filter((row,i) => ['targets','radar','discipline'].includes(definitions[i]?.[1]));
+    const completed = work.length ? work.every(row => row[2] === true) : base.length > 0 && base.every(t => !t.alive);
+    const progress = work.length ? work.filter(row => row[2]).length + '/' + work.length + ' objectives earned' : '';
+    const returning = this.phase === 'recovery' || this.egressCalled;
+    if (this.mis.type === 'recce') {
+      const identified = base.filter(t => t.ident).length, released = W.score.dropped > 0;
+      if (released) return { main: 'Weapons discipline violated', sub: 'return safely · no successful mission result', hot: 1 };
+      return returning || identified === base.length
+        ? { main: 'Contacts identified · return', sub: 'weapons tight · ship ' + rb(W.carrier.p) }
+        : { main: 'Identify surface contacts', sub: identified + '/' + base.length + ' identified · retain all weapons' };
+    }
+    if (this.mis.noRelease || this.mis.free)
+      return { main: returning ? 'Recover aboard' : 'Fly the briefed route', sub: 'weapons tight · ship ' + rb(W.carrier.p) };
+    if (returning || completed)
+      return { main: completed ? 'Objectives earned · return' : 'Return · objectives incomplete', sub: 'ship ' + rb(W.carrier.p) + (progress ? ' · ' + progress : '') };
+    if (!ac.onDeck && ac.bombs <= 0 && (ac.arms || 0) <= 0)
+      return { main: 'Stores expended · incomplete', sub: 'return safely · ship ' + rb(W.carrier.p) + (progress ? ' · ' + progress : ''), hot: 1 };
+    if (ac.onDeck) return { main: this.mis.brief.target, sub: 'launch · CHART shows the route' };
+    const label = this.mis.targets?.label || 'target';
+    if (this.mis.type === 'ironhand' && ac.arms > 0 && W.radar?.alive)
+      return { main: 'Suppress the Fan Song radar', sub: ac.arms + ' ARM remaining · ' + (W.radar.emitting ? 'emitter transmitting' : 'wait for transmission') };
+    if (W.designated && ac.bombs > 0)
+      return { main: 'Attack the ' + label.toLowerCase(), sub: 'designated · ' + rb(W.designated.p), hot: 1 };
     const cp = W.route && W.route[W.rtIdx];
-    if (cp && !W.blind)
-      return { main: 'Find the ' + label.toLowerCase(),
-        sub: 'next: ' + cp.label.toLowerCase() + ' ' + rb(cp.p) + (W.site ? '  ·  ' + W.site.line : '') };
-    if (W.oap && !W.oapLocked)
-      return { main: 'Find the ' + label.toLowerCase(),
-        sub: 'lock the ' + W.oap.label.toLowerCase() + ' · ' + rb(W.oap.p) };
-    if (W.briefed)
-      return { main: (W.blind ? 'Attack the coordinates' : 'Find the ' + label.toLowerCase()),
-        sub: rb(W.briefed) + (W.site ? '  ·  ' + W.site.line : '') };
-    return { main: 'Find the ' + label.toLowerCase(), sub: alive + ' left' };
+    if (cp && !W.blind) return { main: 'Find the ' + label.toLowerCase(), sub: 'next: ' + cp.label.toLowerCase() + ' ' + rb(cp.p) };
+    if (W.oap && !W.oapLocked) return { main: 'Find the ' + label.toLowerCase(), sub: 'lock ' + W.oap.label.toLowerCase() + ' · ' + rb(W.oap.p) };
+    if (W.briefed) return { main: W.blind ? 'Attack the coordinates' : 'Find the ' + label.toLowerCase(), sub: rb(W.briefed) };
+    return { main: 'Find the ' + label.toLowerCase(), sub: base.filter(t => t.alive).length + ' remaining' };
   }
 
   nextCue(ac, W) {
@@ -14437,6 +14391,21 @@ class Game {
       if (!this.departed) return 'FLY AWAY FROM THE SHIP FOR A MINUTE, then turn back';
       return 'TURN BACK TOWARD THE SHIP — needle on the nose, DME counts down';
     }
+    if (this.mis.escape) return 'J FIRES BOTH SEATS — steer the chute away from villages and armed ground positions';
+    const baseTargets = W.targets.filter(t => !t.bonus), defs = this.mis.obj || [];
+    const workRows = typeof this.objState === 'function' ? this.objState().filter((row,i) => ['targets','radar','discipline'].includes(defs[i]?.[1])) : [];
+    const workComplete = workRows.length ? workRows.every(row => row[2] === true) : baseTargets.length > 0 && baseTargets.every(t => !t.alive);
+    if (this.mis.type === 'recce') {
+      if (W.score.dropped > 0) return 'WEAPONS DISCIPLINE VIOLATED — return safely; releasing ordnance cannot be undone';
+      const left = baseTargets.filter(t => !t.ident).length;
+      return left ? 'IDENTIFY ' + left + ' CONTACT' + (left === 1 ? '' : 'S') + ' — follow CHART and overfly for identification; keep weapons SAFE'
+        : 'CONTACTS IDENTIFIED — keep weapons SAFE and recover aboard';
+    }
+    if (this.mis.noRelease || this.mis.free) return 'WEAPONS TIGHT — follow the briefed route on CHART; retain all ordnance';
+    if (workComplete) return 'OBJECTIVES EARNED — return to the ship; recovery still required';
+    if (ac.bombs <= 0 && (ac.arms || 0) <= 0) return 'STORES EXPENDED — objectives incomplete; return safely to the ship';
+    if (this.mis.type === 'ironhand' && ac.arms > 0 && W.radar?.alive)
+      return W.radar.emitting ? 'EMITTER TRANSMITTING — press SPACE once for an ARM, then release' : 'WAIT FOR TRANSMISSION — keep the ARM until the radar emits';
     const cp0 = W.route && W.route[W.rtIdx];
     if (cp0 && !W.designated) {
       const d0 = Math.hypot(cp0.p[0] - ac.p[0], cp0.p[2] - ac.p[2]);
@@ -14452,8 +14421,7 @@ class Game {
       return 'ONE STICK PER RUN — come round and set up again for another pass';
     if (W.designated && ac.bombs > 0)
       return 'CENTRE THE NEEDLES AND HOLD SPACE — the computer picks the release';
-    if (!W.targets.some(t => t.alive) || ac.bombs === 0)
-      return 'WORK DONE — turn toward the ship and climb away';
+    if (ac.bombs === 0 && ac.arms > 0) return 'BOMB RACKS EMPTY — ARM stores remain; check the remaining objectives';
     if (W.briefed) return 'HEAD FOR THE BRIEFED TARGET — the dashed box on the windscreen';
     return null;
   }
@@ -17905,7 +17873,8 @@ class Game {
        `sprites` was initialized before World.clutter() above. */
     const photoActors=(holdingView?PrisonDetail.fieldActors(this).map(actor=>({actor,cow:false})):(this.evade?this.evade.searchers.concat(this.evade.locals||[]).map(actor=>({actor,cow:false}))
       .concat((this.evade.cattle||[]).map(actor=>({actor,cow:true}))):[])
-      .concat(AviatorCompanion.actors(this).map(actor=>({actor,cow:false}))))
+      .concat(AviatorCompanion.actors(this).map(actor=>({actor,cow:false})))
+      .concat(DescentThreats.actors(this).map(actor=>({actor,cow:false}))))
       .sort((a,b)=>Math.hypot(a.actor.p[0]-R.eye[0],a.actor.p[2]-R.eye[2])-Math.hypot(b.actor.p[0]-R.eye[0],b.actor.p[2]-R.eye[2]));
     // Allocate high-resolution gait slots to nearby people and cattle first.
     // Sorting this render-only copy never changes AI or collision iteration.
@@ -18398,7 +18367,7 @@ class Game {
       bombs: ac.bombs, arms: ac.arms, bombsMax: this.bombsMax, ripple: this.ripple,
       armMode: this.mis.type === 'ironhand' && ac.arms > 0,
       masterArm: this.masterArm, dmg: ac.dmg, sol: this.sol, lock: this.world.lock,
-      thr: ac.thr, gear: ac.gear, hook: ac.hook, armed: this.masterArm,
+      thr: ac.thr, onDeck: !!ac.onDeck, gear: ac.gear, hook: ac.hook, armed: this.masterArm,
       designated: this.world.designated, terrainClear: true, warnings: warn, rwrContacts: rwr,
       assist: this.app.set.assist, briefed: W.briefed && W.sysPos(W.briefed), briefedR: W.briefedR,
       tgtScreen: ts, briefScreen: bs,
@@ -18513,7 +18482,7 @@ NearGround.configure({terrainH});
 function dryJungleAt(x,z){
   return JungleScenery.habitat(fbm(x*.00021+11.7,z*.00021+11.7,3),fbm(x*.00006+3.7,z*.00006-2.1,3));
 }
-JungleScenery.configure({terrainH,jungle:dryJungleAt});
+JungleScenery.configure({terrainH,jungle:dryJungleAt,program,glsl:GLSL_NOISE+GLSL_ATMOS+GLSL_SHADOW,MB});
 VillageDetail.configure({MB});
 WildlifeRender.configure({terrainH,program,glsl:GLSL_NOISE+GLSL_ATMOS+GLSL_SHADOW});
 // New local trunks share the existing swept collision solver. Placement checks
@@ -18823,6 +18792,7 @@ App.renderReady=function(){
 
 LandingWater.install({Game,App,terrainH,JungleScenery,POW});
 AviatorCompanion.install({Game,App,terrainH,LandingWater});
+DescentThreats.install({Game,App,terrainH,AviatorCompanion});
 CarrierLaunch.install({Game,bodyAxes});
 MissionDemo.install({App,Game,missions:MISSIONS,Store,terrainH,localToWorld,worldToLocal,CV,POW});
 HUDLayout.install({App,Game});
