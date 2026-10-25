@@ -62,7 +62,7 @@
   function show(g, s, item) {
     const at = finite(g.t), next = finite(s.next[item.key], -Infinity);
     if (at < next || at < s.until && item.priority <= s.priority || item.priority < 3 && at < s.quietUntil) return false;
-    const caption = { key: item.key, speaker: item.speaker || 'PILOT', text: item.text, priority: item.priority, at, label: 'DRAMATIZED CREW · GAMEPLAY GUIDANCE' };
+    const caption = { key: item.key, speaker: item.speaker || 'PILOT', text: root.CrewPersonality?root.CrewPersonality.line(g,item.speaker||'PILOT',item.text):item.text, priority: item.priority, at, label: 'DRAMATIZED CREW · GAMEPLAY GUIDANCE' };
     s.caption = caption; s.until = at + (item.duration || 5.5); s.priority = item.priority;
     s.quietUntil = at + (item.priority >= 3 ? 7 : 9); s.next[item.key] = at + (item.cooldown || 18); s.emitted++;
     s.history.push({ ...caption }); if (s.history.length > 8) s.history.shift();

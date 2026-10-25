@@ -3,6 +3,10 @@
 // device frame rate, or a flown mission; those use the production browser suite.
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const source=fs.readFileSync(path.join(__dirname,'../assets/survival/aviator-companion.js'),'utf8');
+const gameSource=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
+const chuteStart=gameSource.indexOf('  stepChute(dt) {'),chuteEnd=gameSource.indexOf('\n  /* ---------------- on the ground',chuteStart);
+assert.ok(chuteStart>0&&chuteEnd>chuteStart,'Read the actual production player chute method');
+const playerChute=vm.runInNewContext('({'+gameSource.slice(chuteStart,chuteEnd)+'})',{clamp:(n,a,b)=>Math.max(a,Math.min(b,n)),terrainH:()=>5}).stepChute;
 function fixture(options={}){
   const calls=[],window={document:{hidden:false,visibilityState:'visible'}};vm.runInNewContext(source,{window});
   const g={phase:'chute',t:0,paused:false,rightSeat:!!options.rightSeat,world:{},mis:{id:options.mission||'m2',env:{seed:4}},ac:{crew:{pilot:1,bn:1},yaw:0},chute:{p:[0,80,0],v:[0,12,0],open:0,drift:0},app:{screen:'game',graphicsContextLost:false,radio:(...args)=>calls.push(args)}};g.app.game=g;
@@ -44,6 +48,43 @@ test('a ready suspended photograph replaces only its own chute body and never cr
 test('seat sequencing separates full canopies using real initial velocity rather than the same opening centre',()=>{
   const f=fixture();f.g.chute.v=[40,12,0];f.M.begin(f.g,{seed:1});const bn=f.M.snapshot(f.g).chute;assert.ok(bn.p[0]-f.g.chute.p[0]>7);near(bn.t,.18);assert.ok(bn.open>0);
   const right=fixture({rightSeat:true}),before=right.M.snapshot(right.g).chute.p.slice();tick(right,.1);assert.deepEqual(right.M.snapshot(right.g).chute.p,before,'The pilot seat waits its actual separation delay');
+});
+
+test('native player physics and bounded outward momentum clear both full C-9 canopies across seats, speeds and update rates',t=>{
+  const openings=[];
+  for(const rightSeat of [false,true])for(const speed of [0,40])for(const yaw of [0,Math.PI/3,Math.PI*1.2])for(const seed of [1,91,12345])for(const hz of [30,60,120]){
+    const f=fixture({rightSeat,seed}),g=f.g;g.ac.yaw=yaw;g.chute.v=[Math.sin(yaw)*speed,12,-Math.cos(yaw)*speed];g.chute.drift=yaw+.25;
+    g.app.keys={};g.app.gctl={};g.app.audio={burst(){}};f.M.begin(g,{seed});
+    const initial=f.M.snapshot(g),railAdvance=initial.chute.p.map((n,i)=>n-g.chute.p[i]);
+    assert.ok(Math.hypot(railAdvance[0],railAdvance[2])<10,'Start retains the rail and preceding0.18s trajectory, not an arbitrary canopy-width jump');
+    let opening;
+    for(let i=0;i<hz*4;i++){
+      const before=f.M.snapshot(g).chute.p.slice();f.M.step(g,1/hz);playerChute.call(g,1/hz);g.t+=1/hz;
+      const c=f.M.view(g).chute,delta=Math.hypot(...c.p.map((n,k)=>n-before[k]));
+      assert.ok(delta<(Math.hypot(...initial.chute.v)+40)/hz,'Every separation increment comes from bounded integrated velocity');
+      if(!opening&&c.open>=.82&&g.chute.open>=.82){
+        const metres=Math.hypot(c.p[0]-g.chute.p[0],c.p[2]-g.chute.p[2]);opening={rightSeat,speed,yaw,seed,hz,metres};
+        assert.ok(metres>=12&&metres<=23,'Full opening has a real edge gap between8.52m canopies while remaining local: '+JSON.stringify(opening));
+      }
+    }
+    assert.ok(opening);openings.push(opening);
+    assert.ok(Math.hypot(...f.M.view(g).chute.p.map((n,k)=>n-g.chute.p[k]))<42,'Spent ejection momentum stays local after opening');
+  }
+  assert.equal(openings.length,108);
+  t.diagnostic('First common full blossom centre spacing: '+Math.min(...openings.map(o=>o.metres)).toFixed(2)+'–'+Math.max(...openings.map(o=>o.metres)).toFixed(2)+'m; canopy diameter8.52m;108 physical trajectories.');
+});
+
+test('actual C-9 geometry has finite unit normals so opening cannot poison the native HDR bloom',()=>{
+  const builderStart=gameSource.indexOf('class MB {'),builderEnd=gameSource.indexOf('/* ============================ Renderer',builderStart);
+  const canopyStart=gameSource.indexOf('    const NY = [0.780, 0.772, 0.742]'),canopyEnd=gameSource.indexOf('    // and the same thing streaming',canopyStart);
+  assert.ok(builderStart>0&&builderEnd>builderStart&&canopyStart>0&&canopyEnd>canopyStart);
+  const context={Math,TAU:Math.PI*2,PI:Math.PI,vsub:(a,b)=>a.map((x,i)=>x-b[i]),vcross:(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],vnorm:a=>{const length=Math.hypot(...a)||1;return a.map(x=>x/length);}};
+  vm.createContext(context);vm.runInContext(gameSource.slice(builderStart,builderEnd)+'\nlet m,P={};\n'+gameSource.slice(canopyStart,canopyEnd)+'\nglobalThis.meshes=P;',context);
+  for(const name of ['chute','chuteEmpty','chuteBody']){
+    const mesh=context.meshes[name];assert.ok(mesh&&mesh.p.length&&mesh.n.length===mesh.p.length);
+    for(let i=0;i<mesh.n.length;i+=3){const length=Math.hypot(...mesh.n.slice(i,i+3));assert.ok(Number.isFinite(length)&&Math.abs(length-1)<1e-6,name+' normal '+i/3+' must remain safe for GLSL normalize and bloom');}
+    assert.ok(mesh.i.every(index=>Number.isInteger(index)&&index>=0&&index<mesh.count));
+  }
 });
 
 test('seeded independent drift creates reproducible possible landing separation rather than teleporting to the player',()=>{

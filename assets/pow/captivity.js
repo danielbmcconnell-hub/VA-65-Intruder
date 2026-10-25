@@ -266,7 +266,9 @@
       if (game.evade.p) game.evade.p.splice(0, 3, s.base[0], s.base[1], s.base[2] - 0.66);
       else game.evade.p = [s.base[0], s.base[1], s.base[2] - 0.66];
       s.p = game.evade.p;
-      game.evade.hdg = 0; game.evade.look = 0; game.evade.inCell = 1; game.evade.camp = true; game.evade.frozen = false;
+      // First reveal the reachable floor ration, rather than a door filling
+      // the view while the tin sits below the screen. Normal look remains free.
+      game.evade.hdg = Math.atan2(.21, .49); game.evade.look = game.evade.pitchCmd = -.85; game.evade.inCell = 1; game.evade.camp = true; game.evade.frozen = false;
       game.evade.running = false; game.evade.drawn = 0;
     }
     if (game.setHour) game.setHour(2.4, 0.25);
@@ -797,7 +799,20 @@
     style.textContent = '#pow-captivity{position:fixed;inset:7vh 5vw;z-index:850;background:rgba(14,22,25,.97);color:#eee8d8;border:1px solid #82785e;border-radius:7px;padding:16px;overflow:auto;display:none;font:15px/1.45 system-ui,sans-serif;touch-action:pan-y}#pow-captivity button{background:#293c40;color:#fff2d4;border:1px solid #7f918c;border-radius:4px;padding:10px 12px;min-height:44px;font:inherit;cursor:pointer}#pow-captivity button:focus-visible{outline:3px solid #edcc79}#pow-captivity button:disabled{opacity:.45;cursor:default}#pow-captivity h2{margin:0 0 5px;font-size:23px}#pow-captivity h3{margin:12px 0 6px;font-size:18px}#pow-captivity p{margin:8px 0}#pow-captivity .pow-row{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0}#pow-captivity .pow-grid{display:grid;grid-template-columns:repeat(5,minmax(42px,1fr));gap:4px;max-width:500px}#pow-captivity .pow-memory{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;max-width:320px}#pow-captivity .pow-active{background:#c5a850;color:#141b1b}#pow-captivity .pow-dim{color:#b4b9b4;font-size:13px}#pow-captivity .pow-feedback{padding:8px;background:#1b2d31;border-left:3px solid #c7b066}#pow-captivity .pow-top{display:flex;justify-content:space-between;gap:12px;align-items:start}#pow-captivity .pow-tap-signal{min-height:30px;font-size:25px;color:#ffdb87}#pow-captivity .pow-stat{font-variant-numeric:tabular-nums}@media(max-height:480px){#pow-captivity{inset:2vh 2vw;padding:10px}}';
     root.document.head.appendChild(style);
     ui = dom('section'); ui.id = 'pow-captivity'; ui.setAttribute('role', 'dialog'); ui.setAttribute('aria-label', 'Captivity activities'); ui.setAttribute('aria-modal', 'true');
-    ui.addEventListener('keydown', event => { if (event.code === 'Escape') { event.preventDefault(); event.stopPropagation(); close(currentGame); } });
+    ui.addEventListener('keydown', event => {
+      // The game's window handler consumes Tab/Space for radar and movement.
+      // Let each activity receive its own keys, then keep them in this dialog.
+      event.stopPropagation();
+      if (event.code === 'Escape') { event.preventDefault(); close(currentGame); return; }
+      if (event.code === 'Tab') {
+        event.preventDefault();
+        const buttons = Array.from(ui.querySelectorAll('button')).filter(b => !b.hidden && !b.disabled && b.getClientRects().length);
+        if (!buttons.length) return;
+        const i = buttons.indexOf(root.document.activeElement),next = i < 0 ? (event.shiftKey ? buttons.length - 1 : 0) : (i + (event.shiftKey ? -1 : 1) + buttons.length) % buttons.length;
+        buttons[next].focus({ preventScroll: true });
+      }
+    });
+    ui.addEventListener('keyup', event => event.stopPropagation());
     ui.addEventListener('pointerdown', event => event.stopPropagation());
     root.document.body.appendChild(ui); return ui;
   }

@@ -7,8 +7,8 @@ function rgba(width,height,edge=false){const data=new Uint8ClampedArray(width*he
 function fixture(options={}){
  const math=Object.create(Math);math.random=()=>{throw Error('Scenery must not consume gameplay RNG')};
  const document={createElement(){return {width:0,height:0,getContext(){const cv=this;return {drawImage(im){cv.imageSource=im;},getImageData(){let data;if(cv.imageSource?._src.includes('forest-floor')){data=new Uint8ClampedArray(cv.width*cv.height*4);for(let i=0;i<data.length;i+=4){data[i]=50;data[i+1]=40;data[i+2]=28;data[i+3]=255;}if(options.floorHole)data[3]=0;}else data=rgba(cv.width,cv.height);if(options.offCentre)for(let y=0;y<cv.height;y++)for(let x=0;x<Math.floor(cv.width*.28);x++)data[(y*cv.width+x)*4+3]=0;return {data};}};}};}};
- const window={document,fetch:async()=>({ok:true,json:async()=>({version:1,...(options.floor?{floor:{file:'forest-floor.webp',width:1254,height:1254,worldSize:3,gpuHigh:512,gpuTouch:384}}:{}),plants:Object.fromEntries(['canopy','bamboo','nipa','fern','liana','litter'].map(kind=>[kind,{file:kind+'.webp'}]))})})};
- window.Image=class{constructor(){this.naturalWidth=1024;this.naturalHeight=1536;}set src(value){this._src=value;if(value.includes('forest-floor'))this.naturalWidth=this.naturalHeight=1254;queueMicrotask(()=>value.includes(options.fail||'never-fail')?this.onerror():this.onload());}};
+ const window={document,fetch:async()=>({ok:true,json:async()=>({version:1,...(options.floor?{floor:{file:'forest-floor.webp',width:1254,height:1254,worldSize:3,gpuHigh:512,gpuTouch:384}}:{}),...(options.crown?{crown:{file:'canopy-crown.webp',width:1254,height:1254,gpuHigh:512,gpuTouch:448}}:{}),plants:Object.fromEntries(['canopy','bamboo','nipa','fern','liana','litter'].map(kind=>[kind,{file:kind+'.webp'}]))})})};
+ window.Image=class{constructor(){this.naturalWidth=1024;this.naturalHeight=1536;}set src(value){this._src=value;if(value.includes('forest-floor')||value.includes('canopy-crown'))this.naturalWidth=this.naturalHeight=1254;queueMicrotask(()=>value.includes(options.fail||'never-fail')?this.onerror():this.onload());}};
  vm.runInNewContext(source,{window,Math:math});
  let allocations=0;const gl={TEXTURE_2D:1,TEXTURE_MIN_FILTER:2,LINEAR_MIPMAP_LINEAR:3,TEXTURE_WRAP_S:4,TEXTURE_WRAP_T:5,REPEAT:6,parameters:[],isContextLost:()=>false,bindTexture(target,T){this.bound=T;},generateMipmap(){},texParameteri(target,p,value){this.parameters.push({texture:this.bound?.name,p,value});},deleteTexture(){allocations--;}};
  const r={eye:[0,12,0],quality:2,textures:{},gl,texFromCanvas(name,cv){allocations++;return this.textures[name]={tex:{name},w:cv.width,h:cv.height};},_drawSpriteBatch(name,list,wind){this.draws.push({name,list,wind});},draws:[]};
@@ -16,6 +16,34 @@ function fixture(options={}){
  return {M:window.JungleScenery,g,r,window,allocations:()=>allocations};
 }
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} != ${b}`);
+
+function ecologyFixture(options={}){
+ const index=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8'),start=index.indexOf('function prepareGroundEcology(game){'),end=index.indexOf('\nfunction updateWildlifeStatus',start);assert.ok(start>0&&end>start);
+ const loads=[],wildlife=[],legacy=[],context={IS_TOUCH:false,LandingWater:{swimming:()=>!!options.swimming},JungleScenery:{load(renderer,settings){loads.push({renderer,options:settings});return options.reject?Promise.reject(Error('Botanical upload failed')):Promise.resolve();},ready:()=>!options.unready,inspect:()=>({failures:options.failures||[]}),kinds:['canopy','bamboo','nipa','fern','liana','litter']},WildlifeRender:{load(renderer,options){wildlife.push({renderer,options});return Promise.resolve();}}};
+ const prepare=vm.runInNewContext('('+index.slice(start,end)+')',context),renderer={_loadLegacyVegetation(){legacy.push(this);}},game={phase:'flight',world:{},ac:{p:[10,120,20]},rend:renderer,app:{rend:renderer}};
+ return {prepare,game,renderer,loads,wildlife,legacy};
+}
+
+test('normal flight requests complete botanical photographs once without enabling ground wildlife',async()=>{
+ const {prepare,game,renderer,loads,wildlife,legacy}=ecologyFixture(),before=JSON.stringify({phase:game.phase,world:game.world,ac:game.ac});
+ prepare(game);prepare(game);await Promise.resolve();
+ assert.equal(loads.length,1,'Normal flight must load the photographs before an evade state exists');assert.equal(loads[0].renderer,renderer);assert.equal(loads[0].options.touch,false);assert.equal(loads[0].options.current(),true);assert.equal(wildlife.length,0);assert.equal(legacy.length,0);assert.equal(JSON.stringify({phase:game.phase,world:game.world,ac:game.ac}),before);
+ game.app.rend={};assert.equal(loads[0].options.current(),false,'An old renderer cannot upload after graphics restoration');
+});
+
+test('normal flight requests existing fallback for failed plants while a failed floor alone preserves valid foliage',async()=>{
+ for(const options of [{unready:true},{reject:true},{failures:[{kind:'bamboo',message:'decode failed'}]},{failures:[{kind:'floor',message:'decode failed'}]}]){
+  const {prepare,game,renderer,loads,wildlife,legacy}=ecologyFixture(options);prepare(game);await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(loads.length,1);assert.equal(wildlife.length,0);assert.equal(legacy.length,options.failures?.[0]?.kind==='floor'?0:1);if(legacy.length)assert.equal(legacy[0],renderer);
+ }
+ const stale=ecologyFixture({reject:true});stale.prepare(stale.game);stale.game.app.rend={};await new Promise(resolve=>setImmediate(resolve));assert.equal(stale.legacy.length,0,'A failed retired renderer cannot start a fallback upload');
+});
+
+test('captivity exterior and swimming still request source foliage without enabling forest wildlife',async()=>{
+ for(const condition of [{pow:{stage:'yard'},evade:{p:[0,6,0]}},{evade:{p:[0,6,0],camp:true}},{evade:{p:[0,6,0],river:true}},{evade:{p:[0,6,0]},swimming:true}]){
+  const {prepare,game,loads,wildlife,legacy}=ecologyFixture({swimming:condition.swimming});Object.assign(game,condition,{phase:'evade'});prepare(game);await new Promise(resolve=>setImmediate(resolve));assert.equal(loads.length,1);assert.equal(wildlife.length,0);assert.equal(legacy.length,0);
+ }
+});
 
 function practiceFixture(dryBeyond){
  const {M}=fixture(),index=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8'),start=index.indexOf('function wildlifePracticePoint(game){'),end=index.indexOf('\nfunction beginWildlifePractice',start);assert.ok(start>0&&end>start);
@@ -39,8 +67,8 @@ test('dry forest habitat excludes the real river and flood banks even when its b
  for(const river of [.4451,.47,.5,.53,.5549])assert.equal(M.habitat(.3,river),false);
  for(const value of [NaN,Infinity,undefined]){assert.equal(M.habitat(value,.6),false);assert.equal(M.habitat(.3,value),false);}assert.equal(M.habitat(.6,.6),false);
  M.configure({terrainH:()=>10,jungle:(x,z)=>M.habitat(.3,Math.abs(x)<12?.5:.6)});await M.load(r);
- for(let i=0;i<18;i++){M.beginFrame(g,r);assert.equal(M.queue(g,r,'tree',[0,10,0],[1,1,1]),false,'Existing world geometry retains its original fallback rather than adding a photograph on river paint');M.populate(g,r,{solid:()=>false});M.draw(g,r);}
- assert.ok(M.inspect(g,r).plants.length>10);assert.ok(M.inspect(g,r).plants.every(p=>Math.abs(p.groundRoot[0])>=12));assert.ok(M.obstacles(g).every(o=>Math.abs(o.x)>=12));
+ for(let i=0;i<18;i++){M.beginFrame(g,r);assert.equal(M.queue(g,r,'tree',[0,10,0],[1,1,1]),true,'Replacing an existing world tree does not introduce new vegetation habitat');M.populate(g,r,{solid:()=>false});M.draw(g,r);}
+ assert.ok(M.inspect(g,r).plants.length>10);assert.ok(M.inspect(g,r).plants.filter(p=>!p.id.startsWith('tree:')).every(p=>Math.abs(p.groundRoot[0])>=12));assert.ok(M.obstacles(g).every(o=>Math.abs(o.x)>=12));
 });
 
 test('complete-source alpha measurement rejects clipped/empty plants and registers the actual visible base',()=>{
@@ -84,11 +112,61 @@ test('world replacement and terrain revision invalidate cached placement without
  for(let n=0;n<100;n++){g.evade.p[0]=n*100;M.beginFrame(g,r);M.plan(g,r);}assert.ok(M.inspect(g,r).cache<=256);
 });
 
-test('flight, prison, camp and invalid positions leave source atmosphere and placement untouched',()=>{
+test('flight, prison, camp and invalid positions leave new ground ecology and atmosphere untouched',()=>{
  for(const condition of [{evade:null},{pow:{stage:'cell'}},{evade:{p:[0,10,0],camp:true}},{evade:{p:[NaN,10,0]}}]){
-  const {M,g,r}=fixture();M.configure({terrainH:()=>10,jungle:()=>true});Object.assign(g,condition);const base=g.atm;assert.equal(M.beginFrame(g,r),false);assert.equal(M.plan(g,r).length,0);assert.equal(M.atmosphere(g,base),base);assert.equal(M.queue(g,r,'tree',[4,10,4],[1,1,1]),false);
+  const {M,g,r}=fixture();M.configure({terrainH:()=>10,jungle:()=>true});Object.assign(g,condition);const base=g.atm,began=M.beginFrame(g,r);if(!g.pow&&!g.evade?.camp)assert.equal(began,false,'A ground phase without a valid ground actor remains ineligible');assert.equal(M.inspect(g,r).eligible,false);assert.equal(M.plan(g,r).length,0);assert.equal(M.atmosphere(g,base),base);assert.equal(M.queue(g,r,'tree',[4,10,4],[1,1,1]),false,'An unloaded source retains its fallback');
  }
  const {M,g}=fixture();M.configure({terrainH:()=>10,jungle:()=>true});const before=JSON.stringify(g.atm),result=M.atmosphere(g,g.atm);assert.ok(result.fogDens>g.atm.fogDens);assert.equal(JSON.stringify(g.atm),before);assert.equal(result.wet,g.atm.wet);
+});
+
+test('authored camp and prison vegetation keeps its graded root without adding forest ecology or collision',async()=>{
+ for(const condition of [{pow:{stage:'yard'}},{evade:{p:[0,6,0],camp:true}}]){
+  const {M,g,r}=fixture();M.configure({terrainH:()=>80,jungle:()=>true});Object.assign(g,condition);r.eye=[0,7.68,0];await M.load(r);const before=JSON.stringify(g),base=g.atm;
+  for(let frame=0;frame<3;frame++){M.beginFrame(g,r);assert.equal(M.queue(g,r,'tree',[8,6,12],[1,1,1]),true);assert.equal(M.queue(g,r,'bamboo',[20,6,12],[1,1,1]),true);M.populate(g,r,{solid:()=>{throw Error('Captivity source presentation must not add new collision');}});M.draw(g,r);}
+  const s=M.inspect(g,r);assert.equal(s.plants.length,2);assert.equal(s.eligible,false);assert.equal(s.sceneryEligible,true);assert.equal(s.cache,0);assert.equal(s.fineCache,0);assert.equal(s.terrainSamples,0);assert.equal(s.solidChecks,0);assert.equal(M.floorMode(g),0);assert.equal(M.obstacles(g).length,0);assert.equal(M.atmosphere(g,base),base);assert.equal(JSON.stringify(g),before);
+  for(const p of s.plants){const record=s.records.find(v=>v.kind===p.kind);near(p.groundRoot[1],6);near(p.p[1]+p.h*(1-record.baseline),6);}
+ }
+});
+
+test('normal flight and descent replace source trees beyond the old ground range without ground ecology or collision',async()=>{
+ for(const phase of ['flight','chute']){
+  const {M,g,r}=fixture();M.configure({terrainH:()=>10,jungle:()=>false});await M.load(r);delete g.evade;g.phase=phase;g.ac={p:[0,150,0]};if(phase==='chute')g.chute={p:[0,150,0]};r.eye=[0,120,0];
+  const before=JSON.stringify(g),base=g.atm;
+  for(let frame=0;frame<8;frame++){M.beginFrame(g,r);assert.equal(M.queue(g,r,'tree',[4,9.2,10],[1,1,1]),true);assert.equal(M.queue(g,r,'bamboo',[35,9.7,350],[1,1,1]),true);M.populate(g,r,{solid:()=>{throw Error('Aerial presentation must not query ground collisions');}});M.draw(g,r);}
+  const s=M.inspect(g,r);assert.ok(s.plants.some(p=>p.id==='tree:4.000:10.000'));assert.ok(s.plants.some(p=>p.id==='bamboo:35.000:350.000'),'Existing trees remain photographic past the old166m ground range');assert.equal(s.cache,0);assert.equal(s.fineCache,0);assert.equal(s.solidChecks,0);assert.equal(M.plan(g,r).length,0);assert.equal(M.floorMode(g),0);assert.equal(M.obstacles(g).length,0);assert.equal(M.blockedAt(g,4,10),false);assert.equal(M.atmosphere(g,base),base);assert.equal(JSON.stringify(g),before);
+  for(const p of s.plants){const record=s.records.find(v=>v.kind===p.kind);near(p.p[1]+p.h*(1-record.baseline),p.groundRoot[1]);near(p.w/p.h,record.width/record.height);near(p.groundRoot[1],10);}
+  assert.ok(r.draws.every(group=>group.list.every(p=>p.cols===1&&p.rows===1&&p.cell===0)));
+ }
+});
+
+test('cultivated source vegetation receives whole photographs while added forest ecology stays excluded',async()=>{
+ const {M,g,r}=fixture();M.configure({terrainH:()=>10,jungle:()=>false});await M.load(r);
+ for(let frame=0;frame<8;frame++){M.beginFrame(g,r);for(const [mesh,x]of [['tree',7],['palm',14],['bamboo',21],['bush',28]])assert.equal(M.queue(g,r,mesh,[x,10,18],[1,1,1]),true);assert.equal(M.plan(g,r).length,0);M.populate(g,r,{solid:()=>false});M.draw(g,r);}
+ const s=M.inspect(g,r);for(const mesh of ['tree','palm','bamboo','bush'])assert.ok(s.plants.some(p=>p.id.startsWith(mesh+':')),'Existing '+mesh+' receives its complete source photograph');assert.equal(M.obstacles(g).length,0);assert.ok(s.plants.every(p=>!p.id.startsWith('understory:')&&!p.id.startsWith('floor-')));
+});
+
+test('every aerial quality bounds far-first source candidates and selects nearer photographs within the declared range',async()=>{
+ for(const quality of [0,1,2]){
+  const {M,g,r}=fixture();r.quality=quality;M.configure({terrainH:()=>10,jungle:()=>false});await M.load(r);delete g.evade;g.phase='flight';g.ac={p:[0,120,0]};r.eye=[0,120,0];const profile=M.profiles[quality],outside=profile.horizon+10;
+  for(let frame=0;frame<18;frame++){
+   M.beginFrame(g,r);for(let i=1200;i>0;i--)M.queue(g,r,'tree',[0,9.2,profile.flightRange*(.2+.7*i/1200)],[1,1,1]);M.queue(g,r,'tree',[0,9.2,3],[1,1,1]);M.queue(g,r,'tree',[0,9.2,3],[1,1,1]);M.queue(g,r,'tree',[outside,9.2,0],[1,1,1]);
+   const queued=M.inspect(g,r);assert.ok(queued.sceneryCandidates<=queued.sceneryCandidateLimit);assert.ok(queued.sceneryCandidateLimit<=profile.total*2);
+   M.populate(g,r);M.draw(g,r);const s=M.inspect(g,r);assert.ok(s.count<=profile.flightTotal);assert.ok(s.queueSamples<=M.limits.queueSamples&&s.terrainSamples<=M.limits.queueSamples);assert.equal(s.solidChecks,0);assert.equal(s.cellUpdates,0);assert.equal(s.obstacles.length,0);
+  }
+  const s=M.inspect(g,r);assert.equal(s.count,profile.flightTotal);assert.equal(s.plants.filter(p=>p.id==='tree:0.000:3.000').length,1,'The nearby source survives far-first input without duplicate photographs');assert.ok(s.plants.every(p=>Math.hypot(p.groundRoot[0],p.groundRoot[2])<profile.flightRange));assert.ok(!s.plants.some(p=>p.id==='tree:'+outside.toFixed(3)+':0.000'));
+ }
+});
+
+test('each aerial quality reserves visible distant trees while near clutter cannot clear the horizon',async()=>{
+ for(const quality of [0,1,2]){
+  const {M,g,r}=fixture();r.quality=quality;M.configure({terrainH:()=>10,jungle:()=>false});await M.load(r);delete g.evade;g.phase='flight';g.ac={p:[0,120,0]};r.eye=[0,120,0];r.matV=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1];const profile=M.profiles[quality];
+  for(let frame=0;frame<18;frame++){
+   M.beginFrame(g,r);for(let i=0;i<700;i++)M.queue(g,r,'tree',[(i%25-12)*3,10,-10-Math.floor(i/25)*3],[1,1,1]);
+   for(let i=profile.farTotal*4;i>0;i--){M.queue(g,r,'tree',[i,10,-profile.flightRange*2-i*9],[1,1,1]);M.queue(g,r,'tree',[i,10,profile.flightRange*2+i*9],[1,1,1]);}M.populate(g,r);M.draw(g,r);
+   const s=M.inspect(g,r);assert.ok(s.distantCandidates<=s.distantCandidateLimit);assert.ok(s.distantCandidateLimit<=profile.farTotal*2);assert.ok(s.count<=profile.flightTotal);assert.ok(s.queueSamples<=M.limits.queueSamples);
+  }
+  const s=M.inspect(g,r),far=s.plants.filter(p=>Math.hypot(p.groundRoot[0],p.groundRoot[2])>=profile.flightRange);assert.equal(far.length,profile.farTotal,'Near clutter retains a reserved distant source band');assert.ok(far.every(p=>p.groundRoot[2]<0),'The distant band spends no photographs behind the camera');assert.ok(s.plants.some(p=>Math.hypot(p.groundRoot[0],p.groundRoot[2])<profile.flightRange));assert.equal(s.obstacles.length,0);
+ }
 });
 
 test('isolated uploads use complete textures, bounded optional wind and real ground roots for projected shadows',async()=>{
@@ -173,6 +251,40 @@ test('floor failure is explicit and never silently consumes a seventh texture or
   const {M,r,allocations}=fixture({floor:true,...option}),s=await M.load(r);assert.equal(s.expectedSources,7);assert.equal(s.readySources,6);assert.equal(s.records.length,6);assert.equal(s.floor.status,'error');assert.equal(s.floor.ready,false);assert.equal(M.floorTexture(r),null);assert.ok(s.failures.some(f=>f.kind==='floor'));assert.equal(allocations(),6);
  }
  const {M,r}=fixture({floor:true});let current=true;await M.load(r,{current:()=>current});assert.ok(M.floorTexture(r));current=false;assert.equal(M.floorTexture(r),null);current=true;r.gl.isContextLost=()=>true;assert.equal(M.floorTexture(r),null);
+});
+
+test('native camera visibility gives source photo slots to visible trees before nearer trees behind the view',async()=>{
+ const {M,g,r}=fixture();M.configure({terrainH:()=>10,jungle:()=>true});await M.load(r);delete g.evade;g.phase='flight';g.ac={p:[0,12,0]};r.quality=0;
+ // Perspective inspection matrix looking down negative Z. World/actors and
+ // local ecology are unchanged; this tests the production candidate ranking.
+ r.matVP=[1,0,0,0,0,1,0,0,0,0,-1,-1,0,-12,0,0];
+ for(let frame=0;frame<16;frame++){
+  M.beginFrame(g,r);for(let i=0;i<900;i++)M.queue(g,r,'tree',[(i%15-7)*.08,10,3+i*.015],[1,1,1]);for(let i=0;i<M.profiles[0].flightTotal;i++)M.queue(g,r,'tree',[(i%14-7)*.3,10,-70-i*.1],[1,1,1]);M.populate(g,r);M.draw(g,r);
+ }
+ const s=M.inspect(g,r);assert.equal(s.count,M.profiles[0].flightTotal);assert.ok(s.plants.every(p=>p.groundRoot[2]<0),'A budget filled with nearer hidden trees would recreate the sparse visible forest');assert.equal(s.obstacles.length,0);
+});
+
+test('optional aerial crown uploads retain complete alpha sources within the existing shared texture budget',async()=>{
+ for(const touch of [false,true]){
+  const {M,r,allocations}=fixture({floor:true,crown:true});let current=true;const s=await M.load(r,{touch,current:()=>current});assert.equal(s.expectedSources,8);assert.equal(s.readySources,8);assert.equal(s.records.length,6);assert.equal(s.crown.status,'ready');assert.equal(s.crown.ready,true);assert.equal(s.crown.width,touch?448:512);assert.equal(s.crown.height,s.crown.width);assert.equal(s.crown.sourceWidth,1254);assert.equal(s.crown.sourceHeight,1254);assert.ok(s.bytes<=s.budget);assert.equal(allocations(),8);assert.deepEqual(Array.from(s.failures),[]);
+  assert.ok(r.gl.parameters.some(v=>v.texture==='jungle_crown'&&v.p===r.gl.TEXTURE_MIN_FILTER&&v.value===r.gl.LINEAR_MIPMAP_LINEAR));s.crown.bounds[0]=999;assert.notEqual(M.inspect(null,r).crown.bounds[0],999,'Public crown measurements cannot change the renderer registration');current=false;assert.equal(M.inspect(null,r).crown.ready,false);current=true;r.gl.isContextLost=()=>true;assert.equal(M.inspect(null,r).crown.ready,false);r.gl.isContextLost=()=>false;M.dispose(r);assert.equal(allocations(),0);
+ }
+ const {M,g,r,allocations}=fixture({floor:true,crown:true,fail:'canopy-crown.webp'}),failed=await M.load(r);assert.equal(failed.expectedSources,8);assert.equal(failed.readySources,7);assert.equal(failed.records.length,6);assert.equal(failed.crown.status,'error');assert.equal(failed.crown.ready,false);assert.ok(failed.failures.some(f=>f.kind==='crown'));assert.equal(allocations(),7);M.configure({terrainH:()=>10,jungle:()=>false});delete g.evade;g.phase='flight';g.ac={p:[0,120,0]};M.beginFrame(g,r);assert.equal(M.queue(g,r,'tree',[3,10,3],[1,1,1]),true);M.populate(g,r);M.draw(g,r);assert.equal(M.inspect(g,r).plants.length,1,'A failed optional crown keeps complete upright tree photographs available');assert.equal(M.inspect(g,r).crowns.length,0);
+});
+
+test('aerial crowns remain horizontal at existing canopy height and share the total photographic submission cap',async()=>{
+ for(const quality of [0,1,2]){
+  const {M,g,r,window}=fixture({crown:true});r.quality=quality;M.configure({terrainH:()=>10,jungle:()=>false});await M.load(r);delete g.evade;g.phase='flight';g.ac={p:[0,120,0]};r.eye=[0,120,0];let surfaces=[];window.WildlifeRender={drawSurfaces(game,renderer,items){surfaces=items;return items.length;}};
+  const profile=M.profiles[quality];for(let frame=0;frame<18;frame++){M.beginFrame(g,r);for(let i=0;i<400;i++)M.queue(g,r,'tree',[(i%20-10)*4,10,(Math.floor(i/20)+1)*4],[1,1,1]);M.populate(g,r);M.draw(g,r);const s=M.inspect(g,r);assert.ok(s.count+s.crowns.length<=profile.flightTotal);assert.ok(s.crowns.length<=profile.crowns);assert.ok(s.terrainSamples<=M.limits.queueSamples);}
+  const s=M.inspect(g,r);assert.equal(s.crowns.length,profile.crowns);assert.ok(s.count>0);assert.equal(surfaces.length,s.crowns.length);assert.equal(s.obstacles.length,0);
+  for(const crown of surfaces){const plant=s.plants.find(p=>crown.id==='crown:'+p.id),record=s.records.find(v=>v.kind==='canopy');assert.ok(plant);assert.equal(crown.record.kind,'crown');near(crown.p[0],plant.groundRoot[0]);near(crown.p[2],plant.groundRoot[2]);near(crown.p[1],plant.groundRoot[1]+plant.h*record.bodyFraction*.8);near(crown.floorAt(-1000,300),crown.p[1]);near(crown.floorAt(1000,-300),crown.p[1]);assert.ok(crown.length>0&&crown.width>0);}
+  g.evade={p:[0,10,0]};g.phase='evade';M.beginFrame(g,r);M.queue(g,r,'tree',[4,10,5],[1,1,1]);M.populate(g,r);M.draw(g,r);assert.equal(M.inspect(g,r).crowns.length,0,'Walking scenes use rooted upright photographs');
+ }
+});
+
+test('aerial crown manifest and lossless derivative preserve the complete generated source and recorded provenance',()=>{
+ const crypto=require('node:crypto'),dir=path.join(__dirname,'../assets/jungle'),manifest=JSON.parse(fs.readFileSync(path.join(dir,'manifest.json'))),proof=JSON.parse(fs.readFileSync(path.join(dir,'crown-provenance.json'))),png=fs.readFileSync(path.join(dir,'canopy-crown.png')),webp=fs.readFileSync(path.join(dir,'canopy-crown.webp')),sha=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
+ assert.equal(manifest.crown.file,'canopy-crown.webp');assert.equal(manifest.crown.width,1254);assert.equal(manifest.crown.height,1254);assert.equal(manifest.crown.gpuHigh,512);assert.equal(manifest.crown.gpuTouch,448);assert.equal(png.readUInt32BE(16),1254);assert.equal(png.readUInt32BE(20),1254);assert.equal(sha(png),'f49d30de011f22760fad965fdbeade7c8b1ace21bbfc5ada243d339c349df85e');assert.equal(sha(png),proof.sourceSHA256);assert.equal(sha(webp),proof.runtimeSHA256);assert.equal(png.length,proof.sourceBytes);assert.equal(webp.length,proof.runtimeBytes);assert.equal(proof.sourceByteIdenticalToGenerated,true);assert.equal(proof.allDecodedRGBAIdentical,true);assert.ok(proof.transparentPixels>1254*1254*.2);assert.ok(proof.softPixels>0);assert.ok(proof.bounds[0]>0&&proof.bounds[1]>0&&proof.bounds[2]<1254&&proof.bounds[3]<1254);assert.equal(webp.toString('ascii',0,4),'RIFF');assert.equal(webp.toString('ascii',8,12),'WEBP');assert.equal(webp.toString('ascii',12,16),'VP8L');
 });
 
 test('actual floor manifest and lossless encoding retain the unchanged generated source and recorded provenance',()=>{

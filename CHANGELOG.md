@@ -1,3 +1,13 @@
+# Jungle scenery and clear survival training
+
+- Load complete photographic vegetation in flight and captivity exteriors as well as on foot; use detailed overhead crowns and spend bounded visual budgets on visible trees.
+- Replace warehouse-shaped procedural hamlets with reconstructed bamboo/thatch exteriors while preserving their original collision plots.
+- Give solitary practice seven earned tasks, a clear completion choice, a visible daily ration and a computer demonstration that shows its actual controls and cues.
+- Separate opening parachutes with continuous physical motion; repair degenerate canopy crown normals and resulting black rendering tiles.
+- Name FIRE .38 / STAB KNIFE explicitly; record punch wounds and contact feedback while preserving free-hand behavior, ammunition and collision checks.
+- Add occasional, contextual W. S. McConnell expressions supplied by his family. Existing wildlife encounters remain integrated.
+- [Controls, verification and private complete-game download](releases/jungle-training-notes.md).
+
 # Coastal scenery and clearer controls
 
 - Repaired measured shoreline/terrain overlap and clarified B/N navigation, designation and consent by phase.

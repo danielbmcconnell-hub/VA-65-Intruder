@@ -6,9 +6,9 @@
   const KINDS=Object.freeze(['canopy','bamboo','nipa','fern','liana','litter']);
   const HEIGHTS=Object.freeze({canopy:13.6,bamboo:7.4,nipa:4.3,fern:1.35,liana:10.8,litter:1.2});
   const PROFILES=Object.freeze([
-    Object.freeze({total:112,canopy:34,understory:42,floor:14,soft:4,range:96,wind:0}),
-    Object.freeze({total:176,canopy:52,understory:66,floor:24,soft:8,range:136,wind:20}),
-    Object.freeze({total:240,canopy:72,understory:90,floor:36,soft:12,range:166,wind:32})
+    Object.freeze({total:112,canopy:34,understory:42,floor:14,soft:4,range:96,sceneryRange:480,flightTotal:112,flightRange:1020,farTotal:16,horizon:14000,crowns:28,wind:0}),
+    Object.freeze({total:176,canopy:52,understory:66,floor:24,soft:8,range:136,sceneryRange:760,flightTotal:176,flightRange:1530,farTotal:24,horizon:18000,crowns:44,wind:20}),
+    Object.freeze({total:240,canopy:72,understory:90,floor:36,soft:12,range:166,sceneryRange:1100,flightTotal:240,flightRange:1900,farTotal:32,horizon:22000,crowns:60,wind:32})
   ]);
   const LIMITS=Object.freeze({cell:18,cellUpdates:4,candidatesPerCell:3,fineCell:4.5,fineUpdates:2,fineCache:128,terrainSamples:72,queueSamples:18,solidChecks:36,cache:256,maxDesktopEdge:1024,maxTouchEdge:768,desktopBytes:24*1024*1024,touchBytes:14*1024*1024});
   const renderers=new WeakMap(),games=new WeakMap();let terrain=null,jungle=null,revision=0;
@@ -23,9 +23,12 @@
   function habitat(biome,river){return Number.isFinite(biome)&&Number.isFinite(river)&&biome<.5&&Math.abs(river-.5)>.055;}
   const quality=r=>clamp(Math.round(finite(r&&r.quality,1)),0,2);
   const eligible=g=>!!(g&&g.evade&&(!g.phase||g.phase==='evade')&&!g.pow&&!g.evade.camp&&!g.evade.river&&point(g.evade.p)&&terrain);
+  // Replacing existing world plants is useful in flight and cultivated land
+  // too. New understory, forest atmosphere and trunk collision stay on foot.
+  const sceneryEligible=g=>!!(terrain&&g&&(point(g.evade?.p)||point(g.ac?.p)&&(!g.phase||['flight','airborne','chute'].includes(g.phase))));
   function configure(o){if(!o||typeof o.terrainH!=='function')return false;if(terrain!==o.terrainH||jungle!==o.jungle){terrain=o.terrainH;jungle=typeof o.jungle==='function'?o.jungle:null;revision++;}return true;}
-  function renderer(r){let s=renderers.get(r);if(!s){s={status:'idle',records:new Map(),floor:null,floorStatus:'idle',expectedSources:KINDS.length,failures:[],bytes:0,promise:null,touch:false};renderers.set(r,s);}return s;}
-  function state(g,r){let s=games.get(g);if(!s||s.world!==g.world||s.evade!==g.evade||s.revision!==revision){s={world:g.world,evade:g.evade,revision,cells:new Map(),fine:new Map(),anchors:new Map(),scenery:[],established:new Set(),obstacles:[],pending:[],ids:new Set(),counts:{},samples:0,queueSamples:0,solidChecks:0,fineUpdates:0,updates:0,skipped:0,wind:0};games.set(g,s);}return s;}
+  function renderer(r){let s=renderers.get(r);if(!s){s={status:'idle',records:new Map(),floor:null,floorStatus:'idle',crown:null,crownStatus:'idle',expectedSources:KINDS.length,failures:[],bytes:0,promise:null,touch:false};renderers.set(r,s);}return s;}
+  function state(g,r){let s=games.get(g);if(!s||s.world!==g.world||s.evade!==g.evade||s.revision!==revision){s={world:g.world,evade:g.evade,revision,cells:new Map(),fine:new Map(),anchors:new Map(),scenery:[],sceneryIds:new Set(),distant:[],distantIds:new Set(),crowns:[],established:new Set(),obstacles:[],pending:[],ids:new Set(),counts:{},samples:0,queueSamples:0,solidChecks:0,fineUpdates:0,updates:0,skipped:0,wind:0};games.set(g,s);}return s;}
   function measure(width,height,pixels){
     if(!Number.isSafeInteger(width)||!Number.isSafeInteger(height)||width<=0||height<=0||!pixels||pixels.length!==width*height*4)throw Error('Invalid botanical RGBA source');
     let x0=width,y0=height,x1=0,y1=0,visible=0,soft=0;
@@ -44,7 +47,7 @@
       try{
         const response=await root.fetch(options.manifest||'assets/jungle/manifest.json');if(!response.ok)throw Error('Botanical manifest HTTP '+response.status);
         const manifest=await response.json();if(manifest.version!==1||!manifest.plants)throw Error('Invalid botanical manifest');
-        s.expectedSources=KINDS.length+(manifest.floor?1:0);s.floorStatus=manifest.floor?'loading':'absent';
+        s.expectedSources=KINDS.length+(manifest.floor?1:0)+(manifest.crown?1:0);s.floorStatus=manifest.floor?'loading':'absent';s.crownStatus=manifest.crown?'loading':'absent';
         for(const kind of KINDS){
           const spec=manifest.plants[kind];if(!spec||typeof spec.file!=='string'||!/^[a-z0-9_-]+\.(png|webp)$/.test(spec.file))throw Error('Missing complete botanical source '+kind);
           try{
@@ -79,23 +82,38 @@
             s.floor={textureName:name,file:spec.file,sourceWidth:im.naturalWidth,sourceHeight:im.naturalHeight,width:edge,height:edge,worldSize:spec.worldSize,bytes,opaque:true};s.bytes+=bytes;s.floorStatus='ready';cv.width=cv.height=1;
           }catch(error){s.floorStatus='error';s.failures.push({kind:'floor',message:String(error&&error.message||error)});}
         }else s.floorStatus='absent';
+        if(manifest.crown){
+          try{
+            const spec=manifest.crown;if(!spec||typeof spec.file!=='string'||!/^[a-z0-9_-]+\.webp$/.test(spec.file))throw Error('Invalid aerial crown photograph');
+            const im=await new Promise((resolve,reject)=>{const image=new root.Image();image.onload=()=>resolve(image);image.onerror=()=>reject(Error('Crown image failed: '+spec.file));image.src='assets/jungle/'+spec.file;});
+            if(!current()||r.gl&&r.gl.isContextLost())return inspect(null,r);
+            if(im.naturalWidth!==im.naturalHeight||im.naturalWidth<1024||im.naturalWidth!==spec.width||im.naturalHeight!==spec.height)throw Error('Aerial crown must retain its complete square source');
+            const edge=s.touch?448:512,cv=root.document.createElement('canvas');cv.width=cv.height=edge;const ctx=cv.getContext('2d',{willReadFrequently:true});if(!ctx)throw Error('Crown decode canvas unavailable');ctx.imageSmoothingQuality='high';ctx.drawImage(im,0,0,edge,edge);
+            const measured=measure(edge,edge,ctx.getImageData(0,0,edge,edge).data),bytes=mipBytes(edge,edge),budget=s.touch?LIMITS.touchBytes:LIMITS.desktopBytes;if(s.bytes+bytes>budget)throw Error('Aerial crown exceeds the shared botanical texture budget');
+            const name='jungle_crown',gl=r.gl,before=gl&&typeof gl.getParameter==='function'?{active:gl.getParameter(gl.ACTIVE_TEXTURE),texture:gl.getParameter(gl.TEXTURE_BINDING_2D),flip:gl.getParameter(gl.UNPACK_FLIP_Y_WEBGL),premultiplied:gl.getParameter(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL)}:null;let T;
+            try{T=r.texFromCanvas(name,cv);if(!T||!T.tex)throw Error('Crown GPU upload unavailable');if(gl){gl.bindTexture(gl.TEXTURE_2D,T.tex);gl.generateMipmap(gl.TEXTURE_2D);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);}}
+            finally{if(before){gl.activeTexture(before.active);gl.bindTexture(gl.TEXTURE_2D,before.texture);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,before.flip);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,before.premultiplied);}}
+            s.crown={kind:'crown',textureName:name,file:spec.file,sourceWidth:im.naturalWidth,sourceHeight:im.naturalHeight,...measured,referenceWidth:(measured.bounds[2]-measured.bounds[0])/edge,bodyHeight:measured.bodyFraction,bytes};s.bytes+=bytes;s.crownStatus='ready';cv.width=cv.height=1;
+          }catch(error){s.crownStatus='error';s.failures.push({kind:'crown',message:String(error&&error.message||error)});}
+        }
         s.status=s.records.size?'ready':'error';return inspect(null,r);
       }catch(error){s.status='error';s.failures.push({kind:'manifest',message:String(error&&error.message||error)});return inspect(null,r);}
     })();return s.promise;
   }
   function ready(r){const s=r&&renderers.get(r);return !!(s&&s.status==='ready'&&s.records.size);}
+  function crownReady(r){const s=r&&renderers.get(r),T=s&&s.crown&&r.textures&&r.textures[s.crown.textureName];return !!(s&&s.crownStatus==='ready'&&T&&T.tex&&(!s.current||s.current())&&!(r.gl&&r.gl.isContextLost()));}
   function floorTexture(r){const s=r&&renderers.get(r),record=s&&s.floor,T=record&&r.textures&&r.textures[record.textureName];if(!s||s.floorStatus!=='ready'||!T||!T.tex||s.current&&!s.current()||r.gl&&(r.gl.isContextLost()||typeof r.gl.isTexture==='function'&&!r.gl.isTexture(T.tex)))return null;return {...record,tex:T.tex,w:record.width,h:record.height,ready:true};}
-  function beginFrame(g,r){if(!g||!r)return false;const s=state(g,r);s.renderer=r;s.pending.length=0;s.scenery.length=0;s.ids.clear();s.counts={};s.samples=s.queueSamples=s.solidChecks=s.fineUpdates=s.updates=s.skipped=s.wind=0;return eligible(g);}
+  function beginFrame(g,r){if(!g||!r)return false;const s=state(g,r);s.renderer=r;s.pending.length=0;s.scenery.length=0;s.sceneryIds.clear();s.distant.length=0;s.distantIds.clear();s.crowns.length=0;s.ids.clear();s.counts={};s.samples=s.queueSamples=s.solidChecks=s.fineUpdates=s.updates=s.skipped=s.wind=0;return sceneryEligible(g);}
   function anchor(record,p,height,eye,tint){
     if(!record||!point(p)||!point(eye)||!Number.isFinite(height)||height<=0||!Number.isFinite(record.bodyFraction)||record.bodyFraction<=0)return null;
     const h=height/record.bodyFraction,w=h*record.width/record.height,dx=eye[0]-p[0],dz=eye[2]-p[2],length=Math.hypot(dx,dz)||1,offset=(record.center-.5)*w;
     const ratio=clamp(offset/length,-.999,.999),side=Math.sqrt(1-ratio*ratio),right=[dz/length*side-dx/length*ratio,-dx/length*side-dz/length*ratio];
     return {p:[p[0]-right[0]*offset,p[1]-(1-record.baseline)*h,p[2]-right[1]*offset],h,w,cols:1,rows:1,cell:0,textureName:record.textureName,plantKind:record.kind,junglePhotograph:true,t:tint||[1,1,1],motion:[0,0,0,1-record.baseline]};
   }
-  function append(g,r,kind,p,height,seed,id){
+  function append(g,r,kind,p,height,seed,id,sceneryRange){
     const rs=renderers.get(r),record=rs&&rs.records.get(kind);if(!record)return false;const s=state(g,r),profile=PROFILES[quality(r)];
     if(s.pending.length>=profile.total||s.ids.has(id))return true;
-    const distance=Math.hypot(p[0]-r.eye[0],p[2]-r.eye[2]),range=(kind==='fern'||kind==='litter')?profile.range*.45:profile.range;
+    const distance=Math.hypot(p[0]-r.eye[0],p[2]-r.eye[2]),range=sceneryRange||((kind==='fern'||kind==='litter')?profile.range*.45:profile.range);
     if(distance>=range||distance<(kind==='litter'?0:kind==='fern'?1.15:['canopy','liana','bamboo'].includes(kind)?.2:2.0))return true;
     const fade=1-smooth(range*.82,range,distance);if(fade<=.015)return true;
     const variation=.88+hash(Math.floor(p[0]*10),Math.floor(p[2]*10),seed)*.15,tint=[variation*.99,variation,variation*.96];
@@ -107,22 +125,46 @@
     sprite.flip=flip;
     sprite.id=id;sprite.groundRoot=p.slice();s.pending.push(sprite);s.ids.add(id);s.counts[kind]=(s.counts[kind]||0)+1;return true;
   }
+  function retain(rows,ids,row,cap){
+    if(ids.has(row.id))return;
+    const farther=(a,b)=>a.priority>b.priority||a.priority===b.priority&&a.id>b.id;
+    if(rows.length>=cap){if(!farther(rows[0],row))return;ids.delete(rows[0].id);rows[0]=row;let i=0;for(;;){let child=i*2+1;if(child>=rows.length)break;if(child+1<rows.length&&farther(rows[child+1],rows[child]))child++;if(!farther(rows[child],rows[i]))break;[rows[i],rows[child]]=[rows[child],rows[i]];i=child;}}
+    else{rows.push(row);let i=rows.length-1;while(i){const parent=(i-1)>>1;if(!farther(rows[i],rows[parent]))break;[rows[i],rows[parent]]=[rows[parent],rows[i]];i=parent;}}
+    ids.add(row.id);
+  }
   function queue(g,r,mesh,p,scale){
-    if(!eligible(g)||!r||!point(r.eye)||!point(p)||!['tree','palm','bamboo','bush'].includes(mesh))return false;
-    try{if(jungle&&!jungle(p[0],p[2]))return false;}catch(_){return false;}
+    if(!sceneryEligible(g)||!r||!point(r.eye)||!point(p)||!['tree','palm','bamboo','bush'].includes(mesh))return false;
     const rs=renderers.get(r);if(!rs||rs.status!=='ready')return false;
-    const seed=Math.floor(p[0]*17.31+p[2]*41.73),kind=mesh==='tree'?(hash(seed,7,4)<.25?'liana':'canopy'):mesh==='palm'?'nipa':mesh==='bamboo'?'bamboo':'fern';
-    if(!rs.records.has(kind))return false;const s=state(g,r),profile=PROFILES[quality(r)],distance=Math.hypot(p[0]-r.eye[0],p[2]-r.eye[2]);if(distance>=profile.range)return true;
-    const size=.78+hash(seed,11,83)*.42;
-    const id=mesh+':'+p[0].toFixed(3)+':'+p[2].toFixed(3);if(!s.scenery.some(c=>c.id===id))s.scenery.push({kind,p:p.slice(),height:HEIGHTS[kind]*size*clamp(finite(scale&&scale[1],1),.45,2),seed,id,distance});
+    const seed=Math.floor(p[0]*17.31+p[2]*41.73),kind=mesh==='tree'?'canopy':mesh==='palm'?'nipa':mesh==='bamboo'?'bamboo':'fern';
+    if(!rs.records.has(kind))return false;const s=state(g,r),profile=PROFILES[quality(r)],distance=Math.hypot(p[0]-r.eye[0],p[2]-r.eye[2]),range=g.evade?profile.sceneryRange:profile.flightRange,distant=distance>=range;
+    const size=.78+hash(seed,11,83)*.42,height=HEIGHTS[kind]*size*clamp(finite(scale&&scale[1],1),.45,2),horizon=g.evade?Math.min(3800,profile.horizon):profile.horizon;
+    if(distant&&(kind==='fern'||distance>=horizon))return true;
+    // Far silhouettes reserve their own small band. Prefer the largest
+    // projected trees in the visible hemisphere rather than erasing every
+    // plant beyond the detailed ring or spending the budget behind the view.
+    if(distant&&r.matVP){const m=r.matVP,x=p[0],y=p[1]+height*.65,z=p[2],w=m[3]*x+m[7]*y+m[11]*z+m[15],cx=m[0]*x+m[4]*y+m[8]*z+m[12],cy=m[1]*x+m[5]*y+m[9]*z+m[13];if(w<=0||Math.abs(cx)>w*1.25||Math.abs(cy)>w*1.25)return true;}
+    else if(distant&&r.matV){const dx=p[0]-r.eye[0],dy=p[1]+height*.65-r.eye[1],dz=p[2]-r.eye[2];if(-r.matV[2]*dx-r.matV[6]*dy-r.matV[10]*dz<0)return true;}
+    const id=mesh+':'+p[0].toFixed(3)+':'+p[2].toFixed(3);
+    // A fixed max-heap retains the nearest candidates even if authored
+    // scenery arrives far-first. It avoids sorting thousands of world plants.
+    let visible=true;
+    if(!distant&&r.matVP){const m=r.matVP,x=p[0],y=p[1]+height*.55,z=p[2],w=m[3]*x+m[7]*y+m[11]*z+m[15],cx=m[0]*x+m[4]*y+m[8]*z+m[12],cy=m[1]*x+m[5]*y+m[9]*z+m[13],padding=height*Math.max(Math.hypot(m[0],m[8]),Math.hypot(m[1],m[9]),Math.abs(m[4]),Math.abs(m[5]));visible=w>0&&Math.abs(cx)<=w*1.12+padding&&Math.abs(cy)<=w*1.12+padding;}
+    const projected=Math.hypot(distance,r.eye[1]-p[1])/height;
+    const row={kind,p:p.slice(),height,seed,id,distance,range:distant?horizon:range,priority:distant?projected:r.matVP?projected+(visible?0:profile.horizon):distance,distant};
+    retain(distant?s.distant:s.scenery,distant?s.distantIds:s.sceneryIds,row,distant?profile.farTotal*2:profile.total*2);
     return true;
   }
   function queueScenery(g,r){
-    const s=state(g,r),profile=PROFILES[quality(r)],oldCanopy=Math.floor(profile.canopy*.5),cap=profile.total-profile.understory-profile.floor-profile.soft-3;
-    for(const c of s.scenery.sort((a,b)=>a.distance-b.distance||a.id.localeCompare(b.id))){
-      if(s.pending.length>=cap)break;if(['canopy','liana'].includes(c.kind)&&finite(s.counts.canopy)+finite(s.counts.liana)>=oldCanopy)continue;
-      let y=s.anchors.get(c.id);if(y===undefined){if(s.queueSamples>=LIMITS.queueSamples)continue;s.queueSamples++;try{y=sample(s,c.p[0],c.p[2]);}catch(_){y=NaN;}s.anchors.set(c.id,y);while(s.anchors.size>LIMITS.cache*2)s.anchors.delete(s.anchors.keys().next().value);}
-      if(Number.isFinite(y)&&y>=1.1)append(g,r,c.kind,[c.p[0],y,c.p[2]],c.height,c.seed,c.id);
+    const s=state(g,r),rs=renderers.get(r),profile=PROFILES[quality(r)],ground=eligible(g),oldCanopy=ground?Math.floor(profile.canopy*.5):profile.flightTotal,cap=ground?profile.total-profile.understory-profile.floor-profile.soft-3:profile.flightTotal,far=Math.min(profile.farTotal,s.distant.length),sort=(a,b)=>a.priority-b.priority||a.id.localeCompare(b.id);
+    const nearRows=s.scenery.slice().sort(sort),farRows=s.distant.slice().sort(sort),farCanopies=ground?Math.min(Math.floor(oldCanopy/3),farRows.slice(0,far).filter(c=>c.kind==='canopy').length):0,chosen=nearRows.slice(0,Math.max(0,cap-far)).concat(farRows.slice(0,far));
+    for(const c of chosen){
+      if(s.pending.length+s.crowns.length>=(c.distant?cap:cap-far))continue;if(ground&&['canopy','liana'].includes(c.kind)&&finite(s.counts.canopy)+finite(s.counts.liana)>=(c.distant?oldCanopy:oldCanopy-farCanopies))continue;
+      let y=g.pow||g.evade?.camp?c.p[1]:s.anchors.get(c.id);if(y===undefined){if(s.queueSamples>=LIMITS.queueSamples)continue;s.queueSamples++;try{y=sample(s,c.p[0],c.p[2]);}catch(_){y=NaN;}s.anchors.set(c.id,y);while(s.anchors.size>LIMITS.cache*2)s.anchors.delete(s.anchors.keys().next().value);}
+      if(Number.isFinite(y)&&y>=1.1){append(g,r,c.kind,[c.p[0],y,c.p[2]],c.height,c.seed,c.id,c.range);
+        if(!g.evade&&rs.crown&&c.kind==='canopy'&&!c.distant&&s.crowns.length<profile.crowns&&s.pending.length+s.crowns.length<cap-far&&r.eye[1]-y>Math.hypot(c.p[0]-r.eye[0],c.p[2]-r.eye[2])*.70){
+          const sprite=s.pending.find(p=>p.id===c.id);if(sprite){const height=sprite.h*rs.records.get('canopy').bodyFraction,top=y+height*.80,span=height*.68;s.crowns.push({id:'crown:'+c.id,p:[c.p[0],top,c.p[2]],yaw:hash(Math.floor(c.p[0]*10),Math.floor(c.p[2]*10),83)*Math.PI*2,length:span,width:span,record:rs.crown,floorAt:()=>top,floorKey:'crown:'+top.toFixed(3),groundLift:.012});}
+        }
+      }
     }
   }
   function sample(s,x,z){s.samples++;const h=terrain(x,z);return Number.isFinite(h)?h:NaN;}
@@ -177,7 +219,7 @@
     return out.filter(row=>row.kind==='fern'?ferns++<profile.soft:leaves++<profile.floor);
   }
   function populate(g,r,options){
-    if(!eligible(g)||!renderers.get(r)?.records.size)return [];queueScenery(g,r);
+    if(!sceneryEligible(g)||!renderers.get(r)?.records.size)return [];queueScenery(g,r);if(!eligible(g))return [];
     // Weaver-ant nests belong on visible foliage rather than in empty air.
     // Reserve at most three existing soft-plant slots; collision stays owned
     // by the unchanged world and the colony's explicit contact area.
@@ -193,8 +235,8 @@
     }return candidates;
   }
   function draw(g,r){
-    const s=g&&games.get(g),rs=r&&renderers.get(r);if(!s||!rs||!eligible(g)||typeof r._drawSpriteBatch!=='function')return 0;
-    const groups=new Map(),profile=PROFILES[quality(r)],surfaces=[];s.wind=0;
+    const s=g&&games.get(g),rs=r&&renderers.get(r);if(!s||!rs||!sceneryEligible(g)||typeof r._drawSpriteBatch!=='function')return 0;
+    const groups=new Map(),profile=PROFILES[quality(r)],surfaces=crownReady(r)?s.crowns.slice():[];s.wind=0;
     const ordered=s.pending.slice().sort((a,b)=>Math.hypot(a.p[0]-r.eye[0],a.p[2]-r.eye[2])-Math.hypot(b.p[0]-r.eye[0],b.p[2]-r.eye[2]));
     for(const sprite of ordered){
       if(sprite.plantKind==='litter'){
@@ -221,7 +263,7 @@
     if(!eligible(g)||!base||!jungle)return base;let inside=false;try{inside=jungle(g.evade.p[0],g.evade.p[2]);}catch(_){}if(!inside)return base;
     return {...base,fogDens:Math.max(finite(base.fogDens),.00135+clamp(finite(base.wet),0,1)*.00055),fogHeight:Math.max(2200,finite(base.fogHeight))};
   }
-  function inspect(g,r){const s=g&&games.get(g),rs=r&&renderers.get(r);return {eligible:eligible(g),count:s?s.pending.length:0,obstacles:obstacles(g),counts:s?{...s.counts}:{},terrainSamples:s?s.samples:0,queueSamples:s?s.queueSamples:0,solidChecks:s?s.solidChecks:0,fineUpdates:s?s.fineUpdates:0,fineCache:s?s.fine.size:0,cellUpdates:s?s.updates:0,cache:s?s.cells.size:0,wind:s?s.wind:0,plants:s?s.pending.map(p=>({kind:p.plantKind,p:p.p.slice(),groundRoot:p.groundRoot.slice(),h:p.h,w:p.w,id:p.id,flip:!!p.flip})):[],status:rs?rs.status:'idle',bytes:rs?rs.bytes:0,budget:rs&&rs.touch?LIMITS.touchBytes:LIMITS.desktopBytes,expectedSources:rs?rs.expectedSources:KINDS.length,readySources:rs?rs.records.size+(floorTexture(r)?1:0):0,floor:rs?{status:rs.floorStatus,...(rs.floor||{}),ready:!!floorTexture(r)}:{status:'idle',ready:false},records:rs?[...rs.records.values()].map(v=>({...v,bounds:v.bounds.slice()})):[],failures:rs?rs.failures.map(v=>({...v})):[]};}
-  function dispose(r){const rs=renderers.get(r);if(!rs)return false;for(const record of [...rs.records.values(),...(rs.floor?[rs.floor]:[])]){const T=r.textures&&r.textures[record.textureName];if(T&&T.tex&&r.gl&&!r.gl.isContextLost())r.gl.deleteTexture(T.tex);if(r.textures)delete r.textures[record.textureName];}renderers.delete(r);return true;}
+  function inspect(g,r){const s=g&&games.get(g),rs=r&&renderers.get(r);return {eligible:eligible(g),sceneryEligible:sceneryEligible(g),sceneryCandidates:s?s.scenery.length:0,sceneryCandidateLimit:r?PROFILES[quality(r)].total*2:0,distantCandidates:s?s.distant.length:0,distantCandidateLimit:r?PROFILES[quality(r)].farTotal*2:0,crowns:s?s.crowns.map(c=>({id:c.id,p:c.p.slice(),length:c.length,width:c.width})):[],count:s?s.pending.length:0,obstacles:obstacles(g),counts:s?{...s.counts}:{},terrainSamples:s?s.samples:0,queueSamples:s?s.queueSamples:0,solidChecks:s?s.solidChecks:0,fineUpdates:s?s.fineUpdates:0,fineCache:s?s.fine.size:0,cellUpdates:s?s.updates:0,cache:s?s.cells.size:0,wind:s?s.wind:0,plants:s?s.pending.map(p=>({kind:p.plantKind,p:p.p.slice(),groundRoot:p.groundRoot.slice(),h:p.h,w:p.w,id:p.id,flip:!!p.flip})):[],status:rs?rs.status:'idle',bytes:rs?rs.bytes:0,budget:rs&&rs.touch?LIMITS.touchBytes:LIMITS.desktopBytes,expectedSources:rs?rs.expectedSources:KINDS.length,readySources:rs?rs.records.size+(floorTexture(r)?1:0)+(crownReady(r)?1:0):0,floor:rs?{status:rs.floorStatus,...(rs.floor||{}),ready:!!floorTexture(r)}:{status:'idle',ready:false},crown:rs?{status:rs.crownStatus,...(rs.crown?{...rs.crown,bounds:rs.crown.bounds.slice()}:{}),ready:crownReady(r)}:{status:'idle',ready:false},records:rs?[...rs.records.values()].map(v=>({...v,bounds:v.bounds.slice()})):[],failures:rs?rs.failures.map(v=>({...v})):[]};}
+  function dispose(r){const rs=renderers.get(r);if(!rs)return false;for(const record of [...rs.records.values(),...(rs.floor?[rs.floor]:[]),...(rs.crown?[rs.crown]:[])]){const T=r.textures&&r.textures[record.textureName];if(T&&T.tex&&r.gl&&!r.gl.isContextLost())r.gl.deleteTexture(T.tex);if(r.textures)delete r.textures[record.textureName];}renderers.delete(r);return true;}
   root.JungleScenery=Object.freeze({configure,load,ready,floorTexture,beginFrame,queue,populate,plan,draw,obstacles,blockedAt,shadowSprites,floorMode,atmosphere,anchor,measure,habitat,inspect,dispose,kinds:KINDS,profiles:PROFILES,limits:LIMITS});
 })(typeof window!=='undefined'?window:globalThis);

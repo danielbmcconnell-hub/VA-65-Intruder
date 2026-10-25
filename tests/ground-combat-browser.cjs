@@ -40,7 +40,7 @@ module.exports=async function(browser,target,evidenceDir){
     const g=App.game,e=g.evade,r=Math.random;let left=seconds;
     Math.random=()=>0;try{while(left>1e-10){const dt=Math.min(left,1/60);g.t+=dt;g._weapons(dt,e,App,App.keys);EquipmentView.step(g,dt,0);left-=dt;}}finally{Math.random=r;}
     g.render(0);g.syncControls();return {mode:e.weaponMode,rounds:e.rounds,action:e.actionT??null,melee:e._meleeT??null,queued:e.attackWant||0,held:!!e.primaryAttackDown,
-      bullets:SurvivalAmmunition.view(g).bulletsExpended,punch:GroundCombat.inspectPunch(g),equipment:EquipmentView.inspect(g),target:{alive:e.searchers[0]?.alive,wounds:e.searchers[0]?.wounds||0}};
+      bullets:SurvivalAmmunition.view(g).bulletsExpended,punch:GroundCombat.inspectPunch(g),equipment:EquipmentView.inspect(g),button:document.getElementById('btnFire').textContent,cue:g.nextCue(g.ac,g.world),punchFeedbackAt:e._lastPunchHitT??null,lastCaption:document.getElementById('radio').lastElementChild?.textContent||'',target:{alive:e.searchers[0]?.alive,wounds:e.searchers[0]?.wounds||0,hurt:e.searchers[0]?.hurt||0,stunUntil:e.searchers[0]?.stunUntil||0}};
    },seconds);
    const select=async mode=>{
     await page.evaluate(()=>{const g=App.game;__combatSet(0,2);g.evade.weaponMode='fists';g.evade.drawn=0;GroundCombat.resetPunch(g);EquipmentView.reset(g);g.render(0);g.syncControls();});
@@ -48,13 +48,44 @@ module.exports=async function(browser,target,evidenceDir){
     const selected=await advancePrimary(1/60);assert.equal(selected.mode,mode);
     return selected;
    };
+   const punchContacts=[];
+   for(const encounter of [{distance:1.6,wall:false,mode:'fists'},{distance:2.3,wall:false,mode:'fists'},{distance:1.6,wall:true,mode:'fists'},{distance:1.6,wall:false,mode:'pistol'}]){
+    const fixture=await page.evaluate(({distance,wall})=>{
+     const g=App.game,a=__combatSet(-.16,distance),e=g.evade;GroundCombat.resetPunch(g);EquipmentView.reset(g);
+     if(wall){const p=e.p,mesh={m:'cwall',p:[p[0],terrainH(p[0],p[2]),p[2]-.8],y:Math.PI/2,s:1,t:[1,1,1,0]};g.world.scenery.push(mesh);window.__punchContactWall=mesh;g._collisionCache=null;}
+     return {actor:a.p.slice(),distance,wall,los:g._groundLineOfSight(e.p,a.p,e),scope:'Declared live NVA starting encounter, plus an original cwall scenery instance only for the blocked case. No wound, stun, defeat, health or ammunition result assigned; original native controls and production _weapons contact resolver remain authoritative.'};
+    },encounter);
+    try{
+     await activate(encounter.mode==='pistol'?'#btnPistol':'#btnPunch');const before=await advancePrimary(1/60);
+     if(options.hasTouch)await activate('#groundItemsPunch');else await page.keyboard.down('Space');
+     const first=await advancePrimary(.20),held=await advancePrimary(.6);
+     if(!options.hasTouch)await page.keyboard.up('Space');await advancePrimary(1/60);
+     const accepted=!encounter.wall&&encounter.distance<=1.7;
+     assert.equal(first.target.wounds,accepted?1:0);assert.equal(held.target.wounds,first.target.wounds);assert.equal(first.rounds,6);assert.equal(held.rounds,6);assert.equal(held.bullets,before.bullets);assert.equal(first.target.alive,true);
+     assert.equal(fixture.los,!encounter.wall);assert.equal(first.target.hurt,accepted?1:0);
+     assert.equal(first.punchFeedbackAt!==null,accepted);
+     if(accepted){assert.ok(first.target.stunUntil>0);assert.match(first.lastCaption,/Punch landed/);}
+     if(encounter.mode==='pistol'){assert.equal(first.mode,'pistol');assert.equal(first.punch.left.hand,'left');assert.equal(first.punch.right,null);}
+     let second=null;
+     if(accepted&&encounter.mode==='fists'){
+      if(options.hasTouch)await activate('#groundItemsPunch');else await page.keyboard.down('Space');
+      second=await advancePrimary(.20);if(!options.hasTouch)await page.keyboard.up('Space');await advancePrimary(1/60);
+      assert.equal(second.target.wounds,2);assert.equal(second.target.alive,true);assert.equal(second.rounds,6);
+      assert.equal(second.punchFeedbackAt,first.punchFeedbackAt,'Repeated fresh hits preserve the caption cooldown');
+      await shot('native-punch-contact');
+     }
+     punchContacts.push({fixture,before,first,held,second});
+    }finally{await page.evaluate(()=>{const g=App.game;if(window.__punchContactWall){g.world.scenery=g.world.scenery.filter(o=>o!==window.__punchContactWall);window.__punchContactWall=null;g._collisionCache=null;}});}
+   }
+   record('Native punches accumulate real wounds only on reachable unblocked contact while a loaded pistol keeps every round',punchContacts);
    const knifeBefore=await select('knife');
+   assert.equal(knifeBefore.button,'STAB KNIFE');assert.match(knifeBefore.cue,/STAB KNIFE/);
    if(!options.hasTouch)assert.equal(await page.evaluate(()=>document.activeElement.id),'btnKnife','Native weapon-selector focus must not block T');
    await page.keyboard.down('t');const knifeFirst=await advancePrimary(.12);await page.keyboard.down('t');const knifeHeld=await advancePrimary(.95);await page.keyboard.up('t');
    assert.equal(knifeFirst.rounds,6);assert.equal(knifeFirst.target.alive,false);assert.ok(knifeFirst.action>0);assert.equal(knifeFirst.equipment.pulses,1);
    assert.equal(knifeHeld.action,knifeFirst.action);assert.equal(knifeHeld.equipment.pulses,1);assert.equal(knifeHeld.bullets,knifeBefore.bullets);assert.equal(knifeHeld.queued,0);
    record('Original Knife selector then native T accepts one animated stab; repeated held key cannot replay it',{before:knifeBefore,first:knifeFirst,held:knifeHeld});
-   const pistolBefore=await select('pistol');await page.keyboard.down('t');const pistolFirst=await advancePrimary(.12);await page.keyboard.down('t');const pistolHeld=await advancePrimary(1.1);await page.keyboard.up('t');
+   const pistolBefore=await select('pistol');assert.equal(pistolBefore.button,'FIRE .38');assert.match(pistolBefore.cue,/FIRE \.38/);await page.keyboard.down('t');const pistolFirst=await advancePrimary(.12);await page.keyboard.down('t');const pistolHeld=await advancePrimary(1.1);await page.keyboard.up('t');
    assert.equal(pistolFirst.rounds,5);assert.equal(pistolFirst.bullets-pistolBefore.bullets,1);assert.equal(pistolFirst.equipment.pulses,1);
    assert.equal(pistolHeld.rounds,5);assert.equal(pistolHeld.bullets,pistolFirst.bullets);assert.equal(pistolHeld.equipment.pulses,1);
    record('Native T fires the selected pistol once with exact ammunition accounting and no held-key replay',{before:pistolBefore,first:pistolFirst,held:pistolHeld});
@@ -64,7 +95,7 @@ module.exports=async function(browser,target,evidenceDir){
    record('Native Space with a held knife animates only the empty left hand and never stabs or spends a round',{first:knifePunch,held:knifePunchHeld});
    await select('knife');
    const actionButton=await page.locator('#btnFire').evaluate(b=>{const r=b.getBoundingClientRect();return {text:b.textContent,label:b.getAttribute('aria-label'),rect:{x:r.x,y:r.y,width:r.width,height:r.height},hit:document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)===b,keyboardHint:getComputedStyle(b,'::after').content};});
-   assert.equal(actionButton.text,'STAB');assert.match(actionButton.label,/stab.*knife/i);assert.equal(actionButton.hit,true);assert.ok(actionButton.rect.width>=44&&actionButton.rect.height>=44);
+   assert.equal(actionButton.text,'STAB KNIFE');assert.match(actionButton.label,/stab.*knife/i);assert.equal(actionButton.hit,true);assert.ok(actionButton.rect.width>=44&&actionButton.rect.height>=44);
    if(!options.hasTouch){assert.ok(actionButton.rect.height<=44);assert.match(actionButton.keyboardHint,/T/);}
    await activate('#btnFire');const buttonStab=await advancePrimary(.12);assert.equal(buttonStab.equipment.pulses,1);assert.equal(buttonStab.rounds,6);assert.equal(buttonStab.target.alive,false);
    await page.waitForFunction(()=>{const a=document.getElementById('weaponArt');return a.complete&&a.naturalWidth>0;});

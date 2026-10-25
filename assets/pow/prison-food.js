@@ -12,6 +12,15 @@
     return s.stage==='regular'?!!s.regular&&s.regular.lastMealDay===s.day:
       !!s.captivity&&!!s.captivity.daily&&s.captivity.daily.meal===s.day;
   }
+  function view(game){
+    if(!valid(game))return null;
+    const object=game.pow.objects?.find(o=>o.id===(game.pow.stage==='regular'?'regular-meal':'cell-tray'));
+    if(!object)return null;
+    const empty=eaten(game),dx=object.p[0]-game.evade.p[0],dz=object.p[2]-game.evade.p[2],angle=Math.atan2(dx,-dz)-(game.evade.hdg||0),bearing=Math.atan2(Math.sin(angle),Math.cos(angle));
+    const direction=Math.abs(bearing)<.5?'ahead':Math.abs(bearing)>2.6?'behind':bearing>0?'to your right':'to your left';
+    return {empty,day:game.pow.day,nextDay:game.pow.day+1,object:{id:object.id,p:object.p.slice()},name:empty?'Empty ration tin · next serving day '+(game.pow.day+1):'Daily ration · inspect / eat',
+      instruction:empty?'Today’s ration has been eaten. Next serving: day '+(game.pow.day+1)+'.':'Ration tin '+direction+', on the floor ('+Math.hypot(dx,dz).toFixed(1)+' m). Look down; hold F / Interact, then choose Eat today’s ration.'};
+  }
   function clearInput(g){
     const a=g.app;if(a){if(a.keys)for(const k of Object.keys(a.keys))a.keys[k]=0;if(a.gctl)for(const k of ['pitch','roll','run','fire','interact','climb'])a.gctl[k]=0;}
     if(g.pow){g.pow.holding=null;g.pow.touchInteract=false;g.pow.touchClimb=false;g.pow.interactLatched=false;g.pow.input={};}
@@ -32,11 +41,13 @@
   }
   function refresh(){
     if(!session||!ui)return;
-    const empty=eaten(session.game);ui.image.hidden=false;ui.empty.hidden=!empty;
+    const empty=eaten(session.game),day=session.game.pow.day;ui.image.hidden=false;ui.empty.hidden=!empty;
+    ui.title.textContent='Daily ration · day '+day;
+    ui.empty.textContent=session.feedback||'Today’s ration has been eaten. Next serving: day '+(day+1)+'.';
     const imageFile=empty?'assets/prison/ration-empty.webp':'assets/prison/ration.webp';
     if(ui.image.getAttribute('src')!==imageFile)ui.image.src=imageFile;
     ui.image.alt=empty?'Empty worn metal mess tin with a spoon':'Worn metal mess tin containing rice and greens, with a spoon';
-    ui.description.textContent=empty?'The day’s portion has been eaten. The empty tin remains until the next daily ration.':'A worn mess tin, rice, a few greens and a spoon. Inspect the ration, then eat or close this view.';
+    ui.description.textContent=empty?'The empty tin remains on the floor. The next daily ration is available on day '+(day+1)+'.':'Rice, a few greens and a spoon in the floor tin. Eat this day’s portion to support condition, or close to return to the cell.';
     ui.eat.hidden=empty;ui.eat.disabled=!!session.game.paused;
     ui.node.dataset.empty=String(empty);
   }
@@ -47,7 +58,7 @@
     const title=d.createElement('h2');title.id='prisonFoodTitle';title.textContent='Daily ration';
     const dismiss=d.createElement('button');dismiss.type='button';dismiss.className='btn gho prison-food-dismiss';dismiss.textContent='Close ×';dismiss.setAttribute('aria-label','Close ration view');dismiss.onclick=close;
     const image=d.createElement('img');image.src='assets/prison/ration.webp';image.alt='Worn metal mess tin containing rice and greens, with a spoon';image.width=1536;image.height=1024;
-    const empty=d.createElement('p');empty.className='prison-food-empty';empty.textContent='The tin is empty.';
+    const empty=d.createElement('p');empty.className='prison-food-empty';empty.setAttribute('role','status');empty.setAttribute('aria-live','polite');
     const description=d.createElement('p');description.className='prison-food-description';
     const note=d.createElement('p');note.className='dim';note.textContent='Appearance guided by the supplied food reference. The portion and daily routine are reconstructed for the game.';
     const eat=d.createElement('button');eat.type='button';eat.className='btn pri';eat.textContent='Eat today’s ration';eat.onclick=()=>consume(session&&session.game);
@@ -58,13 +69,14 @@
       event.stopPropagation();
       if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();close();return;}
       if(event.key==='Tab'){
-        const buttons=[dismiss,eat].filter(b=>!b.hidden&&!b.disabled),i=buttons.indexOf(d.activeElement);
+        const buttons=Array.from(panel.querySelectorAll('button')).filter(b=>!b.hidden&&!b.disabled&&b.getClientRects().length),i=buttons.indexOf(d.activeElement);
+        if(!buttons.length)return;
         event.preventDefault();buttons[(i+(event.shiftKey?-1:1)+buttons.length)%buttons.length].focus();
       }
       // Movement keys must not leak to the resumed scene when this closes.
       if(['KeyW','KeyA','KeyS','KeyD','KeyF','Space'].includes(event.code))event.stopPropagation();
     });
-    d.body.append(node);ui={node,panel,image,empty,description,eat,dismiss};
+    d.body.append(node);ui={node,panel,title,image,empty,description,eat,dismiss};
   }
   function open(game,object,action){
     if(!valid(game)||game.paused||game.pow.modalOpen||game.pow.captivity&&game.pow.captivity.open||typeof action!=='function')return false;
@@ -78,7 +90,12 @@
     if(!active(game)||game.paused||eaten(game))return false;
     const s=session;
     // The original callable owns the once-per-day rule and persisted effects.
-    const result=s.action.call(s.object,game,s.object);refresh();clearInput(game);
+    const before={...game.pow.stats},result=s.action.call(s.object,game,s.object);
+    if(eaten(game)){
+      const stats=game.pow.stats,shown=game.pow.stage==='regular'?['physical','morale']:['physical','fatigue'],labels={physical:'Body',morale:'Morale',fatigue:'Fatigue'};
+      s.feedback='Ration eaten. '+shown.map(key=>labels[key]+' '+Number(before[key]).toFixed(1)+' → '+Number(stats[key]).toFixed(1)).join(' · ')+'. Next serving: day '+(game.pow.day+1)+'.';
+    }
+    refresh();clearInput(game);prepare(game);root.POW?.updateUI?.(game);
     if(ui&&eaten(game))ui.dismiss.focus({preventScroll:true});return result!==false;
   }
   function mesh(game){
@@ -105,17 +122,23 @@
     R.meshFromBuilder('prisonRationFull',create(true));R.meshFromBuilder('prisonRationEmpty',create(false));meshOwners.add(R);
   }
   function prepare(game){
-    active(game);if(!valid(game))return false;mesh(game);
+    active(game);const supported=valid(game),hud=root.POW?.ui?.root;
+    if(hud)hud.dataset.rationFocus=String(supported&&['cell-tray','regular-meal'].includes(game.pow.focus?.id));
+    if(!supported)return false;mesh(game);
     for(const obj of game.pow.objects||[]){
-      if(!['cell-tray','regular-meal'].includes(obj.id)||typeof obj.action!=='function'||wrapped.has(obj))continue;
-      const action=obj.action;wrapped.set(obj,action);obj.name='Inspect the daily ration';obj.action=function(g){return open(g,obj,action);};
+      if(!['cell-tray','regular-meal'].includes(obj.id)||typeof obj.action!=='function')continue;
+      if(!wrapped.has(obj)){const action=obj.action;wrapped.set(obj,action);obj.action=function(g){return open(g,obj,action);};}
+      obj.name=eaten(game)?'Empty ration tin · next serving day '+(game.pow.day+1):'Daily ration · inspect / eat';
     }
     if(active(game))refresh();return true;
   }
   function decorate(game,item){
     if(!valid(game)||!item||!['tray','regular:tray'].includes(item.id))return item;
     mesh(game);if(!meshOwners.has(game.rend))return item;
-    const empty=eaten(game),fallback={...item,m:empty?'prisonRationEmpty':'prisonRationFull'};
+    // Match the regular-cell mess tin's readable 44 cm footprint. This is
+    // presentation only: the original floor center, solids and action stay put.
+    const factor=Math.max(1,.44/Math.abs(item.scale?.[0]||.44)),scale=item.scale?.map((v,i)=>i===1?v:v*factor);
+    const empty=eaten(game),fallback={...item,scale:scale||item.scale,m:empty?'prisonRationEmpty':'prisonRationFull'};
     return root.RationPhoto?root.RationPhoto.decorate(game,fallback,empty):fallback;
   }
   function install(c){
@@ -131,5 +154,5 @@
     return true;
   }
   function inspect(game){return {supported:valid(game),open:active(game),empty:eaten(game),mealObject:(game&&game.pow&&game.pow.objects||[]).find(o=>wrapped.has(o))?.id||null};}
-  root.PrisonFood=Object.freeze({install,prepare,decorate,open,consume,close,active,eaten,inspect});
+  root.PrisonFood=Object.freeze({install,prepare,decorate,open,consume,close,active,eaten,inspect,view});
 })(typeof window!=='undefined'?window:globalThis);

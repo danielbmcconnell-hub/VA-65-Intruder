@@ -4,6 +4,7 @@
 (function(root){
   'use strict';
   const TAU=Math.PI*2,VERSION=1,MAX_DT=.25,STEP=.05,SWIM_STROKE=.60;
+  const CANOPY_DIAMETER=8.52,EJECTION_SIDE_SPEED=16;
   const MODES=new Set(['descending','hung','falling','separated','searching','following','waiting','captured','rescued']);
   const ORDERS=new Set(['follow','wait']);
   const finite=(n,f=0)=>Number.isFinite(n)?n:f;
@@ -36,6 +37,14 @@
     // remain within a possible voice search; a minority can drift much farther.
     const close=random(s)<.7,spread=(close?.08+random(s)*.20:.45+random(s)*.55)*(random(s)<.5?-1:1),lead=role==='pilot'?.18:0,advance=role==='bn'?.18:0;
     const velocity=point(g.chute.v)?g.chute.v.slice():[0,12,0];
+    // Carry the seats apart while the nylon streams, before it blossoms.
+    // This is initial outward momentum in metres/second, not a position or
+    // rendering offset: the existing aerodynamic drag spends it smoothly.
+    // At the first two fully blossomed C-9 canopies this leaves roughly
+    // 13–17m between centres (each canopy is 8.52m across), including at
+    // low aircraft speed where sequence timing alone gives no clearance.
+    velocity[0]+=Math.cos(yaw)*side*EJECTION_SIDE_SPEED;
+    velocity[2]+=Math.sin(yaw)*side*EJECTION_SIDE_SPEED;
     // The B/N fires first. When the player occupies the pilot's seat, carry
     // that preceding 0.18-second trajectory forward instead of opening
     // two full canopies at the same centre point.
@@ -208,5 +217,5 @@
     if(typeof blocked==='function')proto._blockedAt=function(x,z,r,e){return blocked.apply(this,arguments)||blockedAt(this,x,z,r,e);};
     if(typeof sync==='function')proto.syncControls=function(){const result=sync.apply(this,arguments);hud(this);return result;};return true;
   }
-  root.AviatorCompanion=Object.freeze({configure,install,begin,step,command,actors,instances,blockedAt,view,snapshot,restore,assistance,movementFactor,prepareRescue,rescueLine,limits:Object.freeze({maxCompanions:1,maxStep:MAX_DT,reunionDistance:7,visualSearchDistance:32,callDistance:75,callCooldown:8,followDistance:2.7,helpDistance:3.2,maxMovementHelp:1.08,swimStrokeMetres:SWIM_STROKE})});
+  root.AviatorCompanion=Object.freeze({configure,install,begin,step,command,actors,instances,blockedAt,view,snapshot,restore,assistance,movementFactor,prepareRescue,rescueLine,limits:Object.freeze({maxCompanions:1,maxStep:MAX_DT,reunionDistance:7,visualSearchDistance:32,callDistance:75,callCooldown:8,followDistance:2.7,helpDistance:3.2,maxMovementHelp:1.08,swimStrokeMetres:SWIM_STROKE,canopyDiameterMetres:CANOPY_DIAMETER,ejectionSideSpeedMetresPerSecond:EJECTION_SIDE_SPEED})});
 })(typeof window!=='undefined'?window:globalThis);

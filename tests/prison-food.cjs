@@ -30,13 +30,21 @@ test('inspection closes safely when a mission, actor or captivity chapter is rep
   assert.equal(Food.active(game),false);assert.equal(original.modalOpen,undefined);assert.equal(Food.consume(game),false);
  }
 });
-test('food presentation keeps original tray position, dimensions, collision solids and interaction anchors',()=>{
+test('readable food presentation keeps original tray center, source dimensions, solids and interaction anchors',()=>{
  const {game,Food}=fixture(),before=clone({geo:game.campGeo,solids:game.pow.solids,objects:game.pow.objects.map(o=>({id:o.id,p:o.p,radius:o.radius}))});
- const tray=game.campGeo.find(x=>x.id==='tray'),full=Food.decorate(game,tray);assert.equal(full.m,'prisonRationFull');assert.deepEqual(clone(full.p),clone(tray.p));assert.deepEqual(clone(full.scale),clone(tray.scale));assert.equal(tray.m,'powMetal');
+ const tray=game.campGeo.find(x=>x.id==='tray'),full=Food.decorate(game,tray);assert.equal(full.m,'prisonRationFull');assert.deepEqual(clone(full.p),clone(tray.p));assert.ok(Math.abs(full.scale[0]-.44)<1e-10);assert.equal(full.scale[1],tray.scale[1]);assert.ok(Math.abs(full.scale[2]/full.scale[0]-tray.scale[2]/tray.scale[0])<1e-10);assert.equal(tray.m,'powMetal');
  game.pow.captivity.daily.meal=game.pow.day;assert.equal(Food.decorate(game,tray).m,'prisonRationEmpty');
  assert.deepEqual(clone({geo:game.campGeo,solids:game.pow.solids,objects:game.pow.objects.map(o=>({id:o.id,p:o.p,radius:o.radius}))}),before);
  const fullMesh=game.rend.meshes.prisonRationFull,empty=game.rend.meshes.prisonRationEmpty;assert.ok(fullMesh&&empty);assert.equal(fullMesh.calls.filter(c=>c[0]==='blob').length-empty.calls.filter(c=>c[0]==='blob').length,48);
  for(const m of [fullMesh,empty])for(const c of m.calls)assert.ok(c.slice(1).flat(Infinity).every(Number.isFinite));
+});
+test('ration cues report the real floor anchor, daily eligibility and next serving without changing state',()=>{
+ const {game,Food,object}=fixture(),before=clone(game.pow),v=Food.view(game);
+ assert.equal(v.object.id,'cell-tray');assert.deepEqual(clone(v.object.p),clone(object.p));assert.equal(v.empty,false);assert.match(v.instruction,/on the floor.*Look down; hold F \/ Interact/);assert.equal(v.nextDay,game.pow.day+1);
+ v.object.p[0]=0;assert.notEqual(object.p[0],0);assert.deepEqual(clone(game.pow),before);
+ object.action(game);Food.consume(game);Food.close();Food.prepare(game);assert.equal(Food.view(game).empty,true);assert.match(object.name,/Empty ration tin · next serving day 2/);assert.match(Food.view(game).instruction,/Next serving: day 2/);
+ game.pow.day++;Food.prepare(game);assert.equal(Food.view(game).empty,false);assert.match(object.name,/Daily ration/);
+ game.pow.stage='river';assert.equal(Food.view(game),null);
 });
 test('food view cannot bypass another modal, paused play or unsupported gameplay stages',()=>{
  const {game,Food,object}=fixture();game.pow.modalOpen=true;assert.equal(object.action(game),false);game.pow.modalOpen=false;game.paused=true;assert.equal(object.action(game),false);game.paused=false;game.pow.stage='river';assert.equal(object.action(game),false);assert.equal(Food.active(game),false);

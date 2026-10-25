@@ -38,6 +38,11 @@ const server=http.createServer((req,res)=>{
    const observed=await page.evaluate(()=>{const G=App.game;G.paused=false;for(let i=0;i<240;i++)G.update(1/60);G.paused=true;G.render(1/60);G.syncControls();return {mission:G.mis.id,quality:App.set.quality,shadowSize:G.rend.shadowSize,alive:G.ac.alive,onDeck:G.ac.onDeck,phase:G.phase,finite:[...G.ac.p,...G.ac.v].every(Number.isFinite),gpuError:G.rend.gl.getError(),webgl:G.rend.gl.getParameter(G.rend.gl.VERSION)}});
    if(cdp)await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});else await page.keyboard.up('Space');
    assert.ok(observed.alive&&observed.finite&&!observed.onDeck);assert.equal(observed.gpuError,0);assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
+   // Declared damage-event presentation fixture: original onHit creates its
+   // normal B/N call. It changes no aircraft health or mission objective.
+   const familyCall=await page.evaluate(()=>{const g=App.game,before={crew:{...g.ac.crew},score:{...g.world.score}};g.onHit(.4,'small-arms',g.ac.p.slice());return {before,after:{crew:{...g.ac.crew},score:{...g.world.score}},text:document.getElementById('radio').textContent};});
+   assert.match(familyCall.text,/We're in deep yogurt\./);assert.match(familyCall.text,/We are hit!/);assert.deepEqual(familyCall.after,familyCall.before);
+   checks.push({name:name+' packaged original damage call includes family-supplied B/N expression without changing flight state',passed:true,observed:familyCall});
    observed.photosDecoded=await page.evaluate(async()=>{const sources=[IMG_HERO,IMG_PHOTO,IMG_BN_STAND,IMG_BN_CROUCH,IMG_TIGER,...Object.values(PHOTOS).map(p=>p.s)];for(const src of sources){const im=new Image();im.src=src;await im.decode();if(!(im.naturalWidth>0&&im.naturalHeight>0))throw Error('Invalid photograph '+src)}return sources.length});assert.equal(observed.photosDecoded,17);
    assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
    await page.locator('#teach').dispatchEvent('click');
@@ -52,7 +57,7 @@ const server=http.createServer((req,res)=>{
    assert.equal(await toggle.getAttribute('aria-pressed'),'false');assert.equal(await page.evaluate(()=>FlightCoach.enabled(App.game)),false);
    const m24=await page.evaluate(()=>({ammunition:!!window.SurvivalAmmunition,board:!!window.FlightStrikeBoard,effects:!!window.FlightStrikeEffects,sortie:!!window.FlightSortieCheckpoint}));
    assert.ok(Object.values(m24).every(Boolean),'All new production modules must load from the exact package');
-   const realismModules=await page.evaluate(()=>Object.fromEntries(['VoiceProfiles','AircraftDetail','CarrierLaunch','MissionDemo','LandingWater','AviatorCompanion','Wildlife','WildlifeRender','WildlifeTargeting','JungleScenery','VisualClarity','FlightThreatFeedback','PrisonDetail','PrisonFood','RationPhoto','GroundItems','GroundItemsRender','CoastalScenery','HUDLayout'].map(name=>[name,!!window[name]])));
+   const realismModules=await page.evaluate(()=>Object.fromEntries(['VoiceProfiles','AircraftDetail','CarrierLaunch','MissionDemo','LandingWater','AviatorCompanion','Wildlife','WildlifeRender','WildlifeTargeting','JungleScenery','VisualClarity','FlightThreatFeedback','PrisonDetail','PrisonFood','RationPhoto','GroundItems','GroundItemsRender','CoastalScenery','HUDLayout','VillageDetail','CrewPersonality'].map(name=>[name,!!window[name]])));
    assert.ok(Object.values(realismModules).every(Boolean),'Every carrier, survival, wildlife, voice and demonstration module must load from the package');
    const groundArtwork=await page.evaluate(async()=>{const rows=[];for(const file of ['assets/firstperson/punch-left.webp','assets/firstperson/punch-right.webp','assets/items/pickups.webp','assets/firstperson/stick.webp','assets/firstperson/rifle.webp']){const image=new Image();image.src=file;await image.decode();rows.push({file,width:image.naturalWidth,height:image.naturalHeight});}return rows;});
    assert.equal(groundArtwork.length,5);assert.ok(groundArtwork.every(row=>row.width>=1024&&row.height>=600));

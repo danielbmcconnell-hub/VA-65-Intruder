@@ -65,6 +65,27 @@ test('an active established interval shows actual elapsed progress and its exist
 test('goals are scoped to solitary and do not replace ordinary cell, river or flight objectives',()=>{
  const f=fixture();for(const stage of ['cell','compound','regular','hanoi','river']){f.game.pow.stage=stage;assert.equal(f.G.view(f.game),null);}assert.equal(f.G.view({}),null);
 });
+test('standalone survival has seven durable earned tasks and a real finish without granting transfer, escape or a campaign outcome',()=>{
+ const f=fixture();f.game.pow.practice='solitary';const tick=seconds=>{for(let n=0;n<Math.ceil(seconds*10);n++)f.C.step(f.game,.1);};
+ let v=f.G.view(f.game);assert.equal(v.practice.total,7);assert.equal(v.practice.done,0);assert.match(v.next.text,/ration tin/i);
+ assert(f.C.meal(f.game));assert.equal(f.G.view(f.game).practice.done,1);
+ assert(f.C.memoryStart(f.game));tick(6);for(const position of f.c.memory.sequence.slice())assert(f.C.memoryInput(f.game,position));assert.equal(f.G.view(f.game).practice.done,2);
+ assert(f.C.exerciseStart(f.game));for(const side of ['left','right','left','right','left','right','left','right'])assert(f.C.exercisePress(f.game,side));f.c.open=true;f.c.tab='exercise';f.c.exercise.holding=true;tick(3.1);assert.equal(f.G.view(f.game).practice.done,3);
+ const enter=word=>{for(const pair of f.P.TapCode.encode(word)){for(const group of ['row','col'])for(let n=0;n<pair[group];n++){f.C.advance(f.game,.3,'clock');assert(f.C.tapHit(f.game,group));}assert(f.C.tapLetter(f.game));}assert(f.C.tapValidate(f.game));};
+ f.C.tapPlay(f.game);const incoming=f.c.tap.playback.word;tick(50);enter(incoming);assert.equal(f.G.view(f.game).practice.done,4);
+ f.c.tap.mode='send';f.c.tap.playback=null;f.c.tap.decoded='';f.c.tap.pair={row:0,col:0};enter(f.c.tap.sendWord);assert.equal(f.G.view(f.game).practice.done,5);
+ assert(f.C.restStart(f.game,'rest'));tick(8.1);v=f.G.view(f.game);assert.equal(v.practice.done,6);assert.match(v.next.text,/door slot/);f.C.inspectDoor(f.game);
+ v=f.G.view(f.game);assert.equal(v.practice.done,7);assert(v.practice.complete);assert.match(v.next.text,/PRACTICE COMPLETE/);assert(!v.transfer.ready);assert.equal(f.game.pow.stage,'solitary');assert.equal(f.game.pow.complete,undefined);assert.equal(f.game.pow.outcome,undefined);assert.equal(f.calls.begins.length,0);
+ const before=clone(f.game),calls=clone(f.calls);f.G.view(f.game);assert.deepEqual(clone(f.game),before);assert.deepEqual(f.calls,calls);
+ f.C.advance(f.game,1440,'clock');assert(f.G.view(f.game).practice.complete,'daily rollover must not erase the earned practice finish');
+ const saved=clone(f.c);f.game.pow.captivity=saved;assert(f.G.view(f.game).practice.complete,'saved original activity fields reconstruct completion without another flag');
+ delete f.game.pow.practice;assert.equal(f.G.view(f.game).practice,null,'campaign captivity keeps its original long-term outcome');
+});
+test('chapter wins name actual physical milestones and river recovery rather than calling a checkpoint freedom',()=>{
+ const f=fixture(),before=clone(f.game);f.game.pow.stage='regular';let c=f.G.chapter(f.game);assert.match(c.win,/outer boundary/);assert.match(c.continuation,/river/);assert.match(c.progress,/0\/3/);
+ f.game.pow.stage='river';f.game.pow.river={phase:'gulf',ship:{acknowledged:true}};c=f.G.chapter(f.game);assert.match(c.win,/brought aboard/);assert.match(c.progress,/2\/3/);assert.match(c.continuation,/within 5 m/);assert.equal(f.game.pow.complete,undefined);
+ f.game.pow.stage=before.pow.stage;delete f.game.pow.river;assert.deepEqual(clone(f.game),before);
+});
 function summaryFixture(){
  const f=fixture(),listeners=new Map(),node={open:false,activations:0,addEventListener(type,fn){const rows=listeners.get(type)||[];rows.push(fn);listeners.set(type,rows);},getBoundingClientRect(){return {left:0,top:0,right:120,bottom:44};},click(){return this.emit('click',{detail:0});},emit(type,fields={}){const event={type,detail:0,defaultPrevented:false,stopped:false,preventDefault(){this.defaultPrevented=true;},stopImmediatePropagation(){this.stopped=true;},...fields};for(const fn of listeners.get(type)||[]){fn(event);if(event.stopped)break;}if(type==='click'&&!event.defaultPrevented){this.open=!this.open;this.activations++;}return event;}};
  assert(f.G.bindSummaryTouch(node));return {...f,node};

@@ -899,12 +899,14 @@ body.pow-active.pow-field-equipment:not(.desktop) #btnFire{display:flex!importan
 <script src="assets/survival/wildlife.js"></script>
 <script src="assets/survival/wildlife-targeting.js"></script>
 <script src="assets/audio/voice-profiles.js"></script>
+<script src="assets/audio/crew-personality.js"></script>
 <script src="assets/survival/landing-water.js"></script>
 <script src="assets/survival/aviator-companion.js"></script>
 <script src="assets/flight/carrier-launch.js"></script>
 <script src="assets/flight/mission-demo.js"></script>
 <script src="assets/render/wildlife-render.js"></script>
 <script src="assets/render/jungle-scenery.js"></script>
+<script src="assets/render/village-detail.js"></script>
 <script src="assets/render/contact-shadows.js"></script>
 <script src="assets/render/quality-policy.js"></script>
 <script src="assets/survival/ground-view.js"></script>
@@ -6389,7 +6391,12 @@ function buildProps() {
         };
         const [r0, y0] = prof(t0), [r1, y1] = prof(t1);
         const p = (r, y, a) => [Math.cos(a) * r, y, Math.sin(a) * r];
-        if (j === RING - 1) {
+        if (j === 0) {
+          // A single crown vertex needs a triangle. A collapsed quad gave
+          // every crown vertex a zero normal; GLSL normalization then sent
+          // NaNs through HDR bloom and covered each canopy in a black tile.
+          m.tri(p(r0, y0, a0), p(r1, y1, a1), p(r1, y1, a0), col);
+        } else if (j === RING - 1) {
           // the apex vent: leave it open rather than closing the dome
           m.quad(p(r0, y0, a0), p(r0, y0, a1), p(r1 * 0.34, y1, a1), p(r1 * 0.34, y1, a0), col);
         } else {
@@ -7424,7 +7431,7 @@ class World {
       if (list === undefined) { list = this._makeCell(ci, cj, CELL); this._cells.set(key, list); }
       for (let k = 0; k < list.length; k++) {
         const s = list[k];
-        push(s.m, s.p, [s.y, 0, 0], [s.s, s.s * (s.sy || 1), s.s], s.t || [1, 1, 1, 0]);
+        push(s.village ? 'villageHouse' : s.m, s.p, [s.y, 0, 0], [s.s, s.s * (s.sy || 1), s.s], s.t || [1, 1, 1, 0]);
       }
     }
   }
@@ -7516,7 +7523,7 @@ class World {
           const h = terrainH(x, z);
           if (h < 6) continue;
           const bt = rnd1(k + 41);
-          out.push({ m: 'bldg', p: [x, h, z], y: rnd1(k * 3 + 22) * TAU, s: 0.20 + rnd1(k + 40) * 0.15,
+          out.push({ m: 'bldg', village: true, p: [x, h, z], y: rnd1(k * 3 + 22) * TAU, s: 0.20 + rnd1(k + 40) * 0.15,
             t: [0.80 + bt * 0.44, 0.78 + bt * 0.40, 0.72 + bt * 0.40, 0], sy: 0.86 + bt * 0.34 });
           if (rnd1(k + 90) < 0.6)
             out.push({ m: 'bamboo', p: [x + rnd(-16, 16), h - 0.4, z + rnd(-16, 16)],
@@ -13357,6 +13364,7 @@ const App = {
   },
 
   radio(who, msg, cls, lang, say) {
+    if (!say && (!lang || lang === 'en-US')) msg = CrewPersonality.line(this.game, who, msg);
     const r = $('#radio');
     /* The crew talk in whatever controls the player has in front of
        him: on a phone 'G, or the SMOKE key' is a key that is not
@@ -14023,9 +14031,9 @@ class Game {
     const mine = (who === 'pilot') !== this.rightSeat;   // was it the player's own seat
     /* Who is left to say anything. In the right seat the other man is the
        pilot, LCDR Turczyn, and he is named. In the left seat the other man
-       is the bombardier/navigator — McConnell — and he is not: that mouth
-       is not mine to put words in. Either way the voice you hear is never
-       the one that has just been hit, which was the bug here. */
+       is the bombardier/navigator — McConnell. Operational dialogue is
+       dramatized; the family-supplied expressions are added separately by
+       CrewPersonality. The existing injury exchange keeps its speaker. */
     const other = this.rightSeat ? 'TURCZYN' : 'B/N';
     if (now <= 0) {
       if (mine) {
@@ -14110,10 +14118,10 @@ class Game {
        they were doing different jobs, so there are two sets.
 
        The pilot is named because his B/N's son gave me the name and
-       asked for it. The B/N is not: in the left seat the man beside you
-       is McConnell, and putting invented words in that mouth is not
-       mine to do. He is 'B/N' on the intercom, which is what the
-       squadron would have written on the schedule anyway. */
+       asked for it. In the left seat the man beside you is McConnell.
+       His family supplied the expressions in CrewPersonality; their
+       situational use here is dramatized. The operational role remains
+       'B/N' on the intercom. */
     const R = this.rightSeat, who = R ? 'TURCZYN' : 'B/N';
     const say = (key, line, cls, cool) => this.pilotSay(key, line, cls, cool, who);
 
@@ -14391,9 +14399,12 @@ class Game {
         ? 'STICK SWIMS — RUN MAKES A STRONGER STROKE · RADIO CALLS FOR RESCUE · SMOKE SIGNALS THE HELICOPTER'
         : 'W SWIMS — SHIFT MAKES A STRONGER STROKE · R CALLS FOR RESCUE · G SIGNALS WITH SMOKE';
       if(e.weaponMode==='rifle')return (IS_TOUCH?'FIRE BUTTON':'T / LEFT CLICK FIRES')+' · '+GroundItems.rifleAmmo(this)+' RIFLE ROUNDS · BOTH HANDS OCCUPIED · SUPPLIES TO STOW';
-      if(e.weaponMode==='knife')return (IS_TOUCH?'STAB BUTTON USES THE KNIFE':'T / LEFT CLICK STABS')+' · SPACE PUNCHES WITH THE EMPTY HAND'+(e.hasPistol?' · F DRAWS THE .38':'');
+      if(e.weaponMode==='knife'){
+        const use=e.fitting&&!e.hasKnife?'STRIKE FITTING':'STAB KNIFE';
+        return (IS_TOUCH?use+' BUTTON':'T / LEFT CLICK: '+use)+' · '+(IS_TOUCH?'PUNCH FREE HAND':'SPACE: FREE-HAND PUNCH')+(e.hasPistol?' · '+(IS_TOUCH?'PISTOL SELECTS .38':'F: DRAW .38'):'');
+      }
       if(e.weaponMode==='stick')return (IS_TOUCH?'STRIKE BUTTON SWINGS THE BRANCH':'T / LEFT CLICK SWINGS THE BRANCH')+' · SPACE PUNCHES WITH THE EMPTY HAND';
-      if (e.drawn) return (IS_TOUCH?'FIRE BUTTON':'T / LEFT CLICK FIRES')+' · SPACE PUNCHES WITH THE EMPTY HAND · F HOLSTERS · V KNIFE';
+      if (e.drawn) return (IS_TOUCH?'FIRE .38 BUTTON':'T / LEFT CLICK: FIRE .38')+' · '+e.rounds+' ROUNDS · '+(IS_TOUCH?'PUNCH FREE HAND · FISTS: HOLSTER':'SPACE: FREE-HAND PUNCH · F: HOLSTER');
       if (e.radio < 1) return 'R WORKS THE SURVIVAL RADIO — W walks, SHIFT runs (and runs is seen)  ·  F draws the .38';
       const dp = Math.hypot(e.pickup[0] - e.p[0], e.pickup[1] - e.p[2]);
       return 'GET TO THE PICKUP — ' + Math.round(dp) + ' m  ·  stay in cover, moving is what they see';
@@ -16191,10 +16202,17 @@ class Game {
       if(!hit||hit.distance>contact.reach+(hit.isCow?.55:0))continue;
       const o=hit.actor;GroundItems.observe(this,o);
       o.flinch=this.t;o.stunUntil=this.t+1.1;o.hurt=1;o.kick={a:e.hdg,v:1.25};
+      // Accepted fist contact records real lasting damage just like other
+      // hits; its existing short stun, response and drop rules still apply.
+      o.wounds=(o.wounds||0)+1;
       if(hit.isCow){o.walk=3;this._panicAtCow(e,o);}
       else if(o.armed){o.seen=1;o.sus=1.35;o.goal=e.p.slice();}
       GroundItems.dropped(this,o);
       e.noise=Math.max(e.noise||0,.33);A.audio.burst('thunk',.18);
+      if(this.t-(e._lastPunchHitT??-99)>2.5){
+        e._lastPunchHitT=this.t;
+        A.radio('CREW',hit.isCow?'The cow is hurt. Give it room.':'Punch landed. He is hurt. Move.','warn');
+      }
     }
     return event;
   }
@@ -17621,6 +17639,7 @@ class Game {
     prepareGroundEcology(this);
     PhotoCutouts.beginFrame(R);
     JungleScenery.beginFrame(this,R);
+    VillageDetail.beginFrame(this,R);
     updateWildlifeStatus(this);
     R.surfacePolish = FlightStrikeScene.active(this) || !!this.evade ? 1 : 0;
     FlightStrikeExperience.render(this);
@@ -17774,6 +17793,10 @@ class Game {
     let vegetationSprites = 0;
     const push = (mesh, p, rot, s, tint) => {
       if(JungleScenery.queue(this,R,mesh,p,s))return;
+      if(mesh===VillageDetail.marker){
+        const village=VillageDetail.describe(this,R,{m:mesh,p,rot,scale:s,tint});
+        if(!village)return;mesh=village.m;s=village.scale;tint=village.tint;
+      }
       const photo = PhotoSprites.identity({kind:mesh});
       if (photo) {
         if (this.evade && !this.evade.camp &&
@@ -17790,13 +17813,9 @@ class Game {
         // Wait for the correct atlas rather than substituting another person.
         return;
       }
-      /* PHOTOGRAPHIC FOLIAGE — limited to close ground-level encounters.
-         The 3D trees remain in flight and at distance: their geometry casts
-         real shadows, looks correct from above and costs less to render.
-         Down in the fields the canopy, palms and bamboo are photograph
-         cut-outs instead of geometric green blobs. Eight variations per kind,
-         shared UV grid (8 columns x 6 rows) and camera-facing depth-tested
-         billboards. A budget keeps this pass safe on iPhones. */
+      /* Legacy atlas fallback for unavailable whole botanical sources.
+         JungleScenery consumes ready exterior plants in ground, captivity,
+         flight and chute views before this point, with bounded LOD. */
       if (this.evade && vegetationSprites < (IS_TOUCH ? 140 : 240) &&
           R.textures && R.textures.photo_vegetation &&
           (mesh === 'tree' || mesh === 'palm' || mesh === 'bamboo' || mesh === 'bush')) {
@@ -18249,9 +18268,11 @@ class Game {
     }
     if(fb)fb.classList.toggle('on',!!(e5 && (e5.weaponMode||'fists')==='fists'));
     const fireBtn=$('#btnFire');if(fireBtn){
-      const selected=e5?.weaponMode||'fists',action={pistol:'FIRE',rifle:'FIRE',knife:'STAB',stick:'STRIKE',fists:'PUNCH'}[selected]||'PUNCH';
-      fireBtn.textContent=action;
-      fireBtn.title=(IS_TOUCH?'Tap ':'T / left click: ')+action.toLowerCase()+' with '+selected+'. Space punches with a free hand.';
+      const selected=e5?.weaponMode||'fists',fitting=selected==='knife'&&e5?.fitting&&!e5?.hasKnife;
+      const action=fitting?'STRIKE':{pistol:'FIRE',rifle:'FIRE',knife:'STAB',stick:'STRIKE',fists:'PUNCH'}[selected]||'PUNCH';
+      const tool=fitting?'FITTING':{pistol:'.38',rifle:'RIFLE',knife:'KNIFE',stick:'BRANCH',fists:''}[selected]||'';
+      fireBtn.textContent=action+(tool?' '+tool:'');
+      fireBtn.title=(IS_TOUCH?'Tap to ':'T / left click: ')+action.toLowerCase()+(tool?' '+tool.toLowerCase():'')+'. '+(IS_TOUCH?'Punch free hand uses an empty hand.':'Space punches with a free hand.');
       fireBtn.setAttribute('aria-label',fireBtn.title);
     }
     /* The radio and the smoke, which is the whole rescue, told the same
@@ -18486,6 +18507,7 @@ function dryJungleAt(x,z){
   return JungleScenery.habitat(fbm(x*.00021+11.7,z*.00021+11.7,3),fbm(x*.00006+3.7,z*.00006-2.1,3));
 }
 JungleScenery.configure({terrainH,jungle:dryJungleAt});
+VillageDetail.configure({MB});
 WildlifeRender.configure({terrainH,program,glsl:GLSL_NOISE+GLSL_ATMOS+GLSL_SHADOW});
 // New local trunks share the existing swept collision solver. Placement checks
 // use the original static query above so a trunk never rejects itself.
@@ -18653,16 +18675,15 @@ const WILDLIFE_PRACTICE_KINDS=Object.freeze([
   ['forest','Forest walk','FOREST']
 ]);
 function prepareGroundEcology(game){
-  const renderer=game&&game.rend,e=game&&game.evade;if(!renderer||!e)return;
-  if(LandingWater.swimming(game))return;
-  if(game.pow||e.camp){renderer._loadLegacyVegetation?.();return;}
+  const renderer=game&&game.rend,e=game&&game.evade;if(!renderer)return;
   const options={touch:IS_TOUCH,current:()=>game.app.rend===renderer};
   if(!renderer._jungleRequested){
     renderer._jungleRequested=true;
     JungleScenery.load(renderer,options).then(()=>{
-      if(game.app.rend===renderer&&!JungleScenery.ready(renderer))renderer._loadLegacyVegetation?.();
+      if(game.app.rend===renderer&&(!JungleScenery.ready(renderer)||JungleScenery.inspect(game,renderer).failures.some(f=>JungleScenery.kinds.includes(f.kind))))renderer._loadLegacyVegetation?.();
     }).catch(()=>{if(game.app.rend===renderer)renderer._loadLegacyVegetation?.();});
   }
+  if(!e||game.pow||e.camp||LandingWater.swimming(game))return;
   if(!e.river&&!renderer._wildlifeRequested){
     renderer._wildlifeRequested=true;WildlifeRender.load(renderer,options);
   }

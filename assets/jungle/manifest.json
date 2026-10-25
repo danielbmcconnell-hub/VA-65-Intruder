@@ -1,5 +1,12 @@
 {
   "version": 1,
+  "crown": {
+    "file": "canopy-crown.webp",
+    "width": 1254,
+    "height": 1254,
+    "gpuHigh": 512,
+    "gpuTouch": 448
+  },
   "floor": {
     "file": "forest-floor.webp",
     "width": 1254,

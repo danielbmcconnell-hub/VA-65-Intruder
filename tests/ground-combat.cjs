@@ -35,3 +35,36 @@ test('a contextual climb cancels an unfinished punch instead of releasing its ol
 test('contact counts are equal at30/60/120Hz and delayed steps remain bounded',()=>{for(const hz of [30,60,120]){const g=punchFixture();let contacts=0;for(let i=0;i<hz;i++){const r=M.stepPunch(g,1/hz,true);contacts+=r.contacts.length;}assert.equal(contacts,1);assert.equal(M.inspectPunch(g).serial,1);}const g=punchFixture();M.stepPunch(g,.01,true);assert.equal(M.stepPunch(g,10,true).contacts.length,1);assert.equal(M.inspectPunch(g).right.age,M.punchLimits.maxStep);});
 test('new actors and explicit reset cannot retain an old arm, edge or contact',()=>{const g=punchFixture();M.stepPunch(g,.01,true);g.evade={p:[1,0,0],weaponMode:'fists'};assert.equal(M.inspectPunch(g),null);const r=M.stepPunch(g,.01,true);assert.equal(r.started.hand,'right');assert.equal(r.contacts.length,0);assert.equal(M.resetPunch(g),true);assert.equal(M.inspectPunch(g),null);});
 test('invalid punch time cannot accept an edge or mutate saved actor fields',()=>{const g=punchFixture(),before=JSON.stringify(g.evade);for(const dt of [0,-1,NaN,Infinity])assert.equal(M.stepPunch(g,dt,true).started,null);assert.equal(M.inspectPunch(g).down,false);assert.equal(M.inspectPunch(g).clock,0);assert.equal(JSON.stringify(g.evade),before);assert.equal(M.stepPunch(g,.01,true).started.hand,'right');});
+
+test('production fist contact records one persistent wound per accepted contact and preserves range LOS and firearm ammunition',()=>{
+ const source=fs.readFileSync(require('node:path').join(__dirname,'../index.html'),'utf8'),start=source.indexOf('  _handPunch(dt,e,A,K,blocked=false) {'),end=source.indexOf('\n  _weapons(',start);
+ assert.ok(start>0&&end>start);
+ const handPunch=vm.runInNewContext('({'+source.slice(start,end)+'})',{GroundCombat:M,terrainH:()=>0,GroundView:{eyeHeight:()=>1.68},PhotoSprites:{describe:()=>({h:1.76})},GroundItems:{observe(){},dropped(){}},POW:{los:()=>true}})._handPunch;
+ const moveStart=source.indexOf('    for (const s of e.searchers) {\n      if (!s.alive) continue;\n      if(s.stunUntil'),moveEnd=source.indexOf('      const dm = Math.hypot(',moveStart);
+ assert.ok(moveStart>0&&moveEnd>moveStart);
+ // Execute the unchanged country-searcher movement/stun block itself. The
+ // damage test does not substitute a copied speed formula for the real AI.
+ const moveNPC=vm.runInNewContext('(function(dt,e){'+source.slice(moveStart,moveEnd)+'\n}})',{terrainH:()=>5,rnd:()=>0});
+ for(const {distance=1.6,clear=true,mode='fists',accepted=true}of [{},{distance:2.3,accepted:false},{clear:false,accepted:false},{mode:'pistol'},{mode:'knife'}]){
+  const g=punchFixture(),a={...actor(0,0,-distance),armed:true};g.evade={...g.evade,hdg:0,look:-.16,searchers:[a],locals:[],cattle:[],hasPistol:true,hasKnife:true,weaponMode:mode,drawn:mode==='pistol'?1:0,rounds:6};g.rend={eye:[0,1.68,0]};g._groundLineOfSight=()=>clear;
+  const sounds=[],messages=[],A={audio:{burst:(...args)=>sounds.push(args)},radio:(...args)=>messages.push(args)},K={Space:true};g._localSolidAt=()=>false;
+  for(let n=0;n<120;n++){g.t+=1/120;handPunch.call(g,1/120,g.evade,A,K);}
+  assert.equal(a.wounds||0,accepted?1:0);assert.equal(!!a.hurt,accepted);assert.equal(g.evade.rounds,6);assert.equal(a.alive,true);
+  assert.equal(sounds.length,accepted?1:0,'A held press cannot replay accepted damage');
+  assert.equal(messages.length,accepted?1:0,'Only accepted physical contact reports a landed punch');
+  if(accepted){
+   assert.ok(a.stunUntil>0&&a.kick.v===1.25);assert.equal(a.armed,true);assert.equal(a.seen,1);assert.deepEqual(Array.from(a.goal),g.evade.p);
+   const frozen=a.p.slice();g.t+=.05;moveNPC.call(g,.05,g.evade);assert.deepEqual(a.p,frozen);assert.equal(a.spd,0,'The actual struck NPC cannot walk during its original stun');
+   K.Space=false;handPunch.call(g,1/120,g.evade,A,K);K.Space=true;
+   for(let n=0;n<80;n++){g.t+=1/120;handPunch.call(g,1/120,g.evade,A,K);}
+   assert.equal(a.wounds,2,'A second fresh physical contact accumulates persistent damage');
+   assert.equal(g.evade.rounds,6);assert.equal(a.alive,true);
+   assert.equal(messages.length,1,'Rapid repeated contacts do not flood the existing radio');
+   g.t=a.stunUntil+.1;
+   const unhurt={...a,p:a.p.slice(),goal:a.goal.slice(),hurt:0,stunUntil:0,flinch:0},hurtStart=a.p.slice(),unhurtStart=unhurt.p.slice();
+   moveNPC.call(g,.1,{...g.evade,searchers:[a]});moveNPC.call(g,.1,{...g.evade,searchers:[unhurt]});
+   const hurtTravel=Math.hypot(a.p[0]-hurtStart[0],a.p[2]-hurtStart[2]),unhurtTravel=Math.hypot(unhurt.p[0]-unhurtStart[0],unhurt.p[2]-unhurtStart[2]);
+   assert.ok(unhurtTravel>0);assert.ok(Math.abs(hurtTravel/unhurtTravel-.55)<1e-8,'After the stun, the wounded NPC really travels at55% of the matched unhurt pursuer');
+  }
+ }
+});

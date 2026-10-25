@@ -44,7 +44,9 @@
     "test:prison-detail": "node --test tests/prison-detail.cjs && node tests/run-browser.cjs --suite=prison-detail",
     "test:jungle-fidelity": "node --test tests/jungle-scenery.cjs tests/wildlife-assets.cjs && node tests/run-browser.cjs --suite=jungle-fidelity",
     "test:ground-items:domain": "node --test tests/ground-items.cjs tests/ground-items-render.cjs tests/ground-combat.cjs tests/equipment-view.cjs",
-    "test:ground-items": "node --test tests/ground-items.cjs tests/ground-items-render.cjs tests/ground-combat.cjs tests/equipment-view.cjs && node tests/run-browser.cjs --suite=ground-items"
+    "test:ground-items": "node --test tests/ground-items.cjs tests/ground-items-render.cjs tests/ground-combat.cjs tests/equipment-view.cjs && node tests/run-browser.cjs --suite=ground-items",
+    "test:jungle-training:domain": "node --test tests/jungle-scenery.cjs tests/wildlife-assets.cjs tests/confinement-goals.cjs tests/prison-food.cjs tests/ration-photo.cjs tests/aviator-companion.cjs tests/landing-water.cjs tests/mission-demo.cjs tests/solitary-demo.cjs tests/captivity-keyboard.cjs tests/crew-personality.cjs tests/village-detail.cjs",
+    "test:jungle-training": "npm run test:jungle-training:domain && node tests/run-browser.cjs --suite=jungle-world && node tests/run-browser.cjs --suite=ration-visibility && node tests/run-browser.cjs --suite=aviator-opening && node tests/run-browser.cjs --suite=confinement-goals && node tests/run-browser.cjs --suite=mission-demo-tutorial && node tests/run-browser.cjs --suite=solitary-presentation && node tests/run-browser.cjs --suite=village-detail"
   },
   "devDependencies": {
     "playwright": "1.62.1"
