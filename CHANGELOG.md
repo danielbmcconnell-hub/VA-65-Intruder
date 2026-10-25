@@ -1,3 +1,11 @@
+# Coastal scenery and clearer controls
+
+- Repaired measured shoreline/terrain overlap and clarified B/N navigation, designation and consent by phase.
+- Restored explicit V knife/F pistol/T primary controls, visible STAB/FIRE and native pointer lock. Space keeps free-hand punches; holding T does not repeatedly spend rounds.
+- Added compact panel ownership, readable crew captions, Camp controls and authoritative solitary condition/goals. Existing crew/artwork and prior releases remain available.
+- Verified 1055 CPU cases/87 programs, 177 checks across 9 named native suites, all 12 successful mission outcomes and 25 packaged checks over 313 actual runtime files. These are scoped checks, not the full browser registry or physical-device FPS.
+- [Detailed release notes and private download](releases/coastline-scenery-notes.md).
+
 # Guided Dixie strike
 
 - Added an optional complete B/N-led version of existing Mission 02, with full carrier launch or a short airborne practice start, clearer task guidance, original ripple/reattack controls, actual-position observation and earned flight checkpoints.

@@ -1,3 +1,11 @@
+# Coastal scenery, clearer controls and B/N guidance — latest complete game
+
+[Download the private complete-game ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/archive/refs/heads/coastline-scenery-site.zip) (GitHub sign-in required). [Controls, verification and limits](coastline-scenery-notes.md) · [Current scoped evidence](coastline-scenery-tests.json) · [Reviewed current views](coastline-scenery-screenshots/).
+
+Includes explicit knife/pistol primary actions and free-hand punches, compact panels/captions, solitary condition/goals, B/N phase guidance and complete demonstrations. Current verification records 1055 CPU cases, 177 checks across 9 named native suites, all 12 outcomes and 25 packaged checks/313 actual runtime files. It does not claim the full 52-suite registry, physical iPhone Safari or hardware FPS. No live deployment was performed.
+
+The older release entries below are preserved unchanged.
+
 # Clarity, movement and night/prison realism — latest complete game
 
 [Download the private complete-game ZIP](https://github.com/danielbmcconnell-hub/VA-65-Intruder/archive/refs/heads/night-realism-site.zip) (GitHub sign-in required). [Report and local play](../docs/NIGHT_REALISM_REPORT.md) · [Reviewed renderer images](night-realism-screenshots/) · [Original scoped test evidence](night-realism-tests.json).

@@ -1,5 +1,9 @@
 # Intruder: Yankee Station — Codex handoff
 
+The latest complete private game is on `coastline-scenery`: [download](https://github.com/danielbmcconnell-hub/VA-65-Intruder/archive/refs/heads/coastline-scenery-site.zip) · [controls, verification and limits](releases/coastline-scenery-notes.md). It improves coast rendering, compact panels, solitary goals, selected-weapon input and B/N guidance. On foot with the equipment carried: V knife, F pistol/contextual pickup, T or STAB/FIRE uses the weapon, Space punches with a free hand. Actual iPhone Safari remains untested.
+
+Earlier release history and the original handoff follow unchanged.
+
 The photographic movement, useful pickups, aircraft, jungle and prison realism release is on `night-realism`. See [the current report](docs/NIGHT_REALISM_REPORT.md) for the private complete-game download, source-bound verification and graphics/device limits. Actual iPhone Safari remains untested.
 
 The preceding combined wildlife, jungle, carrier and survival release remains on `wildlife-jungle`. See [its report](docs/WILDLIFE_JUNGLE_AND_CARRIER_REPORT.md) for source-bound verification, the private complete-game download and scope limits. Actual iPhone Safari remains untested.
