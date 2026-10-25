@@ -6,7 +6,7 @@ const ROOT=path.resolve(__dirname,'..');
 const sha=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
 async function snapshot(){const files=['index.html'];async function walk(dir){for(const e of await fs.readdir(path.join(ROOT,dir),{withFileTypes:true})){const f=dir+'/'+e.name;if(e.isDirectory())await walk(f);else if(/\.(js|css|json|glsl)$/.test(f))files.push(f);}}await walk('assets');const result={};for(const file of files.sort())result[file]=sha(await fs.readFile(path.join(ROOT,file)));return result;}
 module.exports=async function photoMotionLoadingBrowser(browser,target,evidenceDir){
- const OUT=path.join(evidenceDir,'photo-motion-loading'),before=await snapshot(),checks=[],sourceHashes=[],executedHTTP=[],screenshots=[],errors=[],missing=[];
+ const OUT=path.join(evidenceDir,'photo-motion-loading'),before=await snapshot(),checks=[],sourceHashes=[],executedHTTP=[],screenshots=[],errors=[],missing=[],bodyReadFailures=[];
  await fs.mkdir(OUT,{recursive:true});
  try{
   for(const profile of [{name:'desktop',viewport:{width:1280,height:720}},{name:'iphone-layout-chromium',viewport:{width:844,height:390},deviceScaleFactor:3,isMobile:true,hasTouch:true}]){
@@ -14,11 +14,11 @@ module.exports=async function photoMotionLoadingBrowser(browser,target,evidenceD
    const gate=new Promise(r=>release=r),gateB=new Promise(r=>releaseB=r),seenB=new Promise(r=>signalB=r);page.setDefaultTimeout(90000);
    await context.route('**/assets/sprites/hires/nva-walk-c.webp',async route=>{seen=true;await gate;await route.continue();});
    await context.route('**/assets/sprites/hires/nva-walk-b.webp',async route=>{signalB();await gateB;await route.continue();});
-   page.on('pageerror',error=>errors.push({profile:name,error:error.message}));page.on('response',response=>{
+   page.on('pageerror',error=>errors.push({profile:name,error:error.message}));const observeResponse=response=>{
     if(!response.url().startsWith(target))return;const file=new URL(response.url()).pathname.slice(1);
     if(response.status()>=400)missing.push({profile:name,file,status:response.status()});
-    if(/\.(js|css|json|glsl|png|webp)$/.test(file)&&response.status()===200)jobs.push(response.body().then(bytes=>executedHTTP.push({profile:name,file,sha256:sha(bytes)})));
-   });
+    if(/\.(js|css|json|glsl|png|webp)$/.test(file)&&response.status()===200)jobs.push(response.body().then(bytes=>executedHTTP.push({profile:name,file,sha256:sha(bytes)})).catch(error=>bodyReadFailures.push({profile:name,file,error:String(error)})));
+   };page.on('response',observeResponse);
    try{
     await context.addInitScript(touch=>{localStorage.setItem('a6_set',JSON.stringify({quality:touch?1:2,sound:0,voices:0,seat:0,assist:1,mouse:0}));localStorage.setItem('a6_sawkeys','1');const raf=requestAnimationFrame.bind(window);window.requestAnimationFrame=cb=>window.__loadingFixturePaused?0:raf(t=>{if(!window.__loadingFixturePaused)cb(t);});},!!options.hasTouch);
     const response=await page.goto(target,{waitUntil:'domcontentloaded'});sourceHashes.push({layout:name,indexSHA256:sha(await response.body())});
@@ -60,12 +60,16 @@ module.exports=async function photoMotionLoadingBrowser(browser,target,evidenceD
     const resources=await page.evaluate(()=>({photos:PhotoCutouts.inspect(App.rend),gl:App.rend.gl.getError()}));assert.ok(resources.photos.bytes<=resources.photos.budget);assert.ok(resources.photos.motions.cpuBytes<=resources.photos.motions.cpuBudget);assert.deepEqual(resources.photos.failures,[]);assert.deepEqual(resources.photos.motions.failures,[]);assert.equal(resources.gl,0);
     checks.push({profile:name,name:'Delayed decode uses live production textures within the unchanged GPU/CPU budgets',passed:true,actual:resources});await page.waitForLoadState('networkidle');await Promise.all(jobs);
     console.log('PASS '+name+' delayed-plate production GPU hold and resume');
-   }finally{release();releaseB();await context.close();}
+   }finally{release();releaseB();
+    // End capture before retiring its page, then drain every observed body.
+    // A late prefetch response must not outlive the owning context.
+    page.off('response',observeResponse);await Promise.all(jobs);await context.close();
+   }
   }
   const after=await snapshot();assert.deepEqual(after,before);const bound={...before};for(const row of executedHTTP){if(!bound[row.file])bound[row.file]=sha(await fs.readFile(path.join(ROOT,row.file)));assert.equal(row.sha256,bound[row.file],row.file+' actual HTTP bytes');}for(const row of sourceHashes)assert.equal(row.indexSHA256,before['index.html']);
-  assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);const report={suite:'photo-motion-loading',passed:true,sourceStable:true,fullCoverage:true,sourceSHA256:bound,sourceHashes,executedHTTP,checks,screenshots,errors,missing,scope:'Real delayed local image response and production WebGL2 after native Mission01 startup; isolated photographic actor/camera and explicit simulation pause fixture. Both Chromium layouts, not AI navigation, physical iPhone Safari or hardware FPS.'};
+  assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);assert.deepEqual(bodyReadFailures,[]);const report={suite:'photo-motion-loading',passed:true,sourceStable:true,fullCoverage:true,sourceSHA256:bound,sourceHashes,executedHTTP,checks,screenshots,errors,missing,bodyReadFailures,scope:'Real delayed local image response and production WebGL2 after native Mission01 startup; isolated photographic actor/camera and explicit simulation pause fixture. Both Chromium layouts, not AI navigation, physical iPhone Safari or hardware FPS.'};
   await fs.writeFile(path.join(OUT,'results.json'),JSON.stringify(report,null,2)+'\n');return report;
- }catch(error){await fs.writeFile(path.join(OUT,'results.failed.json'),JSON.stringify({passed:false,error:error.stack,checks,sourceHashes,executedHTTP,errors,missing},null,2)+'\n');throw error;}
+ }catch(error){await fs.writeFile(path.join(OUT,'results.failed.json'),JSON.stringify({passed:false,error:error.stack,checks,sourceHashes,executedHTTP,errors,missing,bodyReadFailures},null,2)+'\n');throw error;}
 };
 if(require.main===module)(async()=>{
  const {chromium}=require('playwright'),{createServer}=require('../tools/dev-server.cjs'),server=createServer();await new Promise(r=>server.listen(0,'127.0.0.1',r));
