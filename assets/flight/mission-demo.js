@@ -42,11 +42,11 @@
   m1:{goal:'Launch, fly the carrier circuit and catch an arresting wire.',route:['Launch and climb','Find the moving carrier','Configure gear and hook','Fly ball, lineup and angle of attack'],features:'Catapult · VDI and radar altitude · TACAN/DME · carrier recovery'},
   m2:{goal:'Destroy the required supply-depot targets, then recover aboard.',route:['Take route fixes','Identify and designate the depot','Hold consent through the release solution','Check impacts, then return'],features:'Chart and radar fixes · designation · ASQ-61 steering and release · impact assessment',focus:{acquire:'Compare the depot returns with the briefing before locking.',attack:'Keep the steering needle centered; the computer releases only through its real solution.'}},
   m3:{goal:'Destroy the highway bridge and bring the crew back to the ship.',route:['Launch and establish the low route','Check terrain clearance','Designate and attack the bridge','Return and recover'],features:'VDI terrain display · radar altitude · bridge designation · stabilized release',focus:{navigation:'Read radar altitude and the VDI together; barometric height is not terrain clearance.'}},
-  m4:{goal:'Sink the hostile patrol craft and recover aboard.',route:['Find the surface contacts','Identify the hostile boats','Track and attack moving targets','Confirm sinkings, then return'],features:'Maritime radar · moving-target lead · live impact count · carrier recovery',focus:{acquire:'Identify the briefed patrol boats before designating a contact.',attack:'Keep the moving boat tracked: its motion changes the release solution.'}},
+  m4:{goal:'Sink the hostile patrol craft and recover aboard.',route:['Find the surface contacts','Identify the hostile boats','Track and attack one boat with SINGLE releases','Confirm sinkings, then return'],features:'Maritime radar · moving-target lead · SINGLE point releases · carrier recovery',controls:{attack:'R → SINGLE (keyboard) · hold SPACE / COMMIT'},focus:{acquire:'Identify the briefed patrol boats before designating a contact.',attack:'Keep the moving boat tracked and confirm SINGLE. R cycles release quantity on keyboard; one point shot avoids an area ripple around a small craft.'}},
   m5:{goal:'Destroy the POL storage in poor weather and complete the instrument recovery.',route:['Use route checkpoints to reduce navigation error','Designate the briefed coordinates','Fly a stable blind attack','Return using the recovery instruments'],features:'Radar fixes and SYS ERR · coordinate designation · blind release · Case III recovery',focus:{navigation:'Watch SYS ERR after each checkpoint fix; navigation error carries into a coordinate attack.',acquire:'The target does not paint through the weather. Use the briefed coordinate ring.'}},
   m6:{goal:'Destroy the required rolling stock and return safely.',route:['Navigate to the railway target','Use the scope to designate rolling stock','Assess actual bomb impacts','Egress and recover'],features:'Radar target comparison · bombing solution · live target count · damage and recovery',focus:{assess:'Wait for the bombs to hit; a release alone does not complete the rolling-stock objective.'}},
   m7:{goal:'Destroy the truck park while clearing the mountain route, then recover.',route:['Follow the mountain route','Use radar altitude to clear rising ground','Attack and assess the truck park','Watch fuel and return'],features:'Mountain navigation · VDI and radar altitude · target assessment · return planning',focus:{navigation:'Use the VDI and radar altitude to clear the mountain route before concentrating on the target.'}},
-  m8:{goal:'Destroy the emitting Fan Song radar and its launchers, then recover.',route:['Approach from standoff','Fire an ARM only while the radar emits','Attack the launchers with conventional stores','Assess both objectives and return'],features:'Emitter indication · Standard ARM · separate launcher attack · objective checklist',focus:{arm:'An emitting radar permits the ARM shot. Destroying it does not destroy the launchers.',attack:'Check the separate launcher objective after the radar is silenced.'}},
+  m8:{goal:'Destroy the emitting Fan Song radar and its launchers, then recover.',route:['Depart low, then climb outside the SAM envelope','Fire an ARM only while the radar emits','Attack the launchers with conventional stores','Assess both objectives and return'],features:'Low offshore departure · emitter indication · Standard ARM · separate launcher attack',focus:{arm:'An emitting radar permits the ARM shot. Destroying it does not destroy the launchers.',attack:'Check the separate launcher objective after the radar is silenced.'}},
   m9:{goal:'Identify every surface contact, release no weapons and recover.',route:['Follow the identification track','Pass close and low enough to identify each contact','Keep every weapon aboard','Return and catch a wire'],features:'Surface identification · range and altitude checks · weapons discipline · carrier recovery',focus:{identify:'Watch each contact become identified through the actual pass. Leave attack consent released.'}},
   m10:{goal:'Destroy the storage area and make a controlled recovery.',route:['Navigate and designate','Fly the release solution','Confirm the required destruction','Return to the moving deck'],features:'Radar designation · release consent · target count · instrument recovery',focus:{home:'Use TACAN/DME to find the moving carrier and establish the approach before the groove.'}},
   m11:{goal:'Survive ejection and captivity, then demonstrate the playable escape route.',route:['Eject and descend','Follow capture and transfer','Earn the bracket, door opening and rope','Cross the roof, reach the river and signal offshore'],features:'Dual-crew ejection · capture transition · held interactions · stealth · swimming and fatigue',focus:{cell:'Search the bunk, then hold the door-fitting interaction until the opening is earned.',roof:'Collect the actual rope before using the outside-wall hook.',river:'Watch fatigue and patrols. Float with the current when safe; use swimming for the offshore approach.',gulf:'Approach the contact and hold the signal. This successful continuation is explicitly fictional.'}},
@@ -80,8 +80,9 @@
  function lesson(g,stageId){
   const m=g?.mis||ctx?.missions.find(m=>m.id===session?.missionId);if(!m)return null;
   const id=stageId||record(g)?.stage||'launch',plan=LESSONS[m.id]||{goal:(m.obj||[]).map(o=>o[0]).join('; '),route:[],features:'Follow the briefing and the actual objective checklist.'},guide=GUIDES[id]||GUIDES.navigation;
-  const rows=g?objective(g):[],done=rows.filter(o=>o[2]).length;
-  return {missionId:m.id,title:m.title||m.id,goal:plan.goal,route:plan.route.slice(),features:plan.features,stage:id,control:guide[0],watch:plan.focus?.[id]||guide[1],objectives:rows,completed:done,total:rows.length};
+  const rows=g?objective(g):[],done=rows.filter(o=>o[2]).length,s=record(g);
+  const armDeparture=m.type==='ironhand'&&id==='arm'&&s&&!s.armStandoffReady;
+  return {missionId:m.id,title:m.title||m.id,goal:plan.goal,route:plan.route.slice(),features:plan.features,stage:id,control:armDeparture?'Flight controls · stay low offshore, then climb':plan.controls?.[id]||guide[0],watch:armDeparture?(s.armDepartureClear?'Outside 26.5 km, climb to the terrain-clear ARM altitude before turning toward the radar.':'The crew stays about 145 m clear of terrain until beyond the SAM tracking envelope.'):plan.focus?.[id]||guide[1],objectives:rows,completed:done,total:rows.length};
  }
  function record(g){return g&&states.get(g);}
  function current(g){const s=record(g);return !!(s&&session===s&&ctx&&ctx.App.game===g);}
@@ -186,6 +187,9 @@
   const w=g.world,ac=g.ac,app=ctx.App;s.command=null;app.gctl.commit=0;
   if(g.phase==='arresting'){stage(s,'landing','The hook has caught a real wire. The moving deck and arresting gear bring the aircraft to a stop before the original debrief decides the mission outcome.');return;}
   if(ac.onDeck){stage(s,g.wire?'landing':'launch');return;}
+  if(ac.alive!==false&&!g.ejected&&['airborne','recovery'].includes(g.phase)&&ac.p[1]>=25&&finite(ac.crew?.pilot,1)<=0&&finite(ac.crew?.bn,1)>0){
+   s.abortDetail='The pilot can no longer fly. The surviving aviator uses the original ejection control; unfinished objectives remain incomplete.';stage(s,'emergency',s.abortDetail);app.gctl.commit=0;action(s,g,()=>g.eject(),0);return;
+  }
   if(ac.gear&&ac.p[1]>100&&!g.aclsCoupled&&!['home','landing'].includes(s.stage))action(s,g,()=>app.toggleGear(),1);
   if(g.mis.id==='m6')g.apAGL=145;
   if(g.mis.type==='ironhand')g.apAGL=w.radar?.alive?(ac.arms<=0&&!w.arms?.length?145:700):1700;
@@ -204,7 +208,11 @@
   if(g.mis.type==='carrier_only'&&!g.departed){stage(s,'departure');const c=w.carrier,heading=c.hdg,p=[c.p[0]+Math.sin(heading)*11500,0,c.p[2]-Math.cos(heading)*11500];s.command=targetCommand(g,p,460,250);return;}
   if(emergency(g,s))return;
   const emitter=g.mis.type==='ironhand'&&w.radar?.alive&&(ac.arms>0||w.arms?.length),shotAltitude=emitter?emitterAltitude(g,w.radar.p):null;
-  if(emitter&&!s.armStandoffReady){if(!s.armStandoffPoint){const c=w.carrier?.p||ac.p,dx=c[0]-w.radar.p[0],dz=c[2]-w.radar.p[2],d=Math.max(1,Math.hypot(dx,dz));s.armStandoffPoint=[w.radar.p[0]+dx/d*30000,0,w.radar.p[2]+dz/d*30000];}if(flat(ac.p,w.radar.p)>=23500&&ac.p[1]>=Math.max(1700,shotAltitude+100)&&Math.abs(ac.v[1])<10)s.armStandoffReady=true;}
+  if(emitter&&!s.armStandoffReady){
+   if(!s.armStandoffPoint){const c=w.carrier?.p||ac.p,dx=c[0]-w.radar.p[0],dz=c[2]-w.radar.p[2],d=Math.max(1,Math.hypot(dx,dz));s.armStandoffPoint=[w.radar.p[0]+dx/d*35000,0,w.radar.p[2]+dz/d*35000];}
+   if(flat(ac.p,w.radar.p)>=26500)s.armDepartureClear=true;
+   if(s.armDepartureClear&&flat(ac.p,w.radar.p)>=26500&&ac.p[1]>=Math.max(1700,shotAltitude+100)&&Math.abs(ac.v[1])<10)s.armStandoffReady=true;
+  }
   const staging=emitter&&!s.armStandoffReady;
   if(emitter&&!staging&&ac.arms>0&&!w.arms?.length&&ac.p[1]>=shotAltitude&&flat(ac.p,w.radar.p)<23000&&w.radar.emitting&&Math.abs(angle(Math.atan2(w.radar.p[0]-ac.p[0],-(w.radar.p[2]-ac.p[2]))-ac.yaw))<25*DEG&&(s.lastArm===undefined||s.elapsed-s.lastArm>5)){app.gctl.commit=1;s.lastArm=s.elapsed;}
   if(emitter&&w.arms?.length){
@@ -218,7 +226,10 @@
    const bearing=Math.atan2(incoming.p[0]-ac.p[0],-(incoming.p[2]-ac.p[2])),heading=bearing+(angle(ac.yaw-bearing)>=0?Math.PI/2:-Math.PI/2),p=[ac.p[0]+Math.sin(heading)*10000,0,ac.p[2]-Math.cos(heading)*10000];
    let safe=highest(g,p,90);for(const d of [250,500,1000,1800,2600,4000])safe=Math.max(safe,finite(ctx.terrainH(ac.p[0]+Math.sin(ac.yaw)*d,ac.p[2]-Math.cos(ac.yaw)*d))+90);s.command=targetCommand(g,p,emitter?Math.max(safe,shotAltitude+120):safe,410);return;
   }
-  if(staging){stage(s,'arm','The carrier starts inside the radar threat envelope. The crew first turns offshore and climbs to a standoff position, then approaches facing the emitter for a terrain-clear ARM shot before entering the original SAM firing range.');s.command=targetCommand(g,s.armStandoffPoint,Math.max(highest(g,s.armStandoffPoint,1800),shotAltitude+150),340);return;}
+  if(staging){
+   stage(s,'arm',s.armDepartureClear?'The crew has physically cleared 26.5 km from the radar. It climbs toward a 35 km standoff outside the SAM envelope, then turns in for a terrain-clear ARM shot.':'The carrier starts inside the radar threat envelope. The crew turns offshore at about 145 m terrain clearance; it waits until beyond 26.5 km before climbing into radar view.');
+   s.command=targetCommand(g,s.armStandoffPoint,s.armDepartureClear?Math.max(highest(g,s.armStandoffPoint,1800),shotAltitude+150):highest(g,s.armStandoffPoint,145),340);return;
+  }
   if(g.egressCalled||doneCombat(g)){s.command=home(g,s);return;}
   if(ac.dmg?.diane>.8){stage(s,'failed','DIANE has failed and the original LOCK control cannot designate the remaining objectives. The demonstration is paused without a successful outcome. Take the controls or stop this practice.');s.auto=false;s.paused=true;g.paused=true;g.rightSeat=false;clearInput(s);return;}
   if(g.mis.type==='recce'){
@@ -243,7 +254,7 @@
    stage(s,'acquire');const p=s.lastImpact>0||g.mis.type==='ironhand'?target.p:(w.blind?w.sysPos(w.briefed):w.oap?.p||target.p);if(!designated)s.command=targetCommand(g,p,highest(g,p,g.mis.id==='m6'||g.mis.type==='ironhand'&&w.radar?.alive?145:g.mis.type==='ironhand'?1700:650),300);
    action(s,g,()=>{if(slew(g,p,true)){s.retarget=false;s.aimTarget=target;}},1);return;
   }
-  stage(s,'attack');g.ripple=Math.min(g.mis.type==='ironhand'?1:w.targets.length<=2?4:2,ac.bombs);app.gctl.commit=!g.sol||g.sol.tRel>=-.035?1:0;if(!app.gctl.commit)s.detail='The release point has passed without a clean solution. Consent is withdrawn; the crew keeps its bombs and makes another normal run.';else s.detail='';
+  stage(s,'attack');g.ripple=Math.min(g.mis.type==='ironhand'||g.mis.type==='maritime'?1:w.targets.length<=2?4:2,ac.bombs);app.gctl.commit=!g.sol||g.sol.tRel>=-.035?1:0;if(!app.gctl.commit)s.detail='The release point has passed without a clean solution. Consent is withdrawn; the crew keeps its bombs and makes another normal run.';else s.detail='';
  }
  function navigate(g,s,p,dt,stop=.75){
   const e=g.evade,dx=p[0]-e.p[0],dz=p[2]-e.p[2],d=Math.hypot(dx,dz),desired=Math.atan2(dx,-dz),he=angle(desired-e.hdg);g.app.gctl.roll=clamp(he*2,-1,1);g.app.gctl.pitch=d>stop&&Math.abs(he)<.8?1:0;g.app.gctl.crouch=g.pow?.stage==='compound';return d<=stop;
@@ -304,7 +315,7 @@
  }
  function before(g,s,dt){
   clearInput(s);s.elapsed+=dt;s.stageTime+=dt;g.rightSeat=!g.pow;
-  if(g.pow||g.evade)ground(g,s,dt);else if(!g.chute)flight(g,s,dt);else{stage(s,'eject');if(g.chute.landing?.mode==='hung')g.app.keys.KeyV=1;}
+  if(g.pow||g.evade)ground(g,s,dt);else if(!g.chute)flight(g,s,dt);else{stage(s,'eject',s.abortDetail);if(g.chute.landing?.mode==='hung')g.app.keys.KeyV=1;}
  }
  function after(g,s){const outcome=completed(g);if(outcome)finish(g,outcome);}
  function snapshot(g=session&&session.game){const s=g?record(g):session;if(!s)return {active:false};return {active:!s.finished,missionId:s.missionId,computerPlaying:!!s.auto,paused:!!s.paused,speed:s.speed,elapsed:s.elapsed,stage:s.stage,stageTime:s.stageTime,pending:!!s.pending,success:!!s.success,finished:!!s.finished,detail:s.detail||'',events:s.events.map(e=>({...e})),objectives:g?objective(g):[],outcome:copy(s.outcome||null),campaignIsolated:!!s.active};}

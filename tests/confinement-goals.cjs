@@ -65,3 +65,29 @@ test('an active established interval shows actual elapsed progress and its exist
 test('goals are scoped to solitary and do not replace ordinary cell, river or flight objectives',()=>{
  const f=fixture();for(const stage of ['cell','compound','regular','hanoi','river']){f.game.pow.stage=stage;assert.equal(f.G.view(f.game),null);}assert.equal(f.G.view({}),null);
 });
+function summaryFixture(){
+ const f=fixture(),listeners=new Map(),node={open:false,activations:0,addEventListener(type,fn){const rows=listeners.get(type)||[];rows.push(fn);listeners.set(type,rows);},getBoundingClientRect(){return {left:0,top:0,right:120,bottom:44};},click(){return this.emit('click',{detail:0});},emit(type,fields={}){const event={type,detail:0,defaultPrevented:false,stopped:false,preventDefault(){this.defaultPrevented=true;},stopImmediatePropagation(){this.stopped=true;},...fields};for(const fn of listeners.get(type)||[]){fn(event);if(event.stopped)break;}if(type==='click'&&!event.defaultPrevented){this.open=!this.open;this.activations++;}return event;}};
+ assert(f.G.bindSummaryTouch(node));return {...f,node};
+}
+const finger=(pointerId=1,x=10,y=10)=>({pointerType:'touch',pointerId,clientX:x,clientY:y});
+test('a released touch opens the original summary even when navigation suppressed its compatibility click',()=>{
+ const {node}=summaryFixture();node.emit('pointerdown',finger());node.emit('pointerup',finger());assert.equal(node.open,true);assert.equal(node.activations,1);
+ const duplicate=node.emit('click',{detail:1,pointerType:'touch'});assert(duplicate.defaultPrevented);assert.equal(node.open,true);assert.equal(node.activations,1);
+ node.emit('pointerdown',finger());node.emit('pointerup',finger());assert.equal(node.open,false);assert.equal(node.activations,2);
+});
+test('summary touch deduplication preserves keyboard/programmatic clicks and real mouse activation',()=>{
+ const {node}=summaryFixture();node.emit('pointerdown',finger());node.emit('pointerup',finger());node.click();assert.equal(node.activations,2);node.emit('click',{detail:1,pointerType:'mouse'});assert.equal(node.activations,3);
+});
+test('dragging or releasing outside a summary cannot activate it through the fallback or a later compatibility click',()=>{
+ for(const mode of ['drag','outside']){const {node}=summaryFixture();node.emit('pointerdown',finger());if(mode==='drag')node.emit('pointermove',finger(1,35,10));node.emit('pointerup',mode==='outside'?finger(1,150,10):finger(1,35,10));const duplicate=node.emit('click',{detail:1,pointerType:'touch'});assert(duplicate.defaultPrevented);assert.equal(node.activations,0);}
+});
+test('cancelled, lost-capture and multi-touch summary gestures do not toggle a menu',()=>{
+ for(const type of ['pointercancel','lostpointercapture']){const {node}=summaryFixture();node.emit('pointerdown',finger());node.emit(type,finger());node.emit('pointerup',finger());const duplicate=node.emit('click',{detail:1,pointerType:'touch'});assert(duplicate.defaultPrevented);assert.equal(node.activations,0);}
+ const {node}=summaryFixture();node.emit('pointerdown',finger(1));node.emit('pointerdown',finger(2));node.emit('pointerup',finger(2));node.emit('pointerup',finger(1));assert.equal(node.activations,0);
+});
+test('a secondary touch cannot open a summary while another control owns the primary touch',()=>{
+ const {node}=summaryFixture(),secondary={...finger(2),isPrimary:false};node.emit('pointerdown',secondary);node.emit('pointerup',secondary);const duplicate=node.emit('click',{detail:1,pointerType:'touch'});assert(duplicate.defaultPrevented);assert.equal(node.activations,0);
+});
+test('a reused summary cannot acquire a second fallback listener and double-toggle',()=>{
+ const {G,node}=summaryFixture();assert.equal(G.bindSummaryTouch(node),false);node.emit('pointerdown',finger());node.emit('pointerup',finger());assert.equal(node.activations,1);
+});

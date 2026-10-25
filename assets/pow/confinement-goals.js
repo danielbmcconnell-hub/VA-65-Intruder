@@ -4,7 +4,7 @@
  'use strict';
  const P=root.POW;if(!P)throw Error('POW core must load before confinement goals.');
  const finite=(n,d=0)=>Number.isFinite(n)?n:d,clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
- const PROJECTS=['car','architecture','city','memory'];let installed=false;
+ const PROJECTS=['car','architecture','city','memory'],touchSummaries=new WeakSet();let installed=false;
  function view(game){
   const s=game&&game.pow,c=s&&s.captivity;if(!s||!c||s.stage!=='solitary')return null;
   const stats=s.stats||{},day=Math.max(1,finite(s.day,1)),rewards=c.rewards||{},daily=c.daily||{},tap=c.tap||{},vent=c.vent||{};
@@ -44,6 +44,33 @@
  function current(){return P.ctx&&P.ctx.App&&P.ctx.App.game;}
  function blurInside(node){const a=root.document.activeElement;if(a&&node.contains(a)&&a.blur)a.blur();}
  function closeMenu(menu){if(!menu)return;menu.open=false;blurInside(menu);}
+ function bindSummaryTouch(summary){
+  if(!summary||typeof summary.addEventListener!=='function'||touchSummaries.has(summary))return false;
+  touchSummaries.add(summary);let press=null,touchClickUntil=0;
+  summary.addEventListener('pointerdown',event=>{
+   if(event.pointerType!=='touch')return;
+   if(event.isPrimary===false){if(press)press.moved=true;touchClickUntil=Date.now()+700;return;}
+   if(press&&press.id!==event.pointerId){press.moved=true;return;}
+   press={id:event.pointerId,x:event.clientX,y:event.clientY,moved:false};
+  });
+  summary.addEventListener('pointermove',event=>{if(press&&press.id===event.pointerId&&Math.hypot(event.clientX-press.x,event.clientY-press.y)>7)press.moved=true;});
+  const cancel=event=>{if(press&&press.id===event.pointerId){touchClickUntil=Date.now()+700;press=null;}};
+  summary.addEventListener('pointercancel',cancel);summary.addEventListener('lostpointercapture',cancel);
+  summary.addEventListener('pointerup',event=>{
+   const p=press;if(!p)return;touchClickUntil=Date.now()+700;
+   if(p.id!==event.pointerId){p.moved=true;return;}
+   press=null;const r=summary.getBoundingClientRect();
+   if(p.moved||event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)return;
+   // Touch look/joystick navigation can suppress the compatibility click.
+   // A released tap activates the original summary once, like POW buttons.
+   summary.click();
+  });
+  summary.addEventListener('click',event=>{
+   const touch=event.pointerType==='touch'||event.sourceCapabilities?.firesTouchEvents||!event.pointerType&&!event.sourceCapabilities;
+   if(event.detail>0&&touch&&Date.now()<touchClickUntil){event.preventDefault();event.stopImmediatePropagation();}
+  },true);
+  return true;
+ }
  function attachHUD(){
   const u=P.ui;if(!root.document||!u||u.confinementGoals)return;
   const tools=u.root.querySelector('.pow-tools'),menu=el('details',undefined,'pow-tools-menu'),summary=el('summary','Camp menu'),actions=el('div',undefined,'pow-menu-actions');
@@ -51,6 +78,7 @@
   const row=el('div',undefined,'pow-goals-toolbar'),condition=u.header.querySelector('.pow-condition'),button=el('button','Goals / progress','pow-goals-open');button.type='button';button.setAttribute('data-confinement-goals','');button.addEventListener('click',()=>{const g=current();if(g&&P.Captivity){closeMenu(menu);P.Captivity.open(g,'goals');}});
   if(condition)row.appendChild(condition);row.appendChild(button);u.header.insertBefore(row,u.river||null);
   if(condition)condition.addEventListener('toggle',()=>{if(condition.open)closeMenu(menu);});
+  for(const node of [summary,condition&&condition.querySelector('summary'),u.settings&&u.settings.querySelector('summary')])bindSummaryTouch(node);
   u.confinementGoals={row,button,condition,summary:condition&&condition.querySelector('summary'),menu,lastGame:null};
  }
  function renderHUD(game){
@@ -100,5 +128,5 @@
   },true);
   return true;
  }
- P.ConfinementGoals=Object.freeze({view,renderHUD,renderPanel,install});install();
+ P.ConfinementGoals=Object.freeze({view,renderHUD,renderPanel,install,bindSummaryTouch});install();
 })(typeof window!=='undefined'?window:globalThis);

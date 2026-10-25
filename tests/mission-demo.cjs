@@ -66,7 +66,7 @@ test('a low SAM egress never overrides the established carrier approach altitude
 test('ARM consent waits for a real terrain-clear shot and observes its flight before spending the second missile',()=>{
  const f=fixture({terrain:(x,z)=>z< -5000&&z> -9000?450:5}),g=f.start('m8');g.mis.type='ironhand';g.ac.onDeck=false;g.ac.gear=false;g.ac.p=[0,120,0];g.ac.arms=2;g.world.radar={p:[0,50,-12000],alive:true,emitting:true};g.world.targets=[g.world.radar];g.world.arms=[];
  const height=f.M.emitterAltitude(g,g.world.radar.p);assert.ok(height>1000);g.update(.02);assert.equal(g.app.gctl.commit,0);assert.equal(g.ac.arms,2);assert.equal(g.world.radar.alive,true);
- g.ac.p=[0,0,14000];g.ac.p[1]=Math.max(1800,f.M.emitterAltitude(g,g.world.radar.p)+150);g.update(.02);g.ac.p[2]=10000;g.ac.p[1]=Math.max(g.ac.p[1],f.M.emitterAltitude(g,g.world.radar.p)+150);const prior=f.calls.length;g.update(.02);assert.ok(f.calls.slice(prior).some(c=>c[0]==='simulation'&&c[3]===1));g.world.arms=[{p:[0,height,-1000]}];for(let i=0;i<30;i++)g.update(.25);assert.equal(g.app.gctl.commit,0);assert.ok(f.calls.filter(c=>c[0]==='simulation').at(-1)[2].alt<height,'crew descends after actual launch instead of waiting high');g.world.arms=[];g.world.radar.emitting=false;g.update(.02);assert.equal(g.app.gctl.commit,0);assert.equal(f.M.snapshot(g).success,false);f.M.stop(false);
+ g.ac.p=[0,0,15000];g.ac.p[1]=Math.max(1800,f.M.emitterAltitude(g,g.world.radar.p)+150);g.update(.02);g.ac.p[2]=10000;g.ac.p[1]=Math.max(g.ac.p[1],f.M.emitterAltitude(g,g.world.radar.p)+150);const prior=f.calls.length;g.update(.02);assert.ok(f.calls.slice(prior).some(c=>c[0]==='simulation'&&c[3]===1));g.world.arms=[{p:[0,height,-1000]}];for(let i=0;i<30;i++)g.update(.25);assert.equal(g.app.gctl.commit,0);assert.ok(f.calls.filter(c=>c[0]==='simulation').at(-1)[2].alt<height,'crew descends after actual launch instead of waiting high');g.world.arms=[];g.world.radar.emitting=false;g.update(.02);assert.equal(g.app.gctl.commit,0);assert.equal(f.M.snapshot(g).success,false);f.M.stop(false);
 });
 test('a missed release gate conserves stores instead of consenting to a late overshoot',()=>{
  const f=fixture(),g=f.start('m8');g.mis.type='ironhand';g.ac.onDeck=false;g.ac.gear=false;g.world.designated=g.world.targets[0];g.sol={tRel:-.8,valid:true,az:.01};const bombs=g.ac.bombs,health=g.world.targets[0].hp;g.update(.02);assert.equal(g.app.gctl.commit,0);assert.equal(g.ac.bombs,bombs);assert.equal(g.world.targets[0].hp,health);g.sol.tRel=8;g.update(.02);assert.equal(g.app.gctl.commit,1);f.M.stop(false);
@@ -139,12 +139,35 @@ test('an off-scope offset point receives a real navigation command while LOCK is
  const f=fixture(),g=f.start('m8');g.ac.onDeck=false;g.ac.gear=false;g.mis.type='ironhand';g.world.oapLocked=true;g.world.oap={p:[10000,5,-15000]};g.update(.02);const command=f.calls.filter(c=>c[0]==='simulation').at(-1)[2];assert.equal(command.ias,300);assert.ok(command.alt>1600);assert.ok(f.calls.includes('lock'));assert.equal(g.world.targets[0].hp,55);f.M.stop(false);
 });
 test('ARM release requires a forward radar aspect and Coker climbs clear of ordinary light guns before the original scripted missile',()=>{
- const f=fixture(),g=f.start('m8');g.mis.type='ironhand';g.ac.onDeck=false;g.ac.gear=false;g.ac.arms=2;g.ac.p=[0,2200,14000];g.ac.yaw=Math.PI;g.world.radar={p:[0,5,-12000],alive:true,emitting:true};g.world.arms=[];g.update(.02);assert.equal(g.app.gctl.commit,0);g.ac.yaw=0;g.ac.p[2]=10000;const prior=f.calls.length;g.update(.02);assert.ok(f.calls.slice(prior).some(c=>c[0]==='simulation'&&c[3]===1));f.M.stop(false);
+ const f=fixture(),g=f.start('m8');g.mis.type='ironhand';g.ac.onDeck=false;g.ac.gear=false;g.ac.arms=2;g.ac.p=[0,2200,15000];g.ac.yaw=Math.PI;g.world.radar={p:[0,5,-12000],alive:true,emitting:true};g.world.arms=[];g.update(.02);assert.equal(g.app.gctl.commit,0);g.ac.yaw=0;g.ac.p[2]=10000;const prior=f.calls.length;g.update(.02);assert.ok(f.calls.slice(prior).some(c=>c[0]==='simulation'&&c[3]===1));f.M.stop(false);
  const h=f.start('m11');h.mis.escape=true;h.ac.onDeck=false;h.ac.gear=false;h.update(.02);assert.ok(f.calls.filter(c=>c[0]==='simulation').at(-1)[2].alt>=1700);assert.equal(h._samDone,undefined);assert.equal(h.ac.alive,true);f.M.stop(false);
 });
 
-test('Iron Hand earns an offshore standoff before turning toward the radar, while original missiles and target health remain intact',()=>{
- const f=fixture({terrain:()=>-60}),g=f.start('m8');g.mis.type='ironhand';g.ac.onDeck=false;g.ac.gear=false;g.ac.arms=2;g.ac.p=[8000,100,0];g.world.radar={p:[-12000,5,0],alive:true,hp:40,emitting:true};g.world.arms=[];const before=clone({p:g.ac.p,radar:g.world.radar,arms:g.ac.arms});g.update(.02);const command=f.calls.filter(c=>c[0]==='simulation').at(-1)[2];assert.ok(Math.sin(command.hdg)>.99,'normal pilot first flies offshore');assert.ok(command.alt>=1800);assert.equal(g.app.gctl.commit,0);assert.deepEqual(clone({p:g.ac.p,radar:g.world.radar,arms:g.ac.arms}),before);assert.equal(g.result,null);f.M.stop(false);
+test('Iron Hand departs below SAM acquisition altitude before climbing at an offshore standoff',()=>{
+ const f=fixture({terrain:()=>-60}),g=f.start('m8');g.mis.type='ironhand';g.ac.onDeck=false;g.ac.gear=false;g.ac.arms=2;g.ac.p=[8000,100,0];g.world.radar={p:[-12000,5,0],alive:true,hp:40,emitting:true};g.world.arms=[];const before=clone({p:g.ac.p,radar:g.world.radar,arms:g.ac.arms});g.update(.02);const command=f.calls.filter(c=>c[0]==='simulation').at(-1)[2];assert.ok(Math.sin(command.hdg)>.99,'normal pilot first flies offshore');assert.equal(command.alt,145,'remain below the original250m SAM acquisition gate over clear water');assert.equal(g.app.gctl.commit,0);assert.deepEqual(clone({p:g.ac.p,radar:g.world.radar,arms:g.ac.arms}),before);assert.match(f.M.lesson(g,'arm').watch,/145 m/);assert.equal(g.result,null);f.M.stop(false);
+});
+
+test('Iron Hand climbs only after actual radar range clears26.5km and then turns in with the original ARM gate',()=>{
+ const f=fixture({terrain:()=>-60}),g=f.start('m8');g.mis.type='ironhand';g.ac.onDeck=false;g.ac.gear=false;g.ac.arms=2;g.ac.p=[14000,100,0];g.ac.v=[0,0,0];g.world.radar={p:[-12000,5,0],alive:true,hp:40,emitting:true};g.world.arms=[];
+ g.update(.02);assert.equal(f.calls.filter(c=>c[0]==='simulation').at(-1)[2].alt,145,'26km is still inside the low-departure phase');
+ g.ac.p=[15000,100,0];const position=g.ac.p.slice();g.update(.02);const climb=f.calls.filter(c=>c[0]==='simulation').at(-1)[2];assert.ok(climb.alt>=1800);assert.ok(Math.sin(climb.hdg)>.99);assert.match(f.M.lesson(g,'arm').watch,/climb.*ARM altitude/);assert.deepEqual(g.ac.p,position);assert.equal(g.ac.arms,2);assert.equal(g.world.radar.hp,40);
+ g.ac.p=[15000,1800,0];g.update(.02);const inbound=f.calls.filter(c=>c[0]==='simulation').at(-1)[2];assert.ok(Math.sin(inbound.hdg)<-.99,'only the physically high and distant aircraft turns toward the emitter');assert.equal(g.app.gctl.commit,0,'still outside original23km firing gate');assert.equal(g.result,null);f.M.stop(false);
+});
+
+test('one locked maritime point uses SINGLE without area-ripple scatter or pre-awarded target damage',()=>{
+ const f=fixture(),g=f.start('m4');g.mis.type='maritime';g.ac.onDeck=false;g.ac.gear=false;g.ripple=2;g.world.targets=Array.from({length:3},(_,i)=>({kind:'boat',p:[500+i*1500,0,-12000],spd:16,yaw:1,alive:true,hp:60}));g.world.designated=g.world.targets[0];g.world.lock=true;g.sol={valid:true,tRel:4,az:0};const before=clone({targets:g.world.targets,bombs:g.ac.bombs,p:g.ac.p});
+ g.update(.02);assert.equal(g.ripple,1);assert.equal(g.app.gctl.commit,1);assert.deepEqual(clone({targets:g.world.targets,bombs:g.ac.bombs,p:g.ac.p}),before);assert.match(f.M.lesson(g,'attack').control,/R.*SINGLE.*SPACE/);assert.match(f.M.lesson(g,'attack').watch,/one point shot/);assert.equal(g.result,null);f.M.stop(false);
+});
+
+test('a living airborne BN uses original ejection when the pilot dies without granting unfinished objectives',()=>{
+ const f=fixture({terrain:()=>-60}),g=f.start('m8');g.phase='airborne';g.ac.onDeck=false;g.ac.gear=false;g.ac.p=[8000,500,0];g.update(.02);assert.ok(f.calls.includes('lock'),'ordinary designation just used the shared action timer');g.ac.crew.pilot=0;g.ac.crew.bn=1;let ejected=0;g.eject=()=>{ejected++;g.ejected=true;g.chute={};g.phase='chute';};const before=clone({targets:g.world.targets,crew:g.ac.crew,p:g.ac.p});
+ g.update(.02);assert.equal(ejected,1);assert.equal(f.M.snapshot(g).stage,'eject');assert.ok(f.M.snapshot(g).events.some(e=>e.stage==='emergency'));assert.match(f.M.snapshot(g).detail,/unfinished objectives remain incomplete/);assert.equal(g.app.gctl.commit,0);assert.deepEqual(clone({targets:g.world.targets,crew:g.ac.crew,p:g.ac.p}),before);assert.equal(g.objState()[0][2],false);assert.equal(g.result,null);f.M.stop(false);
+});
+
+test('pilot-loss emergency respects deck, minimum ejection height and original aircraft eligibility',()=>{
+ for(const options of [{onDeck:true,phase:'deck',height:21,alive:true},{onDeck:false,phase:'airborne',height:24,alive:true},{onDeck:false,phase:'dead',height:500,alive:false}]){
+  const f=fixture(),g=f.start('m8');g.ac.onDeck=options.onDeck;g.phase=options.phase;g.ac.p[1]=options.height;g.ac.alive=options.alive;g.ac.crew.pilot=0;let ejected=0;g.eject=()=>ejected++;g.update(.02);assert.equal(ejected,0,JSON.stringify(options));assert.equal(g.result,null);f.M.stop(false);
+ }
 });
 
 test('completed practice keeps later POW saves and preferences isolated until Stop or leave',()=>{
