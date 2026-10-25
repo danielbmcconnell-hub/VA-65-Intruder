@@ -8,7 +8,7 @@ module.exports=async function(browser,target,evidenceDir){
  for(const profile of [{name:'desktop',viewport:{width:1280,height:720},deviceScaleFactor:1},{name:'iphone-layout-chromium',viewport:{width:844,height:390},deviceScaleFactor:3,isMobile:true,hasTouch:true}]){
   const {name,...options}=profile,context=await browser.newContext(options),page=await context.newPage();
   const record=(name2,actual)=>{checks.push({name:name+' '+name2,passed:true,actual});console.log('PASS ground-combat '+name+' '+name2)};
-  const shot=async label=>{await page.evaluate(()=>{App.game.render(0);App.game.syncControls();if(App.rend.gl.getError())throw Error('GL capture error')});await page.screenshot({path:path.join(out,name+'-'+label+'.png'),timeout:90000});screenshots.push('ground-combat/'+name+'-'+label+'.png')};
+  const shot=async label=>{await page.evaluate(()=>{FlightCoach.tick(App.game,0);App.game.render(0);App.game.syncControls();if(App.rend.gl.getError())throw Error('GL capture error')});await page.screenshot({path:path.join(out,name+'-'+label+'.png'),timeout:90000});screenshots.push('ground-combat/'+name+'-'+label+'.png')};
   page.on('pageerror',e=>errors.push({profile:name,error:e.message}));page.on('response',r=>{if(r.url().startsWith(target)&&r.status()>=400)missing.push(r.url())});
   try{
    await context.addInitScript(()=>{localStorage.setItem('a6_set',JSON.stringify({quality:0,sound:0,voices:0,mouse:0,seat:0,assist:1,sens:1}));localStorage.setItem('a6_sawkeys','1')});
@@ -68,7 +68,16 @@ module.exports=async function(browser,target,evidenceDir){
    if(!options.hasTouch){assert.ok(actionButton.rect.height<=44);assert.match(actionButton.keyboardHint,/T/);}
    await activate('#btnFire');const buttonStab=await advancePrimary(.12);assert.equal(buttonStab.equipment.pulses,1);assert.equal(buttonStab.rounds,6);assert.equal(buttonStab.target.alive,false);
    await page.waitForFunction(()=>{const a=document.getElementById('weaponArt');return a.complete&&a.naturalWidth>0;});
-   record('Visible STAB action is an actual unobscured native hit target and accepts the selected knife',{actionButton,accepted:buttonStab});await shot('native-stab-action-and-prompt');
+   await page.locator('#radio .rmsg').last().evaluate(n=>Promise.all(n.getAnimations().map(a=>a.finished.catch(()=>{}))));
+   const groundCaption=await page.evaluate(()=>{
+    HUDLayout.update();const row=document.getElementById('groundItemsUI'),latest=document.getElementById('radio').lastElementChild,b=latest.getBoundingClientRect(),r=row.getBoundingClientRect(),css=getComputedStyle(latest);
+    const buttons=[...row.querySelectorAll('button')].filter(n=>n.getClientRects().length&&!n.hidden).map(n=>{const q=n.getBoundingClientRect(),hit=document.elementFromPoint(q.x+q.width/2,q.y+q.height/2);return {id:n.id,hit:n===hit||n.contains(hit)};});
+    return {caption:{left:b.left,top:b.top,right:b.right,bottom:b.bottom,text:latest.textContent,clientHeight:latest.clientHeight,scrollHeight:latest.scrollHeight,overflow:css.overflowY,shown:css.display!=='none'},row:{left:r.left,top:r.top,right:r.right,bottom:r.bottom},gap:r.top-b.bottom,buttons,viewport:[innerWidth,innerHeight]};
+   });
+   assert.ok(groundCaption.gap>=7.5,'Latest caption must clear the Supplies/free-hand row by at least8px');assert.ok(groundCaption.buttons.length>=2&&groundCaption.buttons.every(b=>b.hit));
+   assert.equal(groundCaption.caption.shown,true);assert.ok(groundCaption.caption.text.trim().length);assert.ok(groundCaption.caption.top>=0&&groundCaption.caption.left>=0&&groundCaption.caption.right<=groundCaption.viewport[0]&&groundCaption.caption.bottom<=groundCaption.viewport[1]);
+   assert.ok(groundCaption.caption.scrollHeight<=groundCaption.caption.clientHeight+1||groundCaption.caption.overflow==='auto','Latest caption must fit or remain scrollable');
+   record('Visible STAB action is an actual unobscured native hit target and accepts the selected knife',{actionButton,accepted:buttonStab,groundCaption});await shot('native-stab-action-and-prompt');
    if(!options.hasTouch){
     const locked=[];
     for(const mode of ['knife','pistol']){

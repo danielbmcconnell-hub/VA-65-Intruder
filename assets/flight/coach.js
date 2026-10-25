@@ -65,7 +65,8 @@
       if (context && context.Store && context.Store.set) context.Store.set(STORE_KEY, on);
     }
     if (game && !on && states.has(game)) states.get(game).cue = null;
-    render(game || context && context.App && context.App.game);
+    if (on && game) tick(game, 0);
+    else render(game || context && context.App && context.App.game);
     return on;
   }
   function controls(game) {

@@ -36,6 +36,19 @@ test('ordinary missions begin with optional coaching off; practice can enable it
   f.C.setEnabled(false, f.game, false); assert.equal(f.C.enabled(f.game), false);
   const another = fixture(); f.C.setEnabled(true, f.game, false); assert.equal(f.C.enabled(another.game), false);
 });
+test('guidance ON immediately prepares the current cue without advancing observations or changing game controls', () => {
+  const f = fixture(), g = air(f); g.rightSeat = true;
+  g.world.route = [{ label: 'River bend', p: [1852, 0, 8000] }];
+  const before = JSON.stringify(g); assert.equal(f.C.metrics(g), null);
+  f.C.setEnabled(true, g, false);
+  let observed = f.C.metrics(g); assert.ok(observed.cues.includes('navigation-fix'));
+  assert.equal(observed.elapsed, 0); assert.equal(observed.samples, 0); assert.equal(JSON.stringify(g), before);
+  f.C.tick(g, .1); observed = f.C.metrics(g); f.C.setEnabled(false, g, false);
+  g.ac.fuel = 500;
+  const resumeBefore = JSON.stringify(g); f.C.setEnabled(true, g, false);
+  const resumed = f.C.metrics(g); assert.ok(resumed.cues.includes('fuel-low'));
+  assert.equal(resumed.elapsed, observed.elapsed); assert.equal(resumed.samples, observed.samples); assert.equal(JSON.stringify(g), resumeBefore);
+});
 test('B/N guidance defaults on only without a saved choice and never changes pilot or flight controls', () => {
   const f = fixture(), g = f.game; g.rightSeat = true;
   const before = JSON.stringify(g); assert.equal(f.C.enabled(g), true); f.C.tick(g, .1); assert.equal(JSON.stringify(g), before);

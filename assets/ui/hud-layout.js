@@ -99,6 +99,11 @@
   updates++;
   const app=context.App,body=root.document.body,g=app.game,blocked=app.screen!=='game'||!g||modal(),critical=!!(g?.chute?.landing?.mode==='hung'&&by('landingWaterHUD')),scopeActive=!!(g?.hud?.scope&&!g.chute&&!g.evade&&!g.pow);
   const hidden=blocked||critical;if(dock.hidden!==hidden)dock.hidden=hidden;token(body,'hud-layout-active',!blocked);token(body,'hud-modal-open',blocked);token(body,'hud-critical-landing',critical);token(body,'hud-scope-view',scopeActive);
+  const caption=by('radio'),groundItems=by('groundItemsUI');
+  if(caption){
+   if(!blocked&&!critical&&g?.evade&&visible(groundItems)){watch(groundItems);set(caption,'--hud-ground-caption-bottom',Math.ceil(root.innerHeight-groundItems.getBoundingClientRect().top+8)+'px');}
+   else if(caption.style.getPropertyValue('--hud-ground-caption-bottom'))caption.style.removeProperty('--hud-ground-caption-bottom');
+  }
   if(blocked)return false;
   if(critical)return true;
   if(pendingOwner&&expanded(pendingOwner))owner=pendingOwner;
