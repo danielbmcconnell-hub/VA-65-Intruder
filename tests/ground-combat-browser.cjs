@@ -90,7 +90,10 @@ module.exports=async function(browser,target,evidenceDir){
    for(const menu of ['controls','supplies','pause']){
     const before=await select('pistol');
     await page.keyboard.press('t');assert.equal(await page.evaluate(()=>App.game.evade.attackWant),1);
-    if(menu==='controls')await activate('#btnKeys');else if(menu==='supplies')await activate('#groundItemsToggle');else await activate('#pauseBtn');
+    if(menu==='controls'){
+     if(options.hasTouch){await activate('#pauseBtn');await page.locator('#pauseBody').getByRole('button',{name:'Controls',exact:true}).tap();assert.equal(await page.evaluate(()=>App.game.paused),false);}
+     else await activate('#btnKeys');
+    }else if(menu==='supplies')await activate('#groundItemsToggle');else await activate('#pauseBtn');
     await page.waitForFunction(()=>!App.game.evade.attackWant&&!App.game.evade.primaryAttackDown);
     await page.keyboard.down('t');await page.keyboard.down('t');
     const open=await advancePrimary(.05);assert.equal(open.rounds,6);assert.equal(open.queued,0);

@@ -11737,8 +11737,10 @@ const App = {
     // scope slewing on the canvas
     const stack = $('#stack');
     let drag = null;
+    const scopeSurface = target => target.tagName === 'CANVAS' || target === stack && document.pointerLockElement === stack;
     stack.addEventListener('pointerdown', e => {
-      if (e.target.closest('.tc')) return;
+      // HUD lessons and controls share this stack; only the scene slews radar.
+      if (!scopeSurface(e.target)) { drag = null; return; }
       if(e.pointerType==='mouse'&&e.button===0&&this.game?.evade&&
         (e.target.tagName==='CANVAS'||document.pointerLockElement===stack&&e.target===stack))beginGroundFire(e);
       drag = { x: e.clientX, y: e.clientY, moved: 0 };
@@ -11754,6 +11756,7 @@ const App = {
       drag.x = e.clientX; drag.y = e.clientY;
     });
     stack.addEventListener('pointerup', e => {
+      if (!scopeSurface(e.target)) { drag = null; return; }
       if (drag && this.hud.scope && drag.moved < 8 && this.game) this.lockTarget();
       drag = null;
     });

@@ -248,7 +248,7 @@ async function verifyTutorial({ page, click, tick, heldKey, heldAction, touchMov
   record('The guidance-off checkbox persists into a freshly launched chapter without blocking normal play', await state());
   await openPowTools(page, click);
   await click(page.locator('#powHUD .pow-settings summary')); await setting.check(); await click(page.locator('#powHUD .pow-settings summary'));
-  const campMenu=page.locator('#powHUD .pow-tools-menu');await click(campMenu.locator(':scope > summary'));assert.equal(await campMenu.evaluate(n=>n.open),false);assert.equal(await page.locator('#powHUD .pow-context-controls button:first-child').isVisible(),true);
+  const campMenu=page.locator('#powHUD .pow-tools-menu');await click(campMenu.locator(':scope > summary'));assert.equal(await campMenu.evaluate(n=>n.open),false);await page.locator('#powHUD .pow-context-controls button:first-child').waitFor({state:'visible',timeout:3000});assert.equal(await page.locator('#powHUD .pow-context-controls button:first-child').isVisible(),true);
   assert.equal((await state()).enabled, true);
   await click(page.locator('#powHUD [data-guide-skip]'));
   const skipped = await page.evaluate(() => ({ guidance: { ...POW.Guidance.state(App.game) }, complete: !!App.game.pow.complete, door: !!App.game.pow.regular.flags.cellOpen, outside: !!App.game.pow.flags.outside }));
