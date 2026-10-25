@@ -176,7 +176,19 @@ const server=http.createServer((req,res)=>{
    const dixie=await page.evaluate(()=>{const g=App.game;g.render(0);return {mission:g.mis.id,rightSeat:g.rightSeat,airborne:!g.ac.onDeck,view:FlightStrikeExperience.view(g),meshes:['bnStrikeDepot','bnStrikeRuin','bnStrikeTower'].every(n=>!!g.rend.meshes[n]),chart:FlightStrikeBoard.chart(g).features.some(f=>f.id==='dixie-road-junction'),p:g.ac.p.slice(),bombs:g.ac.bombs,score:{...g.world.score},gpuError:g.rend.gl.getError(),focused:document.activeElement?.id}});
    assert.equal(dixie.mission,'m2');assert.ok(dixie.rightSeat&&dixie.airborne&&dixie.meshes&&dixie.chart&&dixie.view.look);assert.equal(dixie.view.ripple,4);assert.notEqual(dixie.focused,'dixieLook');assert.deepEqual(dixie.p,beforeDixie.p);assert.equal(dixie.bombs,beforeDixie.bombs);assert.deepEqual(dixie.score,beforeDixie.score);assert.equal(dixie.gpuError,0);assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
    await page.screenshot({path:path.join(evidenceDir,'build-'+name+'-dixie.png'),timeout:90000});
-   checks.push({name:name+' packaged guided Dixie native briefing, airborne practice, scene, chart and original intervalometer',passed:true,observed:dixie,errors,missing});console.log('PASS '+name+' packaged guided Dixie native practice and controls');await ctx.close();
+   checks.push({name:name+' packaged guided Dixie native briefing, airborne practice, scene, chart and original intervalometer',passed:true,observed:dixie,errors,missing});console.log('PASS '+name+' packaged guided Dixie native practice and controls');
+   // Enter the real jungle chooser to cover the final inventory-aware hint
+   // and photographic foliage in this exact packaged build.
+   await page.evaluate(()=>{window.__packagedFixedClock=false;App.show('ready');requestAnimationFrame(t=>App.frame(t));});
+   await page.locator('#wildlifeKind').selectOption('forest');
+   if(opts.hasTouch)await page.locator('#wildlifePractice').tap();else await page.locator('#wildlifePractice').click();
+   await page.waitForFunction(()=>App.game?.evade?.wildlifePractice&&document.getElementById('loader').style.display==='none',null,{polling:50,timeout:90000});
+   await page.evaluate(()=>{window.__packagedFixedClock=true;App.game.paused=true;});
+   await page.waitForFunction(()=>{const j=JungleScenery.inspect(App.game,App.rend);if(j.failures.length)throw Error(JSON.stringify(j.failures));return j.status==='ready'&&j.readySources===8;},null,{polling:50,timeout:90000});
+   const forest=await page.evaluate(()=>{const g=App.game;for(let i=0;i<16;i++)g.render(0);g.syncControls();const j=JungleScenery.inspect(g,g.rend);return {cue:g.nextCue(g.ac,g.world),mode:g.evade.weaponMode,sources:j.readySources,photos:j.count,bytes:j.bytes,budget:j.budget,gl:g.rend.gl.getError()};});
+   assert.equal(forest.mode,'fists');assert.match(forest.cue,/PUNCH/);assert.doesNotMatch(forest.cue,/RADIO/);assert.equal(forest.sources,8);assert.ok(forest.photos>0&&forest.bytes<=forest.budget);assert.equal(forest.gl,0);assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
+   await page.screenshot({path:path.join(evidenceDir,'build-'+name+'-forest.png'),timeout:90000});
+   checks.push({name:name+' packaged native forest entry shows botanical photos and actual practice punch/weapon controls',passed:true,observed:forest});await ctx.close();
   }
   const sourceStable=manifestBytes.equals(fs.readFileSync(manifestPath))&&testBytes.equals(fs.readFileSync(__filename))&&manifest.files.every(item=>sha(fs.readFileSync(path.join(site,item.file)))===item.sha256);
   assert.equal(sourceStable,true,'Packaged runtime, manifest and executed test must remain unchanged');

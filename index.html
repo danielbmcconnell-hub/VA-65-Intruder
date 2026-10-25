@@ -14405,6 +14405,13 @@ class Game {
       }
       if(e.weaponMode==='stick')return (IS_TOUCH?'STRIKE BUTTON SWINGS THE BRANCH':'T / LEFT CLICK SWINGS THE BRANCH')+' · SPACE PUNCHES WITH THE EMPTY HAND';
       if (e.drawn) return (IS_TOUCH?'FIRE .38 BUTTON':'T / LEFT CLICK: FIRE .38')+' · '+e.rounds+' ROUNDS · '+(IS_TOUCH?'PUNCH FREE HAND · FISTS: HOLSTER':'SPACE: FREE-HAND PUNCH · F: HOLSTER');
+      if((e.wildlifePractice||this.mis?.wildlifePractice)&&(e.weaponMode||'fists')==='fists'){
+        const cue=[IS_TOUCH?'PUNCH / PUNCH FREE HAND':'SPACE: FREE-HAND PUNCH · T / LEFT CLICK: PUNCH'];
+        const pistol=e.hasPistol===undefined?!e.camp&&!e.river:e.hasPistol,knife=e.hasKnife===undefined?!e.camp&&!e.river:e.hasKnife;
+        if(pistol)cue.push(IS_TOUCH?'PISTOL: DRAW .38':'F: DRAW .38');
+        if(knife||e.fitting)cue.push(IS_TOUCH?(knife?'KNIFE: SELECT':'FITTING: SELECT'):(knife?'V: KNIFE':'V: FITTING'));
+        return cue.join(' · ');
+      }
       if (e.radio < 1) return 'R WORKS THE SURVIVAL RADIO — W walks, SHIFT runs (and runs is seen)  ·  F draws the .38';
       const dp = Math.hypot(e.pickup[0] - e.p[0], e.pickup[1] - e.p[2]);
       return 'GET TO THE PICKUP — ' + Math.round(dp) + ' m  ·  stay in cover, moving is what they see';

@@ -68,3 +68,22 @@ test('production fist contact records one persistent wound per accepted contact 
   }
  }
 });
+
+test('actual wildlife-practice fists cue uses real controls and available inventory while ordinary SAR cues remain intact',()=>{
+ const source=fs.readFileSync(require('node:path').join(__dirname,'../index.html'),'utf8'),start=source.indexOf('  nextCue(ac, W) {'),end=source.indexOf('  /* ---- say it in the controls',start);
+ assert.ok(start>0&&end>start);
+ for(const touch of [false,true]){
+  const nextCue=vm.runInNewContext('({'+source.slice(start,end)+'})',{IS_TOUCH:touch}).nextCue;
+  for(const hasPistol of [false,true])for(const hasKnife of [false,true])for(const missionFlag of [false,true]){
+   const e={weaponMode:'fists',drawn:0,radio:-1,hasPistol,hasKnife,wildlifePractice:!missionFlag},g={phase:'evade',mis:{wildlifePractice:missionFlag},evade:e},cue=nextCue.call(g,{},{});
+   assert.match(cue,/PUNCH/);assert.doesNotMatch(cue,/RADIO|SMOKE/);
+   if(touch){assert.match(cue,/PUNCH FREE HAND/);assert.doesNotMatch(cue,/SPACE|LEFT CLICK/);}else assert.match(cue,/SPACE.*T \/ LEFT CLICK/);
+   assert.equal(cue.includes('DRAW .38'),hasPistol);assert.equal(cue.includes('KNIFE'),hasKnife);
+  }
+  const g={phase:'evade',mis:{},evade:{weaponMode:'fists',drawn:0,radio:0,p:[0,0,0],pickup:[100,0]}};
+  assert.match(nextCue.call(g,{},{}),/^R WORKS THE SURVIVAL RADIO/);
+  g.evade.radio=1;assert.match(nextCue.call(g,{},{}),/^GET TO THE PICKUP/);
+  g.evade.wildlifePractice=true;g.evade.hasPistol=false;g.evade.hasKnife=false;g.evade.fitting=1;
+  const fitting=nextCue.call(g,{},{});assert.match(fitting,/FITTING/);assert.doesNotMatch(fitting,/KNIFE|\.38|RADIO/);
+ }
+});

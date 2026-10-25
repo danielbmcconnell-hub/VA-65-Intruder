@@ -62,7 +62,7 @@
   // the continuous backing above prevents cracks through the roof.
   for(const side of [-1,1])for(let row=0;row<9;row++)for(let col=0;col<13;col++){
    const n=row*13+col+(side>0?151:0),x0=side*(row*.515),x1=side*Math.min(4.76,(row+1)*.515+.15),z0=-4.74+col*.73,z1=z0+.74+(noise(991,n)-.5)*.11;
-   const y=x=>ridge-Math.abs(x)/4.7*1.14+.018+(noise(347,n)-.5)*.018,c=.29+noise(71,n)*.085,color=[c*1.09,c,c*.54];
+   const y=x=>ridge-Math.abs(x)/4.7*1.14+.018+(noise(347,n)-.5)*.018,c=.27+noise(71,n)*.015,color=[c*1.07,c*.98,c*.60];
    const q=[[x0,y(x0),z0],[x1,y(x1),z0],[x1,y(x1),z1],[x0,y(x0),z1]];b.quad(...(side>0?q.slice().reverse():q),color);
   }
   for(const side of [-1,1])for(let i=0;i<26;i++){
