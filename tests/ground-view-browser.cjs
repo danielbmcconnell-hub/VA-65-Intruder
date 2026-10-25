@@ -8,6 +8,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
+const openPowTools = require('./helpers/pow-tools.cjs');
 
 module.exports = async function groundViewBrowser(browser, target, evidenceDir) {
   const out = path.join(evidenceDir, 'ground-view');
@@ -112,9 +113,13 @@ module.exports = async function groundViewBrowser(browser, target, evidenceDir) 
         assert.ok(Math.abs(clean.hdg - fresh.hdg - .06) < 1e-6); assert.ok(Math.abs(clean.look - fresh.look - .03) < 1e-6);
         await touch('touchCancel');
         record('Native held touch cancels at pause, remains canceled on resume and restarts without a view jump', { before: a, moved, paused: p, fresh, clean });
+        const tapTool = locator => locator.tap();
+        await openPowTools(page, tapTool);
         await page.locator('#powHUD .pow-tools').getByRole('button', { name: 'Save', exact: true }).tap();
+        await openPowTools(page, tapTool);
         await touch('touchStart', [{ x: 510, y: 190, id: 3 }]); await touch('touchMove', [{ x: 520, y: 185, id: 3 }]);
         // A second genuine finger taps Continue while the first look gesture remains held.
+        await openPowTools(page, tapTool);
         const q = await page.locator('#powHUD .pow-tools').getByRole('button', { name: 'Continue', exact: true }).evaluate(n => { const r = n.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2, id: 4 }; });
         await touch('touchStart', [{ x: 520, y: 185, id: 3 }, q]);
         await touch('touchEnd', [{ x: 520, y: 185, id: 3 }]);

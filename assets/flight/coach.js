@@ -205,7 +205,11 @@
   }
   function render(game) {
     const u = mount(); if (!u) return;
-    const visible = isFlight(game); u.box.hidden = !visible;
+    // The computer demonstration already presents its own current control,
+    // observation and objective checklist. Restore the optional flight coach
+    // immediately when the player takes over, without changing its preference.
+    const demonstration = root.MissionDemo && root.MissionDemo.snapshot(game);
+    const visible = isFlight(game) && !(demonstration && demonstration.active && demonstration.computerPlaying); u.box.hidden = !visible;
     if (!visible) return;
     const on = enabled(game), current = states.get(game) && states.get(game).cue;
     u.toggle.textContent = on ? 'Flight guidance: ON' : 'Flight guidance: OFF'; u.toggle.setAttribute('aria-pressed', String(on));

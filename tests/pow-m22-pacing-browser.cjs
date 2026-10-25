@@ -6,6 +6,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const openPowTools = require('./helpers/pow-tools.cjs');
 
 module.exports = async function pacingBrowser(browser, target, evidenceDir) {
   const out = path.join(evidenceDir, 'pow-m22-pacing');
@@ -184,7 +185,7 @@ module.exports = async function pacingBrowser(browser, target, evidenceDir) {
       await tick(.5); assert.equal(await page.evaluate(() => App.game.pow.captivity.routine.elapsed), paused.routine.elapsed);
       record('Starting compression gives no instant condition gain; the visible Pause action retains the unfinished interval', paused);
 
-      await click(button('Return to cell')); await click(page.locator('#powHUD .pow-tools').getByRole('button', { name: 'Save', exact: true }));
+      await click(button('Return to cell')); await openPowTools(page, click); await click(page.locator('#powHUD .pow-tools').getByRole('button', { name: 'Save', exact: true }));
       const saved = await page.evaluate(() => POW.ctx.Store.get('pow_checkpoint:solitary', null));
       assert.equal(saved.practice, 'solitary'); assert.equal(saved.captivity.routine.active, false);
       await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 }); await page.waitForFunction(() => window.App && window.POW);

@@ -61,6 +61,8 @@ for(const kind of ['canopy','bamboo','nipa','fern','liana','litter']){
 if(!jungle.floor?.file||!Number.isFinite(jungle.floor.worldSize)||jungle.floor.worldSize<=0)throw new Error('Missing photographic forest-floor material');
 addRuntimePhoto('assets/jungle',jungle.floor.file);
 allow.push('assets/render/visual-clarity.js','assets/flight/threat-feedback.js');
+allow.push('assets/render/coastal-scenery.js');
+allow.push('assets/ui/hud-layout.js','assets/ui/hud-layout.css','assets/pow/confinement-goals.js','assets/pow/confinement-goals.css');
 allow.push('assets/survival/ground-items.js');
 allow.push('assets/render/ground-items-render.js','assets/survival/ground-items.css','assets/items/manifest.json');
 const groundItems=JSON.parse(fs.readFileSync(path.join(root,'assets/items/manifest.json')));
@@ -131,7 +133,7 @@ for(const item of allow){const dst=path.join(site,item);fs.mkdirSync(path.dirnam
 fs.writeFileSync(path.join(site,'_headers'),'/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: same-origin\n  Cache-Control: no-cache\n');
 const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
 const files=[...allow,'_headers'].map(file=>({file,sha256:sha(fs.readFileSync(path.join(site,file)))}));
-const archiveFile='Intruder_Yankee_Station_Night_Realism.zip';
+const archiveFile='Intruder_Yankee_Station_Coastal_Scenery.zip';
 const metadata={commit:cp.execFileSync('git',['rev-parse','HEAD'],{cwd:root}).toString().trim(),entrySHA256:sha(fs.readFileSync(path.join(site,'index.html'))),archiveFile,files};
 fs.writeFileSync(path.join(root,'dist/build-manifest.json'),JSON.stringify(metadata,null,2)+'\n');
 // Python's standard-library zipper makes packaging portable in this cloud image.

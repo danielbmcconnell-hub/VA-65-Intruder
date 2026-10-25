@@ -7,6 +7,7 @@ const assert = require('node:assert/strict');
 const { createHash } = require('node:crypto');
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const openPowTools = require('./helpers/pow-tools.cjs');
 
 module.exports = async function onboardingBrowser(browser, target, evidenceDir) {
   const out = path.join(evidenceDir, 'pow-m22-onboarding');
@@ -167,6 +168,7 @@ async function verifyTutorial({ page, click, tick, heldKey, heldAction, touchMov
   assert.ok(moved.distance > .45); assert.equal(moved.guidance.step, 2); assert.equal(moved.pitch, 0); assert.equal(moved.roll, 0);
   record('The movement lesson advances from collision-checked feet displacement and controls release cleanly', moved);
 
+  await openPowTools(page, click);
   await page.locator('#powHUD').getByRole('button', { name: 'Save', exact: true }).evaluate(button => {
     const r = button.getBoundingClientRect(), hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
     window.__m22SaveHit = { bounds: { left: r.left, top: r.top, width: r.width, height: r.height }, hit: hit?.outerHTML?.slice(0, 500), stack: document.elementsFromPoint(r.left + r.width / 2, r.top + r.height / 2).slice(0, 6).map(node => ({ tag: node.tagName, id: node.id, class: node.className, zIndex: getComputedStyle(node).zIndex, pointerEvents: getComputedStyle(node).pointerEvents })) };
@@ -181,6 +183,7 @@ async function verifyTutorial({ page, click, tick, heldKey, heldAction, touchMov
   assert.deepEqual(beforeRestore.saved, beforeRestore.guidance, 'The trusted Save gesture must persist current tutorial progress: ' + JSON.stringify(beforeRestore));
   assert.deepEqual(beforeRestore.savedP, beforeRestore.p, 'The trusted Save gesture must persist current physical position');
   await heldKey('w', .2);
+  await openPowTools(page, click);
   await click(page.locator('#powHUD').getByRole('button', { name: 'Continue', exact: true })); await tick(.1);
   const afterRestore = await page.evaluate(() => ({ p: App.game.evade.p.slice(), guidance: { ...POW.Guidance.state(App.game) }, complete: !!App.game.pow.complete }));
   assert.deepEqual(afterRestore.p, beforeRestore.p); assert.deepEqual(afterRestore.guidance, beforeRestore.guidance); assert.deepEqual(beforeRestore.saved, beforeRestore.guidance); assert.equal(afterRestore.complete, false);
@@ -234,6 +237,7 @@ async function verifyTutorial({ page, click, tick, heldKey, heldAction, touchMov
   await click(condition.locator('summary'));
   record('The compact Condition control still reveals all six survival statistics on request', { conditionText });
 
+  await openPowTools(page, click);
   await click(page.locator('#powHUD .pow-settings summary'));
   const setting = page.locator('#powHUD [data-guidance]'); await setting.uncheck();
   await click(page.locator('#powHUD .pow-settings summary'));
@@ -242,6 +246,7 @@ async function verifyTutorial({ page, click, tick, heldKey, heldAction, touchMov
   await launch('regular', 'regular'); assert.equal((await state()).enabled, false);
   assert.equal(await page.locator('#powHUD [data-guide]').isVisible(), false);
   record('The guidance-off checkbox persists into a freshly launched chapter without blocking normal play', await state());
+  await openPowTools(page, click);
   await click(page.locator('#powHUD .pow-settings summary')); await setting.check(); await click(page.locator('#powHUD .pow-settings summary'));
   assert.equal((await state()).enabled, true);
   await click(page.locator('#powHUD [data-guide-skip]'));
@@ -255,6 +260,7 @@ function innerHeightFrom(hud) { return hud.viewport[1]; }
 
 async function verifyLegacySaveMigration({ page, click, tick, launch, screenshot, record }) {
   const savedBefore = await page.evaluate(() => POW.ctx.Store.get('pow_checkpoint', null)?.savedAt);
+  await openPowTools(page, click);
   await click(page.locator('#powHUD').getByRole('button', { name: 'Save', exact: true }));
   await page.waitForFunction(previous => {
     const snap = POW.ctx.Store.get('pow_checkpoint', null);

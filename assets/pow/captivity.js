@@ -537,7 +537,7 @@
       prayer: 'Optional quiet prayer. You may use your own words or simply breathe. Belief is never required for progress.',
       quiet: 'Sit quietly and notice one thing you can choose: a breath, a memory, a sentence, a plan for the next hour.'
     };
-    reward(game, 'code', texts[intention], { resilience: 1, morale: 1 }); save(game); return true;
+    reward(game, 'code', texts[intention], { resilience: 1, morale: 1, hope: 1 }); save(game); return true;
   }
   function restStart(game, type) {
     const c = state(game);
@@ -807,7 +807,7 @@
   function para(parent, text, cls) { const e = dom('p', text, cls); parent.appendChild(e); return e; }
   function row(parent) { const e = dom('div', undefined, 'pow-row'); parent.appendChild(e); return e; }
   function clockLabel(c) { return clock(c) + ' · ' + (isNight(c) ? 'Night shackling: restricted movement' : 'Daytime: limited legroom') + ' · 1 real second = 1 simulated minute'; }
-  function conditionLabel(stats) { return 'Condition ' + Math.round(stats.physical) + ' · fatigue ' + Math.round(stats.fatigue) + ' · memory ' + Math.round(stats.memory) + ' · morale ' + Math.round(stats.morale) + ' · hope ' + Math.round(stats.hope); }
+  function conditionLabel(stats) { return 'Body ' + Math.round(stats.physical) + '/100 · resolve ' + Math.round(stats.resilience) + '/100 · memory ' + Math.round(stats.memory) + '/100 · morale ' + Math.round(stats.morale) + '/100 · hope ' + Math.round(stats.hope) + '/100 · fatigue ' + Math.round(stats.fatigue) + '/100 (lower is better)'; }
   function refreshHistory(game) {
     const h = historyView, c = state(game), panel = ui;
     if (!h || !panel || h.game !== game || h.pow !== game.pow || c.tab !== 'history' ||
@@ -868,11 +868,13 @@
     btn(top, 'Return to cell', () => close(game));
     para(panel, conditionLabel(game.pow.stats), 'pow-dim pow-stat').setAttribute('data-captivity-condition', '');
     const nav = row(panel);
+    if(P.ConfinementGoals&&P.ConfinementGoals.view(game))btn(nav,'Goals / progress',()=>open(game,'goals'),false,c.tab==='goals'?'pow-active':'');
     for (const [id, label] of [['notebook', 'Notebook'], ['car', 'Engine'], ['architecture', 'House'], ['city', 'City'], ['memory', 'Memory'], ['tap', 'Tap code'], ['exercise', 'Exercise / anchor'], ['rest', 'Rest / time'], ['history', 'Context / log']]) btn(nav, label, () => open(game, id), false, c.tab === id ? 'pow-active' : '');
     if(P.Solidarity)btn(nav,'Prisoner network',()=>open(game,'network'),false,c.tab==='network'?'pow-active':'');
     const feedback = para(panel, c.feedback, 'pow-feedback'); feedback.setAttribute('role', 'status'); feedback.setAttribute('aria-live', 'polite'); feedback.setAttribute('data-captivity-feedback', '');
     const tab = c.tab;
-    if (tab === 'car') renderCar(game, panel);
+    if(tab==='goals'&&P.ConfinementGoals)P.ConfinementGoals.renderPanel(game,panel);
+    else if (tab === 'car') renderCar(game, panel);
     else if (tab === 'architecture') renderArchitecture(game, panel);
     else if (tab === 'city') renderCity(game, panel);
     else if (tab === 'memory') renderMemory(game, panel);
@@ -895,6 +897,7 @@
         para(panel,transfer.ready?'A fictional transfer to regular imprisonment is available. Return to your cell, face the door and hold F or Interact. This is a transfer, not freedom.':transfer.missing.join(' '));
       }
     } else {
+      if(P.ConfinementGoals)P.ConfinementGoals.renderPanel(game,panel,{compact:true});
       para(panel, 'The notebook represents imagined projects and remembered patterns, not supplies in the cell. Each completed project requires several real steps. Practice can help once per day; repeating it immediately gives no extra condition gain.');
       para(panel, 'Build an engine, a workable house or a connected neighbourhood; repeat a spatial pattern; communicate by timed taps. Rest when tired. Your progress persists after transfer or recapture.');
       const pacing = pacingStatus(game);

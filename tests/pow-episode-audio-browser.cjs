@@ -6,6 +6,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const openPowTools = require('./helpers/pow-tools.cjs');
 
 module.exports = async function episodeAudioBrowser(browser, target, evidenceDir) {
   const checks = [], browserErrors = [];
@@ -107,6 +108,7 @@ module.exports = async function episodeAudioBrowser(browser, target, evidenceDir
       check('The native Pause button stops and disconnects every owned ambience source', await snapshot(), a => !a.mix.active && a.activeSources === 0 && a.allStoppedDisconnected && a.enginePreserved);
       await click(page.locator('#pauseBody button').filter({ hasText: /^Resume$/ })); await render();
       check('Native Resume rebuilds three loops from the existing cached buffers', await snapshot(), a => a.mix.active && a.activeSources === 3 && a.buffers.length === 3 && a.sameContext && a.resumes === resumeCount);
+      await openPowTools(page, click);
       await click(page.locator('#powHUD .pow-tools button').filter({ hasText: /^History & photos$/ })); await render();
       check('The actual photograph dialog silences physical ambience', await snapshot(), a => !a.mix.active && a.activeSources === 0 && a.allStoppedDisconnected);
       await click(page.getByRole('button', { name: 'Close history', exact: true })); await render();

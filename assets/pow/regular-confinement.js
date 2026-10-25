@@ -30,22 +30,27 @@
     return r;
   }
   function eligibility(game) {
-    const s=game && game.pow,c=s && s.captivity,stats=s && s.stats || {},missing=[];
-    if (!s || !c) return {ready:false,missing:['Establish a confinement routine first.'],days:0,projects:0};
+    const s=game && game.pow,c=s && s.captivity,stats=s && s.stats || {};
+    if (!s || !c) return {ready:false,missing:['Establish a confinement routine first.'],days:0,projects:0,requirements:[]};
     const days=Math.max(0,finite(s.day,1)-finite(c.captureDay,1));
     const projects=Object.keys(c.rewards || {}).filter(key => !['tapReceive','tapSend','exercise','anchor','code'].includes(key));
     const completed=projects.filter(key => finite(c.rewards[key],0)>0).length;
     let communication=finite(c.tap && c.tap.received,0)>=1 && finite(c.tap && c.tap.sent,0)>=1;
     const historicalNetwork=!!(P.Solidarity && P.Solidarity.available && P.Solidarity.available(game));
     if(historicalNetwork)communication=!!(P.Solidarity.ready && P.Solidarity.ready(game));
-    if(days<28)missing.push('Live through four weeks of the fictional confinement routine.');
-    if(completed<3)missing.push('Complete three different remembered projects or memory activities.');
-    if(finite(c.observations,0)<2)missing.push('Observe the corridor on two occasions.');
-    if(!communication)missing.push(historicalNetwork?'Complete the covert communication course, a thoughtful response, a remembered project and the decoded guard-routine clue.':'Receive and transmit a correctly decoded tap-code message.');
-    if(finite(stats.physical,0)<30)missing.push('Food, rest and gentle conditioning can restore physical condition.');
-    if(finite(stats.resilience,0)<25 || finite(stats.morale,0)<20)missing.push('Rest and supportive communication can help before the transfer.');
-    if(finite(stats.fatigue,100)>85)missing.push('Rest before moving to another part of the camp.');
-    return {ready:missing.length===0,missing,days,projects:completed,communication,historicalNetwork};
+    // One authoritative set of requirements serves both gameplay and the
+    // visible goals. Reading progress never grants transfer or escape.
+    const requirements=[
+      {id:'days',label:'Confinement routine',value:days,target:28,ready:days>=28,detail:Math.min(28,days)+'/28 days',missing:'Live through four weeks of the fictional confinement routine.'},
+      {id:'projects',label:'Different mental projects',value:completed,target:3,ready:completed>=3,detail:Math.min(3,completed)+'/3 completed',missing:'Complete three different remembered projects or memory activities.'},
+      {id:'observations',label:'Corridor observations',value:finite(c.observations,0),target:2,ready:finite(c.observations,0)>=2,detail:Math.min(2,finite(c.observations,0))+'/2 recorded',missing:'Observe the corridor on two occasions.'},
+      {id:'contact',label:historicalNetwork?'Prisoner network course':'Receive and send a tap message',value:communication?1:0,target:1,ready:communication,detail:communication?'Complete':historicalNetwork?'Course and guard clue needed':'Both directions needed',missing:historicalNetwork?'Complete the covert communication course, a thoughtful response, a remembered project and the decoded guard-routine clue.':'Receive and transmit a correctly decoded tap-code message.'},
+      {id:'physical',label:'Physical condition',value:finite(stats.physical,0),target:30,ready:finite(stats.physical,0)>=30,detail:Math.round(finite(stats.physical,0))+'/100 · need 30',missing:'Food, rest and gentle conditioning can restore physical condition.'},
+      {id:'mental',label:'Mental reserve',value:Math.min(finite(stats.resilience,0)/25,finite(stats.morale,0)/20),target:1,ready:finite(stats.resilience,0)>=25&&finite(stats.morale,0)>=20,detail:'Resolve '+Math.round(finite(stats.resilience,0))+'/25 · morale '+Math.round(finite(stats.morale,0))+'/20 needed',missing:'Rest and supportive communication can help before the transfer.'},
+      {id:'fatigue',label:'Rest before transfer',value:100-finite(stats.fatigue,100),target:15,ready:finite(stats.fatigue,100)<=85,detail:'Fatigue '+Math.round(finite(stats.fatigue,100))+'/100 · at most 85',missing:'Rest before moving to another part of the camp.'}
+    ];
+    const missing=requirements.filter(q=>!q.ready).map(q=>q.missing);
+    return {ready:missing.length===0,missing,days,projects:completed,communication,historicalNetwork,requirements};
   }
   function eligible(game) { return eligibility(game).ready; }
   function notify(game,message) { if(P.notify)P.notify(game,message); }

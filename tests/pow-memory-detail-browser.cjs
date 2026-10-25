@@ -3,6 +3,7 @@
 // standalone solitary chapter and explicit clock stepping are fixtures; puzzle
 // choices, completion, player movement, collision and saved progress are real.
 const assert = require('node:assert/strict'), fs = require('node:fs/promises'), path = require('node:path'), { createHash } = require('node:crypto');
+const openPowTools = require('./helpers/pow-tools.cjs');
 module.exports = async function memoryBrowser(browser, target, evidenceDir) {
   const out = path.join(evidenceDir, 'pow-memory-detail'); await fs.mkdir(out, { recursive: true });
   const checks = [], screenshots = [], browserErrors = [], sourceHashes = [];
@@ -55,6 +56,7 @@ module.exports = async function memoryBrowser(browser, target, evidenceDir) {
       await open('city'); for (const [tool, index] of [['water', 5], ['utility', 9], ['housing', 16], ['housing', 18], ['school', 22], ['park', 17], ['stop', 12]]) { await page.locator('[data-mind-tool]').selectOption(tool); await use('mind-city-' + index); }
       await use('mind-city-survey'); await walk(-6, 2); await page.evaluate(() => { App.game.evade.hdg = Math.atan2(4, -2); App.game.evade.look = .04; }); await shot('restorative-city');
       const city = await page.evaluate(() => ({ round: App.game.pow.captivity.city.round, count: App.game.campGeo.filter(q => q.id.startsWith('memory-detail:')).length, homeDoors: App.game.campGeo.filter(q => q.id.includes('memory-detail:city-door')).length, service: App.game.campGeo.some(q => q.id === 'memory-detail:water-valve-5'), solids: App.game.pow.solids.length })); assert.equal(city.round, 2); assert.equal(city.homeDoors, 3); assert.equal(city.service, true); assert.ok(city.count <= 32); record('Physical plot placement and a real survey grow a remembered neighbourhood without new collision objects', city);
+      await openPowTools(page, click);
       await click(page.locator('#powHUD .pow-tools button').filter({ hasText: /^Save$/ })); const saved = await page.evaluate(() => POW.ctx.Store.get('pow_checkpoint', null)); assert.deepEqual(saved.p, physical.p); assert.equal(saved.stage, 'solitary');
       await init(); await click(page.locator('#powChapter button').filter({ hasText: /^Continue POW checkpoint$/ })); await freeze();
       const restored = await page.evaluate(() => ({ p: App.game.evade.p.slice(), active: POW.Mindscape.active(App.game), details: App.game.campGeo.filter(q => q.id.startsWith('memory-detail:')).length, cityRound: App.game.pow.captivity.city.round, houseRound: App.game.pow.captivity.architecture.round, gl: App.game.rend.gl.getError() })); assert.deepEqual(restored.p, physical.p); assert.equal(restored.active, false); assert.equal(restored.details, 0); assert.equal(restored.cityRound, 2); assert.equal(restored.houseRound, 2); assert.equal(restored.gl, 0); record('Reload restores the physical cell and earned project progress without leaking imagined geometry', restored);
@@ -75,10 +77,12 @@ module.exports = async function memoryBrowser(browser, target, evidenceDir) {
         assert.equal(imagined.active, true); assert.deepEqual(imagined.scene, before.scene);
         if (kind === 'car') assert.deepEqual(imagined.selected, ['block']); else assert.equal(imagined.selected, 'concrete');
         await shot('physical-cell-' + kind + '-imagined-checkpoint');
+        await openPowTools(page, click);
         await click(page.locator('#powHUD .pow-tools button').filter({ hasText: /^Save$/ }));
         const checkpoint = await page.evaluate(() => POW.ctx.Store.get('pow_checkpoint', null));
         assert.equal(checkpoint.stage, 'cell'); assert.deepEqual(checkpoint.p, before.p); assert.deepEqual(checkpoint.episodeScene, before.scene); assert.deepEqual(checkpoint.ai, before.ai);
         await page.evaluate(() => { window.__memoryPhysicalContinue = App.game.pow; });
+        await openPowTools(page, click);
         await click(page.locator('#powHUD .pow-tools button').filter({ hasText: /^Continue$/ }));
         await page.waitForFunction(() => App.game?.pow?.stage === 'cell' && App.game.pow !== window.__memoryPhysicalContinue && !POW.Mindscape.active(App.game), null, { timeout: 30000 });
         const resumed = await page.evaluate(kind => ({ active: POW.Mindscape.active(App.game), p: App.game.evade.p.slice(), scene: POW.EpisodeScene.snapshot(App.game), selected: kind === 'car' ? App.game.pow.captivity.car.installed.slice() : App.game.pow.captivity.architecture.choices.foundation, ai: POW.AI.snapshot(App.game) }), kind);

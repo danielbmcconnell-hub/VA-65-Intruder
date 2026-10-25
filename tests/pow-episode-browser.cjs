@@ -8,6 +8,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
+const openPowTools = require('./helpers/pow-tools.cjs');
 
 module.exports = async function episodeBrowser(browser, target, evidenceDir) {
   const out = path.join(evidenceDir, 'pow-episode'); await fs.mkdir(out, { recursive: true });
@@ -233,9 +234,11 @@ async function exerciseCellAndPebbles(h) {
   await page.evaluate(() => { App.game.evade.hdg = Math.PI; App.game.evade.pitchCmd = App.game.evade.look = 0; }); await shot('04-dark-cell');
   record('Reachable physical lamp switch changes illumination and real stealth light', { lit, dark });
   const progress = await page.evaluate(() => ({ p: App.game.evade.p.slice(), time: App.game.pow.time, inventory: { ...App.game.pow.inventory }, stealth: POW.EpisodeStealth.snapshot(App.game), scene: POW.EpisodeScene.snapshot(App.game), ai: POW.AI.snapshot(App.game) }));
+  await openPowTools(page, h.click);
   await h.click(page.locator('#powHUD').getByRole('button', { name: 'Save', exact: true }));
   await page.waitForFunction(time => POW.ctx.Store.get('pow_checkpoint', null)?.time === time, progress.time,{polling:50,timeout:30000});
   await page.evaluate(() => { window.__episodeBeforeContinue = App.game.pow; });
+  await openPowTools(page, h.click);
   await h.click(page.locator('#powHUD').getByRole('button', { name: 'Continue', exact: true }));
   await page.waitForFunction(p => App.game.pow !== window.__episodeBeforeContinue && App.game.evade.p.every((v, i) => Math.abs(v - p[i]) < 1e-8) && App.game.pow.time > 0, progress.p,{polling:50,timeout:30000});
   const resumed = await page.evaluate(() => ({ p: App.game.evade.p.slice(), time: App.game.pow.time, inventory: { ...App.game.pow.inventory }, stealth: POW.EpisodeStealth.snapshot(App.game), scene: POW.EpisodeScene.snapshot(App.game), ai: POW.AI.snapshot(App.game) }));

@@ -1,5 +1,6 @@
 'use strict';
 const assert = require('node:assert/strict'), fs = require('node:fs/promises'), path = require('node:path'), { createHash } = require('node:crypto');
+const openPowTools = require('./helpers/pow-tools.cjs');
 
 // Native keyboard/touch inputs, real ejection and physical weapon code. Dry
 // terrain aircraft placement and absent encounter spawns are declared fixtures
@@ -72,6 +73,7 @@ module.exports = async function ammunitionBrowser(browser, target, evidenceDir) 
       await page.evaluate(() => {App.game.captured();App.game.paused=false;for(let i=0;i<780;i++)App.game.update(1/60);}); await page.waitForFunction(() => App.game?.pow?.stage === 'solitary'&&!CaptureTransition.active(App.game), null, { timeout: 15000 });
       await page.evaluate(() => { App.frame = () => {}; App.screen = 'game'; App.game.paused = false; App.game.render(1 / 60); App.game.syncControls(); });
       const captured = await ledger(); assert.equal(captured.bulletsExpended, 6); assert.equal(captured.remaining, 0); assert.equal(captured.hasPistol, false);
+      await openPowTools(page, click);
       await click(page.locator('#powHUD .pow-tools button').filter({ hasText: /^Save$/ }));
       const checkpoint = await page.evaluate(() => Store.get('pow_checkpoint', null)); assert.equal(checkpoint.ammunition.bulletsExpended, 6); assert.equal(checkpoint.sortie.missionId, 'm2'); assert.equal(checkpoint.sortie.context.captured, true); assert.equal(checkpoint.sortie.context.ejected, true);
       record('Actual capture confiscates equipment while Save retains the completed shot ledger', { captured, saved: checkpoint.ammunition }, 'Real Game.captured and thirteen seconds of original fixed-step transfer/reveal; native Save control.');

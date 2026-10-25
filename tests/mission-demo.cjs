@@ -194,3 +194,31 @@ test('a nearby pursuing guard causes a skiff bypass even when the guard is far f
  const {f,g}=deltaFixture(40);g.evade.searchers=[{p:[94,1,-30],alive:true,armed:true,state:'pursuit'}];g.update(.02);g.evade.searchers=[];for(let i=0;i<8;i++)g.update(.02);
  assert.equal(g.app.keys.KeyF,0);assert.equal(g.app.gctl.pitch,1);assert.equal(g.pow.river.mode,'float');assert.equal(g.pow.river.logicalDistance,83000);assert.equal(g.pow.complete,undefined);f.M.stop(false);
 });
+
+test('all twelve tutorial plans explain their own goal, end-to-end route and demonstrated features',()=>{
+ const f=fixture(),before=clone(f.missions),goals=new Set();
+ for(const m of f.missions){const g=f.start(m.id),plan=f.M.lesson(g);assert.equal(plan.missionId,m.id);assert.equal(plan.title,m.title);assert.ok(plan.goal.length>35);assert.equal(plan.route.length,4);assert.ok(plan.route.every(step=>typeof step==='string'&&step.length>10));assert.ok(plan.features.split(' · ').length>=3);assert.ok(plan.control.length>8&&plan.watch.length>20);goals.add(plan.goal);f.M.stop(false);}
+ assert.equal(goals.size,12,'each mission needs its own objective explanation');assert.deepEqual(f.missions,before,'lesson presentation cannot rewrite mission definitions');
+});
+
+test('tutorial progress reports actual objectives without granting progress, health or saves',()=>{
+ const f=fixture(),g=f.start('m8'),rows=[['Destroy the radar','destroyed',true],['Destroy launchers','1 / 3',false],['Return','pending',false]];g.objState=()=>rows;
+ const before=clone({ac:g.ac,world:g.world,result:g.result,progress:f.App.prog}),writes=f.writes.length;
+ const plan=f.M.lesson(g,'arm');assert.equal(plan.completed,1);assert.equal(plan.total,3);assert.deepEqual(clone(plan.objectives),rows);assert.match(plan.watch,/does not destroy the launchers/);assert.match(plan.control,/when emitting/);
+ rows[1][2]=true;assert.equal(f.M.lesson(g,'assess').completed,2);rows[1][2]=false;
+ assert.deepEqual(clone({ac:g.ac,world:g.world,result:g.result,progress:f.App.prog}),before);assert.equal(f.writes.length,writes);f.M.stop(false);
+});
+
+test('weapons-tight and coordinate-attack lessons explain their distinct success conditions',()=>{
+ const f=fixture(),g=f.start('m9'),recce=f.M.lesson(g,'identify');assert.match(recce.goal,/release no weapons/);assert.match(recce.control,/no release/);assert.match(recce.watch,/consent released/);assert.doesNotMatch(recce.control,/Hold SPACE/);f.M.stop(false);
+ const h=f.start('m5');assert.match(f.M.lesson(h,'navigation').watch,/SYS ERR/);assert.match(f.M.lesson(h,'acquire').watch,/does not paint/);assert.match(f.M.lesson(h,'acquire').features,/coordinate designation/);f.M.stop(false);
+});
+
+test('escape tutorial distinguishes earned interactions and fictional offshore success',()=>{
+ const f=fixture(),g=f.start('m11');assert.match(f.M.lesson(g,'cell').watch,/hold.*until.*earned/);assert.match(f.M.lesson(g,'roof').watch,/actual rope/);assert.match(f.M.lesson(g,'river').watch,/fatigue.*patrols/);assert.match(f.M.lesson(g,'gulf').watch,/explicitly fictional/);f.M.stop(false);
+});
+
+test('returned tutorial plans are detached from authored routes and live objective rows',()=>{
+ const f=fixture(),g=f.start('m4'),first=f.M.lesson(g,'attack');first.route[0]='changed';first.objectives[0][0]='changed';
+ const next=f.M.lesson(g,'attack');assert.notEqual(next.route[0],'changed');assert.equal(next.objectives[0][0],'Attack');assert.match(next.watch,/moving boat/);f.M.stop(false);
+});

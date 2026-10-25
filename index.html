@@ -844,6 +844,8 @@ body.pow-active.pow-field-equipment:not(.desktop) #btnFire{display:flex!importan
 <script id="bootstrap-status">(function(){var box=document.getElementById('runtimeHelp');box.textContent='Starting game controls…';window.addEventListener('error',function(e){if(e.target!==window||!e.message)return;if(box){box.hidden=false;box.textContent='Game error: '+e.message+' ('+(e.lineno||'?')+':'+(e.colno||'?')+')';}});window.addEventListener('unhandledrejection',function(e){if(box){box.hidden=false;box.textContent='Startup issue: '+String(e.reason||'unknown')+' — use the hosted web package in Safari.';}});})();</script>
 
 <link rel="stylesheet" href="assets/pow/core.css">
+<link rel="stylesheet" href="assets/pow/confinement-goals.css">
+<link rel="stylesheet" href="assets/ui/hud-layout.css">
 <link rel="stylesheet" href="assets/pow/prison-food.css">
 <script src="assets/atlas-metadata.js"></script>
 <script src="assets/sprites/atlas-metadata.js"></script>
@@ -857,6 +859,7 @@ body.pow-active.pow-field-equipment:not(.desktop) #btnFire{display:flex!importan
 <script src="assets/pow/denton-flashback.js"></script>
 <script src="assets/pow/mindscape.js"></script>
 <script src="assets/pow/regular-confinement.js"></script>
+<script src="assets/pow/confinement-goals.js"></script>
 <script src="assets/pow/history.js"></script>
 <script src="assets/pow/onboarding.js"></script>
 <script src="assets/pow/episode-shaders.js"></script>
@@ -911,6 +914,8 @@ body.pow-active.pow-field-equipment:not(.desktop) #btnFire{display:flex!importan
 <link rel="stylesheet" href="assets/survival/capture-transition.css">
 <script src="assets/render/terrain-shadows.js"></script>
 <script src="assets/render/near-ground.js"></script>
+<script src="assets/render/coastal-scenery.js"></script>
+<script src="assets/ui/hud-layout.js"></script>
 <script src="assets/willard/interceptor.js"></script>
 <script src="assets/willard/flak.js"></script>
 <script src="assets/willard/sprites.js"></script>
@@ -2554,7 +2559,8 @@ class Renderer {
            available for the asking. Four more evaluations per vertex,
            interpolated across the triangle, and the hills become
            hills. */
-        float e = max(uCell * 0.75, 2.5);
+        // Shared seam vertices must use the same normal at every LOD.
+        float e = clamp(distance(vW,uCam)*.003,6.0,96.0);
         float hl = terrainLo(w - vec2(e,0.0)), hr = terrainLo(w + vec2(e,0.0));
         float hd = terrainLo(w - vec2(0.0,e)), hu = terrainLo(w + vec2(0.0,e));
         vTN = normalize(vec3(hl - hr, 2.0*e, hd - hu));
@@ -2562,11 +2568,16 @@ class Renderer {
         vOcc = sunOcc(w, h);
         gl_Position = uVP * vec4(vW,1.0);
       }
-    `, GLSL_NOISE + GLSL_TERRAIN + GLSL_ATMOS + GLSL_SHADOW + FlightVisualMaterials.glsl + `
+    `, GLSL_NOISE + GLSL_TERRAIN + GLSL_ATMOS + GLSL_SHADOW + FlightVisualMaterials.glsl + CoastalScenery.clipmapGLSL + CoastalScenery.shorelineGLSL + CoastalScenery.glintGLSL + `
       in vec3 vW; in float vFine; in float vOcc; in vec3 vTN; out vec4 o;
       uniform vec3 uCam; uniform float uWet, uDetail, uGroundJungle;
       uniform sampler2D uForestFloor; uniform float uForestFloorReady, uForestFloorScale;
       void main(){
+        if(sceneryCoveredByFiner(vW.xz))discard;
+        // Complement the ocean's exact world-space mask: submerged ground
+        // must not compete with distant water in the 24-bit depth buffer.
+        if(sceneryShoreHeight(vW.xz)<-.35)discard;
+        float surfacePixel=max(length(dFdx(vW.xz)),length(dFdy(vW.xz)));
         float dcam = distance(vW, uCam);
         /* Smooth, from the height field's own gradient. The old
            cross(dFdy, dFdx) is kept only as a floor, so that a vertex
@@ -2600,7 +2611,7 @@ class Renderer {
            a hillside and the entire field grid disappeared. */
         vec3 gn = n;
         float detN = 0.0, flood = 0.0;
-        float f1 = 1.0 - smoothstep(500.0, 3400.0, dcam);
+        float f1 = (1.0 - smoothstep(500.0, 3400.0, dcam))*(1.0-smoothstep(1.5,5.0,surfacePixel));
         if (f1 > 0.004) {
           float e = 2.6, k = 0.09;
           float b0 = fbm2(vW.xz*k), bx = fbm2((vW.xz+vec2(e,0))*k), bz = fbm2((vW.xz+vec2(0,e))*k);
@@ -2608,7 +2619,7 @@ class Renderer {
           detN += (b0 - 0.5) * f1;
         }
         if (uDetail > 0.5) {
-          float f2 = 1.0 - smoothstep(110.0, 820.0, dcam);
+          float f2 = (1.0 - smoothstep(110.0, 820.0, dcam))*(1.0-smoothstep(.3,1.2,surfacePixel));
           if (f2 > 0.004) {
             float e = 0.55, k = 0.42;
             float b0 = vnoise(vW.xz*k), bx = vnoise((vW.xz+vec2(e,0))*k), bz = vnoise((vW.xz+vec2(0,e))*k);
@@ -2617,7 +2628,7 @@ class Renderer {
           }
         }
         if (uDetail > 1.5) {
-          float f3 = 1.0 - smoothstep(22.0, 170.0, dcam);
+          float f3 = (1.0 - smoothstep(22.0, 170.0, dcam))*(1.0-smoothstep(.06,.3,surfacePixel));
           if (f3 > 0.004) {
             float e = 0.12, k = 1.9;
             float b0 = vnoise(vW.xz*k), bx = vnoise((vW.xz+vec2(e,0))*k), bz = vnoise((vW.xz+vec2(0,e))*k);
@@ -2958,10 +2969,11 @@ class Renderer {
           float rp = fbm3(vW.xz*vec2(0.22,0.09));
           vec3 rn = normalize(vec3((rp-0.5)*0.22, 1.0, (fbm3(vW.xz*vec2(0.09,0.22)+5.1)-0.5)*0.22));
           if(uSurfacePolish > 0.5) rn = flightRiverNormal(vW, dcam, uDetail, uCloudT);
+          rn=normalize(mix(vec3(0,1,0),rn,1.0-smoothstep(.9,3.5,surfacePixel)));
           float fr = pow(1.0 - max(dot(rn, vd), 0.0), 4.0);
           col = mix(col, skyTintK(reflect(-vd, rn), 0.20)*0.80, riv*clamp(0.18+0.70*fr, 0.0, 0.92));
           vec3 hv = normalize(uSunDir + vd);
-          col += uSunCol * pow(max(dot(rn,hv),0.0), 230.0) * riv * 3.2;
+          col += uSunCol * sceneryGlint(rn,hv,230.0,surfacePixel,.05) * riv * 3.2;
           col += uSunCol * pow(max(dot(rn,hv),0.0), 22.0) * riv * 0.10;
         }
         /* ---- STANDING WATER ----
@@ -2976,11 +2988,12 @@ class Renderer {
           vec3 vd = normalize(uCam - vW);
           float wr = fbm3(vW.xz*vec2(0.9,0.4) + 11.0);
           vec3 wn = normalize(vec3((wr-0.5)*0.05, 1.0, (fbm3(vW.xz*vec2(0.4,0.9)+2.7)-0.5)*0.05));
+          wn=normalize(mix(vec3(0,1,0),wn,1.0-smoothstep(.2,1.0,surfacePixel)));
           float fr = pow(1.0 - max(dot(wn, vd), 0.0), 4.0);
           vec3 sky = skyTintK(reflect(-vd, wn), 0.22);
           col = mix(col, sky*0.86, clamp(flood*(0.16 + 0.74*fr), 0.0, 0.90));
           vec3 hv = normalize(uSunDir + vd);
-          col += uSunCol * pow(max(dot(wn,hv),0.0), 190.0) * flood * 2.4;
+          col += uSunCol * sceneryGlint(wn,hv,190.0,surfacePixel,.05) * flood * 2.4;
           col += uSunCol * pow(max(dot(wn,hv),0.0), 16.0)  * flood * 0.07;
         }
         col += alb * fireLight(vW, n);
@@ -2990,10 +3003,10 @@ class Renderer {
     `);
 
     /* ---- SEA ---- */
-    this.pSea = program(gl, GLSL_NOISE + GLSL_TERRAIN + `
+    this.pSea = program(gl, GLSL_NOISE + GLSL_TERRAIN + CoastalScenery.wavesGLSL + `
       layout(location=0) in vec2 aP;
       uniform mat4 uVP; uniform vec3 uCam; uniform float uTime, uWave;
-      out vec3 vW; out float vShore, vTh;
+      out vec3 vW;
       void main(){
         vec2 q = aP;
         /* The patch covers 23 km, but from 900 m the horizon is a hundred.
@@ -3002,32 +3015,30 @@ class Renderer {
         vec2 d = sign(q)*q*q*23000.0;
         d *= mix(1.0, 24.0, smoothstep(0.955, 1.0, max(abs(q.x), abs(q.y))));
         vec2 w = uCam.xz + d;
-        float t = uTime;
-        float y = 0.0;
-        y += sin(w.x*0.055 + t*1.7)*0.30 + sin(w.y*0.047 - t*1.3)*0.26;
-        y += sin((w.x*0.6+w.y*0.42) + t*3.1)*0.10;
-        y += sin((w.x*0.021-w.y*0.033) + t*0.8)*0.75;
-        y *= uWave;
+        // The small ripples belong in the shading normal, not in triangles
+        // too large to resolve them. Keep broad displacement band-limited.
+        float spacing=23000.0*(4.0*max(abs(q.x),abs(q.y))/110.0+4.0/(110.0*110.0));
+        float y = sceneryWaveHeight(w,uTime,uWave,spacing);
         float th = terrainH(w);
         /* 1 in the shallows, 0 over deep water. This was inverted, which put
            surf on the whole open ocean — invisible while the sea surface was
            being culled, a grey wash over everything once it was not. */
-        vShore = smoothstep(-26.0, -1.0, th);
-        vTh = th;
         /* Swell dies in the shallows. Carried at full height into one foot of
            water it climbed over the riverbanks and laid open sea across the
            delta. */
-        vW = vec3(w.x, y*smoothstep(-2.0, -24.0, th), w.y);
+        vW = vec3(w.x, y*(1.0-smoothstep(-24.0,-2.0,th)), w.y);
         gl_Position = uVP * vec4(vW,1.0);
       }
-    `, GLSL_NOISE + GLSL_ATMOS + GLSL_SHADOW + `
-      in vec3 vW; in float vShore, vTh; out vec4 o;
+    `, GLSL_NOISE + GLSL_TERRAIN + GLSL_ATMOS + GLSL_SHADOW + CoastalScenery.shorelineGLSL + CoastalScenery.wavesGLSL + CoastalScenery.glintGLSL + `
+      in vec3 vW; out vec4 o;
       uniform vec3 uCam; uniform float uTime, uWave;
       uniform vec3 uShip;    // x, z, heading
       void main(){
-        if (vTh > -0.35) discard;   // this fragment is over dry land
-        vec3 dx = dFdx(vW), dy = dFdy(vW);
-        vec3 n = normalize(cross(dy,dx)); if(n.y<0.0) n=-n;
+        float th=sceneryShoreHeight(vW.xz);
+        if(th>=-.35)discard;
+        float surfacePixel=max(length(dFdx(vW.xz)),length(dFdy(vW.xz)));
+        vec2 slope=sceneryWaveGradient(vW.xz,uTime,uWave,surfacePixel)*(1.0-smoothstep(-24.0,-2.0,th));
+        vec3 n=normalize(vec3(-slope.x,1.0,-slope.y));
         vec2 q = vW.xz*0.12 + vec2(uTime*0.10, uTime*0.07);
         float e = 0.55;
         float b0=fbm3(q), bx=fbm3(q+vec2(e,0)), bz=fbm3(q+vec2(0,e));
@@ -3038,7 +3049,7 @@ class Renderer {
         float dist = length(uCam - vW);
         // Height matters as much as range: from altitude you look down at a
         // steeper angle and each pixel swallows more ripples.
-        float detail = 1.0 - smoothstep(600.0, 7000.0, dist * (1.0 + uCam.y * 0.004));
+        float detail = (1.0 - smoothstep(600.0, 7000.0, dist * (1.0 + max(uCam.y,0.0) * 0.004)))*(1.0-smoothstep(.8,3.5,surfacePixel));
         /* The perturbation used to reach 3.6 on a unit normal, tilting the
            surface by up to seventy degrees between neighbouring pixels. At a
            grazing angle the Fresnel term then flickered between nothing and
@@ -3052,11 +3063,13 @@ class Renderer {
            light that is actually falling on it, or a tropical sea at nine in
            the morning renders like ink with sparks on it. */
         vec3 deep = uAmb * 0.55 + vec3(0.004,0.030,0.046) * (0.30 + uSunCol.g);
+        vec3 shallows=uAmb*vec3(.58,.68,.60)+vec3(.035,.065,.060)*(.30+uSunCol.g);
+        deep=mix(deep,shallows,1.0-smoothstep(2.0,24.0,-th));
         vec3 col = mix(deep, refl, clamp(fres, 0.0, 0.97));
         col *= mix(0.55, 1.0, sunVis(vW, vec3(0.0,1.0,0.0), 1.0));
         col *= 0.88 + 0.18*fbm3(vW.xz*0.0017);        // patchiness, so it is not a flat sheet
         vec3 hv = normalize(uSunDir + vd);
-        col += uSunCol * pow(max(dot(n,hv),0.0), 300.0) * 3.4 * detail;
+        col += uSunCol * sceneryGlint(n,hv,300.0,surfacePixel,.035) * 3.4 * detail;
         col += uSunCol * pow(max(dot(n,hv),0.0), 30.0) * 0.11 * detail;
         /* The ship's wake, written into the water rather than laid on top
            of it as geometry — a flat white plate on a moving sea reads as a
@@ -3073,7 +3086,7 @@ class Renderer {
         float bw = (1.0 - smoothstep(0.0, 34.0, abs(abs(lat) + aft*0.55 + 96.0)))
                  * smoothstep(-178.0, -150.0, aft) * (1.0 - smoothstep(-150.0, -40.0, aft));
         float wash = clamp(wk + bw*0.8, 0.0, 1.0);
-        float foam = smoothstep(0.55,1.0,vShore)*(0.35+0.65*mix(0.5,fbm3(vW.xz*0.05+uTime*0.3),detail));
+        float foam = (1.0-smoothstep(.6,7.0,-th))*(0.35+0.65*mix(0.5,fbm3(vW.xz*0.05+uTime*0.3),detail));
         foam = max(foam, wash);
         col = mix(col, vec3(0.42,0.46,0.48), foam*0.5);
         col += fireLight(vW, n)*0.5;
@@ -3242,6 +3255,7 @@ class Renderer {
       layout(location=0) in vec2 aXZ;
       uniform mat4 uVP; uniform vec3 uCam;
       uniform vec2 uOrigin; uniform float uCell, uR0, uR1;
+      out vec2 vTerrainXZ;
       void main(){
         vec2 lat = aXZ;
         vec2 w0 = uOrigin + lat*uCell;
@@ -3250,9 +3264,10 @@ class Renderer {
         vec2 ev = floor(lat*0.5)*2.0;
         vec2 latM = mix(lat, ev, a);
         vec2 w = uOrigin + latM*uCell;
+        vTerrainXZ=w;
         gl_Position = uVP * vec4(w.x, nearGroundHeight(w,terrainH(w)), w.y, 1.0);
       }
-    `, `out vec4 o; void main(){ o = vec4(1.0); }`);
+    `, CoastalScenery.clipmapGLSL + `in vec2 vTerrainXZ;out vec4 o;void main(){if(sceneryCoveredByFiner(vTerrainXZ))discard;o=vec4(1.0);}`);
 
     this.pMeshD = program(gl, `
       layout(location=0) in vec3 aP; layout(location=3) in mat4 iM;
@@ -3762,7 +3777,9 @@ class Renderer {
     const N = this.cmN;
     for (let L = 0; L < 4; L++) {               // near levels only
       const cell = this.cmCell0 * Math.pow(2, L), snap = cell * 2;
-      gl.uniform2f(p.u.uOrigin, Math.round(this.eye[0] / snap) * snap, Math.round(this.eye[2] / snap) * snap);
+      const layer=CoastalScenery.clipmapLayer(this.eye,N,cell,L);
+      gl.uniform2f(p.u.uOrigin,...layer.origin);
+      gl.uniform2f(p.u.uFinerOrigin,...layer.innerOrigin);gl.uniform1f(p.u.uFinerHalf,layer.innerHalf);
       gl.uniform1f(p.u.uCell, cell);
       gl.uniform1f(p.u.uR0, N * cell * 0.62); gl.uniform1f(p.u.uR1, N * cell * 0.95);
       const g = L === 0 ? this.cmCore : this.cmRing;
@@ -3869,10 +3886,10 @@ class Renderer {
     const lv = this.quality === 0 ? this.cmLevels - 1 : this.cmLevels;
     for (let L = 0; L < lv; L++) {
       const cell = this.cmCell0 * Math.pow(2, L);
-      const snap = cell * 2;
-      const ox = Math.round(this.eye[0] / snap) * snap, oz = Math.round(this.eye[2] / snap) * snap;
+      const layer=CoastalScenery.clipmapLayer(this.eye,N,cell,L);
       const half = N * cell;
-      gl.uniform2f(p.u.uOrigin, ox, oz);
+      gl.uniform2f(p.u.uOrigin,...layer.origin);
+      gl.uniform2f(p.u.uFinerOrigin,...layer.innerOrigin);gl.uniform1f(p.u.uFinerHalf,layer.innerHalf);
       gl.uniform1f(p.u.uCell, cell);
       gl.uniform1f(p.u.uR0, half * 0.62); gl.uniform1f(p.u.uR1, half * 0.95);
       const g = L === 0 ? this.cmCore : this.cmRing;
@@ -3887,7 +3904,7 @@ class Renderer {
     gl.uniformMatrix4fv(p.u.uVP, false, this.matVP);
     gl.uniform1f(p.u.uTime, time); gl.uniform1f(p.u.uWave, wave);
     if (p.u.uShip) gl.uniform3f(p.u.uShip, ship ? ship[0] : 0, ship ? ship[1] : 0, ship ? ship[2] : 0);
-    gl.uniform1f(p.u.uMtn, 0); gl.uniform1f(p.u.uSeed, TER.seed);
+    gl.uniform1f(p.u.uMtn, TER.mtn); gl.uniform1f(p.u.uSeed, TER.seed);
     gl.bindVertexArray(this.sea.vao);
     gl.drawElements(gl.TRIANGLES, this.sea.n, gl.UNSIGNED_INT, 0);
   }
@@ -17631,10 +17648,14 @@ class Game {
                       tgt[1] + drop,
                       tgt[2] - Math.cos(swing) * side - ax.fwd[2] * back];
         this.cineSm = this.cineSm ? vlerp(this.cineSm, want, clamp(dt * 2.4, 0, 1)) : want;
-        const gmin = Math.max(terrainH(this.cineSm[0], this.cineSm[2]), 0) + 6;
-        if (this.cineSm[1] < gmin) this.cineSm[1] = gmin;
-        eye = this.cineSm;
-        fwd = vnorm(vsub(tgt, eye));
+        // Settle into the same eye and direction used by the straps view.
+        // Previously the final cinematic frame cut tens of metres sideways.
+        const handover=smoothstep(.55,1,u),strapEye=[c.p[0],c.p[1]-1.1,c.p[2]];
+        const strapFwd=vnorm([Math.sin(c.drift),-.35,-Math.cos(c.drift)]);
+        eye=vlerp(this.cineSm,strapEye,handover);
+        const gmin=Math.max(terrainH(eye[0],eye[2]),0)+lerp(6,.2,handover);
+        if(eye[1]<gmin)eye[1]=gmin;
+        fwd=vnorm(vlerp(vnorm(vsub(tgt,eye)),strapFwd,handover));
         up = [0, 1, 0];
       } else {
         /* Hanging in the straps, looking where the canopy is taking you,
@@ -18717,6 +18738,7 @@ LandingWater.install({Game,App,terrainH,JungleScenery,POW});
 AviatorCompanion.install({Game,App,terrainH,LandingWater});
 CarrierLaunch.install({Game,bodyAxes});
 MissionDemo.install({App,Game,missions:MISSIONS,Store,terrainH,localToWorld,worldToLocal,CV,POW});
+HUDLayout.install({App,Game});
 
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { });
 try {

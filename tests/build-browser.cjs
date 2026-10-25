@@ -29,8 +29,9 @@ const server=http.createServer((req,res)=>{
    await page.waitForFunction(()=>App.game&&document.getElementById('loader').style.display==='none',null,{timeout:60000});
    // Drive original flight explicitly below. Unattended live frames during
    // slow software-GPU UI assertions can crash the pilot-seat aircraft or
-   // open a timed teaching overlay between visibility and geometry reads.
-   await page.evaluate(()=>{window.__packagedFixedClock=true;App.game.paused=true;App.screen='build-test';for(const id of ['teach','teachPeek','legend'])document.getElementById(id)?.classList.remove('on')});
+   // open a timed teaching overlay between visibility and geometry reads. Keep
+   // the genuine game screen so its coordinated HUD remains available.
+   await page.evaluate(()=>{window.__packagedFixedClock=true;App.game.paused=true;App.screen='game';for(const id of ['teach','teachPeek','legend'])document.getElementById(id)?.classList.remove('on')});
    await page.waitForFunction(()=>{const s=window.PhotoCutouts&&PhotoCutouts.inspect(App.rend);if(s?.status==='error')throw Error(s.failures.join('; '));return s?.status==='ready'&&s.records.filter(r=>r.pose==='idle').length===6;},null,{polling:50,timeout:90000});
    const cdp=opts.hasTouch?await ctx.newCDPSession(page):null;
    if(cdp){const b=await page.locator('#pickle').boundingBox();assert.ok(b);await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:b.x+b.width/2,y:b.y+b.height/2}]});assert.equal(await page.evaluate(()=>App.gctl.commit),1)}else await page.keyboard.down('Space');
@@ -51,7 +52,7 @@ const server=http.createServer((req,res)=>{
    assert.equal(await toggle.getAttribute('aria-pressed'),'false');assert.equal(await page.evaluate(()=>FlightCoach.enabled(App.game)),false);
    const m24=await page.evaluate(()=>({ammunition:!!window.SurvivalAmmunition,board:!!window.FlightStrikeBoard,effects:!!window.FlightStrikeEffects,sortie:!!window.FlightSortieCheckpoint}));
    assert.ok(Object.values(m24).every(Boolean),'All new production modules must load from the exact package');
-   const realismModules=await page.evaluate(()=>Object.fromEntries(['VoiceProfiles','AircraftDetail','CarrierLaunch','MissionDemo','LandingWater','AviatorCompanion','Wildlife','WildlifeRender','WildlifeTargeting','JungleScenery','VisualClarity','FlightThreatFeedback','PrisonDetail','PrisonFood','RationPhoto','GroundItems','GroundItemsRender'].map(name=>[name,!!window[name]])));
+   const realismModules=await page.evaluate(()=>Object.fromEntries(['VoiceProfiles','AircraftDetail','CarrierLaunch','MissionDemo','LandingWater','AviatorCompanion','Wildlife','WildlifeRender','WildlifeTargeting','JungleScenery','VisualClarity','FlightThreatFeedback','PrisonDetail','PrisonFood','RationPhoto','GroundItems','GroundItemsRender','CoastalScenery','HUDLayout'].map(name=>[name,!!window[name]])));
    assert.ok(Object.values(realismModules).every(Boolean),'Every carrier, survival, wildlife, voice and demonstration module must load from the package');
    const groundArtwork=await page.evaluate(async()=>{const rows=[];for(const file of ['assets/firstperson/punch-left.webp','assets/firstperson/punch-right.webp','assets/items/pickups.webp','assets/firstperson/stick.webp','assets/firstperson/rifle.webp']){const image=new Image();image.src=file;await image.decode();rows.push({file,width:image.naturalWidth,height:image.naturalHeight});}return rows;});
    assert.equal(groundArtwork.length,5);assert.ok(groundArtwork.every(row=>row.width>=1024&&row.height>=600));
@@ -65,7 +66,7 @@ const server=http.createServer((req,res)=>{
    if(opts.hasTouch)await boardToggle.tap();else await boardToggle.click();
    assert.equal(await page.locator('#flightStrikePanel').isVisible(),false);
    checks.push({name:name+' packaged B/N worksheet opens through native input and keeps flight controls exposed',passed:true,observed:{modules:m24,panel},errors,missing});
-   await page.evaluate(()=>{App.game.paused=true;App.screen='build-test';App.game.render(1/60)});
+   await page.evaluate(()=>{App.game.paused=true;App.screen='game';App.game.render(1/60)});
    checks.push({name:name+' packaged flight guidance toggles through native input without moving its target',passed:true,observed:{before,after},errors,missing});
    console.log('PASS '+name+' exact packaged native guidance toggle and stable target');
    await page.locator('#teach').dispatchEvent('click');await page.screenshot({path:path.join(evidenceDir,'build-'+name+'-flight.png'),timeout:90000});
@@ -128,6 +129,7 @@ const server=http.createServer((req,res)=>{
    await page.evaluate(()=>{window.__packagedFixedClock=true;App.game.paused=true;App.game.render(0);});
    await page.waitForFunction(()=>{const p=PrisonDetail.inspect(App.rend),r=RationPhoto.inspect(App.rend);if(p.status==='error'||r.status==='error')throw Error(JSON.stringify({p,r}));return p.status==='ready'&&r.status==='ready';},null,{polling:50,timeout:90000});
    const prisonMaterials=await page.evaluate(()=>{const g=App.game,R=App.rend;g.render(0);return {stage:g.pow.stage,materials:PrisonDetail.inspect(R),ration:RationPhoto.inspect(R),meal:PrisonFood.inspect(g),fullMesh:!!R.meshes.rationPhotoFull,emptyMesh:!!R.meshes.rationPhotoEmpty,gl:R.gl.getError()};});
+   assert.ok(await page.evaluate(()=>!!POW.ConfinementGoals&&POW.ConfinementGoals.view(App.game)?.condition.length===4),'Packaged solitary goals and all four condition meters must be registered');
    assert.equal(prisonMaterials.stage,'solitary');assert.equal(prisonMaterials.materials.ready,4);assert.ok(prisonMaterials.materials.bytes<=prisonMaterials.materials.budget);assert.equal(prisonMaterials.ration.ready,2);assert.ok(prisonMaterials.ration.bytes<=prisonMaterials.ration.budget);assert.equal(prisonMaterials.meal.supported,true);assert.equal(prisonMaterials.meal.mealObject,'cell-tray');assert.ok(prisonMaterials.fullMesh&&prisonMaterials.emptyMesh);assert.equal(prisonMaterials.gl,0);assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
    checks.push({name:name+' packaged prison material textures and whole-photo full/empty ration surfaces load through the native chapter',passed:true,observed:prisonMaterials});
    // Launch through the released menu, then advance only original production
@@ -141,7 +143,7 @@ const server=http.createServer((req,res)=>{
    await page.evaluate(()=>{window.__packagedFixedClock=true});
    if(opts.hasTouch)await page.locator('#willardPlay').tap();else await page.locator('#willardPlay').click();
    await page.waitForFunction(()=>App.game?.mis?.id==='willard'&&document.getElementById('loader').style.display==='none',null,{polling:50,timeout:90000});
-   await page.evaluate(()=>{App.screen='build-test';App.game.paused=true});
+   await page.evaluate(()=>{App.screen='game';App.game.paused=true});
    await page.evaluate(async()=>{await WillardSprites.load(App.rend);const g=App.game;g.paused=false;for(let i=0;i<13*60&&g.ac.alive&&!g.result;i++)g.update(1/60);g.render(1/60);g.syncControls();App.screen='game';WillardPresentation.render(g)});
    if(opts.hasTouch)await page.locator('#willardRear').tap();else await page.locator('#willardRear').click();
    const willard=await page.evaluate(()=>{const g=App.game;g.paused=true;g.render(1/60);return {mission:g.mis.id,alive:g.ac.alive,phase:g.willard.phase,rear:g.willard.rear,rightSeat:g.rightSeat,checkpointValid:WillardMission.validCheckpoint(Store.get(WillardMission.KEY,null)),artwork:WillardSprites.inspect(g.rend),immersion:{nightContrast:g.rend.atm.nightContrast,meshes:['bnRouteFactory','bnRouteBridge','bnRouteRail'].every(n=>!!g.rend.meshes[n]),chart:!!FlightStrikeBoard.chart(g),rasterCPU:g.hud.radar.ctx.getContextAttributes().willReadFrequently},gpuError:g.rend.gl.getError()}});
