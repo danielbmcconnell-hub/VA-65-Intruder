@@ -1,4 +1,4 @@
-.ground-items-ui{position:absolute;left:50%;bottom:max(70px,calc(env(safe-area-inset-bottom) + 64px));transform:translateX(-50%);z-index:31;display:flex;align-items:center;justify-content:center;gap:8px;pointer-events:none;font:13px/1.35 system-ui,sans-serif;color:#f5f2e6;max-width:calc(100% - 32px)}
+.ground-items-ui{position:fixed;left:50%;bottom:max(70px,calc(env(safe-area-inset-bottom) + 64px));transform:translateX(-50%);z-index:36;display:flex;align-items:center;justify-content:center;gap:8px;pointer-events:none;font:13px/1.35 system-ui,sans-serif;color:#f5f2e6;max-width:calc(100% - 32px)}
 .ground-items-ui[hidden],.ground-items-ui [hidden]{display:none!important}
 .ground-items-ui button{pointer-events:auto;min-height:40px;padding:9px 12px;border:1px solid #b3ac8b;background:#172019f0;color:#fff9df;border-radius:5px;cursor:pointer;font:inherit;touch-action:manipulation}
 .ground-items-ui button:hover,.ground-items-ui button:focus-visible{background:#344432;outline:2px solid #e1d49c;outline-offset:2px}

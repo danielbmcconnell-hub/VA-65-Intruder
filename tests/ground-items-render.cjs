@@ -12,7 +12,8 @@ function fixture(o={}){
   appendChild(v){this.children.push(v);v.parentNode=this;return v;}
   setAttribute(k,v){this.attributes[k]=String(v);}getAttribute(k){return this.attributes[k];}
   addEventListener(k,fn){(this.listeners[k]||(this.listeners[k]=[])).push(fn);}
-  fire(k,event={}){for(const fn of this.listeners[k]||[])fn(event);}focus(){this.focused=true;}
+  fire(k,event={}){for(const fn of this.listeners[k]||[])fn(event);}focus(){this.focused=true;document.activeElement=this;}blur(){this.blurred=true;if(document.activeElement===this)document.activeElement=null;}
+  contains(node){for(let p=node;p;p=p.parentNode)if(p===this)return true;return false;}
   getContext(){const cv=this;return {drawImage(...args){draws.push(args);},getImageData(){const d=new Uint8ClampedArray(cv.width*cv.height*4);for(let y=5;y<cv.height-5;y++)for(let x=5;x<cv.width-5;x++)d[(y*cv.width+x)*4+3]=o.opaque?0:255;return {data:d};}};}
  }
  const document={hidden:false,createElement:tag=>new Element(tag),getElementById:id=>nodes.get(id)||null};document.body=new Element('body');const stack=new Element('div');stack.id='stack';document.body.appendChild(stack);
@@ -68,6 +69,13 @@ test('prison, stale games and flight scenes cannot load supplies, submit photogr
 test('pickup UI invokes the domain exactly once, updates its live target and supports toggle, explicit Close and Escape',()=>{
  const f=fixture();f.target({id:'food1',kind:'food',ammo:0});assert.equal(f.M.renderUI(f.g),true);const n=f.nodes,event={preventDefault(){this.prevented=true;},stopPropagation(){this.stopped=true;}};assert.equal(n.get('groundItemPickup').textContent,'Eat bananas · F');n.get('groundItemPickup').fire('click',event);assert.equal(f.calls.interact,1);assert.equal(event.prevented,true);assert.equal(event.stopped,true);assert.equal(n.get('groundItemPickup').hidden,true);
  const toggle=n.get('groundItemsToggle'),panel=n.get('groundItemsPanel');toggle.fire('click',event);assert.equal(panel.hidden,false);assert.equal(toggle.getAttribute('aria-expanded'),'true');toggle.fire('click',event);assert.equal(panel.hidden,true);toggle.fire('click',event);n.get('groundItemsClose').fire('click',event);assert.equal(panel.hidden,true);assert.equal(toggle.focused,true);toggle.fire('click',event);n.get('groundItemsUI').fire('keydown',{...event,key:'Escape'});assert.equal(panel.hidden,true);
+});
+test('body-level inventory clears its focus and owner before navigation or a new game, and remains behind pause and controls',()=>{
+ const f=fixture(),calls=[];const app={game:f.g,screen:'game',show(id){calls.push(['show',id]);this.screen=id;return 'shown';},start(mission){calls.push(['start',mission]);this.game={};return 'started';}};f.g.app=app;f.M.configure({App:app});const wrapped=app.show;f.M.configure({App:app});assert.equal(app.show,wrapped,'Configuration must not stack lifecycle wrappers');
+ f.M.renderUI(f.g);const host=f.nodes.get('groundItemsUI'),panel=f.nodes.get('groundItemsPanel'),toggle=f.nodes.get('groundItemsToggle'),close=f.nodes.get('groundItemsClose');assert.equal(host.parentNode,f.document.body,'Inventory shares the body-level POW HUD stacking context');
+ toggle.fire('click',{});close.focus();assert.equal(panel.hidden,false);assert.equal(app.show('ready'),'shown');assert.equal(host.hidden,true);assert.equal(panel.hidden,true);assert.equal(close.blurred,true);assert.equal(f.document.activeElement,null);assert.equal(toggle.getAttribute('aria-expanded'),'false');
+ app.screen='game';f.M.renderUI(f.g);assert.equal(host.hidden,false);assert.equal(panel.hidden,true);toggle.fire('click',{});assert.equal(app.start('mission2'),'started');assert.equal(host.hidden,true);assert.equal(panel.hidden,true);assert.deepEqual(calls,[['show','ready'],['start','mission2']]);
+ app.game=f.g;f.M.renderUI(f.g);f.g.paused=true;f.M.renderUI(f.g);assert.equal(host.hidden,true);f.g.paused=false;f.M.renderUI(f.g);assert.equal(host.hidden,false);const legend=f.document.createElement('section');legend.id='legend';legend.classList={contains:name=>name==='on'};f.M.renderUI(f.g);assert.equal(host.hidden,true,'Body inventory must never cover the controls card');legend.classList={contains:()=>false};f.M.renderUI(f.g);assert.equal(host.hidden,false);
 });
 test('inventory actions use only domain equip; pointer events cannot propagate to world firing and pause still allows closing',()=>{
  const f=fixture();f.M.renderUI(f.g);const host=f.nodes.get('groundItemsUI'),panel=f.nodes.get('groundItemsPanel'),toggle=f.nodes.get('groundItemsToggle');let stopped=0;for(const k of ['pointerdown','pointerup','mousedown','mouseup','touchstart','touchend','click'])host.fire(k,{stopPropagation(){stopped++;}});assert.equal(stopped,7);

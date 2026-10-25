@@ -5,7 +5,7 @@
  'use strict';
  const KINDS=Object.freeze(['food','foliage','hat','stick','rifle','pistol','radio','flare','knife']);
  const LIMITS=Object.freeze({items:32,range:40,desktopGPU:10*1024*1024,touchGPU:3*1024*1024,touchEdge:256,desktopEdge:512,failures:12});
- const renderers=new WeakMap(),games=new WeakMap();let context=null,ui=null;
+ const renderers=new WeakMap(),games=new WeakMap(),hookedApps=new WeakSet();let context=null,ui=null;
  const point=p=>Array.isArray(p)&&p.length>=3&&p.slice(0,3).every(Number.isFinite);
  const finite=(v,d=0)=>Number.isFinite(v)?v:d;
  const restricted=g=>!!(g?.pow&&['cell','compound','solitary','regular'].includes(g.pow.stage)||g?.evade?.camp&&!g.pow);
@@ -56,7 +56,22 @@
   if(surfaces.length&&typeof root.WildlifeRender?.drawSurfaces==='function'){s.drawn=root.WildlifeRender.drawSurfaces(g,r,surfaces);s.lastItems=surfaces.map(q=>({id:q.id,p:q.p.slice(),length:q.length,width:q.width,textureName:q.record.textureName}));}
   return s.drawn;
  }
- function configure(c){if(!c||!c.App)return false;context=c;return true;}
+ function hideUI(){
+  if(!ui)return;
+  const focused=root.document?.activeElement;if(focused&&ui.host.contains?.(focused))focused.blur?.();
+  if(ui.game)gameState(ui.game).open=false;
+  ui.host.hidden=true;ui.panel.hidden=true;ui.toggle.setAttribute('aria-expanded','false');ui.game=null;
+ }
+ function configure(c){
+  if(!c||!c.App)return false;context=c;const a=c.App;
+  if(!hookedApps.has(a)){
+   hookedApps.add(a);
+   for(const name of ['show','start'])if(typeof a[name]==='function'){
+    const original=a[name];a[name]=function(){hideUI();return original.apply(this,arguments);};
+   }
+  }
+  return true;
+ }
  function element(tag,id,parent,text){const e=root.document.createElement(tag);if(id)e.id=id;if(text)e.textContent=text;if(parent)parent.appendChild(e);return e;}
  function stop(event){if(event.stopPropagation)event.stopPropagation();}
  function action(event,fn){if(event.preventDefault)event.preventDefault();stop(event);fn();}
@@ -69,7 +84,9 @@
  function gameState(g){let s=games.get(g);if(!s||s.actor!==g.evade){s={actor:g.evade,open:false};games.set(g,s);}return s;}
  function ensureUI(){
   if(ui||!root.document?.createElement||!root.document.body)return ui;
-  const host=element('div','groundItemsUI',root.document.getElementById('stack')||root.document.body);host.className='ground-items-ui';host.hidden=true;
+  // POW controls live directly under body. A child of the game's fixed
+  // stacking context cannot rise above them, regardless of its own z-index.
+  const host=element('div','groundItemsUI',root.document.body);host.className='ground-items-ui';host.hidden=true;
   const pickup=element('button','groundItemPickup',host);pickup.type='button';pickup.hidden=true;
   const toggle=element('button','groundItemsToggle',host,'Supplies');toggle.type='button';toggle.setAttribute('aria-controls','groundItemsPanel');toggle.setAttribute('aria-expanded','false');
   const punch=element('button','groundItemsPunch',host,'Punch free hand');punch.type='button';punch.setAttribute('aria-label','Punch with a free hand without changing equipment');
@@ -97,8 +114,11 @@
   ui={host,pickup,toggle,punch,panel,close,summary,controls,game:null};return ui;
  }
  function renderUI(g){
-  if(!eligible(g)){if(ui){ui.host.hidden=true;ui.panel.hidden=true;ui.game=null;}return false;}
-  const u=ensureUI();if(!u)return false;const inv=root.GroundItems?.inventory?.(g);if(!inv){u.host.hidden=true;return false;}const s=gameState(g);u.game=g;u.host.hidden=false;
+  if(!eligible(g)){hideUI();return false;}
+  const u=ensureUI();if(!u)return false;const inv=root.GroundItems?.inventory?.(g);if(!inv){hideUI();return false;}const s=gameState(g);u.game=g;
+  const overlay=['pauseVeil','captVeil','legend','knee'].some(id=>root.document.getElementById(id)?.classList?.contains('on'));
+  const hidden=!!(g.paused||g.evade.frozen||g.evade.held||g._capturePending||appFor(g)?.graphicsContextLost||overlay);
+  if(hidden){hideUI();u.game=g;}u.host.hidden=hidden;
   const target=root.GroundItems?.target?.(g);u.pickup.hidden=!target;u.pickup.textContent=target?(target.kind==='food'?'Eat bananas':'Pick up '+({foliage:'leafy cover',hat:'conical hat',stick:'branch',rifle:'rifle · '+finite(target.ammo)+' rounds'}[target.kind]||target.kind))+' · F':'';
   u.pickup.dataset.itemId=target?String(target.id):'';u.panel.hidden=!s.open;u.toggle.setAttribute('aria-expanded',String(s.open));
   u.summary.textContent='Energy '+Math.round(Math.max(0,Math.min(1,finite(inv.energy)))*100)+'% · Rifle '+finite(inv.rifleAmmo)+' rounds'+(inv.foliage?' · Leafy cover worn':'')+(inv.hat?' · Conical hat worn':'');
