@@ -33,10 +33,15 @@ module.exports = async function landingSurvivalBrowser(browser, target, evidence
     const record = (label, actual) => { checks.push({ layout: name, name: label, passed: true, actual }); console.log('PASS landing-survival ' + name + ' ' + label); };
     const tick = (seconds, render = true, untilDry = false, untilRadius = null) => page.evaluate(({ seconds, render, untilDry, untilRadius }) => {
       const g = App.game, started = g.t;
-      let left = seconds;
-      while (left > 1e-9 && !g.result && !['done', 'dead'].includes(g.phase) && !(untilDry && !LandingWater.swimming(g)) && !(untilRadius && Math.hypot(g.evade.p[0] - untilRadius.p[0], g.evade.p[2] - untilRadius.p[2]) >= untilRadius.distance)) { const dt = Math.min(1 / 60, left); g.update(dt); left -= dt; }
+      let left = seconds;const contact=untilRadius?.companionContact?{queries:0,last:null}:null,blocked=g._blockedAt;
+      // Observe the original solver's actual body rejection, then release the
+      // native movement control before tangential sliding can go around him.
+      if(contact)g._blockedAt=function(x,z,r,e){const result=blocked.apply(this,arguments);if(result&&e===this.evade&&AviatorCompanion.blockedAt(this,x,z,r,e)){contact.queries++;contact.last={x,z,r};}return result;};
+      try{
+      while (left > 1e-9 && !g.result && !['done', 'dead'].includes(g.phase) && !(untilDry && !LandingWater.swimming(g)) && !(contact?.queries) && !(untilRadius && !contact && Math.hypot(g.evade.p[0] - untilRadius.p[0], g.evade.p[2] - untilRadius.p[2]) >= untilRadius.distance)) { const dt = Math.min(1 / 60, left); g.update(dt); left -= dt; }
+      }finally{if(contact)g._blockedAt=blocked;}
       if (render) { g.render(0); g.syncControls(); }
-      return { phase: g.phase, elapsed: g.t - started, p: g.evade?.p.slice() || g.chute?.p.slice(), landing: LandingWater.view(g), companion: AviatorCompanion.view(g), gl: App.rend.gl.getError(), result: !!g.result };
+      return { phase: g.phase, elapsed: g.t - started, p: g.evade?.p.slice() || g.chute?.p.slice(), landing: LandingWater.view(g), companion: AviatorCompanion.view(g), gl: App.rend.gl.getError(), result: !!g.result,...(contact?{contact}:{} ) };
     }, { seconds, render, untilDry, untilRadius });
     const shot = async label => { const file = name + '-' + label + '.png'; await page.screenshot({ path: path.join(out, file), timeout: 90000 }); screenshots.push('landing-survival/' + file); };
     let cdp;
@@ -169,12 +174,19 @@ module.exports = async function landingSurvivalBrowser(browser, target, evidence
       await page.evaluate(() => { App.game.render(0); App.game.syncControls(); });
       await shot('cutaway-ground'); record('Keyboard or held touch knife action releases into gravity, a clear landing and bounded injury', { cut, ground, cutState });
 
-      // The other real descent is allowed to finish. The controller walks to
-      // the resulting physical actor; it never assigns reunion/crew position.
-      const reunion = await page.evaluate(() => {
-        const g = App.game, e = g.evade; let steps = 0;
+      // Let the other descent finish, then use the real Call crewmate control.
+      // A separately landed aviator can be outside visual search distance.
+      // Neither the call nor the walk assigns reunion, knowledge or position.
+      const crewDescent = await page.evaluate(() => {
+        const g = App.game; let steps = 0;
         while (AviatorCompanion.view(g).chute && steps++ < 3000) g.update(1 / 60);
-        const initial = AviatorCompanion.view(g);
+        g.render(0);g.syncControls();return {steps,initial:AviatorCompanion.view(g)};
+      });
+      await click(page.locator('[data-companion-line]'));
+      await click(page.locator('[data-companion="call"]'));
+      await click(page.locator('[data-companion="hide"]'));
+      const reunion = await page.evaluate(crewDescent => {
+        const g = App.game, e = g.evade, called=AviatorCompanion.view(g);
         for (let i = 0; i < 2400 && !AviatorCompanion.view(g).reunited; i++) {
           const n = AviatorCompanion.actors(g)[0]; if (!n) break;
           const yaw = Math.atan2(n.p[0] - e.p[0], -(n.p[2] - e.p[2]));
@@ -184,29 +196,35 @@ module.exports = async function landingSurvivalBrowser(browser, target, evidence
           }
           App.keys.KeyW = 1; g.update(1 / 60); App.keys.KeyW = 0;
         }
-        g.render(0); g.syncControls(); return { initial, after: AviatorCompanion.view(g), p: e.p.slice(), gl: App.rend.gl.getError() };
-      });
+        g.render(0); g.syncControls(); return { initial:crewDescent.initial, descentSteps:crewDescent.steps, called, after: AviatorCompanion.view(g), p: e.p.slice(), gl: App.rend.gl.getError() };
+      },crewDescent);
       assert.equal(reunion.after.reunited, true); assert.ok(reunion.after.distance < 7); assert.equal(reunion.gl, 0);
       await click(page.locator('[data-companion-line]')); await click(page.locator('[data-companion="wait"]'));
       const waiting = await tick(2); const waitP = waiting.companion.actors[0].p;
       const still = await tick(2); assert.deepEqual(still.companion.actors[0].p, waitP); assert.equal(still.companion.order, 'wait');
       const collisionBefore = await page.evaluate(() => {
         const g = App.game, e = g.evade, original = AviatorCompanion.snapshot(g), probe = { ...e, _companionMoving: true };
-        let target, heading;
+        g.render(0);const obstaclesBefore=JungleScenery.obstacles(g);let target, heading,rejectedAfterRender=0;
         for (let i = 0; i < 32 && !target; i++) {
           const a = i * Math.PI / 16; let clear = true;
           for (let d = .1; d <= 3.5 && clear; d += .1) clear = !g._blockedAt(e.p[0] + Math.sin(a) * d, e.p[2] - Math.cos(a) * d, .46, probe);
-          if (clear) { heading = a; const x = e.p[0] + Math.sin(a) * 3, z = e.p[2] - Math.cos(a) * 3; target = [x, terrainH(x, z), z]; }
+          if(clear){
+            const x=e.p[0]+Math.sin(a)*3,z=e.p[2]-Math.cos(a)*3,candidate=[x,terrainH(x,z),z],s=JSON.parse(JSON.stringify(original));s.actor.p=candidate;s.actor.goal=candidate.slice();
+            if(!AviatorCompanion.restore(g,s))throw Error('Cannot set declared collision body fixture');
+            g.render(0);
+            // Rendering can establish more real jungle trunks. Check the
+            // actual submitted colliders before committing this fixture.
+            for(let d=.1;d<=3.5&&clear;d+=.1)clear=!g._blockedAt(e.p[0]+Math.sin(a)*d,e.p[2]-Math.cos(a)*d,.46,probe);
+            if(clear){heading=a;target=candidate;}else rejectedAfterRender++;
+          }
         }
         if (!target) throw Error('No actual clear three-metre collision-test corridor');
         // Reunion and Wait above were physically earned. Only this isolated
         // contact fixture repositions the same waiting body; no success,
         // injury, pace, collision or extraction state is created by the test.
-        const s = JSON.parse(JSON.stringify(original)); s.actor.p = target; s.actor.goal = target.slice();
-        if (!AviatorCompanion.restore(g, s)) throw Error('Cannot set declared collision body fixture');
-        e.hdg = heading; g.render(0); return { player: e.p.slice(), crew: target, originalCrew: original.actor.p, scope: 'Only waiting crewmate starting feet repositioned onto a verified three-metre collision corridor after real reunion; original collision and subsequent native movement remain authoritative.' };
+        e.hdg = heading; return { player: e.p.slice(), crew: target, originalCrew: original.actor.p,heading,rejectedAfterRender,obstaclesBefore,obstaclesAfter:JungleScenery.obstacles(g), scope: 'Only waiting crewmate starting feet repositioned onto a three-metre corridor verified against actual colliders after rendering, after real reunion. Native movement stops after the original solver actually rejects a companion-body step; actor state, collisions and injury remain authoritative.' };
       });
-      await forward(6);
+      const contact=await forward(6,false,1,false,{companionContact:true});assert.ok(contact.contact.queries>0,'Original swept movement must actually encounter the crewmate collider');
       const crewCollision = await page.evaluate(() => { const g = App.game, n = AviatorCompanion.actors(g)[0]; return { player: g.evade.p.slice(), crew: n.p.slice(), distance: Math.hypot(n.p[0] - g.evade.p[0], n.p[2] - g.evade.p[2]) }; });
       assert.deepEqual(crewCollision.crew, collisionBefore.crew); assert.ok(crewCollision.distance >= .75 && crewCollision.distance < 1.3);
       assert.ok(Math.hypot(crewCollision.player[0] - collisionBefore.player[0], crewCollision.player[2] - collisionBefore.player[2]) > .5);
@@ -214,7 +232,7 @@ module.exports = async function landingSurvivalBrowser(browser, target, evidence
       await click(page.locator('[data-companion-line]'));
       await click(page.locator('[data-companion="follow"]')); const follow = await tick(2); assert.equal(follow.companion.order, 'follow');
       await click(page.locator('[data-companion="hide"]')); assert.equal(await page.locator('[data-companion-actions]').isVisible(), false);
-      record('Physical second descent reaches genuine reunion; Follow/Wait/Hide operate and native walking stops at the companion collider', { reunion, waiting: waiting.companion, collisionBefore, crewCollision, following: follow.companion });
+      record('Physical second descent reaches genuine reunion; Follow/Wait/Hide operate and native walking stops at the companion collider', { reunion, waiting: waiting.companion, collisionBefore,contact, crewCollision, following: follow.companion });
 
       // Authentic radio authentication, elapsed rescue time, smoke, the full
       // HH-3 run-in and the existing cable dwell all remain authoritative.

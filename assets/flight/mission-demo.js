@@ -95,11 +95,28 @@
   const speed=s.approachTurning?140:flat(g.ac.p,p)<6500?180:300;
   return targetCommand(g,target,lowEgress?highest(g,target,145):Math.max(altitude,highest(g,target,50)),speed);
  }
+ function recoveryTerrainBlocked(g){
+  const c=g.world.carrier,CV=ctx.CV,local=ctx.localToWorld;
+  if(!c||!CV||!local||typeof ctx.terrainH!=='function')return false;
+  const deck=[c.p[0],c.p[1]+finite(c.heave),c.p[2]],wire=CV.wire[1]+2;
+  // Sample the real angled-deck glide path before committing to recovery.
+  // A ship that has moved close to land must not draw the practice aircraft
+  // down through terrain. Existing open-water ejection/SAR remains physical.
+  for(const z of [wire,400,900,1500,2500]){
+   const p=local(deck,c.hdg,z*Math.sin(CV.angle),0,z*Math.cos(CV.angle));
+   const altitude=deck[1]+1.55+(z-wire)*Math.tan(3.5*DEG);
+   if(finite(ctx.terrainH(p[0],p[2]))>altitude-12)return true;
+  }
+  return false;
+ }
  function emergency(g,s){
   const ac=g.ac,damage=ac.dmg||{},crew=ac.crew||{};
-  if(!s.emergency&&doneCombat(g)&&(finite(damage.hyd)>.65||finite(crew.pilot,1)<.4||finite(damage.eng)>.8||finite(g.bolters)>=2||finite(s.goarounds)>=2))s.emergency={since:s.elapsed};
+  if(!s.emergency&&doneCombat(g)){
+   const terrainBlocked=!g.aclsCoupled&&recoveryTerrainBlocked(g);
+   if(terrainBlocked||finite(damage.hyd)>.65||finite(crew.pilot,1)<.4||finite(damage.eng)>.8||finite(g.bolters)>=2||finite(s.goarounds)>=2)s.emergency={since:s.elapsed,terrainBlocked};
+  }
   if(!s.emergency)return false;
-  stage(s,'emergency');speedBrake(g,false);g.app.gctl.commit=0;
+  stage(s,'emergency',s.emergency.terrainBlocked?'Terrain obstructs the moving carrier approach. The crew climbs away, flies toward open water and uses the normal ejection and rescue controls.':undefined);speedBrake(g,false);g.app.gctl.commit=0;
   const open=p=>{for(const [x,z] of [[0,0],[1500,0],[-1500,0],[0,1500],[0,-1500]])if(ctx.terrainH(p[0]+x,p[2]+z)>-.8)return false;return true;};
   if(open(ac.p)&&ac.p[1]>45){action(s,g,()=>g.eject(),1);return true;}
   if(!s.emergency.target){
@@ -111,7 +128,7 @@
  }
  function rescue(g,s,dt){
   const e=g.evade;stage(s,'rescue');
-  if(e.held){action(s,g,()=>{const buttons=root.document?.querySelectorAll('#captVeil.on button')||[];[...buttons].find(b=>/lie still|go on|continue/i.test(b.textContent))?.click();},1);return;}
+  if(e.held){action(s,g,()=>{const buttons=root.document?.querySelectorAll('#captVeil.on button')||[];([ ...buttons ].find(b=>/^run$/i.test(b.textContent.trim()))||[...buttons].find(b=>/lie still|go on|continue/i.test(b.textContent)))?.click();},1);return;}
   if(e.radio<1)g.app.keys.KeyR=1;
   if(e.radio>=1&&e.rescue/Math.max(1,e.eta)>.55&&!e.smoke)g.app.keys.KeyG=1;
   const buddy=root.AviatorCompanion?.view?.(g);if(buddy?.active&&!buddy.reunited)action(s,g,()=>root.AviatorCompanion.command(g,'call'),8);
@@ -223,9 +240,13 @@
    const r=pow.river,x=b[0]+94;if(!r){stage(s,'river','Waiting for the river simulation to finish loading.');return;}stage(s,r.phase==='gulf'?'gulf':'river');
    if(r.phase==='gulf'&&r.recoveryPoint){const d=flat(e.p,r.recoveryPoint);navigate(g,s,r.recoveryPoint,dt,3.5);if(r.boatOwned){if(d<17&&r.boat.speed>.45)g.app.gctl.pitch=-1;else if(d<4.5)g.app.gctl.pitch=0;else if(d<17&&r.boat.speed>.2)g.app.gctl.pitch=0;}if(d<7.5&&!r.signaling){g.app.keys.KeyF=1;if(r.boatOwned)g.app.gctl.pitch=r.boat.speed>.4?-1:0;}return;}
    if(r.boat&&!r.boatOwned&&r.phase==='delta'){
-    const watched=e.searchers?.some(a=>a.alive!==false&&a.armed!==false&&point(a.p)&&flat(a.p,r.boat.p)<24);
-    if(!watched){if(r.mode==='float'&&flat(e.p,r.boat.p)>9)objectWork(g,s,'river-float',dt);else objectWork(g,s,'river-board',dt);return;}
-    stage(s,'river','The skiff is close to a watched bank. The computer stays in the channel, conserves strength with the current and prepares to swim toward the offshore recovery contact.');
+    const watched=e.searchers?.some(a=>a.alive!==false&&a.armed!==false&&point(a.p)&&(flat(a.p,r.boat.p)<60||a.state==='pursuit'&&flat(a.p,e.p)<45));
+    // A patrol moving away briefly does not make a previously watched boat
+    // safe. Do not swim back upstream once the current has carried us past it.
+    if(watched||r.boat.p[2]<e.p[2]-8)s.bypassSkiff=true;
+    if(!s.bypassSkiff){if(r.mode==='float'&&flat(e.p,r.boat.p)>9)objectWork(g,s,'river-float',dt);else objectWork(g,s,'river-board',dt);return;}
+    stage(s,'river','The skiff is watched or already upstream. The computer stays in the channel, conserves strength with the current and prepares to swim toward the offshore recovery contact.');
+    if(r.logicalDistance<90000&&r.mode==='swim'&&flat(e.p,r.boat.p)>10){objectWork(g,s,'river-float',dt);return;}
     if(r.logicalDistance>90000&&r.mode==='float'){objectWork(g,s,'river-float',dt);return;}
    }
    // Follow the channel through its actual scrolling geometry. No route

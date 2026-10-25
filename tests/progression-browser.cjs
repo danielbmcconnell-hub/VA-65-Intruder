@@ -32,8 +32,14 @@ module.exports=async function progression(browser,target,evidenceDir){
    const p=await dryAircraft();
    await page.locator('#btnEject').dispatchEvent('click');await page.locator('#btnEject').dispatchEvent('click');
    assert.equal(await page.evaluate(()=>App.game.phase),'chute');await shot('parachute');
-   const descent=await page.evaluate(()=>{const G=App.game;let n=0;G.paused=false;while(G.phase==='chute'&&n++<4800)G.update(1/60);G.paused=false;G.render(1/60);G.syncControls();return {steps:n,phase:G.phase,ejected:G.ejected,out:G._outOfAircraft,held:!!G.evade?.held}});
-   assert.equal(descent.phase,'evade');assert.ok(descent.ejected&&descent.out);record('Ejection and real parachute descent',descent,'Aircraft positioned110m above dry terrain; real seat/canopy/descent simulation, UI two-tap eject');
+   const descent=await page.evaluate(()=>{const G=App.game;let n=0,cutawayFrames=0;G.paused=false;
+    while(G.phase==='chute'&&n++<4800){
+     // A real canopy can snag during this otherwise dry-ground fixture.
+     // Hold the normal knife/harness control until its physical drop resumes.
+     const hung=G.chute?.landing?.mode==='hung';App.keys.KeyV=hung?1:0;if(hung)cutawayFrames++;G.update(1/60);
+    }
+    App.keys.KeyV=0;G.paused=false;G.render(1/60);G.syncControls();return {steps:n,cutawayFrames,treeLanding:G.evade?.treeLanding,phase:G.phase,ejected:G.ejected,out:G._outOfAircraft,held:!!G.evade?.held}});
+   assert.equal(descent.phase,'evade');assert.ok(descent.ejected&&descent.out);record('Ejection and real parachute descent',descent,'Aircraft positioned 110m above dry terrain; real seat/canopy/descent simulation and UI two-tap eject. Actual tree snags use the original held V cutaway control before descent continues');
    if(await page.locator('#captVeil.on').count()){
     await shot('survival-photo');
     const run=page.locator('#captBody').getByRole('button',{name:'Run',exact:true});

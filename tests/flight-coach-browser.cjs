@@ -34,12 +34,22 @@ module.exports = async function flightCoachBrowser(browser, target, evidenceDir)
       assert.equal(await page.locator('#flightCoach').isVisible(), false);
       await page.click('#tabs [data-tab="ops"]');
     };
+    const refreshCoach = async () => page.evaluate(() => {
+      const g=App.game;if(!g.paused)g.update(1/60);FlightCoach.tick(g,0);g.render(0);g.syncControls();
+    });
+    const resumeStartup = async () => page.evaluate(() => {
+      if(window.__coachFrameStopped){App.frame=window.__coachNativeFrame;window.__coachFrameStopped=false;requestAnimationFrame(t=>App.frame(t));}
+    });
     const loaded = async id => {
-      await page.waitForFunction(expected => document.getElementById('graphicError') || App.game?.mis.id === expected && App.game.st && document.getElementById('loader').style.display === 'none', id, { timeout: 90000 });
+      await page.waitForFunction(expected => document.getElementById('graphicError') || App.game?.mis.id === expected && App.game.st && document.getElementById('loader').style.display === 'none', id, { polling:50, timeout: 90000 });
       assert.equal(await page.locator('#graphicError').count(), 0);
       await waitCompletePhotographs(page);
+      // Preserve genuine startup; bound software rendering while trusted UI
+      // and the original fixed-step game produce the explicit renders below.
+      await page.evaluate(()=>{window.__coachNativeFrame ||=App.frame;App.frame=()=>{};window.__coachFrameStopped=true;});
       await page.locator('#teach').dispatchEvent('click');
       if (await page.locator('#legend.on').count()) await page.keyboard.press('h');
+      await refreshCoach();
     };
     const touch = async (selector, held) => {
       const box = await page.locator(selector).boundingBox(); assert.ok(box, selector + ' must be reachable on touch');
@@ -72,6 +82,7 @@ module.exports = async function flightCoachBrowser(browser, target, evidenceDir)
       const response = await page.goto(target, { waitUntil: 'domcontentloaded' }); assert.equal(response.status(), 200);
       const sourceSha256 = crypto.createHash('sha256').update(await response.text()).digest('hex');
       await page.waitForFunction(() => window.App && App.screen === 'boot'); await page.click('#bootGo');
+      await page.evaluate(()=>{window.__coachNativeFrame=App.frame;window.__coachFrameStopped=false;});
       assert.equal(await page.locator('#readyBody .mcard').count(), 12);
       await page.locator('#readyBody .mcard').first().click(); await page.getByRole('button', { name: 'Man Aircraft', exact: true }).click(); await loaded('m1');
       const initial = await page.evaluate(() => ({ enabled: FlightCoach.enabled(App.game), pressed: document.getElementById('flightCoachToggle').getAttribute('aria-pressed'),
@@ -81,18 +92,18 @@ module.exports = async function flightCoachBrowser(browser, target, evidenceDir)
 
       const toggleBox = await page.locator('#flightCoachToggle').boundingBox(); assert.ok(toggleBox.height >= 44 && toggleBox.width >= 44);
       if (cdp) await touch('#flightCoachToggle', false); else await page.click('#flightCoachToggle');
-      await page.waitForFunction(() => FlightCoach.enabled(App.game));
+      await refreshCoach();await page.waitForFunction(() => FlightCoach.enabled(App.game));
       await page.waitForFunction(() => document.getElementById('flightCoachCue').hidden === false);
       const enabledToggleBox = await page.locator('#flightCoachToggle').boundingBox();
       assert.ok(Math.abs(enabledToggleBox.x - toggleBox.x) < .1 && Math.abs(enabledToggleBox.y - toggleBox.y) < .1, 'Showing a cue must not move the toggle between touch gestures');
       assert.equal(await page.evaluate(() => Store.get('flightCoach22', null)), true);
       assert.notEqual(await page.evaluate(() => document.activeElement.id), 'flightCoachToggle');
       if (cdp) await touch('#flightCoachToggle', false); else await page.click('#flightCoachToggle');
-      await page.waitForFunction(() => !FlightCoach.enabled(App.game)); assert.equal(await page.evaluate(() => Store.get('flightCoach22', null)), false);
+      await refreshCoach();await page.waitForFunction(() => !FlightCoach.enabled(App.game)); assert.equal(await page.evaluate(() => Store.get('flightCoach22', null)), false);
       record('Native guidance toggle is stable, reachable, persists choice and releases flight keyboard focus', { width: toggleBox.width, height: toggleBox.height, enabledX: enabledToggleBox.x, disabledX: toggleBox.x, persistedOff: true }, cdp ? 'Actual CDP touchscreen events on the DOM toggle; cue appearance cannot shift the target.' : 'Native mouse clicks on the DOM toggle; cue appearance cannot shift the target.');
       await ready(); record('Returning to Ready Room hides guidance and retains its off preference', { hidden: true, saved: await page.evaluate(() => Store.get('flightCoach22')) }, 'Existing pause and Ready Room buttons.');
 
-      await page.locator('[data-flight-practice="m1"]').click(); await loaded('m1');
+      await resumeStartup();await page.locator('[data-flight-practice="m1"]').click(); await loaded('m1');
       await page.waitForFunction(() => FlightCoach.enabled(App.game) && document.getElementById('flightCoachCue').hidden === false);
       const practice = await page.evaluate(() => {
         const g = App.game, original = MISSIONS.find(m => m.id === 'm1'), copy = { ...g.mis }; delete copy.coachPractice;
@@ -151,7 +162,7 @@ module.exports = async function flightCoachBrowser(browser, target, evidenceDir)
       assert.equal(await page.locator('#flightCoach').isVisible(), false);
 
       await page.click('#tabs [data-tab="set"]'); await page.getByRole('button', { name: 'Right — B/N', exact: true }).click(); await page.click('#tabs [data-tab="ops"]');
-      await page.locator('[data-flight-practice="m2"]').click(); await loaded('m2');
+      await resumeStartup();await page.locator('[data-flight-practice="m2"]').click(); await loaded('m2');
       const bnPractice = await page.evaluate(() => {
         const g = App.game, source = MISSIONS.find(m => m.id === 'm2'), copy = { ...g.mis }; delete copy.coachPractice;
         return { sameMission: JSON.stringify(copy) === JSON.stringify(source), id: g.mis.id, rightSeat: g.rightSeat, threats: g.mis.threats,

@@ -19,7 +19,7 @@ function fixture(options={}){
  vm.runInNewContext(source,{window,console});const M=window.MissionDemo;
  assert.equal(M.install({App,Game,Store,missions,terrainH:options.terrain||(()=>5),CV:{angle:.15,aim:40,wire:[20,30]},localToWorld:(p,h,x,y,z)=>[p[0]+x,p[1]+y,p[2]+z],worldToLocal:(p,h,q)=>q.map((n,i)=>n-p[i])}),true);
  function start(id='m2'){assert.equal(M.start(id),true);App.frame(0);return App.game;}
- return {M,App,Game,Store,missions,calls,writes,values,start};
+ return {M,App,Game,Store,missions,calls,writes,values,start,window};
 }
 test('all twelve registered missions can start a computer practice without changing mission definitions',()=>{
  const f=fixture(),before=JSON.stringify(f.missions);for(const m of f.missions){f.start(m.id);assert.equal(f.M.snapshot().missionId,m.id);assert.equal(f.M.snapshot().computerPlaying,true);f.M.stop(false);}assert.equal(JSON.stringify(f.missions),before);
@@ -155,4 +155,42 @@ test('actual validated Willard retry remains practice through replacement, frame
  // interceptor/flak/mission/checkpoint validator and retry implementation.
  const file=path.join(__dirname,'willard-mission.cjs'),code=fs.readFileSync(file,'utf8'),helpers=vm.runInNewContext(code.slice(0,code.indexOf("test('"))+'\n({fixture,spawn});',{require,__dirname,console}),f=helpers.fixture({strike:false});helpers.spawn(f);const before=clone(Object.fromEntries(f.values)),progress=f.App.prog;assert.equal(f.M.validCheckpoint(f.Store.get(f.M.KEY)),true);
  Object.assign(f.App,{keys:{},gctl:{},screen:'ready',frame(){},renderReady(){},show(id){this.screen=id;},start(m){this._missionStart=(this._missionStart||0)+1;this.show('game');this.game=f.make(m);f.M.start(this.game,{seed:1966,strike:false});return this.game;}});Object.assign(f.App.set,{seat:0,assist:1,mouse:1});vm.runInNewContext(source,{window:f.window,console});const D=f.window.MissionDemo;f.Game.prototype.autoFly=function(){return {};};assert.equal(D.install({App:f.App,Game:f.Game,Store:f.Store,missions:[f.M.definition],terrainH:f.terrainH}),true);assert.equal(D.start('willard'),true);f.App.frame(0);const first=f.App.game;f.game=first;helpers.spawn(f);first.willard.retries=5;first.result={pass:true};first.update(.01);assert.equal(D.snapshot(first).finished,true);assert.equal(f.M.retry(first),true);const second=f.App.game;assert.notEqual(second,first);f.App.frame(0);assert.equal(D.snapshot(second).computerPlaying,true);assert.equal(second.willard.retries,6,'the actual earned checkpoint/retry count survives');assert.equal(D.snapshot(second).campaignIsolated,true);second.debrief(false,'Original retry debrief exercised');D.render(second);assert.equal(second.result.pass,false);assert.equal(D.snapshot(second).campaignIsolated,true);assert.deepEqual(clone(Object.fromEntries(f.values)),before,'retry and original second debrief must not touch real saves');D.stop(false);assert.deepEqual(clone(Object.fromEntries(f.values)),before);assert.equal(f.App.prog,progress);assert.equal(f.M.retry(second),true,'campaign retry remains the original action outside practice');assert.equal(f.values.get(f.M.KEY).retries,6);D.uninstall();
+});
+
+
+test('completed strike avoids a terrain-obstructed moving-carrier approach using normal offshore flight',()=>{
+ const f=fixture({terrain:x=>x>3000?-60:90}),g=f.start('m7');g.ac.onDeck=false;g.ac.gear=false;g.ac.p=[0,500,0];
+ const before=clone({p:g.ac.p,health:g.ac.crew,targets:g.world.targets,bombs:g.ac.bombs});let ejections=0;g.eject=()=>ejections++;
+ g.update(.02);assert.notEqual(f.M.snapshot(g).stage,'emergency','incomplete objectives must still be earned');
+ g.objState=()=>[['Attack','complete',true],['Return','pending',false]];g.update(.02);
+ const command=f.calls.filter(c=>Array.isArray(c)&&c[0]==='simulation').at(-1)[2];
+ assert.equal(f.M.snapshot(g).stage,'emergency');assert.match(f.M.snapshot(g).detail,/Terrain obstructs/);assert.ok(Math.sin(command.hdg)>.4);assert.ok(command.alt>=250);
+ assert.equal(g.aclsCoupled,undefined);assert.equal(ejections,0,'the crew must actually reach open water');assert.deepEqual(clone({p:g.ac.p,health:g.ac.crew,targets:g.world.targets,bombs:g.ac.bombs}),before);assert.equal(g.result,null);f.M.stop(false);
+});
+
+test('SAR chooses the original Run button at a held militia encounter before resuming radio controls',()=>{
+ const f=fixture({terrain:()=>-60}),g=f.start('m7');g.ac.onDeck=false;g.evade={p:[0,0,0],hdg:0,radio:0,rescue:0,eta:120,held:1};let ran=0,shot=0;
+ f.window.document={hidden:false,getElementById:()=>null,querySelectorAll:()=>[{textContent:'Shoot',click(){shot++;}},{textContent:'Run',click(){ran++;g.evade.held=0;}}]};
+ const p=g.evade.p.slice();g.update(.02);assert.equal(ran,1);assert.equal(shot,0);assert.equal(g.evade.held,0);g.update(.02);assert.equal(g.app.keys.KeyR,1);assert.deepEqual(g.evade.p,p);assert.equal(g.result,null);assert.equal(g.rescuedOK,undefined);f.M.stop(false);
+});
+
+function deltaFixture(boatZ=26){
+ const f=fixture(),g=f.start('m11');g.mis.escape=true;g.ac.onDeck=false;g.evade={p:[94,1,0],hdg:Math.PI,searchers:[]};
+ g.pow={stage:'river',base:[0,2,0],objects:[{id:'river-board',p:[105.5,1,boatZ],radius:3.5},{id:'river-float',p:[94,1,0],radius:4}],stats:{fatigue:20},river:{mode:'float',phase:'delta',logicalDistance:83000,boat:{p:[105.5,1,boatZ],speed:0},boatOwned:false}};return {f,g};
+}
+
+test('a once-watched delta skiff remains bypassed when the patrol temporarily leaves',()=>{
+ const {f,g}=deltaFixture();g.evade.searchers=[{p:[140,1,26],alive:true,armed:true,state:'patrol'}];const before=clone({p:g.evade.p,river:g.pow.river,stats:g.pow.stats});
+ g.update(.02);g.evade.searchers=[];for(let i=0;i<8;i++)g.update(.02);
+ assert.equal(g.app.keys.KeyF,0,'do not switch to swimming and reapproach a watched boat');assert.equal(g.app.gctl.pitch,1);assert.match(f.M.snapshot(g).detail,/watched or already upstream/);assert.deepEqual(clone({p:g.evade.p,river:g.pow.river,stats:g.pow.stats}),before);assert.equal(g.pow.complete,undefined);f.M.stop(false);
+});
+
+test('the delta crew follows the current instead of swimming back toward a skiff already upstream',()=>{
+ const {f,g}=deltaFixture(-14),before=clone(g.pow.river);for(let i=0;i<8;i++)g.update(.02);
+ assert.equal(g.app.keys.KeyF,0);assert.equal(g.app.gctl.pitch,1);assert.deepEqual(g.pow.river,before);assert.equal(g.pow.river.boatOwned,false);assert.equal(g.result,null);f.M.stop(false);
+});
+
+test('a nearby pursuing guard causes a skiff bypass even when the guard is far from the boat',()=>{
+ const {f,g}=deltaFixture(40);g.evade.searchers=[{p:[94,1,-30],alive:true,armed:true,state:'pursuit'}];g.update(.02);g.evade.searchers=[];for(let i=0;i<8;i++)g.update(.02);
+ assert.equal(g.app.keys.KeyF,0);assert.equal(g.app.gctl.pitch,1);assert.equal(g.pow.river.mode,'float');assert.equal(g.pow.river.logicalDistance,83000);assert.equal(g.pow.complete,undefined);f.M.stop(false);
 });
