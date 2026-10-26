@@ -1,6 +1,6 @@
 # Intruder: Yankee Station — Living River update
 
-The latest update is on `living-river`: [complete private game download](https://github.com/danielbmcconnell-hub/VA-65-Intruder/archive/refs/heads/living-river-site.zip) · [features, controls and verification](releases/living-river-notes.md). It adds a short skippable carrier montage, moving Vietnamese fishing boats, bank wildlife and denser layered jungle. After extracting the download, run `node assets/local-server.cjs` and open `http://127.0.0.1:8000`. Actual iPhone Safari remains untested.
+The latest tested local update is on `living-river`: complete ZIP `dist/Intruder_Yankee_Station_Living_River.zip` · [features, controls and verification](releases/living-river-notes.md). Repository upload is pending explicit approval. It adds a short skippable carrier montage, moving Vietnamese fishing boats, bank wildlife and denser layered jungle. After extracting the download, run `node assets/local-server.cjs` and open `http://127.0.0.1:8000`. Actual iPhone Safari remains untested.
 
 # Intruder: Yankee Station — Codex handoff
 
