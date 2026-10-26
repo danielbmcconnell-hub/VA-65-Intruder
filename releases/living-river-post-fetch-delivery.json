@@ -1,0 +1,1767 @@
+{
+  "phase": "post-fetch",
+  "passed": true,
+  "sourceBranch": "living-river",
+  "sourceHead": "ee309e4557f77e0dc48d43e0c959534a60065797",
+  "testedSourceCommit": "5fc56898000fb0b29bad8acb2f72fb6a5215844e",
+  "runtimeBranch": "living-river-site",
+  "runtimeFiles": 347,
+  "entrySHA256": "150db9ea220c93358958f93ea11bfb3de2d5375f87e4c3b218b46b96837c8234",
+  "manifestSHA256": "e03eb9a1944d751ed7a55dbd172355d62a49d955b36c302fc8f098fba3804bf5",
+  "archiveFile": "Intruder_Yankee_Station_Living_River.zip",
+  "archiveBytes": 240667614,
+  "archiveSHA256": "e57b57b04e26b5bc1bce5739090fbc8779e97117575bcf35a8c6f64669220d2a",
+  "zipCRCPassed": true,
+  "protectedBlobsUnchanged": 820,
+  "oldPublishedRefsUnchanged": 89,
+  "previousPrisonWaterZIPUnchanged": true,
+  "runtimeCreatedAtSourceHead": "66919805f4bc112566c3858b84ac0097e3af841e",
+  "documentationHeadAdvanced": true,
+  "runtimeHead": "a3de27b743bec79079235a20ffc510555a24bbca",
+  "verificationRepo": "/tmp/intruder-night-realism-verification",
+  "materializedRuntime": "/tmp/intruder-night-realism-verification/verified-runtimes/living-river/a3de27b743bec79079235a20ffc510555a24bbca/site",
+  "previousVerificationHead": "a6860140176214a205d3e73ffe083e9ec2dfb1ee",
+  "historicalCheckoutPreserved": true,
+  "allFetchedFilesReadAndSHA256Verified": [
+    {
+      "file": "index.html",
+      "bytes": 1053274,
+      "sha256": "150db9ea220c93358958f93ea11bfb3de2d5375f87e4c3b218b46b96837c8234"
+    },
+    {
+      "file": "assets/atlas-metadata.js",
+      "bytes": 25744,
+      "sha256": "042cc37786069adb0b58de7b17ba499ee8c0c2b93da0864288c4d184917e62d0"
+    },
+    {
+      "file": "assets/figures-original.png",
+      "bytes": 445698,
+      "sha256": "2b357f1d128f3a9be324778c0fbea527c7574ff8ca328cfb5391bf811d910883"
+    },
+    {
+      "file": "assets/survival/fishing-boats.js",
+      "bytes": 21664,
+      "sha256": "7cbaebd70d7cde58e145ba9c84fd90970e3693a8d9fce1f9bd9ebf02a4fd475b"
+    },
+    {
+      "file": "assets/render/fishing-material.js",
+      "bytes": 3759,
+      "sha256": "4feb34de2333c18620a2ffecf69d58d64ba1e6800e090f237a391b798b07e040"
+    },
+    {
+      "file": "assets/survival/riverbank-wildlife.js",
+      "bytes": 10158,
+      "sha256": "e247ff02471d46dbbbffa670302409f5f18e9f4f4a99c68cca00b6a066affef6"
+    },
+    {
+      "file": "assets/ui/archival-footage.js",
+      "bytes": 10094,
+      "sha256": "9e990b6af179428d89d9ffb926669c1bc3ccbfd3e616cdd656db4d6bab2a48ae"
+    },
+    {
+      "file": "assets/ui/archival-footage.css",
+      "bytes": 2192,
+      "sha256": "553a3b59c9cb7177ab38246d83e0f33a4b1f22b44d3e0ac956cd0448152fd359"
+    },
+    {
+      "file": "assets/local-server.cjs",
+      "bytes": 3021,
+      "sha256": "bcf8b0764ff011142833820281ad11610dc293a7afbf40872de1f3cc2ca752c2"
+    },
+    {
+      "file": "assets/fishing/fisher-paddle.webp",
+      "bytes": 1573698,
+      "sha256": "db300fb44041591a7ac16d28c9276eed4b4ac33d04e638dd7d938f4f00edaead"
+    },
+    {
+      "file": "assets/fishing/wood.webp",
+      "bytes": 2387086,
+      "sha256": "15cbf7c97e6df122a86718503ce6063c0312d29a1851e04e2571867946da1a88"
+    },
+    {
+      "file": "assets/video/carrier-launch.mp4",
+      "bytes": 640433,
+      "sha256": "2a5cdc19aea31357bbf76b5ee97104aca7a319493b781c22288e37bcb3c0aa68"
+    },
+    {
+      "file": "assets/video/carrier-approach.mp4",
+      "bytes": 595893,
+      "sha256": "66ad5f9e4a78d14322f69d750684c26120ddeff53d17fcd01a939aaf170749eb"
+    },
+    {
+      "file": "assets/video/carrier-night.mp4",
+      "bytes": 361896,
+      "sha256": "1d762474c9a12fe5fc09622192d32fcca1871b153b50e0a2ea36b7e341d09248"
+    },
+    {
+      "file": "assets/video/provenance.json",
+      "bytes": 5847,
+      "sha256": "ff36464e5d41635cbf120401d4488be17caf7e95ed5628fc0a43708a62819703"
+    },
+    {
+      "file": "assets/ui/instruction-view.js",
+      "bytes": 5918,
+      "sha256": "7be7715a68fabb4abc24ae16be11fde8e76f2dc10fd33b766d89976ab60fd2e4"
+    },
+    {
+      "file": "assets/ui/instruction-view.css",
+      "bytes": 2989,
+      "sha256": "b122a2a0e58d8f716cc1f9710f79ad3605361b9d14c5ac493a043667edc5aef7"
+    },
+    {
+      "file": "assets/survival/ground-controls.js",
+      "bytes": 917,
+      "sha256": "b9c72c58f15eb73878083cfd6da92554f78eec6a4b6e1076ec84346768bc2fc0"
+    },
+    {
+      "file": "assets/ui/camera-views.js",
+      "bytes": 2816,
+      "sha256": "d055c9bcb42163163060f44127d47d0b72164f0a9a9a0e96dd0a0e85ac314bd9"
+    },
+    {
+      "file": "assets/ui/camera-views.css",
+      "bytes": 410,
+      "sha256": "f2bacff3addb44365cd59243113fc84513d2b8a136a2f179e92c217bc78ad201"
+    },
+    {
+      "file": "assets/render/river-bank.js",
+      "bytes": 12170,
+      "sha256": "c86e7b0313335d915bc3e23a894786ab413b31f6ca8b2d3400a171ec9218ebd8"
+    },
+    {
+      "file": "assets/survival/rip-current.js",
+      "bytes": 12767,
+      "sha256": "ea028772cb13a8173a1f00d6162424be73b25da23022dffff96748791e5ff941"
+    },
+    {
+      "file": "assets/survival/rip-current.css",
+      "bytes": 920,
+      "sha256": "097936fd210a07e455c7e075e3a1b88332da562a52100c8f386622c4af67fb08"
+    },
+    {
+      "file": "assets/survival/river-threats.js",
+      "bytes": 12049,
+      "sha256": "7e3dc526ef1534f44fa53e1c040c2de2b584c5243fc4c588f5bb5a288bcc46c9"
+    },
+    {
+      "file": "assets/survival/river-threats.css",
+      "bytes": 1213,
+      "sha256": "ca9180fe77fef30119199ca8b5bfd33d09aa152d40fcf9478d940e32453eb2ad"
+    },
+    {
+      "file": "assets/firstperson/swim-stroke-a.webp",
+      "bytes": 1300122,
+      "sha256": "fe9a751e2bae1a67b59a8106ad1d9257e093437fd7d1bf308591160af366ace7"
+    },
+    {
+      "file": "assets/firstperson/swim-stroke-b.webp",
+      "bytes": 1245926,
+      "sha256": "e6599d2fe2731b28bb1684df0ed65f55ed461daa114035a888d428dd09f1508e"
+    },
+    {
+      "file": "assets/firstperson/rope-grip-open.webp",
+      "bytes": 1056268,
+      "sha256": "8cb57b3b3d5b2e9ab76f2176c80b28b919964522359eceb9cdfcd6a3d4a4ccaf"
+    },
+    {
+      "file": "assets/firstperson/rope-grip-closed.webp",
+      "bytes": 1083074,
+      "sha256": "56a1a8c29bda6e308cb047ede487018702b9e9c1d47f67305de5c4ccfea91772"
+    },
+    {
+      "file": "assets/crocodile/manifest.json",
+      "bytes": 488,
+      "sha256": "939e73b1cebd05031239dc21ff72a5ed0eb69b0c0cc90bd39c3d64002f0c995c"
+    },
+    {
+      "file": "assets/crocodile/swim.webp",
+      "bytes": 1569326,
+      "sha256": "c90e6e36d019ecbec0ae2dd4b011b0a5c927cffa7a56efeb1ead5958ee55a33a"
+    },
+    {
+      "file": "assets/render/photographic-sprites.js",
+      "bytes": 4387,
+      "sha256": "ffd2a250bea9c022f5c5ef6526e3503cb67755049cde8b71627cbcd981af1697"
+    },
+    {
+      "file": "assets/survival/capture-transition.js",
+      "bytes": 9099,
+      "sha256": "520c6e9dd754a245cec7ecb1bf11ec366d4441d9ef03505309025a2633896f42"
+    },
+    {
+      "file": "assets/survival/capture-transition.css",
+      "bytes": 1934,
+      "sha256": "f9d4766b0c884f22aca342536ad06cabd80655d3c3801030e3cf3bf9a7ae4138"
+    },
+    {
+      "file": "assets/sprites/atlas-metadata.js",
+      "bytes": 8173,
+      "sha256": "eeed898fc5a3afaca3af6191199e110d3b47a6577a296d8fa52ee215a01ed5d7"
+    },
+    {
+      "file": "assets/render/photo-cutouts.js",
+      "bytes": 26875,
+      "sha256": "2e56a9923c45f1f15356603d1356576de5b303e70ba22bc85217615b60e68778"
+    },
+    {
+      "file": "assets/render/photo-motion.js",
+      "bytes": 7423,
+      "sha256": "2d1aa85f076ac19fdf07cc17812312e1bc2a3ea22f7bf6e3ffb3a1c8b87531b1"
+    },
+    {
+      "file": "assets/sprites/hires/manifest.json",
+      "bytes": 85309,
+      "sha256": "767726986f513ebf43de3e03fb017d76656d0c61a5fcc60174cc64482b8369ab"
+    },
+    {
+      "file": "assets/sprites/hires/farmer-idle.png",
+      "bytes": 2252227,
+      "sha256": "3c07d7d322db60a17645e945a2a5b6866fb765a5db2af585bd5789ecc638f339"
+    },
+    {
+      "file": "assets/sprites/hires/farmer-fallen.png",
+      "bytes": 2010891,
+      "sha256": "673999867de372899600a983d4be1fb3e6c52bd3c1c0124ea154214e0f130f16"
+    },
+    {
+      "file": "assets/sprites/hires/farmer-walk-a.webp",
+      "bytes": 1607866,
+      "sha256": "de63c1223a3c18f4b335d90164fd84dce0a718584f6f454617a58b0032038512"
+    },
+    {
+      "file": "assets/sprites/hires/farmer-walk-b.webp",
+      "bytes": 1602540,
+      "sha256": "de5d3e9e976de3a0d3aaeafdbf75d437cea5f38e10a92ed8f1faec93aaf5e6b0"
+    },
+    {
+      "file": "assets/sprites/hires/farmer-walk-c.webp",
+      "bytes": 1633572,
+      "sha256": "1cd90f33463c23407214b3d5bf4fe1ec8714873a84894d78ee7ca4983897f735"
+    },
+    {
+      "file": "assets/sprites/hires/farmer-walk-d.webp",
+      "bytes": 1625420,
+      "sha256": "5dd9c200ae836717f6a6f802558c5eef53634925969db67e3c7d4b36f1e5f550"
+    },
+    {
+      "file": "assets/sprites/hires/farmer-run-a.webp",
+      "bytes": 1659744,
+      "sha256": "62437663f5937de885d1c64ef1208d0cb80e8e2bfc25b10dc1d05a382bb2893e"
+    },
+    {
+      "file": "assets/sprites/hires/farmer-run-b.webp",
+      "bytes": 1629878,
+      "sha256": "9cee5ab95404b311cdbeae042add7733995c702786116529bf69af58da87f63a"
+    },
+    {
+      "file": "assets/sprites/hires/farmer-run-c.webp",
+      "bytes": 1616662,
+      "sha256": "12a50fd7ee821d6168911a69a5817aa41d37addb140b625c9df95c3077d1a7f3"
+    },
+    {
+      "file": "assets/sprites/hires/farmer-run-d.webp",
+      "bytes": 1623542,
+      "sha256": "35b01ebfb189a2c19109ea86319490020a3228ce4bf98724686bd74a08b10bb4"
+    },
+    {
+      "file": "assets/sprites/hires/militia-idle.png",
+      "bytes": 1937693,
+      "sha256": "dcae18d4f12a6fa990a854d33ef21262c0cb58573824721d9eafd07092e04ad9"
+    },
+    {
+      "file": "assets/sprites/hires/militia-aim.png",
+      "bytes": 2007625,
+      "sha256": "462ba1aac380489bee4312b5d4edb650d4b667a567d0ae55304eeb7e91da4e34"
+    },
+    {
+      "file": "assets/sprites/hires/militia-fallen.png",
+      "bytes": 1602335,
+      "sha256": "40f6b904c1184b40fc0ee82f9d0e5de5dbbc4b37ca783b3e4840fa286bf41f5e"
+    },
+    {
+      "file": "assets/sprites/hires/militia-walk-a.webp",
+      "bytes": 1301224,
+      "sha256": "d388d7426e17a96a44ebf6fa1f488700227ed05a4907fa9f25da691f5da2d606"
+    },
+    {
+      "file": "assets/sprites/hires/militia-walk-b.webp",
+      "bytes": 1342886,
+      "sha256": "57485eb98a2987b9a34249110dff2814ec7261a98665c86ec50a66c9e5a0122e"
+    },
+    {
+      "file": "assets/sprites/hires/militia-walk-c.webp",
+      "bytes": 1312954,
+      "sha256": "ca1fe86613cc8528cb98cb3c443633a74d167834ad396f3de672a4935df0d434"
+    },
+    {
+      "file": "assets/sprites/hires/militia-walk-d.webp",
+      "bytes": 1358098,
+      "sha256": "b0d9e3c82132965632be92597af3463effc6d47cb2611fa7ee3b14bc88b15d25"
+    },
+    {
+      "file": "assets/sprites/hires/militia-run-a.webp",
+      "bytes": 1399060,
+      "sha256": "246b24cd0a42c3f1ad593505143f158f4c936d28a74f1933e3b982c2b65ad659"
+    },
+    {
+      "file": "assets/sprites/hires/militia-run-b.webp",
+      "bytes": 1463138,
+      "sha256": "07f58c035cf81953e34bc27d84b7fae85e666de28e05235a36825336360eec22"
+    },
+    {
+      "file": "assets/sprites/hires/militia-run-c.webp",
+      "bytes": 1400716,
+      "sha256": "811cc8429a9e0cbec813783886edfe356aa3e561860e4fc4483745407d32af6e"
+    },
+    {
+      "file": "assets/sprites/hires/militia-run-d.webp",
+      "bytes": 1434018,
+      "sha256": "2784cfd8eb0dc9b029fa5115b27ac6b06d197e6554e54d11a89532a28ee0af0f"
+    },
+    {
+      "file": "assets/sprites/hires/militia-swim-a.webp",
+      "bytes": 1517954,
+      "sha256": "332ea61ef02612faa4b0a04ab08cd13eab4bb03f6f1c4e2d5e9039640b4bcd43"
+    },
+    {
+      "file": "assets/sprites/hires/militia-swim-b.webp",
+      "bytes": 1542302,
+      "sha256": "e011f40821633837287b5509cd606055061919d1a23721530ac45cedd59ac045"
+    },
+    {
+      "file": "assets/sprites/hires/female_vc-idle.png",
+      "bytes": 1972639,
+      "sha256": "6500e5a145a0ad55b5307de0b06e8b2a81913e4fcc97f463f096572fb3e1758a"
+    },
+    {
+      "file": "assets/sprites/hires/female_vc-aim.png",
+      "bytes": 2053291,
+      "sha256": "4a66c1c4d825d6e3390fb4e6e8ce3e6865d98fa9360952021cd20408dccb21cd"
+    },
+    {
+      "file": "assets/sprites/hires/female_vc-fallen.png",
+      "bytes": 1700852,
+      "sha256": "b3c21ac5dc5f3acd82a6beb2012272e9c237a5f949c9df0eb57852dd0aeae638"
+    },
+    {
+      "file": "assets/sprites/hires/female_vc-walk-a.webp",
+      "bytes": 1370378,
+      "sha256": "6d37611cf12a7e805ee4a6ace497ddcd3ec8b486a8408ea70b78ec00af71dde8"
+    },
+    {
+      "file": "assets/sprites/hires/female_vc-walk-b.webp",
+      "bytes": 1354284,
+      "sha256": "a5d45a958b52655dfd3bd52b618448ca5fe3e7bdbbe8ad65034722c2fa570767"
+    },
+    {
+      "file": "assets/sprites/hires/female_vc-walk-c.webp",
+      "bytes": 1337626,
+      "sha256": "28883f4e305a70ec1eba05363f6156b1a86015ff190e0b1c3928b5df47f8f046"
+    },
+    {
+      "file": "assets/sprites/hires/female_vc-walk-d.webp",
+      "bytes": 1358376,
+      "sha256": "c34df34969a0225689fb9bfb0d45387277bd6ed4313a40de34171ab0d3de0d80"
+    },
+    {
+      "file": "assets/sprites/hires/female_vc-run-a.webp",
+      "bytes": 1240024,
+      "sha256": "b27ecd825a924f88a6d1d62474b2979ca4b48c912c74bd351cc1f73c9c6b1528"
+    },
+    {
+      "file": "assets/sprites/hires/female_vc-run-b.webp",
+      "bytes": 1200088,
+      "sha256": "7a1e80ef41d66ca4c09eb9a2995f1172508df2037788beb2f956044802a6350e"
+    },
+    {
+      "file": "assets/sprites/hires/female_vc-run-c.webp",
+      "bytes": 1358322,
+      "sha256": "fd00ccc8636a15a5a74a9e4496f57a53ce68055d2f468af8de0b0bfd1cd5a7e2"
+    },
+    {
+      "file": "assets/sprites/hires/female_vc-run-d.webp",
+      "bytes": 1290832,
+      "sha256": "652b41e515870954f52c9089f114e3ae6dbd6ec2589eb921c2fb39e93e13af7c"
+    },
+    {
+      "file": "assets/sprites/hires/nva-idle.png",
+      "bytes": 2077081,
+      "sha256": "d4b6c925840bf8112676c5eb681ef61f3f6b7a2b6b66614a279ba939fd50e260"
+    },
+    {
+      "file": "assets/sprites/hires/nva-aim.png",
+      "bytes": 2101352,
+      "sha256": "2b35a3de2e301a0ceb9bba7f0524a44a94c548e33d0ff5f55ec7693b093ea70b"
+    },
+    {
+      "file": "assets/sprites/hires/nva-fallen.png",
+      "bytes": 1779363,
+      "sha256": "e5ce672b95a95b08566449eb134ac594f0529f30425bf6466e6798d5d3f300c3"
+    },
+    {
+      "file": "assets/sprites/hires/nva-walk-a.webp",
+      "bytes": 1361846,
+      "sha256": "0a6d5191479add8841d9cf07dd950e18590e05192b4e43070b099ef95aa4102e"
+    },
+    {
+      "file": "assets/sprites/hires/nva-walk-b.webp",
+      "bytes": 1367484,
+      "sha256": "f9179e67567c1b4cbd25f566e196fb23c46c099b09021d64f2581eb351a94b20"
+    },
+    {
+      "file": "assets/sprites/hires/nva-walk-c.webp",
+      "bytes": 1386462,
+      "sha256": "0643e8672fcbfaf2dbbf01b70f474f0471a3864beeb7b0aed48a6a587ec8099a"
+    },
+    {
+      "file": "assets/sprites/hires/nva-walk-d.webp",
+      "bytes": 1400196,
+      "sha256": "521aab7ef924551ebd292c8521b03121cfff70ad961bc73d0bc518307623d14c"
+    },
+    {
+      "file": "assets/sprites/hires/nva-run-a.webp",
+      "bytes": 1463558,
+      "sha256": "6e3c7db4f312d7608f7cd091c825d83d8dc5ee7ceeb5a62f3f0f516a3641554a"
+    },
+    {
+      "file": "assets/sprites/hires/nva-run-b.webp",
+      "bytes": 1459568,
+      "sha256": "7915fcaa9fdb575d680a46381649f7e6dd90d22e25bf6818d183aa365885b3dd"
+    },
+    {
+      "file": "assets/sprites/hires/nva-run-c.webp",
+      "bytes": 1431266,
+      "sha256": "f826e3dba4ef0a856f91961925b348e049a6414c76890c7cc9725a92de428cb3"
+    },
+    {
+      "file": "assets/sprites/hires/nva-run-d.webp",
+      "bytes": 1408358,
+      "sha256": "8fc2ca0ed55d51d70fffed98bf025637bd71d731a47776c411d9d91b2b361593"
+    },
+    {
+      "file": "assets/sprites/hires/nva-swim-a.webp",
+      "bytes": 1406838,
+      "sha256": "5e06613db4f5c26b0a43325a6b46f579448c82f294b5f96c98d8fba5db34bcde"
+    },
+    {
+      "file": "assets/sprites/hires/nva-swim-b.webp",
+      "bytes": 1440850,
+      "sha256": "e51e3872bb5e74c8d1aac15eb26269feb8f1146be011f0b41431e972a340adda"
+    },
+    {
+      "file": "assets/sprites/hires/aviator-idle.png",
+      "bytes": 2153490,
+      "sha256": "786e04eec7cd78cc2d20cf0727e9354703246bf3beb49733caeadcfa1f041b6e"
+    },
+    {
+      "file": "assets/sprites/hires/aviator-fallen.png",
+      "bytes": 2094589,
+      "sha256": "83cedac329aa10ec4846f7d17c543564b18dd5b82c4121594157a09e6a43de47"
+    },
+    {
+      "file": "assets/sprites/hires/aviator-harness.webp",
+      "bytes": 1173764,
+      "sha256": "184ef1ca84ece18b6d7660dcdb23d12612e7a13d41a262248f8bf9305ad8c769"
+    },
+    {
+      "file": "assets/sprites/hires/aviator-walk-a.webp",
+      "bytes": 1414532,
+      "sha256": "8ea171435c6005f42c63ebb5e98590348a375a84d68d0a88a61b06b185f95758"
+    },
+    {
+      "file": "assets/sprites/hires/aviator-walk-b.webp",
+      "bytes": 1398528,
+      "sha256": "67c7aa73267ec132afff82c3640cd46204d0984b2b6301db7cebccc9445fd3f4"
+    },
+    {
+      "file": "assets/sprites/hires/aviator-walk-c.webp",
+      "bytes": 1425958,
+      "sha256": "e7be5017c3b28b89a94c4ba4cade78b50005678c95ec0a2a2b238138c3a6f30d"
+    },
+    {
+      "file": "assets/sprites/hires/aviator-walk-d.webp",
+      "bytes": 1461726,
+      "sha256": "0f6ec8297a827d51c1ffe1c7666df5f07534e12adc3548a7f8106cc6c3e87179"
+    },
+    {
+      "file": "assets/sprites/hires/aviator-run-a.webp",
+      "bytes": 1432194,
+      "sha256": "bad1d67c536d8e149b46de0a579317c806865d39eb53d307e6b885a6c0ab805e"
+    },
+    {
+      "file": "assets/sprites/hires/aviator-run-b.webp",
+      "bytes": 1484680,
+      "sha256": "ef0e7cdce0c74e963e3be81278db967f02fb64aff7c99b6d03bf7729286eb424"
+    },
+    {
+      "file": "assets/sprites/hires/aviator-run-c.webp",
+      "bytes": 1451634,
+      "sha256": "a27ae546aa4b5ebb3f97ae6e9008db9132cc138724cd7499ab07795527612fd5"
+    },
+    {
+      "file": "assets/sprites/hires/aviator-run-d.webp",
+      "bytes": 1432754,
+      "sha256": "4065558914893e950848b095b1a41d0a495c518a654a03521a4077ace65ec829"
+    },
+    {
+      "file": "assets/sprites/hires/aviator-swim-a.webp",
+      "bytes": 1517568,
+      "sha256": "c66e5d9ffe2bbe3526343f95ec0ebd49432c165af09d136f363f074b97a49741"
+    },
+    {
+      "file": "assets/sprites/hires/aviator-swim-b.webp",
+      "bytes": 1516624,
+      "sha256": "9ba528941f0013a02a473f2f1d92b5b97f5ae8557f29ef697781aeb3e75bd161"
+    },
+    {
+      "file": "assets/sprites/hires/cow-idle.png",
+      "bytes": 2659422,
+      "sha256": "ae8a328becf0ced12822a735adeef0c2471daac263e9ea5fc5311c5895786c35"
+    },
+    {
+      "file": "assets/sprites/hires/cow-fallen.png",
+      "bytes": 2277010,
+      "sha256": "a446d0edcb69cfca99291dd8cd4cdc5ccfe2985788325ecac087558fb24af52e"
+    },
+    {
+      "file": "assets/sprites/hires/cow-walk-a.webp",
+      "bytes": 1678086,
+      "sha256": "8abeae20380c5c8e94cea8f8bb687704f58369ef3ff099bbf741d51acc63eb90"
+    },
+    {
+      "file": "assets/sprites/hires/cow-walk-b.webp",
+      "bytes": 1681390,
+      "sha256": "e5bf60efe873a1bb3324ee239cef7375d13eb4cfdd62a14332f0436f0ba78291"
+    },
+    {
+      "file": "assets/sprites/hires/cow-walk-c.webp",
+      "bytes": 1685346,
+      "sha256": "0e67c2b5d9cc31d4c2d752f8d8c8305bd5962fa3d49603ea699645af618ecdb5"
+    },
+    {
+      "file": "assets/sprites/hires/cow-walk-d.webp",
+      "bytes": 1617254,
+      "sha256": "868e43482328d80a548736f29ad79f27fa56d5751d5f29806cd44ec5ec8a9900"
+    },
+    {
+      "file": "assets/sprites/hires/cow-run-a.webp",
+      "bytes": 1583810,
+      "sha256": "cffc3d847fb1fec12b09bd0e74f634c248fdc879c5160ec4dc96a74b5317f35f"
+    },
+    {
+      "file": "assets/sprites/hires/cow-run-b.webp",
+      "bytes": 1560468,
+      "sha256": "e43f23273f687734b3f44739deada6c3157100a2db168c5590ce637f52a4dfca"
+    },
+    {
+      "file": "assets/sprites/hires/cow-run-c.webp",
+      "bytes": 1543258,
+      "sha256": "b0fb0a48a8b287c4e7c06ba411801ce54988f038202b165ab51b55fc9cec715d"
+    },
+    {
+      "file": "assets/sprites/hires/cow-run-d.webp",
+      "bytes": 1576550,
+      "sha256": "f30143a121d3a78d8121a0d3925fd398b3f4880bfe8355bccc7288d0749ebe0c"
+    },
+    {
+      "file": "assets/survival/wildlife.js",
+      "bytes": 28109,
+      "sha256": "4b510b91ae6dead26ac777791a7ce93604bf03003530638d05654e0b9f7dd4ba"
+    },
+    {
+      "file": "assets/survival/wildlife-targeting.js",
+      "bytes": 4040,
+      "sha256": "d6938abf70372e8f037277a61139f104ae5a48fcf9e8a4b60797233b62e438d7"
+    },
+    {
+      "file": "assets/render/wildlife-render.js",
+      "bytes": 28779,
+      "sha256": "f855492d19f8c811fc669152b50bddb740b036d874a3db54618ecf8d814ad7e5"
+    },
+    {
+      "file": "assets/render/jungle-scenery.js",
+      "bytes": 55201,
+      "sha256": "63f70fa62447fcaa1379f6da7940eca0f6b882ca4bdc6b57a5d3f321a2bb0a2d"
+    },
+    {
+      "file": "assets/wildlife/hires/manifest.json",
+      "bytes": 66239,
+      "sha256": "0d5a5968a839dc8615d92b12458665092e4f2d55a62d7744a47c79e515211955"
+    },
+    {
+      "file": "assets/jungle/manifest.json",
+      "bytes": 2345,
+      "sha256": "8b0ff7e0ac5d976b6b6bb3cfcc3ec78d3f92aafde497ae72292a296f29bf4f19"
+    },
+    {
+      "file": "assets/wildlife/hires/boar-walk-a.webp",
+      "bytes": 1734342,
+      "sha256": "9d14bc9892343ff3d938a48f81efb72fc9f4866d3d12166cca3df16b00aad466"
+    },
+    {
+      "file": "assets/wildlife/hires/boar-walk-b.webp",
+      "bytes": 1748670,
+      "sha256": "f3b752c1434ee36cd224faddb0c937681f919f0452ceda752fdc16184a25ed35"
+    },
+    {
+      "file": "assets/wildlife/hires/boar-walk-c.webp",
+      "bytes": 1735672,
+      "sha256": "4ef9fa1551d32d71b20812a015e67687e0527c9f752b43d0293c040b4ebdc705"
+    },
+    {
+      "file": "assets/wildlife/hires/boar-walk-d.webp",
+      "bytes": 1683676,
+      "sha256": "01245a3c305b32b9d4641e0503b7dd1b8c4b03c5ea046c5f0a89b7483d251510"
+    },
+    {
+      "file": "assets/wildlife/hires/boar-run-a.webp",
+      "bytes": 1659890,
+      "sha256": "c0086eb56f8dae2ed4d2994b91514e7d9714f34ab56e997088ed027be10640e8"
+    },
+    {
+      "file": "assets/wildlife/hires/boar-run-b.webp",
+      "bytes": 1689634,
+      "sha256": "3490b29ec58715c341ec999fa330c35638297a737f0a22f6b6d594b559ee773d"
+    },
+    {
+      "file": "assets/wildlife/hires/boar-run-c.webp",
+      "bytes": 1603826,
+      "sha256": "2cf86f5aa115b007f8520f09c2adaf03ceccc30d2ae2f53191a0de6ad8844b9f"
+    },
+    {
+      "file": "assets/wildlife/hires/boar-run-d.webp",
+      "bytes": 1553440,
+      "sha256": "4384f2b86914acddb392e9eca9d73860fa759461bba205c70333580ba3f20c22"
+    },
+    {
+      "file": "assets/wildlife/hires/tiger-walk-a.webp",
+      "bytes": 1585348,
+      "sha256": "f3982e2457bb51dc27e9492b4bb0fd6a78ec2e2c4b01aac9c764cf73f0c4e1f2"
+    },
+    {
+      "file": "assets/wildlife/hires/tiger-walk-b.webp",
+      "bytes": 1601242,
+      "sha256": "9375ea661541316066742b9f137b5fdc56a0016346f7df0c38ea75182b37a57c"
+    },
+    {
+      "file": "assets/wildlife/hires/tiger-walk-c.webp",
+      "bytes": 1537892,
+      "sha256": "adec41f3c796ce55841680bd64c595af75640de931d977d7117e0ec213a0fe15"
+    },
+    {
+      "file": "assets/wildlife/hires/tiger-walk-d.webp",
+      "bytes": 1636392,
+      "sha256": "4d27b33fcd8c8be3afd6aa6e06b52d4779870d5febaa408e9b256ab860fb0059"
+    },
+    {
+      "file": "assets/wildlife/hires/tiger-run-a.webp",
+      "bytes": 1465894,
+      "sha256": "52abeebcddd1edfc7feaf66a210a58015df74da1a2b43642028345de919a4bc8"
+    },
+    {
+      "file": "assets/wildlife/hires/tiger-run-b.webp",
+      "bytes": 1725970,
+      "sha256": "61d55a1998119e51adf7494ca092ad98cb9612ee28c72949f12c7b89757a15b5"
+    },
+    {
+      "file": "assets/wildlife/hires/tiger-run-c.webp",
+      "bytes": 1768244,
+      "sha256": "de9a54095cd6a33ae077483a8f47d51835346a97d468ad8129210d80d311aa73"
+    },
+    {
+      "file": "assets/wildlife/hires/tiger-run-d.webp",
+      "bytes": 1722678,
+      "sha256": "10d1d2c0a5f649f91e0194bd095720e27d72a1788532dfc9bcc383d699df1c54"
+    },
+    {
+      "file": "assets/wildlife/hires/krait-crawl-a.webp",
+      "bytes": 960896,
+      "sha256": "e3171e28dd5ef541c8afe07cf4e88e243f130ee12ecd4dfcc4b6d721ded4b12f"
+    },
+    {
+      "file": "assets/wildlife/hires/krait-crawl-b.webp",
+      "bytes": 947290,
+      "sha256": "8f4e408e343553a2bb3de57d7c5501db24ee4128d2b10edc37abd0d964e31da0"
+    },
+    {
+      "file": "assets/wildlife/hires/krait-threat-a.webp",
+      "bytes": 1129874,
+      "sha256": "b6e53ac6a60cd9831894fc7e6fcee02c7f964813fe5caa1461022a2188627181"
+    },
+    {
+      "file": "assets/wildlife/hires/cobra-crawl-a.webp",
+      "bytes": 912122,
+      "sha256": "e53839c6a5d4c488cdbd0deacf8b5053eb5131a07eb8e22066249ca890e6c4ce"
+    },
+    {
+      "file": "assets/wildlife/hires/cobra-crawl-b.webp",
+      "bytes": 935880,
+      "sha256": "51d7335ec49ba54fbd7a3b523c71b84a4106642521b4c87700b647cd2eeb59d1"
+    },
+    {
+      "file": "assets/wildlife/hires/cobra-threat-a.webp",
+      "bytes": 1272546,
+      "sha256": "3d2714046ac5283bed26cb967b5534146891e1de2d2975c0f70c29116e6816e0"
+    },
+    {
+      "file": "assets/wildlife/hires/pit-viper-crawl-a.webp",
+      "bytes": 1064154,
+      "sha256": "eaafe77c8c0b4b7041203939b0d2fe1f9f81b9548e67d6a56f27b7134212f720"
+    },
+    {
+      "file": "assets/wildlife/hires/pit-viper-crawl-b.webp",
+      "bytes": 1069438,
+      "sha256": "0617bf80fcc2eb960357d6b32c1e1752100a524cf9ca3d431281a41df4404009"
+    },
+    {
+      "file": "assets/wildlife/hires/pit-viper-threat-a.webp",
+      "bytes": 1484528,
+      "sha256": "b98132885d9186e417398a2e77c9fa521161a9659b7a81e350064c8a05cb2a2e"
+    },
+    {
+      "file": "assets/wildlife/hires/scorpion-crawl-a.webp",
+      "bytes": 1546520,
+      "sha256": "b6f80f75a05611cee67db3f6112758f1cbc52f063298bdefbc514a33a4c368ae"
+    },
+    {
+      "file": "assets/wildlife/hires/scorpion-crawl-b.webp",
+      "bytes": 1574954,
+      "sha256": "c8c78a4a7f7eb93962ca53f0bdfa6c866f67d53fc8506b38df4ad7fef72d3f9e"
+    },
+    {
+      "file": "assets/wildlife/hires/centipede-crawl-a.webp",
+      "bytes": 1321974,
+      "sha256": "f848b0e075fcf27a5a4de3008acd5da2acac0b9bf9544d39587ade6d09f78df9"
+    },
+    {
+      "file": "assets/wildlife/hires/centipede-crawl-b.webp",
+      "bytes": 1306006,
+      "sha256": "45e331c0eb24d089660ce5edddf0bf3920a5b5d5deca799672c79d7b2558af12"
+    },
+    {
+      "file": "assets/wildlife/hires/weaver-ants-crawl-a.webp",
+      "bytes": 1321974,
+      "sha256": "79177309104dd51396204522ec24852656500f94ae0bfec9362c7e79e24c23a5"
+    },
+    {
+      "file": "assets/wildlife/hires/weaver-ants-crawl-b.webp",
+      "bytes": 1305722,
+      "sha256": "0298292c85c27a3fdfb172fded26a4676008fc6ca508b345441f6c31273ed977"
+    },
+    {
+      "file": "assets/wildlife/hires/nest.webp",
+      "bytes": 1824390,
+      "sha256": "57e022484ed297632834860a456152fe8763d23d8c3469c6b102f1d8575863a4"
+    },
+    {
+      "file": "assets/jungle/canopy.webp",
+      "bytes": 2156454,
+      "sha256": "89de546e70952808f4ba847e425d90d8337db01b3c25f85f3dd96c02daea4d51"
+    },
+    {
+      "file": "assets/jungle/bamboo.webp",
+      "bytes": 2466302,
+      "sha256": "20c731e5dee66c2dfe163c0e8aad584d36b7a3b1f6399fb93e0cb061d697b885"
+    },
+    {
+      "file": "assets/jungle/nipa.webp",
+      "bytes": 2008820,
+      "sha256": "636051cb41683ad339e811f142dc0adf86cffee22f6ef19a7d4e9e92ef7353fd"
+    },
+    {
+      "file": "assets/jungle/fern.webp",
+      "bytes": 1864378,
+      "sha256": "4a1492c9067c68fd2af8e82bd95cc693658f9fba227e2ec63ed631c9a2b4cdba"
+    },
+    {
+      "file": "assets/jungle/liana.webp",
+      "bytes": 1259872,
+      "sha256": "6bdce9376c2cadff86ae2c47ca11fc7ee011368aa8cc471ae98a198bdc72bb9f"
+    },
+    {
+      "file": "assets/jungle/litter.webp",
+      "bytes": 1787232,
+      "sha256": "82d75c25cccbeebf7821f77bc9cf86c41c113f8318fd1e730d8c350bc0a5e274"
+    },
+    {
+      "file": "assets/jungle/canopy-crown.webp",
+      "bytes": 2090422,
+      "sha256": "e9f31fbbadcaf6692125d131fef16d2e70b6476d44746f2710b5ca2a58ae2d53"
+    },
+    {
+      "file": "assets/jungle/forest-floor.webp",
+      "bytes": 2648936,
+      "sha256": "2a5822806577c53c8640849448df25452f57a3ba074c43d18a694d25ad680529"
+    },
+    {
+      "file": "assets/jungle/broadleaf-sprig.webp",
+      "bytes": 1629676,
+      "sha256": "0656efc9688e3512917613414cf6351c2262fb7a279281eb7c172133189a669e"
+    },
+    {
+      "file": "assets/jungle/coconut-frond.webp",
+      "bytes": 1365080,
+      "sha256": "4722b6d16469509114a15ea574b09983f1bbd9b460c701e11456b11435971ed6"
+    },
+    {
+      "file": "assets/render/visual-clarity.js",
+      "bytes": 1650,
+      "sha256": "4d0d48db6ca635b31373f81ddfb09478786c0203cfa49b34a0f62ef72386250a"
+    },
+    {
+      "file": "assets/flight/threat-feedback.js",
+      "bytes": 9212,
+      "sha256": "f30012e2c5e986e6450ca2805a751bd76fc1db0dfc2a0960a17e27d0010fae55"
+    },
+    {
+      "file": "assets/render/coastal-scenery.js",
+      "bytes": 3536,
+      "sha256": "c786db647ba3d463b7fb350157a96c5b51bee7acd37347ad42c8f0ff2e89b4fb"
+    },
+    {
+      "file": "assets/render/village-detail.js",
+      "bytes": 7685,
+      "sha256": "83bff38d06bccd99e3ea13d5e4f35571414c8fcf7523940db3eefe906a802220"
+    },
+    {
+      "file": "assets/ui/hud-layout.js",
+      "bytes": 23963,
+      "sha256": "6495e4fe686b36f47701f6f3fcf3d0742617008565d2037d3775351e56084e86"
+    },
+    {
+      "file": "assets/ui/hud-layout.css",
+      "bytes": 10762,
+      "sha256": "d1cceafc01a55e25578629f36da6d3c9cbb6b13529e75d776ebac238c596c2fb"
+    },
+    {
+      "file": "assets/pow/confinement-goals.js",
+      "bytes": 24830,
+      "sha256": "a9956ec825a35a427b1bee91329eaa66a2b6d2636d91117f6a515c8f7fd8e48a"
+    },
+    {
+      "file": "assets/pow/confinement-goals.css",
+      "bytes": 4647,
+      "sha256": "0cb8b2126935a37cd6c7d343c6a3ed164ba14f2ceab0b332060cc49e299dc2b3"
+    },
+    {
+      "file": "assets/survival/ground-items.js",
+      "bytes": 15472,
+      "sha256": "86765674a5284056972429b8bafe446b539f9aa6b01e35227b526e5d5e3db866"
+    },
+    {
+      "file": "assets/render/ground-items-render.js",
+      "bytes": 15734,
+      "sha256": "cc3f8044e93eca7acdf2d74c5704d74c5d0d934d0b044e97210fc3b1b470c08f"
+    },
+    {
+      "file": "assets/survival/ground-items.css",
+      "bytes": 2065,
+      "sha256": "dc24c4f5df94fe29600eef4d4e344076913fe6b49cddd29bd766799a2255c5bd"
+    },
+    {
+      "file": "assets/items/manifest.json",
+      "bytes": 1870,
+      "sha256": "031b636e391f894af72ab3f23764dd914a5e788878943e35353e03e491e27a47"
+    },
+    {
+      "file": "assets/items/pickups.webp",
+      "bytes": 856656,
+      "sha256": "83625ddab9af6851fc24d5a07fc95996e82b1526ef1acc7f5c0df8d4e16cfb5c"
+    },
+    {
+      "file": "assets/pow/prison-detail.js",
+      "bytes": 25086,
+      "sha256": "d2b2da04aed43c95d84720f2ecd2b25b7dcd1b37e3cc015a984a974f8b454e38"
+    },
+    {
+      "file": "assets/pow/prison-food.js",
+      "bytes": 11878,
+      "sha256": "05533c8529a90debfb440c0feb68be2fdc5765cb177d654632ac60092752fae0"
+    },
+    {
+      "file": "assets/pow/prison-food.css",
+      "bytes": 1435,
+      "sha256": "feda44c174780a1ec0465e36816ec03464f3ce82504ba379f561abec2c8f9f60"
+    },
+    {
+      "file": "assets/pow/ration-photo.js",
+      "bytes": 7610,
+      "sha256": "382169c8d5efdd76df34b10b2efc664bb66447d36f705dfbe566bfba68b1724e"
+    },
+    {
+      "file": "assets/prison/manifest.json",
+      "bytes": 1115,
+      "sha256": "8781daeacd47899474aabed7042eff9c25513a18106b64633dab086af36db0d4"
+    },
+    {
+      "file": "assets/prison/materials.webp",
+      "bytes": 2308256,
+      "sha256": "8c13c0811e1064bc4d1ecc71dad00ba4c8d5d5211729357d01556b4e021a3c45"
+    },
+    {
+      "file": "assets/prison/ration.webp",
+      "bytes": 1514228,
+      "sha256": "04a8bd7a9411ba8acd067ff81bf791c1d672d04045014e018d01fa6bc21b4706"
+    },
+    {
+      "file": "assets/prison/ration-empty.webp",
+      "bytes": 1548908,
+      "sha256": "e23dea53cbad621f2c18050c351c6ac84ba1e6a0ff1f6e68e33049b8459d9841"
+    },
+    {
+      "file": "assets/prison/cell-materials.webp",
+      "bytes": 2171172,
+      "sha256": "8a8b32f8037423d07ec793e109286acd736693e46a0ac189cdb5bc5f69b9cc14"
+    },
+    {
+      "file": "assets/audio/crew-personality.js",
+      "bytes": 1489,
+      "sha256": "3cc3b1f6e2d74cc0d5a01af4b7ced45a88bb6b2a80d90ba10c593047ab91e820"
+    },
+    {
+      "file": "assets/audio/voice-profiles.js",
+      "bytes": 3691,
+      "sha256": "336373530e5affa4de32897c4386f681815f5b708a82f5a8146c78f81e5002b0"
+    },
+    {
+      "file": "assets/flight/aircraft-detail.js",
+      "bytes": 26639,
+      "sha256": "5d3f7d2ff0b06ec1892d2af34049c7d22d46f78d08fd41f10e1284a85d5a719f"
+    },
+    {
+      "file": "assets/flight/carrier-launch.js",
+      "bytes": 28665,
+      "sha256": "22edde86d396a6cfdb51082f0de430b4e5e3e2abb1204cc99b58f88274e161db"
+    },
+    {
+      "file": "assets/flight/mission-demo.js",
+      "bytes": 72389,
+      "sha256": "18e15e78435902af375b3fbaba1cfdd65f1411f854da1a89ceed10dae31d0050"
+    },
+    {
+      "file": "assets/survival/landing-water.js",
+      "bytes": 33499,
+      "sha256": "2e66c20d1d57e3b75ac27ea3dfd6dd54509a75d6b70b439417cc51950124dcd4"
+    },
+    {
+      "file": "assets/survival/aviator-companion.js",
+      "bytes": 23040,
+      "sha256": "ab6a54f73981a78618e7e039a50043d046566806c7d009eec16875097bdf8f69"
+    },
+    {
+      "file": "assets/survival/descent-threats.js",
+      "bytes": 13952,
+      "sha256": "179a6539ec7ee32ca9c166d97b1bc7235538f4fd029399905be6ebbaa2cb92ba"
+    },
+    {
+      "file": "assets/carrier/hires/manifest.json",
+      "bytes": 12775,
+      "sha256": "8bcdf04bdb266bfa169af08f7773644aac883a7eaa381c97ac7fe70d58690c80"
+    },
+    {
+      "file": "assets/carrier/hires/yellow-idle.webp",
+      "bytes": 1144566,
+      "sha256": "ec14bd99f47363d44e47fafda5da72e6e22dcbfb58009a6fd8f7d377103687ff"
+    },
+    {
+      "file": "assets/carrier/hires/yellow-signal-a.webp",
+      "bytes": 1158620,
+      "sha256": "d8939b5f504bd54a577ded717acbc533dd3e1a73e8097dab4b9e4ca2040dff54"
+    },
+    {
+      "file": "assets/carrier/hires/yellow-signal-b.webp",
+      "bytes": 1282894,
+      "sha256": "b30beb1c860e5501320cb3b3b8edbabad0956654691e4235d5dcaba375e8a03e"
+    },
+    {
+      "file": "assets/carrier/hires/green-idle.webp",
+      "bytes": 1015604,
+      "sha256": "5516f0b8cf56ba72c3794276595e435c01bb797cbc65e8a8952062483b713fb6"
+    },
+    {
+      "file": "assets/carrier/hires/green-inspect-a.webp",
+      "bytes": 1168094,
+      "sha256": "cc1335db08cc0b4c20afe92c194086de05dcd4e29764dc3082cd2073e4fecaaa"
+    },
+    {
+      "file": "assets/carrier/hires/red-idle.webp",
+      "bytes": 1106972,
+      "sha256": "52a43084b40aeaffc794c27de54170949af1ac96db69781a58c2d6ba06785729"
+    },
+    {
+      "file": "assets/carrier/hires/blue-idle.webp",
+      "bytes": 1057732,
+      "sha256": "7b8ff1dff55ab242335bbc356acd730b4c4216ccedca4e2454b070edbe2603f3"
+    },
+    {
+      "file": "assets/carrier/hires/blue-walk-a.webp",
+      "bytes": 1325346,
+      "sha256": "fe41810f77c9af97fa332bfd6e6aa0c6be63ed395ecdaaf47a3d39d235788582"
+    },
+    {
+      "file": "assets/carrier/hires/blue-walk-b.webp",
+      "bytes": 1353908,
+      "sha256": "5843a57d5acc6561a211d26c50f0953e49d2d33c99dc3b14ce890635ef0a0167"
+    },
+    {
+      "file": "assets/carrier/hires/brown-idle.webp",
+      "bytes": 1062606,
+      "sha256": "41870d35718e2a5d75a4b8006df6b4eff3e642bf32ef93ee0cfe9c1e3e025fd8"
+    },
+    {
+      "file": "assets/carrier/hires/white-idle.webp",
+      "bytes": 1055068,
+      "sha256": "410a4cf9ed4d01d3c92ceb6971972130ff32414eb0806627a33b401c658120d7"
+    },
+    {
+      "file": "assets/firstperson/fists.png",
+      "bytes": 826520,
+      "sha256": "b6b8de2921eaecca80fd25216ae96fe89c6d2dbead1f1619a94a69cf54253060"
+    },
+    {
+      "file": "assets/firstperson/pistol.png",
+      "bytes": 1133507,
+      "sha256": "c0474f6d5b6e273610f209d7408d406a018e4c2cfdb1e134f0bb5b7a0829c869"
+    },
+    {
+      "file": "assets/firstperson/knife.png",
+      "bytes": 779179,
+      "sha256": "7acfab7a47eba36793654633157903083c08d2ba3fb98e7d1489b9a339df03b9"
+    },
+    {
+      "file": "assets/firstperson/radio.png",
+      "bytes": 1145401,
+      "sha256": "9242c9ae04e0dce37368d1a79879f02afb4db2c3b620cc6e966601c696314a09"
+    },
+    {
+      "file": "assets/firstperson/smoke-day.png",
+      "bytes": 1730669,
+      "sha256": "ea127969787207dd6d811caa1cb37cdc74e70bee733172d52f3f1c22a2dca864"
+    },
+    {
+      "file": "assets/firstperson/smoke-night.png",
+      "bytes": 1746071,
+      "sha256": "a60f0a5e74d11e9ccab5cf4e663b73d00d93ba05169c240bc8a005568a247c43"
+    },
+    {
+      "file": "assets/firstperson/punch-left.webp",
+      "bytes": 732226,
+      "sha256": "fa449b1382af638aa8abd134008322bb1a6e47a9199219f2c2c11166b0f4c00b"
+    },
+    {
+      "file": "assets/firstperson/punch-right.webp",
+      "bytes": 720074,
+      "sha256": "47641de20a2ff9fc841322ae3e25438cbb6f2a638b516fdc58c60f613a799008"
+    },
+    {
+      "file": "assets/firstperson/stick.webp",
+      "bytes": 534450,
+      "sha256": "94b49ea891324b8a6a98d75bbacfcf6abb784a2bee1e886b597654f29389c284"
+    },
+    {
+      "file": "assets/firstperson/rifle.webp",
+      "bytes": 1192132,
+      "sha256": "4cdb02d57462b8b135c6b2cb52c9375380c108cdb1e124c6cd7754727aa50857"
+    },
+    {
+      "file": "assets/photos/approach.jpg",
+      "bytes": 27858,
+      "sha256": "ba2b82ba84b123ec832b4f6f6e11fd83f84058e7d9ab56eb84eec77b04a0b1f4"
+    },
+    {
+      "file": "assets/photos/carrier-portrait.jpeg",
+      "bytes": 405229,
+      "sha256": "5ee93f36a9416d4a1f4944b2c830cc7aed9d9c3df9e0ab091b1e27befd7180de"
+    },
+    {
+      "file": "assets/photos/co.jpg",
+      "bytes": 30261,
+      "sha256": "6ce18e40d3c31d5b3f5d5596f7c0f28a89a21dbd26ce48453b0b98585f14434a"
+    },
+    {
+      "file": "assets/photos/crew-portrait.jpeg",
+      "bytes": 405229,
+      "sha256": "5ee93f36a9416d4a1f4944b2c830cc7aed9d9c3df9e0ab091b1e27befd7180de"
+    },
+    {
+      "file": "assets/photos/inflight.jpg",
+      "bytes": 24047,
+      "sha256": "054e767d8e83714ad433a56bb3c54e435cebb4516a2a71c023e53aaceec73304"
+    },
+    {
+      "file": "assets/photos/kh_bow.jpg",
+      "bytes": 34344,
+      "sha256": "e78d14de9c134d02cccd66fe705a902b995114dc205718b1eea69abc29e39a48"
+    },
+    {
+      "file": "assets/photos/kitty.jpg",
+      "bytes": 22798,
+      "sha256": "11002268dfb468aa933da7e60b9d50cbc9df35ced9989415b2b7bdde67a25d82"
+    },
+    {
+      "file": "assets/photos/launch1.jpg",
+      "bytes": 29850,
+      "sha256": "b1fe8d19905ac8d5ba44e3f80d3b4d4a4cea327e863633e0307b6b8a83b2e90d"
+    },
+    {
+      "file": "assets/photos/nose.jpg",
+      "bytes": 42408,
+      "sha256": "10d5baae40ede6f5211111752bcc78eb85d47f52221400f53231c69d868e6250"
+    },
+    {
+      "file": "assets/photos/officers.jpg",
+      "bytes": 67461,
+      "sha256": "22139a7227ebd91c546d40211efd07824da43afc6775ab048f78e1090b0ac12a"
+    },
+    {
+      "file": "assets/photos/overdeck.jpg",
+      "bytes": 24490,
+      "sha256": "efba85b802c9c20e8a4b98413571954d6170067a48e69c091b388f6ad7d48bc1"
+    },
+    {
+      "file": "assets/photos/pair.jpg",
+      "bytes": 18856,
+      "sha256": "f5b475b9ec1d43cc94054ace2e36ad88865c479b0f6e03c2c5af3b85a77b7ae6"
+    },
+    {
+      "file": "assets/photos/readyroom.jpg",
+      "bytes": 31806,
+      "sha256": "7136808cc3c5af82a3b61ff694d8205c226a14bb72773ee80de39a8c32e7f686"
+    },
+    {
+      "file": "assets/photos/rtb.jpg",
+      "bytes": 16651,
+      "sha256": "535386a29b88bdb65c6937e1c514271fe337f26f16cdebbfb30bc4675cd9fb64"
+    },
+    {
+      "file": "assets/photos/standing-portrait.jpeg",
+      "bytes": 145925,
+      "sha256": "c69835f06a3614f071221f3467bc626fefe35984be76584260b0db33366f5fe1"
+    },
+    {
+      "file": "assets/photos/survival-portrait.jpg",
+      "bytes": 478566,
+      "sha256": "c8e509cae3e6460665548cb6a03949fbac92e787f356eba14701185e43db76eb"
+    },
+    {
+      "file": "assets/photos/tiger-insignia.png",
+      "bytes": 43699,
+      "sha256": "d2e460e1cddffc3758b7631c8ef5fa16fe6b5a8f9b599e3c6bab9eb0ba24be6b"
+    },
+    {
+      "file": "assets/processed/vegetation.webp",
+      "bytes": 2058320,
+      "sha256": "6ad6f94a57db013e03dbf80a4d4667b27f4b058627ce945dde9360529915497d"
+    },
+    {
+      "file": "assets/history/manifest.json",
+      "bytes": 3131,
+      "sha256": "93218bd49d70261c6093621d985328128111fb9c7075b69810622d9c3fb6e436"
+    },
+    {
+      "file": "assets/history/pow_roll_call_1960s.webp",
+      "bytes": 701460,
+      "sha256": "359af75ddbaade3c9d6b2824b67b1f98833e8f06dc183785371d8eef744fd52a"
+    },
+    {
+      "file": "assets/history/ltjg_coker_may_1966_colorized.webp",
+      "bytes": 96620,
+      "sha256": "47cac3835b64bdb0771576be85ced04e88d92c578be9a5293ef7d41943d2a6fc"
+    },
+    {
+      "file": "assets/history/hanoi_hilton_aerial_colorized.webp",
+      "bytes": 324848,
+      "sha256": "6e651995f93af3f3491a1227ef14a93dc54743bcf0300d33fd123e00068e6ded"
+    },
+    {
+      "file": "assets/history/pow_prison_courtyard.webp",
+      "bytes": 385512,
+      "sha256": "dfa9d0f47bb3321cedda6af139fe80f24cb4531f26a36cbf971af425c9a5345f"
+    },
+    {
+      "file": "assets/history/pow_interrogation_scene.webp",
+      "bytes": 170072,
+      "sha256": "6c9d81918dc361b1746bf8117aa671ce139bca8785775f34a615005b11357ea6"
+    },
+    {
+      "file": "assets/history/pow_group_repatriation.webp",
+      "bytes": 579364,
+      "sha256": "e5bda2053391579b6077903d23a61dcb09b40c323cc6db2f72bc5bc953bfbf01"
+    },
+    {
+      "file": "assets/history/denton_blinking_torture_color.png",
+      "bytes": 355822,
+      "sha256": "ada2562d09d476f758770545948aa7ab73f823019b002f62c1df935795821891"
+    },
+    {
+      "file": "assets/history/stockdale_pow_color.png",
+      "bytes": 570736,
+      "sha256": "7227be4a8cde22f3310212791a269b81ffe36edc23c4d1d12e3d5814be798487"
+    },
+    {
+      "file": "assets/pow/core.js",
+      "bytes": 56471,
+      "sha256": "e3283e524df4c22e5adfb56e6f32cfd0a9797d610096d7d8357b7e0048578017"
+    },
+    {
+      "file": "assets/pow/core.css",
+      "bytes": 6145,
+      "sha256": "4a54f9f9e0d50abc3757da98f05b3c742a31dcff148f07d8dba5d81176f85200"
+    },
+    {
+      "file": "assets/pow/ai.js",
+      "bytes": 37117,
+      "sha256": "f214f3071c594d18d219a4590af14d85df0c0b9fe4fb6d1a7108ef14566f85ae"
+    },
+    {
+      "file": "assets/pow/river.js",
+      "bytes": 42659,
+      "sha256": "c062527afd62fc76c72cebb796916f4a52d4a1ebd86bfb7ec36381e10f6094a2"
+    },
+    {
+      "file": "assets/pow/captivity.js",
+      "bytes": 94665,
+      "sha256": "12b8d2bd43663366c2a49c98b822a47e360740f71d754477bd9516ef7a644f8e"
+    },
+    {
+      "file": "assets/pow/solidarity.js",
+      "bytes": 29088,
+      "sha256": "52aac5e8e3e96e552a585cce9b2aacf24709ab72e41d72e8b11b06e2d4d08fae"
+    },
+    {
+      "file": "assets/pow/denton-flashback.js",
+      "bytes": 18061,
+      "sha256": "3a434ee002427440ed01e6ea537f0b47c61ae7147bd3ab8c0222777a20eb0a04"
+    },
+    {
+      "file": "assets/pow/mindscape.js",
+      "bytes": 31642,
+      "sha256": "6244998f4ebb3c5eb7ce8258f854159ed9a9cb8c0cf0986c75058a9b8d41b151"
+    },
+    {
+      "file": "assets/pow/regular-confinement.js",
+      "bytes": 32624,
+      "sha256": "961a989bfd8799b794e1678e651094a3cb543cb6f85eb03bc7e4ced594ab0177"
+    },
+    {
+      "file": "assets/pow/history.js",
+      "bytes": 8252,
+      "sha256": "47a10f0365dedc2e1e28647e53ae1f9f339f22bf5fbf000c14872f6ff04a7543"
+    },
+    {
+      "file": "assets/pow/feedback.js",
+      "bytes": 12470,
+      "sha256": "0a0cf3b7cdb8814b4cc7f3509c658191d5dad4342cd085f3505a120bfc17cf01"
+    },
+    {
+      "file": "assets/pow/onboarding.js",
+      "bytes": 7029,
+      "sha256": "f569883eaaa3e1afe794db3528025f55757d30d82af21b977bbc4da830bbca1a"
+    },
+    {
+      "file": "assets/pow/episode-shaders.js",
+      "bytes": 2986,
+      "sha256": "9a45dd52b620f9d4fe1572403f154e5033fde2d68466738be025e97a19bacb9f"
+    },
+    {
+      "file": "assets/pow/episode-scene.js",
+      "bytes": 15705,
+      "sha256": "21faac9770746f220f26f4beb250f998c571baf3b8f8b655829fee0247521ccc"
+    },
+    {
+      "file": "assets/pow/episode-stealth.js",
+      "bytes": 13120,
+      "sha256": "8235ee978bb06afbfdc9fd1ce30eae18cbbff51a274ee8ad02c065a9d7804ce8"
+    },
+    {
+      "file": "assets/pow/episode-actions.js",
+      "bytes": 17062,
+      "sha256": "8fe6818cc384e823ce44a36fd56b391c10861ceefa3d72151e1ff1fa6880d5fa"
+    },
+    {
+      "file": "assets/pow/episode-actions.css",
+      "bytes": 3030,
+      "sha256": "6d3ce6760ac16076539e70854c897731bca90291a4a78df13df230bb11567192"
+    },
+    {
+      "file": "assets/pow/episode-audio.js",
+      "bytes": 10334,
+      "sha256": "8f68268e3090c66188aba86e8f62f291114cfb05db38e8b0ba083fc8cee8b1c7"
+    },
+    {
+      "file": "assets/pow/figure-motion.js",
+      "bytes": 14520,
+      "sha256": "57023d4d7ba67db3c800fa04d338d005bff593940400bdc4634caff5e1ec1efb"
+    },
+    {
+      "file": "assets/pow/memory-detail.js",
+      "bytes": 8846,
+      "sha256": "7041ec840df46c7f815dae5ef5415b224deaf6025a2fd4825b508bf758c68c09"
+    },
+    {
+      "file": "assets/flight/coach.js",
+      "bytes": 32582,
+      "sha256": "1b15658e48a2c01834585e8affc7aa6231f9af163832e77eee9d348befb5ab3b"
+    },
+    {
+      "file": "assets/render/sprite-layers.js",
+      "bytes": 12293,
+      "sha256": "27492afd7aa06f6ddac03f2f058a7c03097e11cdb64f6abec52c88a0b00ce8aa"
+    },
+    {
+      "file": "assets/render/contact-shadows.js",
+      "bytes": 5792,
+      "sha256": "d6c1aa01dd809e6c240673e270a8731a26dc287bb36408adf549a7e5549f2364"
+    },
+    {
+      "file": "assets/render/quality-policy.js",
+      "bytes": 5832,
+      "sha256": "0082327576dfad84fbb872adafc77bc40bb0d6a21dc97fe02f0f984ed0110316"
+    },
+    {
+      "file": "assets/survival/ground-view.js",
+      "bytes": 7797,
+      "sha256": "88c7fca3e91ccc87f1bff2259933425a5e70a4538048c45ad1cb8f82faa538a0"
+    },
+    {
+      "file": "assets/survival/equipment-view.js",
+      "bytes": 14453,
+      "sha256": "3bb3bd6fbec01d7d6a268c533491b682e2ace58d68411f09fab5bb4b70f1d49b"
+    },
+    {
+      "file": "assets/survival/ground-combat.js",
+      "bytes": 13871,
+      "sha256": "fd9a50db2f16669d2e01749b21cd6209ebddf54ee3b963e76d022367e598ea00"
+    },
+    {
+      "file": "assets/render/terrain-shadows.js",
+      "bytes": 8012,
+      "sha256": "930e1bff5aee655c042259f78362902b1d53dc6e60adc0b31c9d18d48917e8a2"
+    },
+    {
+      "file": "assets/render/near-ground.js",
+      "bytes": 6586,
+      "sha256": "4027ebe7fbff9abc5149cdcbc53230c13d79365f46873035a3be072a0bab049d"
+    },
+    {
+      "file": "assets/survival/ammunition.js",
+      "bytes": 4222,
+      "sha256": "c73bb800243d4125aa6bc57561a6f33531c938f1f148654f26227e8aab711dfb"
+    },
+    {
+      "file": "assets/flight/strike-board.js",
+      "bytes": 46305,
+      "sha256": "102742e67d5e86271ee3a04db2d4cea7ab026c7c4282a7aac140d94ff8c91f68"
+    },
+    {
+      "file": "assets/flight/strike-board.css",
+      "bytes": 6834,
+      "sha256": "7c88726077eacb5468cd326f8c38d5ca4dcd351965fb93c623b0243c1a5f524a"
+    },
+    {
+      "file": "assets/flight/strike-effects.js",
+      "bytes": 14834,
+      "sha256": "3210e7015ad9364ed34e3e1b00d9cef08c93acab48f7e2bf9d9344aa28fadf16"
+    },
+    {
+      "file": "assets/flight/strike-scene.js",
+      "bytes": 18268,
+      "sha256": "6149c09d810b13219fe85aa0a10eaff8a80184e50e603de093f22ede9554e262"
+    },
+    {
+      "file": "assets/flight/strike-checkpoint.js",
+      "bytes": 14598,
+      "sha256": "9ac145ed9f1fcbc271013db170a1aa30b8f844c343b70fd61a29b846e2b183d7"
+    },
+    {
+      "file": "assets/flight/strike-crew.js",
+      "bytes": 18453,
+      "sha256": "e3e5bda49f30933d7c5f14585aa0a6bfab104018f29bab7ba836493dea0fcf43"
+    },
+    {
+      "file": "assets/flight/strike-crew.css",
+      "bytes": 2205,
+      "sha256": "69d6d5ed33cf61c8692e5e4fe6e7f24ab62cac3c64c779345a3a78ae18edf931"
+    },
+    {
+      "file": "assets/flight/strike-experience.js",
+      "bytes": 18978,
+      "sha256": "f37815904bfa3ef66f22841c5ae8d3b14f212b32a433183b28a87ccf38291c6d"
+    },
+    {
+      "file": "assets/flight/strike-experience.css",
+      "bytes": 1793,
+      "sha256": "e59a8a9ec472d255d9cc740fdfb3d78af4d6fa090a724453414cfeaf290e481c"
+    },
+    {
+      "file": "assets/flight/tactical-approach.js",
+      "bytes": 14705,
+      "sha256": "7f2191f88352bdbafc6c8a0b2e94e5c756d922bab55606da439ad15969e3c0ad"
+    },
+    {
+      "file": "assets/flight/tactical-approach.css",
+      "bytes": 777,
+      "sha256": "76652f890447df9f0021ef6e0f94fd8620f51b83cf151ac34e14cc31a3c732fc"
+    },
+    {
+      "file": "assets/flight/visual-materials.js",
+      "bytes": 5990,
+      "sha256": "f876633635ffb855d98cc74bd712d6cf559cc1178bb14fcca979d7702566cdc2"
+    },
+    {
+      "file": "assets/flight/airframe-feedback.js",
+      "bytes": 17310,
+      "sha256": "12ea94aee34381aef92f76dcdce86277cafd0a6dcad41763fd69bc7d608f7ff4"
+    },
+    {
+      "file": "assets/flight/airframe-feedback.css",
+      "bytes": 1407,
+      "sha256": "3dc93c21f51a00943e5ea8e57d8787305cd5befdabb5b8f008309ad81179319f"
+    },
+    {
+      "file": "assets/flight/sortie-checkpoint.js",
+      "bytes": 7471,
+      "sha256": "ed4af46b23268672454a1a99ae3d6b42281f6a4196f046e271fff0da85c32646"
+    },
+    {
+      "file": "assets/flight/route-scene.js",
+      "bytes": 17245,
+      "sha256": "0582c35231b6d490f6f3d6983ab4e710a7bb215ada0b3f03db1c18aac72b9169"
+    },
+    {
+      "file": "assets/flight/immersion.js",
+      "bytes": 4840,
+      "sha256": "d0cd11bae2f9566aebcf08d7041ce7c335521d4149239c0fdb2327a7a08714f2"
+    },
+    {
+      "file": "assets/flight/immersion.css",
+      "bytes": 814,
+      "sha256": "3c679a107cff030e627d60b10fce7af0e1de2064d72e0a9d4cab63b6f9757da6"
+    },
+    {
+      "file": "assets/willard/interceptor.js",
+      "bytes": 19503,
+      "sha256": "6980e53f5eb1e15089b3b1bd5707f6fc2706859624b23438f6b08546c6bb1395"
+    },
+    {
+      "file": "assets/willard/flak.js",
+      "bytes": 13682,
+      "sha256": "fa7e371488953904251da7b41b93bb7a2060e4d654f49d91659b2d0b6c7a41e8"
+    },
+    {
+      "file": "assets/willard/sprites.js",
+      "bytes": 13767,
+      "sha256": "b0a253e4650868f0c2ce636ff160f97e895a4839253f5ab759b5fe52d5f2f7a6"
+    },
+    {
+      "file": "assets/willard/presentation.js",
+      "bytes": 18710,
+      "sha256": "075daa060b0b8b27793c25d63b46e6d869dc633fb1579a07dbeb4a316429c54b"
+    },
+    {
+      "file": "assets/willard/presentation.css",
+      "bytes": 5043,
+      "sha256": "4309231f9379836f1034b5f90849640a58860728016665aab99de8ca1e29ecb2"
+    },
+    {
+      "file": "assets/willard/mission.js",
+      "bytes": 34494,
+      "sha256": "7e2df552017674b8c99f20f2c2da31c61d7d2a0fa24960512d548912c9602a1a"
+    },
+    {
+      "file": "assets/willard/media/MiG17PF_Willard_Egress_ATLAS.png",
+      "bytes": 5713922,
+      "sha256": "c3fe4c9865232895b3935881277ac9f692e14422ed7515e9a39533445486c254"
+    },
+    {
+      "file": "assets/willard/media/MiG17PF_Willard_Egress_ATLAS.json",
+      "bytes": 23752,
+      "sha256": "0d87d3669ff2a85757e73f02ebdc947fe68439da08bf0f4497a3b83849606a49"
+    },
+    {
+      "file": "assets/willard/media/sprites/bottom.png",
+      "bytes": 209996,
+      "sha256": "e67e98b0c36eaf5ba453f965e66c4416c0ce5243aef4d3e7111f39f9d8e5fdee"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h00_b+00.png",
+      "bytes": 111286,
+      "sha256": "4d370d1205b4b6911ad5474a44edfd674794f13f2088479910a25fe42f445920"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h00_b+30.png",
+      "bytes": 96051,
+      "sha256": "55b4e26bb83389886b5e4ad0a5cd00cd116e2e3bb227252556c85772f9c0d566"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h00_b-30.png",
+      "bytes": 96041,
+      "sha256": "dd8aa52277b15e694f2daf33e98ca87ac7af48d98463cb5c8f3260e20986f657"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h01_b+00.png",
+      "bytes": 114179,
+      "sha256": "43c1de613e89777367bb4dcfc50cb1dfd0dfe988857265f4a4928e4ee6ab0936"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h01_b+30.png",
+      "bytes": 98914,
+      "sha256": "8be73a49282ab73404d7c8d0d2249e08a636bb839fc7de590ede738dd2cc90a9"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h01_b-30.png",
+      "bytes": 98889,
+      "sha256": "d3e7ce1e1b02bde90710f8f0e60f9289737ff901414f33b91fc73fb3d4c50bc7"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h02_b+00.png",
+      "bytes": 112786,
+      "sha256": "51167a52f5be9e6fb9cb9e98990e4e698cb6ffa136aebfcfcac1d314a3768e02"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h02_b+30.png",
+      "bytes": 97743,
+      "sha256": "44cdb7d28f1673bfd4198cf16dfc5cfa1cf6342e688d72a749f94e69df68dc7e"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h02_b-30.png",
+      "bytes": 97776,
+      "sha256": "d9effe4d3fa310a38a2c1f5f6e8c240c098eed61e7f4a831845a348fd5696c56"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h03_b+00.png",
+      "bytes": 113139,
+      "sha256": "15083f730a179f21c29f73b861198b5a1b3761f973de24195beef07232608e2c"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h03_b+30.png",
+      "bytes": 97740,
+      "sha256": "711bc700c1262336e0683cdcf117e9acdd58344b0ab17bb6ba5f6c68e33ca488"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h03_b-30.png",
+      "bytes": 97743,
+      "sha256": "eb00ea5701c4ee6ceb2ff95cb22c9cb7b506809530e1f06bbd2421f9116700c0"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h04_b+00.png",
+      "bytes": 109501,
+      "sha256": "c44613e38341f5af1f5365fc603bcef9c1674be9472a4926249da548265cb574"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h04_b+30.png",
+      "bytes": 94430,
+      "sha256": "b9ec8ae3c9a82fbdf8e92946ea0a547118990b0513abf9ed68f232602d90fc6e"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h04_b-30.png",
+      "bytes": 94418,
+      "sha256": "da5b0ebf92ec08c028b7f14a5f2904f9c7d5065fed38618008f0f061dec21b48"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h05_b+00.png",
+      "bytes": 113647,
+      "sha256": "94e48a4cf2d517b9decfd52f36fcc78d33ec38c2c460f4912d4c82e01b7d8631"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h05_b+30.png",
+      "bytes": 98249,
+      "sha256": "ae9ac03007673ecfce62de9d32c49eacda59e811d34a5d12772707ff11469ebe"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h05_b-30.png",
+      "bytes": 98250,
+      "sha256": "0548966e342ae945f278d69e5e5edf5a7d0da89fde92644822687e213b10971c"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h06_b+00.png",
+      "bytes": 113154,
+      "sha256": "56f7f20dfe0d279156a570d011c3de0e6895eef7a430d91d78276a65be5d14d7"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h06_b+30.png",
+      "bytes": 98596,
+      "sha256": "d401a4bcbc9ad9b3ef464879bb02445d69f841f58ec520a43a04ca48f0408702"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h06_b-30.png",
+      "bytes": 98607,
+      "sha256": "5bfb384f91909efefadd09da8e8501b72d90ec2b177b5f3fdafe33630a6089f3"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h07_b+00.png",
+      "bytes": 115584,
+      "sha256": "e6c51d85bff4a72c1ec495577648046c6d4998428c3ef7c29dfa79002fdd8070"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h07_b+30.png",
+      "bytes": 100113,
+      "sha256": "527a799d7bfc0d4202ab5b63c617836cb71a175f3b93ed58d1191d6e0665f788"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h07_b-30.png",
+      "bytes": 100143,
+      "sha256": "482cfda9815fdd06631d0f7c91d5df702309cc395614c7dec22ee504d96879a8"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h08_b+00.png",
+      "bytes": 111362,
+      "sha256": "f2483439a22260b363c008d1d86a423d84a9533e3a30f31e7124a036c7ec6127"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h08_b+30.png",
+      "bytes": 96131,
+      "sha256": "b59a1ca67281b1d6ec2ca041733710bf413aa47d631def81fe72364a3dac3782"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h08_b-30.png",
+      "bytes": 96182,
+      "sha256": "5fbd423b2b772314335f41eb61afdf26c3197ce3c030291a964e288f2c0d09e4"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h09_b+00.png",
+      "bytes": 114093,
+      "sha256": "42a78edc15e6f8f6d5e1022513af032876dad6f4cffa355bd43393c3331071ed"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h09_b+30.png",
+      "bytes": 98900,
+      "sha256": "024eb832cb5626ff49f409e0149cefbe903d2f77e8c08d7eacf68ae8ef2f95a6"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h09_b-30.png",
+      "bytes": 98864,
+      "sha256": "3e13a3180fc04aa03841be263c79de4f4636a72a7f786a5766b509f0f607c77b"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h10_b+00.png",
+      "bytes": 112391,
+      "sha256": "11a9026c2732bbb17896a06d1b575df78974b4e9a09c579533ef69b012519262"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h10_b+30.png",
+      "bytes": 97551,
+      "sha256": "1b2e46ae296c87934d38e787a70c1da9697612878434c76310f5e7c2e69348e9"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h10_b-30.png",
+      "bytes": 97566,
+      "sha256": "af204c7121d1f5b93c8299ce12058a073be872dd0e97de42f8b32623371bbfca"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h11_b+00.png",
+      "bytes": 112874,
+      "sha256": "563911001e9b8360e947b7a4a35672f9bbf126e357d2afeaeb4caac33c69ebde"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h11_b+30.png",
+      "bytes": 97502,
+      "sha256": "ec6ad72a1821fccabbb71309a19c3337a43a500947f53068dd06a61ec949b44b"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h11_b-30.png",
+      "bytes": 97452,
+      "sha256": "9f628e60ff69639a5d993b81ca98ecb4b4cfd183cbe7ada62b324a21daa57dc7"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h12_b+00.png",
+      "bytes": 109754,
+      "sha256": "0bd45836eaa7984be7ebc64d1a5ae3ff83e29f5d98a2c282acb6e54e38173c64"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h12_b+30.png",
+      "bytes": 94323,
+      "sha256": "dc27791a9270fa2ff6282d3cd0d74277250900fa4b89e03d611cfdac23132fed"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h12_b-30.png",
+      "bytes": 94313,
+      "sha256": "5e455462052d9c12f2d29b8147fe15c30156548a04766bc9401581b60eb0763c"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h13_b+00.png",
+      "bytes": 113949,
+      "sha256": "58967196e31bbc335f2d10a705ce335f2a5a03ec25c512c5db166f242b5685d5"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h13_b+30.png",
+      "bytes": 98269,
+      "sha256": "329801877fe83b68b8943fbf67f1c19dda1643d05f432ae1a23cc8b03f4605b2"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h13_b-30.png",
+      "bytes": 98279,
+      "sha256": "195863b1000615c95fd454f625b1debe99f6c8f02ac4fc0963f121cfba3dd349"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h14_b+00.png",
+      "bytes": 113621,
+      "sha256": "9bd391ffc0994b7990a05ab25306fa5b211926d141a822c0b65ca907df5207b7"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h14_b+30.png",
+      "bytes": 98745,
+      "sha256": "abd13e1e408aae952673e18a2358acd86031b577dcfe8d8a61a19a079c86ad39"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h14_b-30.png",
+      "bytes": 98725,
+      "sha256": "d001f8336b7381902fc381c59c2dd52be29f06f05925326a8df4f56f7877b9ce"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h15_b+00.png",
+      "bytes": 115726,
+      "sha256": "b97d9eeb4a1903bb1b223fde90a16c8e000ce76e221bc6747e3cfd8f23dd2835"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h15_b+30.png",
+      "bytes": 100110,
+      "sha256": "b832d3f56bef64ef76a30766baf7023c0cb750b89767e64da811ea9c8eca7e4f"
+    },
+    {
+      "file": "assets/willard/media/sprites/flight_h15_b-30.png",
+      "bytes": 100127,
+      "sha256": "d3d3b40dbb1d2fa6f24ed4830be78f5db0e3150f827576b0b316bcd727eda0b3"
+    },
+    {
+      "file": "assets/willard/media/sprites/front.png",
+      "bytes": 88811,
+      "sha256": "a05f0e81b0c72f5deeaaaa303ad94f9206ce8cdbd88d63c08061071bd4e19eeb"
+    },
+    {
+      "file": "assets/willard/media/sprites/left_side.png",
+      "bytes": 95152,
+      "sha256": "ef95484981fb7735c7a2aa8f16798847c5c85e85f743f32900cba816f7ddad68"
+    },
+    {
+      "file": "assets/willard/media/sprites/rear.png",
+      "bytes": 79178,
+      "sha256": "6d2290f3d6eef17057d58ca4b50388921d7d39b905d10ed9ead2e272d5634f85"
+    },
+    {
+      "file": "assets/willard/media/sprites/right_side.png",
+      "bytes": 120556,
+      "sha256": "70da5d1126b5688455437908aaa46a41af9399abd457db755fc6bde302e9c505"
+    },
+    {
+      "file": "assets/willard/media/sprites/top.png",
+      "bytes": 176018,
+      "sha256": "681974f540496909fef0bcea5a45003b97d86104cb58624044d88b440cfc551f"
+    },
+    {
+      "file": "assets/vegetation.webp",
+      "bytes": 1081654,
+      "sha256": "a3aef36cd9fb5a8d62a8f5773b9b47dbacabb04cd14028b1b777c10ff80070d1"
+    },
+    {
+      "file": "_headers",
+      "bytes": 94,
+      "sha256": "4a1c2e865e97b38df125a2ee055d84c8e0a33072955a41596dc42dbd5487ca98"
+    }
+  ],
+  "runtimeSoleParentIsTestedSource": true,
+  "independentObjectStore": true,
+  "fetchedOnlyTwoExplicitBranches": true,
+  "recordedAt": "2026-10-26T12:27:13.931293+00:00",
+  "scope": "Source/runtime/ZIP integrity and preservation only; no gameplay rerun, push, deployment or GitHub-generated outer ZIP hash."
+}
