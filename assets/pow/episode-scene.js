@@ -138,14 +138,8 @@
       }
     } else {
       const r = s.river || {}, y = finite(r.waterY, b[1]) - b[1];
-      // Faint sediment edge bands are grounded on the existing bank. Reflected
-      // water and currents are uniforms, rather than transparent overlay art.
-      if (r.phase !== 'gulf') for (const side of [-1, 1]) {
-        box('river-silt-' + side, 'powMud', 94 + side * 16.2, y + .358, 30,
-          .72, .006, 123, [1.28, 1.17, .87, 0]);
-        for (const z of [-48, 12, 72]) box('river-reed-shadow-' + side + '-' + z, 'powMud', 94 + side * 20,
-          y + .364, z, 2.3, .006, 6, [.72, .82, .63, 0]);
-      }
+      // RiverBanks owns the continuous sloped mud and patchy ground cover.
+      // Straight elevated sediment/shadow strips would hover over that shore.
       for (const g of game.campGeo || []) if (/^river-landmark-.*-shelter-roof$/.test(g.id)) {
         const x = g.p[0] - b[0], z = g.p[2] - b[2];
         box('landing-rust-' + g.id, 'powMetal', x, g.p[1] - b[1] - .01, z - 2.72,

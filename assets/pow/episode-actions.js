@@ -92,7 +92,7 @@
     const s = game.pow, holding = s.holding, focus = s.focus;
     if (s.traversal) {
       const t = s.traversal, progress = clamp(finite(t.t, 0) / Math.max(.01, finite(t.duration, 4)), 0, 1);
-      return { active: true, pose: t.kind === 'climb' ? 'climb' : 'descent', tool: 'rope', progress, phase: finite(t.t, 0) * 5.2, label: 'Grip · lower one hand · grip again', held: true };
+      return { active: true, pose: t.kind === 'climb' ? 'climb' : 'descent', tool: 'rope', progress, phase: finite(t.t, 0) * 5.2, label: 'ROPE DESCENT · '+Math.round(progress*100)+'% · '+Math.max(0,game.evade.p[1]-t.to[1]).toFixed(1)+'m to ground', held: true };
     }
     if (holding && focus && holding.id === focus.id && WORK[holding.id]) {
       const task = WORK[holding.id];
@@ -149,20 +149,21 @@
   }
   function render(game) {
     const descriptor = view(game), overlay = ensureUI(); if (!overlay) return descriptor;
-    overlay.hidden = !descriptor.active;
+    overlay.hidden = !descriptor.active || ['swim','water-entry'].includes(descriptor.pose)&&!!root.LandingWater?.swimHandsReady(game);
     if (!descriptor.active) return descriptor;
     const canvas = overlay.querySelector('[data-episode-action]'), left = overlay.querySelector('[data-action-left]'), right = overlay.querySelector('[data-action-right]'), tool = overlay.querySelector('[data-action-tool]'), ripple = overlay.querySelector('[data-action-ripple]');
     canvas.dataset.pose = descriptor.pose; canvas.dataset.progress = descriptor.progress.toFixed(3); canvas.dataset.tool = descriptor.tool || ''; canvas.dataset.label = descriptor.label || '';
     const handArt = P.ctx && P.ctx.firstPersonArt && P.ctx.firstPersonArt.fists;
     for (const wrapper of [left, right]) { const image = wrapper.querySelector('img'); if (handArt && image.getAttribute('src') !== handArt) image.src = handArt; wrapper.hidden = !handArt; }
     const quiet = reduced(game) ? .35 : 1, wave = Math.sin(descriptor.phase || 0), phase = descriptor.progress, rope = ['tie-rope', 'gather-rope', 'descent', 'climb'].includes(descriptor.pose), throwPose = descriptor.pose === 'throw', water = ['swim', 'water-entry'].includes(descriptor.pose);
-    let lx = rope ? 22 + wave * 7 * quiet : 24 + wave * 3 * quiet, ly = rope ? -9 - wave * 14 * quiet : -12 + wave * 4 * quiet;
-    let rx = rope ? -20 - wave * 7 * quiet : -26 - wave * 5 * quiet, ry = rope ? -9 + wave * 14 * quiet : -16 - wave * 6 * quiet;
+    if(rope){for(const [wrapper,sign]of[[left,1],[right,-1]]){const image=wrapper.querySelector('img'),file='assets/firstperson/rope-grip-'+(wave*sign>.75?'open':'closed')+'.webp';if(image.getAttribute('src')!==file)image.src=file;wrapper.hidden=false;}}
+    let lx = rope ? 22 + wave * 7 * quiet : 24 + wave * 3 * quiet, ly = rope ? -9 - wave * 35 * quiet : -12 + wave * 4 * quiet;
+    let rx = rope ? -20 - wave * 7 * quiet : -26 - wave * 5 * quiet, ry = rope ? -9 + wave * 35 * quiet : -16 - wave * 6 * quiet;
     if (throwPose) { rx = -14 + Math.sin(phase * Math.PI) * 48 * quiet; ry = -12 - Math.sin(phase * Math.PI) * 75 * quiet; }
     if (water) { lx = 8 - wave * 13 * quiet; rx = -8 + wave * 13 * quiet; ly = -14 + wave * 11 * quiet; ry = -14 - wave * 11 * quiet; }
     left.style.transform = 'translate(' + lx.toFixed(1) + 'px,' + ly.toFixed(1) + 'px) rotate(' + (wave * 3 * quiet).toFixed(1) + 'deg)';
     right.style.transform = 'translate(' + rx.toFixed(1) + 'px,' + ry.toFixed(1) + 'px) rotate(' + (-wave * 5 * quiet + (throwPose ? phase * 18 * quiet : 0)).toFixed(1) + 'deg)';
-    tool.hidden = !descriptor.tool;
+    tool.hidden = !descriptor.tool || ['descent','climb'].includes(descriptor.pose);
     if (descriptor.tool) { if (tool.getAttribute('src') !== ART[descriptor.tool]) tool.src = ART[descriptor.tool]; tool.style.transform = 'translate(-50%,' + (-5 + wave * 4 * quiet).toFixed(1) + 'px) rotate(' + (descriptor.pose === 'loosen' ? -26 + wave * 8 * quiet : rope ? 8 + wave * 4 * quiet : throwPose ? 12 + phase * 35 : -8).toFixed(1) + 'deg)'; tool.style.opacity = throwPose && phase > .38 ? String(clamp(1 - (phase - .38) * 5, 0, 1)) : '1'; }
     ripple.hidden = descriptor.pose !== 'water-entry'; ripple.style.transform = 'translate(-50%,0) scale(' + (1 + phase * .65 * quiet).toFixed(2) + ')'; ripple.style.opacity = String(clamp(1 - phase, 0, 1));
     return descriptor;

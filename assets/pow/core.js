@@ -7,6 +7,34 @@
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
   const copy = v => JSON.parse(JSON.stringify(v));
   const stages = {cell:'DIRTY BIRD · CELL',compound:'DIRTY BIRD · COMPOUND',hanoi:'HANOI · NIGHT STREETS',river:'RED RIVER · OCTOBER 1967',solitary:'POW · SOLITARY',regular:'POW · REGULAR CONFINEMENT'};
+  // Three twisted, cylindrical hemp strands make a rope silhouette even before
+  // photographic hands load. The two fixed meshes are shared across rebuilds.
+  function ropeMesh(MB, hanging) {
+    const mesh=new MB(), path=[];
+    if(hanging){
+      for(let i=0;i<=64;i++){const u=i/64,a=u*TAU;path.push([.085*Math.sin(a),.085*Math.cos(a),.075*Math.sin(a*2)]);}
+      for(let i=1;i<=34;i++){const u=i/34;path.push([u*1.2,.085-.105*Math.sin(u*Math.PI/2),0]);}
+      for(let i=1;i<=174;i++){const u=i/174;path.push([1.2+.025*Math.sin(u*Math.PI),-.02-u*4.32,0]);}
+    }else{
+      for(let i=0;i<=360;i++){const u=i/360,a=u*TAU*5.5,r=.23+.35*u;path.push([Math.cos(a)*r,.018+u*.105,Math.sin(a)*r*.78]);}
+      const last=path[path.length-1];for(let i=1;i<=22;i++){const u=i/22;path.push([last[0]-.55*u,last[1]-.08*u,last[2]+.24*Math.sin(u*2)]);}
+    }
+    const colors=[[.57,.43,.27],[.73,.58,.37],[.64,.49,.30]];
+    let travel=0;const samples=path.map((p,i)=>{if(i)travel+=Math.hypot(...p.map((v,k)=>v-path[i-1][k]));return {p,travel};});
+    for(let strand=0;strand<3;strand++){
+      const points=samples.map((q,i)=>{const a=q.travel*TAU/.11+strand*TAU/3,prev=path[Math.max(0,i-1)],next=path[Math.min(path.length-1,i+1)],d=next.map((v,k)=>v-prev[k]),n=Math.hypot(...d)||1,t=d.map(v=>v/n),ref=Math.abs(t[1])>.9?[1,0,0]:[0,1,0],u=[t[1]*ref[2]-t[2]*ref[1],t[2]*ref[0]-t[0]*ref[2],t[0]*ref[1]-t[1]*ref[0]],un=Math.hypot(...u)||1;for(let k=0;k<3;k++)u[k]/=un;const v=[t[1]*u[2]-t[2]*u[1],t[2]*u[0]-t[0]*u[2],t[0]*u[1]-t[1]*u[0]];return {p:q.p.map((x,k)=>x+.0105*(Math.cos(a)*u[k]+Math.sin(a)*v[k])),r:.008};});
+      mesh.tube(points,colors[strand],6,true,true);
+    }
+    mesh.rope={strands:3,hanging:!!hanging,sourcePoints:path.length,diameter:.037};return mesh;
+  }
+  function ropeTraversal(t) {
+    const f=clamp(t.t/t.duration,0,1),b=t.base,lerp=(a,c,u)=>a+(c-a)*u,ease=u=>{u=clamp(u,0,1);return u*u*(3-2*u);};
+    // Clear the actual 4.4m parapet before lowering beside the anchored rope.
+    if(f<.16){const u=ease(f/.16);return [lerp(t.from[0],b[0]+28.16,u),lerp(t.from[1],b[1]+4.45,u),lerp(t.from[2],b[2]-24,u)];}
+    if(f<.28){const u=ease((f-.16)/.12);return [b[0]+28.16,lerp(b[1]+4.45,b[1]+2.5,u),b[2]-24];}
+    if(f<.9){const u=(f-.28)/.62;return [b[0]+28.16,lerp(b[1]+2.5,b[1],u),b[2]-24];}
+    const u=ease((f-.9)/.1);return [lerp(b[0]+28.16,t.to[0],u),b[1],b[2]-24];
+  }
   let installed = false, touchLook = null;
   P.version = 2;
   P.ensureMeshes = function (game) {
@@ -16,6 +44,7 @@
     for (const [id,col] of Object.entries(colors)) if (!r.meshes || !r.meshes[id]) {
       const b = new MB(); b.box(0,0,0,.5,.5,.5,col); r.meshFromBuilder(id,b);
     }
+    if(typeof MB.prototype.tube==='function')for(const [id,hanging]of[['powRopeCoil',false],['powRopeHang',true]])if(!r.meshes||!r.meshes[id])r.meshFromBuilder(id,ropeMesh(MB,hanging));
   };
   P.addBox = function (game,id,m,x,y,z,hx,hy,hz,opts) {
     const s=game.pow, o=opts || {}, b=s.base;
@@ -191,19 +220,13 @@
     solid(game,'roof-vent','powMetal',18,3.85,-28,.7,.45,.7);
     // Critical escape equipment must be visible against a dark roof, not a tiny brown block.
     // All pieces share the "roof-rope:" prefix so collection removes the whole marker.
-    visual(game,'roof-rope','powDark',21,3.43,-22,.91,.035,.77);
-    for(let i=0;i<3;i++){
-      const x=20.48+i*.52;
-      visual(game,'roof-rope:loop-l:'+i,'powRope',x-.18,3.56,-22,.072,.095,.43,[1.3,1.2,.95,0]);
-      visual(game,'roof-rope:loop-r:'+i,'powRope',x+.18,3.56,-22,.072,.095,.43,[1.3,1.2,.95,0]);
-      visual(game,'roof-rope:loop-n:'+i,'powRope',x,3.56,-22-.43,.25,.095,.067,[1.3,1.2,.95,0]);
-      visual(game,'roof-rope:loop-s:'+i,'powRope',x,3.56,-22+.43,.25,.095,.067,[1.3,1.2,.95,0]);
-    }
-    visual(game,'roof-rope:loose-end','powRope',21.75,3.50,-21.75,.30,.050,.072,[1.25,1.15,.95,0]);
+    visual(game,'roof-rope','powDark',21,3.43,-22,.74,.025,.60);
+    visual(game,'roof-rope:coil','powRopeCoil',21,3.49,-22,.5,.5,.5,[1.12,1.08,.98,0]);
     // High-contrast hovering wayfinding marker: navigation aid, not a physical object.
     visual(game,'roof-rope:marker-stem','powSignal',21,4.56,-22,.065,.47,.065,[1.75,1.6,1.0,.65]);
     visual(game,'roof-rope:marker-bar','powSignal',21,4.98,-22,.48,.070,.085,[1.75,1.6,1.0,.65]);
-    visual(game,'roof-hook','powMetal',26.5,4.1,-24,.06,.07,.09);
+    visual(game,'roof-hook','powMetal',26.5,4.45,-24,.06,.07,.09);
+    const showEscapeRope=()=>{if(!game.campGeo.some(g=>g.id==='escape-rope'))visual(game,'escape-rope','powRopeHang',26.5,4.50,-24,.5,.5,.5,[1.08,1.03,.95,0]);};
     function showHookGuide(){
       visual(game,'roof-hook:guide-stem','powSignal',26.10,4.55,-24,.055,.34,.055,[1.65,1.50,1.0,.45]);
       visual(game,'roof-hook:guide-bar','powSignal',26.10,4.84,-24,.39,.060,.080,[1.65,1.50,1.0,.45]);
@@ -248,22 +271,22 @@
       s.inventory.rope=true;
       remove(game,'roof-rope');
       showHookGuide();
-      P.notify(game,'Rope collected! Follow the yellow marker to the east parapet hook, then hold F to descend.');
+      P.notify(game,'Rope collected. Follow the marker to the east parapet hook. Hold F / Interact to tie it, then lower yourself down the rope.');
       P.save(game);
     },{hold:.75,radius:2.5,enabled:()=>!s.inventory.rope,view:false});
     P.object(game,'roof-descent','Secure the rope and descend the outside wall',26,4,-24,()=>{
       if(!s.inventory.rope)return P.notify(game,'Find the bundled rope on this roof before descending.');
       if(game.evade.p[1]<b[1]+3.1)return;
-      s.traversal={kind:'descent',t:0,duration:4,from:game.evade.p.slice(),to:[b[0]+29.1,b[1],b[2]-24]};
-      visual(game,'escape-rope','powWood',27.7,2.1,-24,.035,2.1,.035,[2,1.7,1.3,0]);noise(game,.30,'rope');
-      P.notify(game,'Hold steady. Descending the far side of the wall.');
+      s.traversal={kind:'descent',rope:true,t:0,duration:4,base:b.slice(),from:game.evade.p.slice(),to:[b[0]+29.1,b[1],b[2]-24],heading:game.evade.hdg,look:game.evade.look||0};
+      showEscapeRope();noise(game,.30,'rope');
+      P.notify(game,'Rope secured. Climb over the parapet, then lower hand over hand. Descent progress is shown above.');
     },{hold:1.4,radius:2.1,enabled:()=>!s.flags.outside,climb:true,view:false});
     P.object(game,'alley-rest','Rest briefly behind the handcart',49,.8,-19,()=>{
       s.stats.fatigue=Math.max(0,s.stats.fatigue-12);s.stats.physical=Math.min(100,s.stats.physical+2);P.notify(game,'Breathing slows. Watch the street before moving again.');
     },{hold:5,enabled:()=>s.stage==='hanoi',view:false});
     if(s.flags.doorOpen){remove(game,'cell-door');remove(game,'door-hatch');remove(game,'door-bars');remove(game,'door-bolt');remove(game,'fitting');visual(game,'door-open','powMetal',-.46,1.22,-4.06,.095,1.22,.46);}
     if(s.inventory.rope){remove(game,'roof-rope');showHookGuide();}
-    if(s.flags.outside)visual(game,'escape-rope','powWood',27.7,2.1,-24,.035,2.1,.035,[2,1.7,1.3,0]);
+    if(s.flags.outside)showEscapeRope();
   }
   P.begin = function (game,stage,saved) {
     const carriedGroundItems=global.GroundItems && global.GroundItems.snapshot(game);
@@ -430,11 +453,11 @@
   function readInput(game,dt) {
     const s=game.pow,e=game.evade,a=game.app || {},k=a.keys || {},g=a.gctl || {},locked=document.pointerLockElement===document.getElementById('stack');
     if(inputBlocked(game)){for(const key of Object.keys(k))k[key]=0;for(const key of ['pitch','roll','run','crouch'])g[key]=0;s.touchInteract=false;s.touchClimb=false;s.input={forward:0,strafe:0,run:false,crouch:false,interact:false,climb:false};e.moving=false;e.running=false;return;}
-    const right=(k.KeyD?1:0)-(k.KeyA?1:0),turn=(k.ArrowRight?1:0)-(k.ArrowLeft?1:0)+(locked?0:right)+clamp(g.roll || 0,-1,1);
+    const movement=global.GroundControls?global.GroundControls.read(a):{forward:(k.KeyW?1:0)-(k.KeyS?1:0)+(g.pitch||0),strafe:(k.KeyD?1:0)-(k.KeyA?1:0)+(g.roll||0),turn:(k.ArrowRight?1:0)-(k.ArrowLeft?1:0)+(g.turn||0)},turn=movement.turn;
     e.hdg=(e.hdg+turn*dt*1.65)%TAU;
     e.pitchCmd=clamp((e.pitchCmd || 0)+((k.KeyQ?1:0)-(k.KeyE?1:0))*dt*.9,-.85,1.2);
     e.look=e.pitchCmd;
-    s.input={forward:clamp((k.KeyW || k.ArrowUp?1:0)-(k.KeyS || k.ArrowDown?1:0)+(g.pitch || 0),-1,1),strafe:locked?right:0,run:!!(k.ShiftLeft || k.ShiftRight || g.run),crouch:!!(k.KeyC || g.crouch),interact:!!(k.KeyF&&!e._pickupKeyConsumed || s.touchInteract),climb:!!(k.Space || s.touchClimb)};
+    s.input={forward:movement.forward,strafe:movement.strafe,run:!!(k.ShiftLeft || k.ShiftRight || g.run),crouch:!!(k.KeyC || g.crouch),interact:!!(k.KeyF&&!e._pickupKeyConsumed || s.touchInteract),climb:!!(k.Space || s.touchClimb)};
     e.crouch=s.input.crouch;e.weaponWant=null;e.attackWant=0;
   }
   P.tick = function (game,dt) {
@@ -451,7 +474,9 @@
     const input=s.input,was=[e.p[0],e.p[2]];
     if(s.traversal) {
       const t=s.traversal;t.t+=dt;const f=clamp(t.t/t.duration,0,1);
-      for(let j=0;j<3;j++)e.p[j]=t.from[j]+(t.to[j]-t.from[j])*f;
+      const position=t.rope&&t.base?ropeTraversal(t):t.from.map((x,j)=>x+(t.to[j]-x)*f);
+      for(let j=0;j<3;j++)e.p[j]=position[j];
+      if(t.rope){const turn=Math.atan2(Math.sin(-Math.PI/2-t.heading),Math.cos(-Math.PI/2-t.heading)),u=clamp(f/.28,0,1);e.hdg=t.heading+turn*u*u*(3-2*u);e.look=e.pitchCmd=-.42;}
       e.moving=true;e.running=false;
       if(f>=1){s.flags.outside=true;s.flags.roofCrossed=true;s.traversal=null;P.transition(game,'hanoi');}
     } else if(!s.customMovement) {
@@ -542,7 +567,7 @@
     button('Save',()=>{const g=current();if(g && g.pow){P.save(g);P.notify(g,'Checkpoint saved on this device.');}},tools);
     button('Continue',()=>{const g=current(),saved=P.ctx.Store.get('pow_checkpoint',null);if(g && saved && !saved.complete)P.begin(g,saved.stage,saved);else if(g)P.notify(g,'No unfinished checkpoint is available on this device.');},tools);
     button('History & photos',()=>{const g=current();if(global.POWPhotos && global.POWPhotos.open)global.POWPhotos.open(g);else if(P.Photos && P.Photos.open)P.Photos.open(g);},tools);
-    const settings=document.createElement('details');settings.className='pow-settings';settings.innerHTML='<summary>Settings & controls</summary><label>Difficulty <select data-difficulty><option value="normal">Normal</option><option value="hard">Hard</option></select></label><label>Intensity <select data-intensity><option value="standard">Standard</option><option value="reduced">Reduced</option></select></label><p>W/S or left stick: move · A/D: turn · Shift: run · C: crouch · Q/E: look up/down · F: hold interaction · Space: climb · Y: mouse look. Drag the right side to look on touch.</p><p class="pow-layout-note">The compound and street layout is fictional. Photographs and historical records are presented separately.</p>';tools.appendChild(settings);
+    const settings=document.createElement('details');settings.className='pow-settings';settings.innerHTML='<summary>Settings & controls</summary><label>Difficulty <select data-difficulty><option value="normal">Normal</option><option value="hard">Hard</option></select></label><label>Intensity <select data-intensity><option value="standard">Standard</option><option value="reduced">Reduced</option></select></label><p>WASD or left stick: move / strafe · Left/Right arrows: turn · Shift: run · C: crouch · Q/E: look up/down · F: hold interaction · Space: climb · Y: mouse look. Drag the right side to look on touch.</p><p class="pow-layout-note">The compound and street layout is fictional. Photographs and historical records are presented separately.</p>';tools.appendChild(settings);
     const tutorialLabel=document.createElement('label');tutorialLabel.innerHTML='Controls tutorial <input type="checkbox" data-guidance>';settings.appendChild(tutorialLabel);
     const feedbackLabel=document.createElement('label');feedbackLabel.innerHTML='Guard sound / sight cues <input type="checkbox" data-feedback-hints>';settings.appendChild(feedbackLabel);
     for(const name of ['difficulty','intensity'])settings.querySelector('[data-'+name+']').addEventListener('change',event=>{const g=current();if(!g || !g.pow)return;g.pow[name]=event.target.value;P.ctx.Store.set('pow_preferences',Object.assign({},P.ctx.Store.get('pow_preferences',{}) || {},{difficulty:g.pow.difficulty,intensity:g.pow.intensity}));event.target.blur();P.save(g);P.updateUI(g);});
@@ -569,7 +594,10 @@
   P.updateUI = function (game) {
     P.mountUI();if(!P.ui || !game || !game.pow)return;
     const s=game.pow,e=game.evade,u=P.ui,stageLabel=s.stage==='solitary' && P.Solidarity && P.Solidarity.available(game)?'ALCATRAZ · SCHEMATIC SOLITARY':stages[s.stage] || s.stage;u.stage.textContent=stageLabel+' · DAY '+s.day;
-    if(s.stage==='compound'){
+    if(s.traversal){
+      const t=s.traversal,f=clamp(t.t/t.duration,0,1),remaining=Math.max(0,e.p[1]-s.base[1]);
+      u.objective.textContent=(f<.28?'OVER THE PARAPET':f<.9?'LOWER HAND OVER HAND':'STEP OFF THE ROPE')+' · '+Math.round(f*100)+'% · '+remaining.toFixed(1)+'m ABOVE GROUND';
+    }else if(s.stage==='compound'){
       if(e.p[1]>=s.base[1]+2.6){
         const tx=s.inventory.rope?26:21,tz=s.inventory.rope?-24:-22;
         const dx=s.base[0]+tx-e.p[0],dz=s.base[2]+tz-e.p[2];
@@ -590,8 +618,8 @@
     if(u.river){u.river.hidden=!s.river;if(s.river){const r=s.river,h=((r.hour || 0)%24+24)%24,clock=String(Math.floor(h)).padStart(2,'0')+':'+String(Math.floor((h%1)*60)).padStart(2,'0');u.river.textContent=Number(r.distanceKm || 0).toFixed(1)+' ROUTE KM (100:1) · '+clock+' · '+String(r.weather || 'mist').toUpperCase()+' · '+String(r.mode || 'swim').toUpperCase()+' · AIR '+Math.round(r.breath || 0);}}
     const seen=e.searchers.some(a=>a.alive!==false && a.seen);u.alert.textContent=seen?'GUARD HAS SIGHT OF YOU':e.sus>.45?'PATROL INVESTIGATING':s.noise>.5?'YOUR MOVEMENT IS LOUD':'KEEP QUIET · WATCH THE PATROLS';u.alert.dataset.danger=seen?'yes':'no';
     if(P.Feedback && P.Feedback.view){const cue=P.Feedback.view(game);u.alert.textContent=cue.alert || 'Watch and listen';u.alert.dataset.danger=cue.danger?'yes':'no';u.feedback.hidden=!(cue.caption || cue.detail);u.feedback.textContent=cue.caption || cue.detail || '';}
-    const f=s.focus || nearestObject(game);u.prompt.textContent=f?(f.hold?'Hold F · ':'F · ')+f.name:'Look toward an object within reach';u.progress.value=s.holding && f?clamp(s.holding.t/(f.hold || .15),0,1):0;
-    u.interact.disabled=!f;u.climb.hidden=!(f && f.climb) && s.stage!=='river';u.climb.textContent=s.stage==='river'?'Dive · hold Space':'Climb · Space';u.notice.hidden=s.time>s.messageUntil;if(!u.notice.hidden)u.notice.textContent=s.message;
+    const f=s.focus || nearestObject(game);u.prompt.textContent=s.traversal?'Rope secured · alternating grips · lower to the street':f?(f.hold?'Hold F · ':'F · ')+f.name:'Look toward an object within reach';u.progress.value=s.traversal?clamp(s.traversal.t/s.traversal.duration,0,1):s.holding && f?clamp(s.holding.t/(f.hold || .15),0,1):0;
+    u.interact.disabled=!!s.traversal||!f;u.climb.hidden=!!s.traversal||!(f && f.climb) && s.stage!=='river';u.climb.textContent=s.stage==='river'?'Dive · hold Space':f?.id==='roof-descent'?'Tie rope · descend':'Climb · Space';u.notice.hidden=s.time>s.messageUntil;if(!u.notice.hidden)u.notice.textContent=s.message;
     u.settings.querySelector('[data-difficulty]').value=s.difficulty;u.settings.querySelector('[data-intensity]').value=s.intensity;
     u.settings.querySelector('[data-feedback-hints]').checked=s.feedbackHints!==false;
     if(P.Guidance)P.Guidance.render(game);
@@ -619,6 +647,9 @@
     // Capture only POW input so aeroplane key and pointer behavior is preserved.
     window.addEventListener('keydown',event=>{
       const g=current();if(!g || !g.pow || A.screen!=='game' || inputBlocked(g))return;
+      if(event.code==='KeyF' && !event.repeat && global.RiverThreats?.eligible(g) && global.RiverThreats.takeCover(g)){
+        event.preventDefault();event.stopImmediatePropagation();return;
+      }
       if(['KeyF','Space','KeyV','KeyX','KeyR','KeyM','KeyJ','Tab'].includes(event.code)) {
         event.preventDefault();event.stopImmediatePropagation();
         if(event.code==='KeyF' || event.code==='Space')A.keys[event.code]=1;

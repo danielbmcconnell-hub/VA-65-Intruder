@@ -177,7 +177,7 @@
     const escapeCell=!String(item.id||'').startsWith('regular:')&&game.pow.stage!=='solitary';
     const isDoor=id==='cell-door'||id==='door-open'||/^(isolated-.+-door|yard-door:|workshop-door|exit-gate)/.test(id);
     if(isDoor&&(item.m==='powWood'||item.m==='powMetal')){
-      mesh=escapeCell&&(id==='cell-door'||id==='door-open')?'prisonDoorEscape':game.pow.stage==='regular'&&id==='cell-door'?'prisonDoorRegular':game.pow.stage==='solitary'?'prisonDoorNarrow':'prisonDoorCell';
+      mesh=escapeCell&&(id==='cell-door'||id==='door-open')?'prisonDoorEscape':game.pow.stage==='regular'&&(id==='cell-door'||id==='door-open')?'prisonDoorRegular':game.pow.stage==='solitary'?'prisonDoorNarrow':'prisonDoorCell';
       if(scale[0]<scale[2]){nextScale=[scale[2],scale[1],scale[0]];rotation+=id==='door-open'?-Math.PI/2:Math.PI/2;}
     }else if(escapeCell&&id==='cell-west')mesh='prisonCellLeftWall';
     else if(escapeCell&&id==='cell-east')mesh='prisonCellRightWall';

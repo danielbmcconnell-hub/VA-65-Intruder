@@ -4,7 +4,11 @@
 (function (root) {
   'use strict';
   const VERSION = 1, MAX_TREES = 28, CUT_TIME = 1.8, RELEASE_TIME = 3, PURSUER_STROKE = .65;
-  const states = new WeakMap(), renderers = new WeakMap();
+  const states = new WeakMap(), renderers = new WeakMap(), swimStates = new WeakMap();
+  const SWIM_FILES = Object.freeze(['assets/firstperson/swim-stroke-a.webp', 'assets/firstperson/swim-stroke-b.webp']);
+  const SWIM_ENDS = Object.freeze([.18,.26,.34,.44,.56,.68,.82,1]);
+  const swimImages = [];
+  let swimUI = null;
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
   const finite = (n, f = 0) => Number.isFinite(n) ? n : f;
   const point = p => Array.isArray(p) && p.length >= 3 && p.slice(0, 3).every(Number.isFinite);
@@ -37,7 +41,7 @@
     return (Math.sin(x * .055 + t * 1.7) * .30 + Math.sin(z * .047 - t * 1.3) * .26 +
       Math.sin(x * .6 + z * .42 + t * 3.1) * .10 + Math.sin(x * .021 - z * .033 + t * .8) * .75) * wave * shore;
   }
-  function groundEligible(g) { return !!(g && g.evade && point(g.evade.p) && !g.pow && !g.evade.camp && !g.evade.river); }
+  function groundEligible(g) { return !!(g && g.evade && point(g.evade.p) && !g.pow && !g.evade.camp); }
   function waterState(g, c = config) {
     if (!groundEligible(g)) return null;
     const e = g.evade;
@@ -48,14 +52,52 @@
     e.swimming = !!w.swimming;
     return w;
   }
-  function swimming(g) { return !!waterState(g)?.swimming; }
+  function riverSwimming(g) { const r=g&&g.pow&&g.pow.river;return !!(g.evade&&r&&!r.finished&&!r.boatOwned&&!['bank','hidden','boat'].includes(r.mode)); }
+  function swimming(g) { return riverSwimming(g)||!!waterState(g)?.swimming; }
   function movementFactor(g) {
     const injury = g && g.evade && g.evade.landingWater && g.evade.landingWater.injury;
     return injury && injury.age < injury.duration ? clamp(injury.factor, .6, 1) : 1;
   }
-  function splash(g, gain = 1) {
+  function splash(g, gain = 1, submerged = false) {
     const a = g && g.app, audio = a && a.audio;
-    if (a && a.set && a.set.sound && audio && typeof audio.footfall === 'function') audio.footfall(true, gain > 1.05);
+    if (!a?.set?.sound || !audio) return false;
+    if (typeof audio.swimStroke === 'function') return audio.swimStroke(gain,submerged);
+    if (!submerged&&typeof audio.footfall === 'function') { audio.footfall(true,gain>1.05);return true; }
+    return false;
+  }
+  // Short water pull and surface droplets use the application's existing,
+  // unlocked audio graph. Presentation never consumes the mission RNG.
+  function installSwimAudio(AudioClass) {
+    const p=AudioClass&&AudioClass.prototype;if(!p||p.swimStroke)return false;
+    p.swimStroke=function(intensity=1,submerged=false){
+      const c=this.ctx;if(!this.on||!c||c.state!=='running'||!this.noiseBuf||!this.master)return false;
+      const t=c.currentTime,level=clamp(finite(intensity,1),.25,1.4),layers=submerged?1:2;
+      for(let i=0;i<layers;i++){
+        const source=c.createBufferSource(),filter=c.createBiquadFilter(),gain=c.createGain();source.buffer=this.noiseBuf;source.playbackRate.value=i?1.8:submerged?.62:.72;
+        filter.type=i?'highpass':'bandpass';filter.Q.value=i?.45:.72;filter.frequency.setValueAtTime(i?1250:submerged?230:690,t);if(!i)filter.frequency.exponentialRampToValueAtTime(submerged?160:330,t+.29);
+        const start=t+(i?.045:0),end=t+(i?.26:.43),peak=(i?.045:submerged?.085:.23)*level;
+        gain.gain.setValueAtTime(.0001,start);gain.gain.exponentialRampToValueAtTime(peak,start+(i?.025:.055));gain.gain.exponentialRampToValueAtTime(.0001,end);
+        source.connect(filter);filter.connect(gain);gain.connect(this.master);source.onended=()=>{for(const n of[source,filter,gain])try{n.disconnect();}catch(_){}};source.start(start);source.stop(end+.015);
+      }
+      return true;
+    };return true;
+  }
+  function swimRecord(g){let s=swimStates.get(g);if(!s||s.actor!==g.evade){s={actor:g.evade,phase:0,clock:0,strokes:0,splashes:0,propelling:false,effort:0,mode:'swim'};swimStates.set(g,s);}return s;}
+  function propulsion(g){
+    const keys=g.app?.keys||{},touch=g.app?.gctl||{},input=g.pow?.input;
+    const forward=input&&Number.isFinite(input.forward)?input.forward:(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0)+finite(touch.pitch);
+    const strafe=g.pow?.river?finite(input?.strafe):root.GroundControls?root.GroundControls.read(g.app).strafe:0;
+    return {amount:clamp(Math.hypot(forward,strafe),0,1),fast:!!(input?.run||keys.ShiftLeft||keys.ShiftRight||touch.run)};
+  }
+  function advanceSwim(g,dt,amount,mode='swim',submerged=false){
+    const s=swimRecord(g),input=propulsion(g),elapsed=clamp(finite(dt),0,.25),actual=finite(amount),continuous=actual>0.00001&&actual<Math.max(.6,elapsed*6);
+    s.mode=mode;s.propelling=input.amount>.06&&continuous;s.clock+=elapsed;
+    const effort=s.propelling?input.amount*(mode==='float'?.55:1):0;s.effort+=(effort-s.effort)*(1-Math.exp(-10*elapsed));
+    if(s.propelling){const before=s.phase,rate=(input.fast?1.3:1.05)*(mode==='float'?.65:1);s.phase=(s.phase+elapsed*rate*input.amount)%1;if(s.phase<before)s.strokes++;
+      // The outward catch has a surface splash; submerged pulls stay muffled.
+      if(before<.22&&s.phase>=.22||s.phase<before&&s.phase>=.22){s.splashes++;splash(g,(input.fast?1.12:1)*(mode==='float'?.55:1),submerged);}
+    }
+    return s;
   }
   function enterGround(g, c = config) {
     if (!groundEligible(g)) return false;
@@ -82,10 +124,7 @@
     if (!w.swimming) return false;
     const e = g.evade;
     e.running = false; e.stepTravel = 0;
-    if (Number.isFinite(amount) && amount > 0 && amount < Math.max(.6, dt * 6)) {
-      w.strokeTravel += amount; w.phase = (w.phase + amount / .9) % 1;
-      if (w.strokeTravel >= .9) { w.strokeTravel %= .9; w.strokes++; splash(g); }
-    }
+    const s=advanceSwim(g,dt,amount);w.phase=s.phase;w.strokes=s.strokes;w.strokeTravel=s.phase*.9;
     return true;
   }
   function camera(g, eye, c = config) {
@@ -277,13 +316,8 @@
     const onBank = r.mode === 'bank' || r.mode === 'hidden', mode = r.boatOwned ? 'boat' : onBank ? 'bank' : r.submerged ? 'dive' : 'swim';
     if (s.riverMode && s.riverMode !== mode && (mode === 'bank' || mode === 'swim')) notify(g, mode === 'bank' ? 'You are out on the bank. Walk, crouch into cover, or return to the water.' : 'Back in the river. Swim or aim diagonally toward either bank.');
     if (!s.riverMode || finite(p.time) >= s.nextRiverHint && mode === 'swim') { notify(g, 'Both riverbanks are reachable. Steer toward the bank to climb out and use cover.'); s.nextRiverHint = finite(p.time) + 45; }
-    const input = p.input || {}, keys = g.app && g.app.keys || {}, touch = g.app && g.app.gctl || {};
-    const forward = finite(input.forward, (keys.KeyW ? 1 : 0) - (keys.KeyS ? 1 : 0) + finite(touch.pitch)), strafe = finite(input.strafe);
-    const propelling = Math.abs(forward) + Math.abs(strafe) > .06;
-    if (previous && distance(previous, e.p) < 3 && mode === 'swim' && e.moving && propelling && !r.submerged) {
-      s.riverStroke = finite(s.riverStroke) + distance(previous, e.p);
-      if (s.riverStroke >= .9) { s.riverStroke %= .9; splash(g); }
-    }
+    if(!onBank&&!r.boatOwned)advanceSwim(g,dt,previous?distance(previous,e.p):0,r.mode,r.submerged);
+    else if(swimStates.has(g)){const swim=swimStates.get(g);swim.propelling=false;swim.effort=0;}
     s.riverP = e.p.slice(); s.riverMode = mode;
     return true;
   }
@@ -291,11 +325,31 @@
     if (!g) return { active: false };
     const h = g.chute && g.chute.landing, w = groundEligible(g) ? waterState(g) : null;
     if (h) return { active: true, mode: h.mode, cutProgress: h.progress, hasKnife: h.hasKnife, injury: h.injury && { ...h.injury }, treeId: h.treeId };
-    if (g.pow && g.pow.river) return { active: true, mode: g.pow.river.mode, swimming: !['bank', 'hidden', 'boat'].includes(g.pow.river.mode), pursuers: (g.evade.searchers || []).filter(a => a.swimming).length };
-    return { active: !!w, mode: w && w.swimming ? 'swim' : 'land', swimming: !!w?.swimming, strokePhase: finite(w && w.phase), strokes: finite(w && w.strokes), injury: w && w.injury && { ...w.injury } };
+    const stroke=swimStates.get(g),motion={strokePhase:finite(stroke?.phase),strokes:finite(stroke?.strokes),splashes:finite(stroke?.splashes),propelling:!!stroke?.propelling,effort:finite(stroke?.effort)};
+    if (g.pow && g.pow.river) return { active: true, mode: g.pow.river.mode, swimming: riverSwimming(g), pursuers: (g.evade.searchers || []).filter(a => a.swimming).length,...motion };
+    return { active: !!w, mode: w && w.swimming ? 'swim' : 'land', swimming: !!w?.swimming,...motion, injury: w && w.injury && { ...w.injury } };
+  }
+  function swimVisualEligible(g){
+    const a=g&&g.app,r=g?.pow?.river,p=g?.pow;
+    return !!(g?.evade&&point(g.evade.p)&&swimming(g)&&!g.result&&!g._capturePending&&!g.evade.frozen&&!g.evade.handsUp&&!g.evade.held&&!p?.modalOpen&&!p?.traversal&&!p?.captivity?.open&&!r?.finished&&(!a||(!a.game||a.game===g)&&(!a.screen||a.screen==='game')&&!a.graphicsContextLost)&&!(root.document?.hidden));
+  }
+  function loadSwimImages(){if(typeof root.Image!=='function')return;for(let i=0;i<SWIM_FILES.length;i++)if(!swimImages[i]){const image=new root.Image();swimImages[i]=image;image.src=SWIM_FILES[i];}}
+  function swimHandsReady(g){return swimVisualEligible(g)&&swimImages.length===2&&swimImages.every(i=>i.complete&&i.naturalWidth>0&&i.naturalHeight>0&&i.naturalWidth%2===0&&i.naturalHeight%2===0);}
+  function swimHandPose(g){
+    if(!swimVisualEligible(g))return {visible:false};const s=swimRecord(g),quiet=typeof root.matchMedia==='function'&&root.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const phase=s.phase,frame=quiet||!s.propelling?4:Math.max(0,SWIM_ENDS.findIndex(end=>phase<end)),effort=clamp(s.effort,0,1),wave=Math.sin(phase*Math.PI*2);
+    return {visible:true,ready:swimHandsReady(g),frame,plate:Math.floor(frame/4),source:SWIM_FILES[Math.floor(frame/4)],phase,propelling:s.propelling,effort,reduced:!!quiet,submerged:!!g.pow?.river?.submerged,
+      backgroundPosition:((frame%4)%2*100)+'% '+(Math.floor((frame%4)/2)*100)+'%',transform:'translate(-50%,'+((quiet?0:wave*.7*effort)+(1-effort)*4).toFixed(3)+'vh) rotate('+(quiet?0:wave*.5*effort).toFixed(3)+'deg)'};
+  }
+  function renderSwimHands(g,parent){
+    const d=root.document;if(!d?.createElement)return {visible:false};parent=parent||d.getElementById('stack');if(!parent)return {visible:false};
+    if(!swimVisualEligible(g)||root.RiverThreats?.view(g).defending){if(swimUI)swimUI.root.hidden=true;return {visible:false};}loadSwimImages();
+    if(!swimUI||swimUI.parent!==parent){if(swimUI?.root?.remove)swimUI.root.remove();const overlay=d.createElement('div'),arms=d.createElement('div');overlay.id='swimmingHands';overlay.setAttribute('aria-hidden','true');Object.assign(overlay.style,{position:'absolute',inset:'0',pointerEvents:'none',zIndex:'8',overflow:'hidden'});arms.dataset.swimArms='';Object.assign(arms.style,{position:'absolute',left:'50%',bottom:'-20vh',width:'min(90vw,140vh)',height:'min(60vw,93.333vh)',backgroundRepeat:'no-repeat',backgroundSize:'200% 200%',transformOrigin:'50% 100%',filter:'drop-shadow(0 2px 2px rgba(0,0,0,.15))'});overlay.appendChild(arms);parent.appendChild(overlay);swimUI={root:overlay,arms,parent};}
+    const pose=swimHandPose(g),ready=pose.ready;swimUI.root.hidden=!ready;swimUI.root.dataset.mode=g.pow?.river?.mode||'swim';swimUI.root.dataset.propelling=String(pose.propelling);swimUI.root.dataset.frame=String(pose.frame);swimUI.arms.style.backgroundImage='url("'+pose.source+'")';swimUI.arms.style.backgroundPosition=pose.backgroundPosition;swimUI.arms.style.transform=pose.transform;swimUI.arms.style.opacity=pose.submerged?'.78':'1';swimUI.arms.style.filter=pose.submerged?'brightness(.66) saturate(.8)':'drop-shadow(0 2px 2px rgba(0,0,0,.15))';return {...pose,visible:ready};
   }
   function hud(g) {
     const d = root.document; if (!d || !d.createElement || !d.body) return;
+    const inWater=!!g?.evade&&swimming(g);d.body.classList.toggle('swimming-controls',inWater);d.body.classList.toggle('chute-controls',!!g?.chute);const run=d.getElementById('btnRun');if(run?.firstChild)run.firstChild.nodeValue=inWater?'SWIM HARD':'RUN';
     let node = d.getElementById('landingWaterHUD'); const h = g && g.chute && g.chute.landing;
     if (!g || !h || h.mode !== 'hung' || !active(g)) { if (g) state(g).cutHeld = false; if (node) node.remove(); return; }
     if (node && node._landingGame !== g) { node.remove(); node = null; }
@@ -321,6 +375,7 @@
   }
   function install(c) {
     if (!c || !c.Game || installed) return false; config = { ...c }; installed = true;
+    installSwimAudio(c.Audio2);
     const G = c.Game.prototype, oldChute = G.stepChute, oldGround = G.onGround, oldEnter = G._startGroundPhase, oldStep = G.stepEvade, oldMove = G._moveOnFoot, oldFoot = G._groundFootfalls, oldRender = G.render;
     G.stepChute = function (dt) {
       const s = state(this), chute = this.chute; s.before = chute && point(chute.p) ? chute.p.slice() : null;
@@ -349,12 +404,12 @@
         if (!renderers.has(r)) { const set = r.setCamera; const record = { game: null }; renderers.set(r, record); r.setCamera = function (eye) { const args = Array.from(arguments); if (record.game) args[0] = camera(record.game, eye); return set.apply(this, args); }; }
         renderers.get(r).game = this;
       }
-      try { return oldRender.apply(this, arguments); } finally { if (r && renderers.has(r)) renderers.get(r).game = null; hud(this); }
+      try { return oldRender.apply(this, arguments); } finally { if (r && renderers.has(r)) renderers.get(r).game = null; hud(this); renderSwimHands(this); }
     };
     const P = c.POW || root.POW;
     if (P && P.River) { const oldRiver = P.River.step; P.River.step = function (g, dt) { const result = oldRiver.apply(this, arguments); riverStep(g, dt, P); return result; }; P.River.movePursuer = (g, a, dt) => riverActorStep(g, a, dt, P); }
     return true;
   }
-  root.LandingWater = Object.freeze({ install, enterGround, swimming, movementFactor, surface, travel, camera, collectTrees, canopyContact, contact, chuteStep, release, riverActorStep, riverStep, view,
+  root.LandingWater = Object.freeze({ install, enterGround, swimming, movementFactor, surface, travel, camera, collectTrees, canopyContact, contact, chuteStep, release, riverActorStep, riverStep, view,installSwimAudio,swimHandsReady,swimHandPose,renderSwimHands,
     limits: Object.freeze({ maxTrees: MAX_TREES, knifeHoldSeconds: CUT_TIME, harnessHoldSeconds: RELEASE_TIME, maxPursuers: 2, swimmerSpeed: 1, maxSwimSpeed: 1.35, pursuerStrokeMetres: PURSUER_STROKE, timers: 0 }) });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -1,0 +1,13 @@
+{
+  "file": "swim.webp",
+  "cols": 2,
+  "rows": 4,
+  "frames": 8,
+  "width": 1536,
+  "height": 1024,
+  "generated": true,
+  "reference": "Anatomy, scutes, broad snout and jaw coloration observed in user-provided saltwater crocodile photographs. Original photographs not modified.",
+  "sourceSHA256": "52ed2c29ad0a572ab0dbc775a808e18844439e965067c945f32baac6e827fff9",
+  "runtimeSHA256": "c90e6e36d019ecbec0ae2dd4b011b0a5c927cffa7a56efeb1ead5958ee55a33a",
+  "decodedRGBAIdentical": true
+}

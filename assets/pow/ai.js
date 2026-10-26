@@ -21,6 +21,31 @@
   const angle = a => Math.atan2(Math.sin(a), Math.cos(a));
   const confined = s => s.stage === 'cell' || s.stage === 'solitary';
   const civilian = a => a.kind === 'farmer' || a.kind === 'villager' || a.armed === false;
+  const PRISON_STAGES = new Set(['cell', 'compound', 'solitary', 'regular']);
+  const SOLDIER_KINDS = new Set(['nva', 'guard', 'guardAim', 'sentry', 'soldier', 'militia', 'vc', 'vcFem', 'female_vc']);
+  function inPrison(game) {
+    return !!(game && game.evade && (game.pow ? PRISON_STAGES.has(game.pow.stage) : game.evade.camp && !game.evade.river));
+  }
+  function enforcePrisonRoster(game) {
+    if (!inPrison(game)) return false;
+    const e = game.evade, list = e.searchers || [], guards = [];
+    for (const actor of list) {
+      // Older prison checkpoints used countryside factions for guard duties.
+      // Correct the actual guard identity, leaving its patrol, wounds and
+      // awareness intact. Misplaced civilians are removed, never armed.
+      if (!actor || actor.kind && !SOLDIER_KINDS.has(actor.kind)) continue;
+      actor.kind = 'nva';
+      if (actor.armed === undefined) actor.armed = true;
+      guards.push(actor);
+    }
+    if (guards.length !== list.length || !e.searchers) e.searchers = guards;
+    // Country residents and livestock do not belong to the prison roster.
+    // Outside scenes retain their own original actor owners and identities.
+    if (e.locals && e.locals.length) e.locals = [];
+    if (e.cattle && e.cattle.length) e.cattle = [];
+    if (game.pow) game.pow.actors = e.searchers;
+    return true;
+  }
   const ctx = () => P.ctx || {};
   const time = s => finite(s.aiClock, 0);
   function actors(game) {
@@ -221,6 +246,7 @@
       // The river module places observers on its raised banks and preserves pursuit.
       s.aiRoster = stage; s.aiStage = stage; s.actors = e.searchers;
       delete s.flags.capturePending;
+      enforcePrisonRoster(game);
       for (let i = 0; i < e.searchers.length; i++) initActor(e.searchers[i], i, s);
       return;
     }
@@ -232,7 +258,7 @@
       ] : roster === 'compound' ? [
         {id: 'corridor-sentry', kind: 'nva', route: [[1, -5.5], [15, -5.5], [1, -5.5], [-7, -5.5]], dwell: 4, face: 0},
         {id: 'yard-patrol', kind: 'nva', route: [[-17, -18], [-8, -18], [-8, 2], [-23, 2], [-23, -18]], dwell: 3},
-        {id: 'west-watch', kind: 'militia', route: [[-25, -27], [-25, 26], [-9, 26], [-9, -27]], dwell: 5},
+        {id: 'west-watch', kind: 'nva', route: [[-25, -27], [-25, 26], [-9, 26], [-9, -27]], dwell: 5},
         {id: 'courtyard-watch', kind: 'nva', route: [[-6, 10], [-11, 10], [-11, 26], [-23, 26], [-23, 2], [-8, 2]], dwell: 6},
         {id: 'roof-watch', kind: 'nva', route: [[10, -31], [22, -31], [22, -18], [10, -18]], height: 3.4, dwell: 4}
       ] : [
@@ -255,6 +281,7 @@
     s.actors = e.searchers;
     s.aiStage = stage;
     if (!confined(s)) delete s.flags.capturePending;
+    enforcePrisonRoster(game);
     for (const a of e.searchers) { a.grab = 0; if (confined(s)) a.seen = 0; }
   }
   function noise(game, p, loudness, kind, source) {
@@ -552,6 +579,7 @@
   function step(game, dt) {
     const s = game && game.pow, e = game && game.evade;
     if (!s || !e || !Number.isFinite(dt) || dt <= 0) return;
+    enforcePrisonRoster(game);
     dt = Math.min(dt, .25); s.aiClock = time(s) + dt;
     s.flags ||= {}; s.stats ||= {}; if (!Array.isArray(s.noises)) s.noises = [];
     s.noises = s.noises.filter(n => n && finite(n.expires, time(s) + 1) >= time(s)).slice(-24);
@@ -617,21 +645,30 @@
   }
   function snapshot(game) {
     if (!game || !game.pow || !game.evade) return null;
+    enforcePrisonRoster(game);
     const s = game.pow;
     return JSON.parse(JSON.stringify({version: 1, clock: time(s), roster: s.aiRoster, stage: s.stage,
       sequence: finite(s.noiseSequence, 0), noises: (s.noises || []).slice(-24), actors: actors(game).slice(0, DESKTOP_CAP)}));
   }
   function restore(game, saved) {
     if (!game || !game.pow || !game.evade || !saved || saved.stage !== game.pow.stage || !Array.isArray(saved.actors)) return false;
-    const s = game.pow, data = JSON.parse(JSON.stringify(saved));
+    const s = game.pow, data = JSON.parse(JSON.stringify(saved)), currentGuards = game.evade.searchers || [];
     s.aiClock = finite(data.clock, 0); s.aiRoster = data.roster; s.aiStage = s.stage;
     s.noiseSequence = finite(data.sequence, 0); s.noises = (data.noises || []).slice(-24);
     game.evade.searchers = data.actors.slice(0, DESKTOP_CAP); s.actors = game.evade.searchers;
+    enforcePrisonRoster(game);
+    // A checkpoint containing only misplaced civilians falls back to the
+    // genuine guards already constructed for this prison chapter. Empty or
+    // defeated valid rosters are not replenished.
+    if (inPrison(game) && data.actors.length && !game.evade.searchers.length && currentGuards.length) {
+      game.evade.searchers = currentGuards;
+      enforcePrisonRoster(game);
+    }
     for (let i = 0; i < s.actors.length; i++) initActor(s.actors[i], i, s);
     grids.delete(game);
     return true;
   }
-  P.AI = {enter, step, stepGround, makeActor, noise, planPath, snapshot, restore,
+  P.AI = {enter, step, stepGround, makeActor, noise, planPath, snapshot, restore, inPrison, enforcePrisonRoster,
     limits: {mobileActors: CAP, desktopActors: DESKTOP_CAP, expansionsPerPath: EXPANSIONS, plansPerStep: 3},
     dialogueNote: 'All Vietnamese patrol dialogue is fictional game text, presented with an English translation.'};
 })(window);

@@ -1,0 +1,4 @@
+#ripCurrentHUD{position:absolute;z-index:31;left:156px;top:62px;width:286px;max-width:calc(100vw - 280px);padding:7px 9px;background:rgba(8,24,28,.78);border-left:2px solid #d3bd77;color:#e7eddf;font:11px/1.3 system-ui,sans-serif;pointer-events:none;box-sizing:border-box}
+#ripCurrentHUD[hidden],#ripCurrentHUD [hidden]{display:none!important}
+#ripCurrentHUD strong{font-size:11px;color:#f2df9f}#ripCurrentHUD p{margin:3px 0}#ripCurrentHUD button{pointer-events:auto;min-height:36px;margin:4px 5px 0 0;padding:5px 8px;background:#122932;color:#eef0dd;border:1px solid #809b99;font:11px system-ui;touch-action:manipulation}#ripCurrentHelp{pointer-events:auto;max-height:145px;overflow:auto;margin-top:6px;overscroll-behavior:contain}
+@media(pointer:coarse){#ripCurrentHUD button{min-height:44px}}@media(orientation:portrait) and (max-width:600px){#ripCurrentHUD{left:156px;right:12px;width:auto;max-width:none;top:60px}}

@@ -4,7 +4,7 @@
 (function (root) {
   'use strict';
   const worlds = new WeakMap(), TAU = Math.PI * 2;
-  const LIMIT = Object.freeze({ targets: 24, impacts: 32, queue: 128, lights: 8 });
+  const LIMIT = Object.freeze({ targets: 24, impacts: 32, queue: 128, lights: 8, burstParticles: 192 });
   const profiles = Object.freeze({
     pol: { count: 7, spacing: 1.35, magnitude: 2.35, smoke: [0.075, 0.071, 0.065], size: 27, height: 38, period: .65, life: 20 },
     depot: { count: 4, spacing: 2.4, magnitude: 1.95, smoke: [.19, .17, .15], size: 22, height: 29, period: .85, life: 17 },
@@ -23,7 +23,7 @@
   const distance = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   function state(world) {
     let s = worlds.get(world);
-    if (!s) { s = { seen: new WeakSet(), sequence: 0, targets: [], impacts: [], scheduled: new WeakSet(), secondarySeen: new WeakSet(), budgetAt: NaN, budget: 0, emitted: 0 }; worlds.set(world, s); }
+    if (!s) { s = { seen: new WeakSet(), sequence: 0, targets: [], impacts: [], burst: [], scheduled: new WeakSet(), secondarySeen: new WeakSet(), budgetAt: NaN, budget: 0, emitted: 0 }; worlds.set(world, s); }
     return s;
   }
   function quality(world, opts) {
@@ -50,12 +50,21 @@
     s.impacts.push(item); if (s.impacts.length > LIMIT.impacts) s.impacts.shift();
     return item;
   }
+  // Separate admission avoids displacing legacy particles or changing the
+  // original FX random rotation draws during a crowded bomb ripple.
+  function burst(world, type, args) {
+    const s = state(world); if (s.burst.length >= LIMIT.burstParticles) return false;
+    const streak = type === 'streak', p = args[0], c = args[streak ? 2 : 1], size = args[streak ? 3 : 2], life = args[streak ? 4 : 3], v = args[streak ? 1 : 4] || [0,0,0];
+    const q = {p:p.slice(), c:c.slice(), a:1, s:size, s0:size, k:streak?2:1, t:0, life, vel:streak?[0,0,0]:v.slice(), g:args[5]||0, rot:0};
+    if(streak){const k=(args[6]||2)/Math.max(.001,Math.hypot(...v));q.streak=true;q.v=v.slice();q.vs=v.map(n=>n*k);}
+    s.burst.push(q); return true;
+  }
   function impact(world, p, scale, opts) {
     if (!world || !finitePoint(p) || !Number.isFinite(scale) || scale <= 0) return null;
     opts = opts || {};
     if (opts.weapon && opts.weapon !== 'bomb' && opts.weapon !== 'arm') return null;
     const s = state(world), q = quality(world, opts), water = opts.surface === 'water', air = opts.surface === 'air';
-    const item = flash(s, world, p, clamp(scale, .3, 4), opts.weapon || 'bomb', water ? [.82, .91, 1] : [1, .70, .35]);
+    const item = flash(s, world, p, clamp(scale, .3, 4), opts.weapon || 'bomb', water ? [.82, .91, 1] : [1, .70, .35], 'impact', water || air ? .8 : 1.25);
     if (air) {
       for (let i = 0; i < (q === 0 ? 2 : 4); i++) emit(world, 'smoke', [[p[0], p[1] + i * 3, p[2]],
         [.27, .26, .24], 7 * item.scale, 4, [2, 2, 1], .3], q);
@@ -69,8 +78,25 @@
         water ? [.65, .72, .76] : [.28, .24, .18], (water ? 3 : 7) * item.scale,
         water ? 1.4 : 5.5, [Math.cos(a) * v, water ? 13 : 1.5, Math.sin(a) * v], water ? -8 : .4], q);
     }
-    // The original explosion supplies the fireball. Add a coherent, lasting
-    // column rather than a second copy of the same primary flash.
+    // A ground burst must remain readable from the aircraft after its brief
+    // white core has faded. Deterministic expanding lobes rise from the actual
+    // contact point; neither these nor the debris consume gameplay RNG.
+    if (!water) {
+      const lobes = q === 0 ? 3 : 5;
+      for (let i = 0; i < lobes; i++) {
+        const a = noise(item.id, i, 21) * TAU, spread = i * 1.7 * item.scale;
+        burst(world, 'glow', [[p[0] + Math.cos(a) * spread, p[1] + 3 + i * 5 * item.scale, p[2] + Math.sin(a) * spread],
+          [1, .48 - i * .055, .065], (19 - i * 1.8) * item.scale, 1.05 + i * .15,
+          [Math.cos(a) * 2, 8 + i * 2, Math.sin(a) * 2], 2.4], q);
+      }
+      for (let i = 0; i < (q === 0 ? 4 : 8); i++) {
+        const a = noise(item.id, i, 22) * TAU, speed = (12 + noise(item.id, i, 23) * 18) * item.scale;
+        burst(world, 'streak', [[p[0], p[1] + 1, p[2]], [Math.cos(a) * speed, 16 + noise(item.id, i, 24) * 25, Math.sin(a) * speed],
+          [.95, .57, .23], .32, .7 + noise(item.id, i, 25) * .5, 9.81, 1.2], q);
+      }
+    }
+    // Persistent dust and a climbing smoke column show the impact location
+    // once the luminous blast has gone out.
     if (!water) for (let i = 0; i < (q === 0 ? 2 : 4); i++) {
       emit(world, 'smoke', [[p[0], p[1] + 8 + i * 10, p[2]], [.22, .205, .18],
         (14 + i * 3) * item.scale, 12 + i * 2, [3, 7 + i, 1], 1.2], q);
@@ -114,6 +140,12 @@
     const item = flash(s, world, queued.p, clamp(queued.mag || 1, .3, 4), 'secondary',
       fuel ? [1, .34, .075] : ammunition ? [1, .78, .35] : [1, .48, .14],
       fuel ? 'fuel' : ammunition ? 'ammunition' : 'secondary', fuel ? 1.15 : ammunition ? .48 : .8);
+    for (let i = 0; i < (q === 0 ? 2 : 4); i++) {
+      const a = noise(item.id, i, 26) * TAU;
+      burst(world, 'glow', [[queued.p[0] + Math.cos(a) * i * 2, queued.p[1] + 3 + i * (fuel ? 8 : 4), queued.p[2] + Math.sin(a) * i * 2],
+        fuel ? [1, .30 + i * .025, .04] : [1, .72 - i * .1, .18], (fuel ? 19 : 13) * item.scale * (1 - i * .1),
+        fuel ? 1.5 + i * .15 : .55 + i * .1, [Math.cos(a), fuel ? 12 : 8, Math.sin(a)], 2.2], q);
+    }
     const count = q === 0 ? 2 : q === 2 ? 5 : 3;
     for (let i = 0; i < count; i++) {
       const a = noise(item.id, i, 15) * TAU, offset = fuel ? 2 + i * 2.5 : i * 1.5;
@@ -134,6 +166,7 @@
   function step(world, dt, opts) {
     if (!world || !Number.isFinite(dt) || dt <= 0) return;
     const s = state(world), q = quality(world, opts), eye = opts && finitePoint(opts.eye) ? opts.eye : null;
+    for(let i=s.burst.length-1;i>=0;i--){const p=s.burst[i];p.t+=dt;const u=p.t/p.life;if(u>=1){s.burst.splice(i,1);continue;}if(p.streak){p.v[1]-=p.g*dt;for(let j=0;j<3;j++)p.p[j]+=p.v[j]*dt;p.a=(1-u*u)*Math.min(1,p.t/.05);}else{for(let j=0;j<3;j++)p.p[j]+=(p.vel[j]-(j===1?p.g:0))*dt;p.vel[0]*=Math.max(0,1-1.2*dt);p.vel[2]*=Math.max(0,1-1.2*dt);p.a=(1-u)**2;p.s=p.s0*(1+u*2.4);}}
     s.impacts = s.impacts.filter(v => clock(world) - v.born < v.duration + .15);
     for (let i = s.targets.length - 1; i >= 0; i--) {
       const v = s.targets[i], p = v.profile; v.elapsed += dt;
@@ -172,14 +205,14 @@
   // Ejection/ground play stops World.t. End only the momentary light pulse;
   // the existing fires, particles and genuine target aftermath remain intact.
   function clearTransient(world) {
-    const s = world && worlds.get(world); if (s) s.impacts.length = 0;
+    const s = world && worlds.get(world); if (s) {s.impacts.length = 0;s.burst.length=0;}
   }
   function clear(world) { if (world) worlds.delete(world); }
   function inspect(world) {
     if (!world) return null; const s = state(world);
     return { targets: s.targets.map(v => ({ id: v.id, kind: v.kind, p: v.p.slice(), elapsed: v.elapsed, smokeBursts: v.emitted })),
       flashes: s.impacts.map(v => ({ id: v.id, p: v.p.slice(), born: v.born, source: v.source, style: v.style, duration: v.duration })),
-      emitted: s.emitted, queue: Array.isArray(world.secs) ? world.secs.length : 0 };
+      emitted: s.emitted, burstParticles:s.burst.length, queue: Array.isArray(world.secs) ? world.secs.length : 0 };
   }
-  root.FlightStrikeEffects = Object.freeze({ impact, destroyed, secondary, step, lights, clearTransient, clear, inspect, limits: LIMIT });
+  root.FlightStrikeEffects = Object.freeze({ impact, destroyed, secondary, step, lights, clearTransient, clear, inspect, particles:world=>worlds.get(world)?.burst||[], limits: LIMIT });
 })(typeof window !== 'undefined' ? window : globalThis);

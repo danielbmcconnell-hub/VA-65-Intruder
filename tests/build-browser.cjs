@@ -57,6 +57,8 @@ const server=http.createServer((req,res)=>{
    await utility('[data-flight-coach-toggle]');
    await page.evaluate(()=>{const g=App.game;g.update(1/60);g.render(1/60);g.syncControls()});
    await page.waitForFunction(()=>FlightCoach.enabled(App.game)&&!document.getElementById('flightCoachCue').hidden,null,{polling:50,timeout:30000});
+   assert.equal(await page.evaluate(()=>InstructionView.enabled()),false);await utility('#flightHelpToggle');assert.equal(await page.evaluate(()=>InstructionView.enabled()),true);
+   checks.push({name:name+' packaged Help starts off and opens through native input',passed:true});
    await utility('#hudGuideDetails');await page.locator('#flightCoachCue').waitFor({state:'visible'});
    const after=await cockpitToggle.boundingBox();assert.ok(before&&after);assert.ok(Math.abs(before.x-after.x)<.5&&Math.abs(before.width-after.width)<.5,'Visible guidance must not shift the native Cockpit toggle');
    await utility('[data-flight-coach-toggle]');
@@ -66,6 +68,8 @@ const server=http.createServer((req,res)=>{
    const realismModules=await page.evaluate(()=>Object.fromEntries(['VoiceProfiles','AircraftDetail','CarrierLaunch','MissionDemo','LandingWater','AviatorCompanion','DescentThreats','Wildlife','WildlifeRender','WildlifeTargeting','JungleScenery','VisualClarity','FlightThreatFeedback','PrisonDetail','PrisonFood','RationPhoto','GroundItems','GroundItemsRender','CoastalScenery','HUDLayout','VillageDetail','CrewPersonality'].map(name=>[name,!!window[name]])));
    assert.ok(Object.values(realismModules).every(Boolean),'Every carrier, survival, wildlife, voice and demonstration module must load from the package');
    const groundArtwork=await page.evaluate(async()=>{const rows=[];for(const file of ['assets/firstperson/punch-left.webp','assets/firstperson/punch-right.webp','assets/items/pickups.webp','assets/firstperson/stick.webp','assets/firstperson/rifle.webp']){const image=new Image();image.src=file;await image.decode();rows.push({file,width:image.naturalWidth,height:image.naturalHeight});}return rows;});
+   const waterArtwork=await page.evaluate(async()=>{const rows=[];for(const file of ['assets/firstperson/swim-stroke-a.webp','assets/firstperson/swim-stroke-b.webp','assets/firstperson/rope-grip-open.webp','assets/firstperson/rope-grip-closed.webp','assets/crocodile/swim.webp']){const image=new Image();image.src=file;await image.decode();rows.push({file,width:image.naturalWidth,height:image.naturalHeight});}return rows;});assert.equal(waterArtwork.length,5);assert.ok(waterArtwork.every(r=>r.width>=1024&&r.height>=600));
+   checks.push({name:name+' packaged swimming, rope grips and crocodile frames decode fully',passed:true,observed:waterArtwork});
    assert.equal(groundArtwork.length,5);assert.ok(groundArtwork.every(row=>row.width>=1024&&row.height>=600));
    checks.push({name:name+' packaged photographic left/right hand poses and useful-item atlas decode completely',passed:true,observed:groundArtwork});
    await page.evaluate(()=>{App.screen='game';App.game.paused=false;FlightStrikeBoard.render(App.game)});

@@ -780,7 +780,7 @@ body.pow-active.pow-field-equipment:not(.desktop) #btnFire{display:flex!importan
     <div id="hudbar">
       <button id="btnFull" title="Fullscreen (F)">Fullscreen</button>
       <button id="btnMouse" title="Fly with the mouse (Y)">Mouse Fly</button>
-      <button id="btnKeys" title="Controls (H)">Keys</button>
+      <button id="btnKeys" title="Controls (Shift+H)">Keys</button>
     </div>
     <div id="legend"></div>
     <div id="teach"><div class="tt"></div><div class="tb"></div><div class="tk"></div><div class="tx">Tap to hide</div></div>
@@ -849,13 +849,19 @@ body.pow-active.pow-field-equipment:not(.desktop) #btnFire{display:flex!importan
 <link rel="stylesheet" href="assets/pow/core.css">
 <link rel="stylesheet" href="assets/pow/confinement-goals.css">
 <link rel="stylesheet" href="assets/ui/hud-layout.css">
+<link rel="stylesheet" href="assets/survival/rip-current.css">
+<link rel="stylesheet" href="assets/survival/river-threats.css">
+<link rel="stylesheet" href="assets/ui/camera-views.css">
+<link rel="stylesheet" href="assets/ui/instruction-view.css">
 <link rel="stylesheet" href="assets/pow/prison-food.css">
 <script src="assets/atlas-metadata.js"></script>
 <script src="assets/sprites/atlas-metadata.js"></script>
 <script src="assets/survival/ammunition.js"></script>
+<script src="assets/survival/ground-controls.js"></script>
 <script src="assets/pow/core.js"></script>
 <script src="assets/pow/ai.js"></script>
 <script src="assets/pow/feedback.js"></script>
+<script src="assets/render/river-bank.js"></script>
 <script src="assets/pow/river.js"></script>
 <script src="assets/pow/captivity.js"></script>
 <script src="assets/pow/solidarity.js"></script>
@@ -901,6 +907,10 @@ body.pow-active.pow-field-equipment:not(.desktop) #btnFire{display:flex!importan
 <script src="assets/audio/voice-profiles.js"></script>
 <script src="assets/audio/crew-personality.js"></script>
 <script src="assets/survival/landing-water.js"></script>
+<script src="assets/survival/rip-current.js"></script>
+<script src="assets/survival/river-threats.js"></script>
+<script src="assets/ui/camera-views.js"></script>
+<script src="assets/ui/instruction-view.js"></script>
 <script src="assets/survival/aviator-companion.js"></script>
 <script src="assets/survival/descent-threats.js"></script>
 <script src="assets/flight/carrier-launch.js"></script>
@@ -6181,6 +6191,8 @@ function buildProps() {
 
   // Irregular low branches and individual blades, including fallback frames.
   P.bush = JungleScenery.buildFallback('bush', MB, C);
+  P.ripFoam = RipCurrent.buildFoam(MB);
+  P.riverCoverLog = RiverThreats.buildLog(MB);
 
   /* ---- Vietnamese yellow cattle ----
      Bò vàng: the small zebu-type animal that is in every photograph of
@@ -9815,7 +9827,7 @@ class Cockpit {
   }
 
   drawCue(st) {
-    if (!st.cue || !st.assist || st.extView) return;
+    if (!st.cue || !st.assist || st.extView || !InstructionView.enabled()) return;
     if (!st.evade && !st.chute && typeof MissionDemo !== 'undefined' && MissionDemo.snapshot().computerPlaying) return;
     const crew = document.getElementById('flightStrikeCrew');
     if (!st.evade && !st.chute && crew && !crew.hidden && crew.dataset.state === 'caption' && crew.getClientRects().length) return;
@@ -11093,11 +11105,16 @@ class Audio2 {
     try {
       /* Do not let it queue. A pile-up of six unfinished sentences is
          worse than silence, and in a bad moment six things happen. */
-      const u = new SpeechSynthesisUtterance(
-        String(text).replace(/<[^>]*>/g, '').replace(/—/g, ',').slice(0, 170));
+      const u = new SpeechSynthesisUtterance(VoiceProfiles.spokenText(text,lang));
       const list = this._voices&&this._voices.length ? this._voices : (this._voices=speechSynthesis.getVoices()||[]);
       if (!VoiceProfiles.apply(u,{speaker:who,text,lang,tone},list)) return false;
-      if (speechSynthesis.pending) speechSynthesis.cancel();
+      const priority=VoiceProfiles.mood(text,tone)==='urgent'?2:VoiceProfiles.mood(text,tone)==='alert'?1:0;
+      if(speechSynthesis.speaking||speechSynthesis.pending){
+        if(!this._speechActive||priority<=this._speechActive.priority)return false;
+        speechSynthesis.cancel();
+      }
+      const record={utterance:u,priority};this._speechActive=record;
+      const finish=()=>{if(this._speechActive===record)this._speechActive=null;};u.onend=finish;u.onerror=finish;
       speechSynthesis.speak(u);
       return true;
     } catch (e) { return false; }
@@ -14856,13 +14873,11 @@ class Game {
        mission, unplayable on touch. The stick drives it too now. */
     const g = A.gctl || {};
     const stickX = g.roll || 0, stickY = g.pitch || 0;
-    const turn = (K.KeyD || K.ArrowRight ? 1 : 0) - (K.KeyA || K.ArrowLeft ? 1 : 0)
-               + clamp(stickX, -1, 1);
+    const movement=GroundControls.read(A),turn=movement.turn;
     /* Down in the crop. Slow, and the one thing that actually works
        against a man scanning a paddy from a bund. */
     e.crouch = !!(K.KeyC || g.crouch);
-    const fwd = (K.KeyW || K.ArrowUp ? 1 : 0) - (K.KeyS || K.ArrowDown ? 1 : 0)
-              + clamp(stickY, -1, 1);
+    const fwd=movement.forward;
     e.hdg += clamp(turn, -1, 1) * dt * 1.5;
     /* ---- looking up ----
        There was no pitch on foot at all, so a man standing under a
@@ -14895,12 +14910,12 @@ class Game {
     if (e.handsUp && (run && Math.abs(fwd)>0.2 || K.Space || K.KeyV || e.attackWant)) {
       e.handsUp=false; e.handsT=0; A.radio('CREW','Breaking away. Move!', 'warn');
     }
-    const spd = (e.handsUp ? 0 : (fwd > 0.25 ? (run && !e.crouch ? 4.3 : 2.1) * Math.min(1, fwd)
-               : fwd < -0.25 ? -1.1 : 0)) * hk;
+    const spd=(e.handsUp?0:fwd<-.25?1.1:run&&!e.crouch?4.3:2.1)*hk;
+    const motion=GroundControls.vector(e.hdg,movement,spd);
     const footX=e.p[0], footZ=e.p[2];
     {
-      const nx = e.p[0] + Math.sin(e.hdg) * spd * dt;
-      const nz = e.p[2] + -Math.cos(e.hdg) * spd * dt;
+      const nx=e.p[0]+motion[0]*dt;
+      const nz=e.p[2]+motion[1]*dt;
       // Swept, sliding collision in both the camp and countryside.
       // Never commit an unchecked end point through a thin wall.
       const q = this._moveOnFoot(e.p[0], e.p[2], nx - e.p[0], nz - e.p[2], 0.43, e);
@@ -14910,7 +14925,7 @@ class Game {
     // Controls request travel; collision decides whether a step happened.
     // Holding a wall must not animate running or advertise movement to AI.
     e.moving = footDistance > 0.0001;
-    e.running = !!(e.moving && run && fwd > 0 && !e.crouch);
+    e.running = !!(e.moving && run && !e.crouch);
     if (e.handsUp) {
       e.handsT=(e.handsT||0)+dt;
       const captor=(e.searchers||[]).concat(e.locals||[]).find(o=>o.alive && (e.camp || o.armed)
@@ -16652,7 +16667,7 @@ class Game {
     /* The beat. Two men, each walking a fixed circuit of the yard, and
        a third on the gate who does not move. Learned from the door slot
        over five nights, which is what the camp choices bought. */
-    const beat = (pts, ph) => ({ p: [cx + pts[0][0], 0, cz + pts[0][1]], wp: 0, ph,
+    const beat = (pts, ph) => ({ kind: 'nva', armed: true, p: [cx + pts[0][0], 0, cz + pts[0][1]], wp: 0, ph,
       route: pts.map(q => [cx + q[0], 0, cz + q[1]]), face: 0, alive: true, seen: 0, lamp: 1 });
     const guards = [
       beat([[-A + 6, -B + 8], [-A + 6, B - 8], [-2, B - 8], [-2, -B + 8]], 0),
@@ -16765,7 +16780,7 @@ class Game {
             const o0 = e.origin;
             for (let q = 0; q < 4; q++)
               e.searchers.push({ p: [o0[0] + rnd(-4, 4), 0, o0[1] - e.B + 2],
-                wp: 0, route: [], face: 0, alive: true, seen: 1, lamp: 1 });
+                kind: 'nva', armed: true, wp: 0, route: [], face: 0, alive: true, seen: 1, lamp: 1 });
             setTimeout(() => { if (this.evade && this.evade.camp) A2.vn('alarm'); }, 1400);
           }
           for (const o of e.searchers) o.seen = 1;
@@ -17732,18 +17747,19 @@ class Game {
       eye=vadd(vadd(ac.p,vmul(ax.fwd,-3.6)),vmul(ax.up,1.6));
       fwd=vmul(ax.fwd,-1);up=ax.up;this.camSm=null;
     } else if (this.extView) {
-      const want = vadd(vadd(ac.p, vmul(ax.fwd, -32)), vmul(ax.up, 9));
+      const distance=this.cameraMode==='long'?82:32;
+      const want = vadd(vadd(vadd(ac.p, vmul(ax.fwd, -distance)), vmul(ax.up, this.cameraMode==='long'?22:9)),vmul(ax.right,this.cameraMode==='long'?28:0));
       this.camSm = this.camSm ? vlerp(this.camSm, want, clamp(dt * 3.4, 0, 1)) : want;
       const gh = terrainH(this.camSm[0], this.camSm[2]) + 4;
       if (this.camSm[1] < gh) this.camSm[1] = gh;
       eye = this.camSm; fwd = vnorm(vsub(vadd(ac.p, vmul(ax.fwd, 14)), eye)); up = [0, 1, 0];
     } else {
-      eye = vadd(vadd(vadd(ac.p, vmul(ax.fwd, 3.5)), vmul(ax.up, 0.92)), vmul(ax.right, -0.5));
+      eye = vadd(vadd(vadd(ac.p, vmul(ax.fwd, 3.5)), vmul(ax.up, 0.92)), vmul(ax.right, this.cameraMode==='bn'?.5:-.5));
       fwd = ax.fwd; up = ax.up;
       this.camSm = null;
     }
     const strikeLook=FlightStrikeExperience.camera(this);
-    if(strikeLook){eye=strikeLook.eye;fwd=vnorm(vsub(strikeLook.target,eye));up=[0,1,0];}
+    if(strikeLook&&!this.cameraMode){eye=strikeLook.eye;fwd=vnorm(vsub(strikeLook.target,eye));up=[0,1,0];}
     const landingInertia=CarrierLaunch.camera(this);
     if(landingInertia&&!this.extView&&!this.evade&&!this.chute){eye=vadd(eye,vmul(ax.fwd,landingInertia.forward));fwd=vnorm(vadd(fwd,vmul(ax.up,landingInertia.pitch)));}
     if (shake > 0.01) {
@@ -17776,6 +17792,7 @@ class Game {
       }
       const photo = PhotoSprites.identity({kind:mesh});
       if (photo) {
+        if (!this.pow && this.evade?.camp && !this.evade.river) return;
         if (this.evade && !this.evade.camp &&
             Math.hypot(p[0]-this.evade.p[0],p[2]-this.evade.p[2]) < 250)
           return; // living, targetable NPCs replace frozen clutter in this area
@@ -17825,9 +17842,11 @@ class Game {
       g.push([p, rot, s, tint]);
     };
     const c = W.carrier;
-    push('carrier', [c.p[0], c.p[1] + (c.heave || 0), c.p[2]], [c.hdg, c.pitch, c.roll], [1, 1, 1], [1, 1, 1, 0]);
-    push('carrierLt', [c.p[0], c.p[1] + (c.heave || 0), c.p[2]], [c.hdg, c.pitch, c.roll], [1, 1, 1], [1, 1, 1, 1.7]);
-    if (this.deckPark && vdist2(ac.p, c.p) < 1.6e8) {
+    if(!this.pow){
+      push('carrier', [c.p[0], c.p[1] + (c.heave || 0), c.p[2]], [c.hdg, c.pitch, c.roll], [1, 1, 1], [1, 1, 1, 0]);
+      push('carrierLt', [c.p[0], c.p[1] + (c.heave || 0), c.p[2]], [c.hdg, c.pitch, c.roll], [1, 1, 1], [1, 1, 1, 1.7]);
+    }
+    if (!this.pow && this.deckPark && vdist2(ac.p, c.p) < 1.6e8) {
       for (const d of this.deckPark) {
         const parked=CarrierLaunch.parked(c,d),dp=parked.p;
         push('intruder', dp, parked.rot, [1, 1, 1], [0.92, 0.92, 0.92, 0]);
@@ -17837,7 +17856,7 @@ class Game {
     }
     /* The crew, while the ship is close enough for a man to be a man.
        They stand on the deck, so they ride its heave and roll with it. */
-    if (this.deckCrew && vdist2(ac.p, c.p) < 9e6) {
+    if (!this.pow && this.deckCrew && vdist2(ac.p, c.p) < 9e6) {
       for (const [i,d] of this.deckCrew.entries()) {
         if(CarrierLaunch.queue(this,R,d,i,carrierCrew))continue;
         const dp = CarrierLaunch.deckPoint(c,[d[0],.025,d[1]]);
@@ -17873,6 +17892,9 @@ class Game {
     PrisonDetail.fieldInstances(this,push);
     /* People from the terrain and the search party share one billboard pass.
        `sprites` was initialized before World.clutter() above. */
+    POW.AI?.enforcePrisonRoster(this);
+    RipCurrent.instances(this,push);
+    RiverThreats.props(this,push);
     const photoActors=(holdingView?PrisonDetail.fieldActors(this).map(actor=>({actor,cow:false})):(this.evade?this.evade.searchers.concat(this.evade.locals||[]).map(actor=>({actor,cow:false}))
       .concat((this.evade.cattle||[]).map(actor=>({actor,cow:true}))):[])
       .concat(AviatorCompanion.actors(this).map(actor=>({actor,cow:false})))
@@ -18116,6 +18138,7 @@ class Game {
     PhotoCutouts.endFrame(R);
     JungleScenery.draw(this,R);
     WildlifeRender.draw(this,R);
+    RiverThreats.draw(this,R);
     R.drawGroundShadows(CarrierLaunch.shadows(this,carrierCrew));
     CarrierLaunch.draw(this,R,carrierCrew);
     if(this.willard && !this.evade && !this.chute && this.willard.enemy)WillardSprites.draw(R,this.willard.enemy,{dt,light:.78});
@@ -18147,6 +18170,7 @@ class Game {
     }
     if (lp.length) R.drawParticles(lp, true);
     R.drawParticles(W.fx.add, true);
+    R.drawParticles(FlightStrikeEffects.particles(W), true);
     R.end(this.t, this.flash, episodeProfile && episodeProfile.atmosphere && episodeProfile.atmosphere.exposure || this.atm.exposure || 1);
 
     /* ---- HUD ---- */
@@ -18249,8 +18273,9 @@ class Game {
       const selected=e5?.weaponMode||'fists',fitting=selected==='knife'&&e5?.fitting&&!e5?.hasKnife;
       const action=fitting?'STRIKE':{pistol:'FIRE',rifle:'FIRE',knife:'STAB',stick:'STRIKE',fists:'PUNCH'}[selected]||'PUNCH';
       const tool=fitting?'FITTING':{pistol:'.38',rifle:'RIFLE',knife:'KNIFE',stick:'BRANCH',fists:''}[selected]||'';
-      fireBtn.textContent=action+(tool?' '+tool:'');
-      fireBtn.title=(IS_TOUCH?'Tap to ':'T / left click: ')+action.toLowerCase()+(tool?' '+tool.toLowerCase():'')+'. '+(IS_TOUCH?'Punch free hand uses an empty hand.':'Space punches with a free hand.');
+      const defending=document.body.classList.contains('river-defence-ready');
+      fireBtn.textContent=defending?'DEFEND':action+(tool?' '+tool:'');
+      fireBtn.title=defending?'Tap / T: strike the nearby crocodile. Reach the bank.':(IS_TOUCH?'Tap to ':'T / left click: ')+action.toLowerCase()+(tool?' '+tool.toLowerCase():'')+'. '+(IS_TOUCH?'Punch free hand uses an empty hand.':'Space punches with a free hand.');
       fireBtn.setAttribute('aria-label',fireBtn.title);
     }
     /* The radio and the smoke, which is the whole rescue, told the same
@@ -18379,7 +18404,7 @@ class Game {
       ammunition:typeof SurvivalAmmunition!=='undefined'?SurvivalAmmunition.view(this):null,
       nav: navTo(ac, W.carrier), shipScreen: ss, cue: this.nextCue(ac, W),
       task: this.currentTask(ac, W),
-      oap: W.oap, oapLocked: !!W.oapLocked, rightSeat: this.rightSeat, steer: this.steer,
+      oap: W.oap, oapLocked: !!W.oapLocked, rightSeat: this.cameraMode==='bn'||(!this.cameraMode&&this.rightSeat), steer: this.steer,
       approach: this.phase === 'recovery' && this.shipRange < 5600 && !this.extView,
       gsErr: this.gsErr || 0, lineErr: this.lineErr || 0, shipRange: this.shipRange || 0,
       waveoff: this.waveoff, extView: this.extView, vvScreen: vv,
@@ -18485,6 +18510,7 @@ function dryJungleAt(x,z){
   return JungleScenery.habitat(fbm(x*.00021+11.7,z*.00021+11.7,3),fbm(x*.00006+3.7,z*.00006-2.1,3));
 }
 JungleScenery.configure({terrainH,jungle:dryJungleAt,program,glsl:GLSL_NOISE+GLSL_ATMOS+GLSL_SHADOW,MB});
+RiverBanks.configure({MB,program,glsl:GLSL_NOISE+GLSL_ATMOS+GLSL_SHADOW});
 VillageDetail.configure({MB});
 WildlifeRender.configure({terrainH,program,glsl:GLSL_NOISE+GLSL_ATMOS+GLSL_SHADOW});
 // New local trunks share the existing swept collision solver. Placement checks
@@ -18792,12 +18818,16 @@ App.renderReady=function(){
   row.append(select,button);document.getElementById('readyBody').appendChild(card);
 };
 
-LandingWater.install({Game,App,terrainH,JungleScenery,POW});
+LandingWater.install({Game,App,terrainH,JungleScenery,POW,Audio2});
+RipCurrent.install({Game,App,terrainH,coastAt,LandingWater,MISSIONS});
+RiverThreats.install({Game,App,POW});
 AviatorCompanion.install({Game,App,terrainH,LandingWater});
 DescentThreats.install({Game,App,terrainH,AviatorCompanion});
 CarrierLaunch.install({Game,bodyAxes});
 MissionDemo.install({App,Game,missions:MISSIONS,Store,terrainH,localToWorld,worldToLocal,CV,POW});
 HUDLayout.install({App,Game});
+CameraViews.install({App,Game});
+InstructionView.install({App,Game,Store});
 
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { });
 try {

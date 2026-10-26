@@ -97,7 +97,7 @@ test('unsafe cutaway is refused and retains a reachable hanging state', () => {
 });
 
 test('ocean landings swim with low wave-following camera and actual stroke sounds', () => {
-  const f = fixture({ terrainH: () => -12 }); f.W.enterGround(f.g); assert.equal(f.W.swimming(f.g), true); const initial = f.sounds.length;
+  const f = fixture({ terrainH: () => -12 }); f.W.enterGround(f.g); assert.equal(f.W.swimming(f.g), true); const initial = f.sounds.length; f.g.app.keys.KeyW=1;
   for (let i = 0; i < 20; i++) f.g.stepEvade(.1);
   near(-f.g.evade.p[2], 2); assert.equal(f.g.evade.running, false); assert.equal(f.g.oldFootfalls, 0); assert.ok(f.sounds.length >= initial + 2); assert.ok(f.sounds.every(a => a[0] === true));
   f.g.render(); const water = f.W.surface(f.g, f.g.evade.p[0], f.g.evade.p[2]); assert.ok(f.g.rend.lastEye[1] - water > .33 && f.g.rend.lastEye[1] - water < .43);

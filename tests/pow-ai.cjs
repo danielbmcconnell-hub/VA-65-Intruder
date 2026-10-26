@@ -77,7 +77,7 @@ test('a large frame cannot tunnel an actor through a wall', () => {
 
 test('sustained visible close armed contact recaptures once; dead, civilian and stunned actors do not', () => {
   for (const variant of ['guard', 'farmer', 'dead', 'stunned']) {
-    const f = fixture(); f.game.evade.p = [0, 0, 0];
+    const f = fixture({stage:variant === 'farmer' ? 'hanoi' : 'compound'}); f.game.evade.p = [0, 0, 0];
     const a = f.add({p: [0, 0, .9], face: 0, kind: variant === 'farmer' ? 'farmer' : 'nva', alive: variant !== 'dead'});
     a.face = undefined; a.state = 'pursuit'; a.seen = 1; a.sus = 1;
     if (variant === 'stunned') a.stunUntil = 100;
@@ -108,8 +108,8 @@ test('cell noise crosses walls as a remembered investigation, without sight or c
   assert.deepEqual(toData(a.lastNoise), [0, 0, -2.5]); assert.equal(f.captures(), 0);
 });
 
-test('civilian flees and reports once to a nearby guard after a delay', () => {
-  const f = fixture(); f.game.evade.p = [0, 0, 0];
+test('a civilian outside prison flees and reports once to a nearby guard after a delay', () => {
+  const f = fixture({stage:'hanoi'}); f.game.evade.p = [0, 0, 0];
   const farmer = f.add({p: [0, 0, 2], kind: 'farmer', face: 0}); farmer.sus = 1;
   const guard = f.add({p: [8, 0, 5], face: -Math.PI / 2});
   guard.senseAt = 100;

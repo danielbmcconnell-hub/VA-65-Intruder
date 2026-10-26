@@ -93,7 +93,7 @@
   function openCell(game) {
     const r=state(game);
     if(!yardTime(game)){notify(game,'The exercise period is 16:00–18:00 in this fictional routine. Rest at the mat, observe the door, and wait; this door is not an escape.');return false;}
-    if(!r.flags.cellOpen){r.flags.cellOpen=true;remove(game,'cell-door');}
+    if(!r.flags.cellOpen){r.flags.cellOpen=true;remove(game,'cell-door');box(game,'door-open','powMetal',-1.07,1.10,-3.90,.065,1.10,.70,false);}
     notify(game,'The supervised yard is accessible. Walking calmly in the permitted yard is allowed; entering the workshop or working hidden hardware is suspicious.');save(game);return true;
   }
   function observe(game) {
@@ -280,7 +280,7 @@
     object(game,'drain-panel','Work one cloth-muffled drain fastener · '+r.drainFasteners+'/4',-2,1.05,-23.80,()=>drainPanel(game),{radius:1.40,hold:8,noise:.025,view:true,enabled:()=>!r.flags.drainOpen,canHold:()=>r.inventory.tool && r.inventory.cloth});
     object(game,'drain-gate','Unbolt the outside grate · SLOW / QUIET',-2,1.05,-34.05,()=>drainGate(game),{radius:1.45,hold:12,noise:.025,view:true,enabled:()=>!r.flags.drainGateOpen,canHold:()=>r.inventory.tool && r.inventory.cloth});
     object(game,'wash-observe','Observe the covered washing passage and yard patrol',-6.9,1.4,-22.0,()=>notify(game,'The solid washing screen hides the drain-panel face. The yard guard turns at the crate, south of the screen. Four separate muffled fasteners are slower than forcing the east hatch; crouched footsteps are quieter. Wait until the actual patrol passes before moving around the screen.'),{radius:1.25,hold:1.5});
-    if(r.flags.cellOpen)remove(game,'cell-door');
+    if(r.flags.cellOpen){remove(game,'cell-door');box(game,'door-open','powMetal',-1.07,1.10,-3.90,.065,1.10,.70,false);}
     if(r.inventory.tool)remove(game,'loose-strip');
     if(r.inventory.cloth)remove(game,'cloth');
     if(r.flags.workshopOpen)remove(game,'workshop-door');
@@ -337,7 +337,7 @@
       if(a.elapsed>=a.duration){r.sleeping=null;r.lastRestDay=s.day;notify(game,'Rested through eight fictional hours. The supervised yard opens again at 16:00; observe and wait safely in the cell.');save(game);}
     }else advance(game,dt);
     if(!yardTime(game) && r.flags.cellOpen && insideCell(game)){
-      r.flags.cellOpen=false;box(game,'cell-door','powWood',0,1.10,-3.2,1.1,1.10,.065,true);save(game);
+      r.flags.cellOpen=false;remove(game,'door-open');box(game,'cell-door','powWood',0,1.10,-3.2,1.1,1.10,.065,true);save(game);
     }
     const x=e.p[0]-s.base[0],z=e.p[2]-s.base[2];
     const hatchObject=s.objects.find(o=>o.id==='regular-hatch');

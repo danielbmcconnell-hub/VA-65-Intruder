@@ -14,3 +14,8 @@
 .episode-action-ripple{position:absolute;left:50%;top:54%;width:77%;height:16%;border:3px solid rgba(155,187,191,.7);border-radius:50%;box-shadow:0 0 0 12px rgba(96,153,160,.16),0 0 0 23px rgba(142,184,191,.1)}
 @media(max-height:520px){.episode-action-view{width:min(340px,43vw);bottom:-83px}}
 @media(prefers-reduced-motion:reduce){.episode-action-hand,.episode-action-tool{will-change:auto}.episode-action-ripple{box-shadow:none}}
+
+.episode-action-view[data-tool=rope] .episode-action-hand{clip-path:none;width:70%}.episode-action-view[data-tool=rope] .episode-action-right{left:auto;right:0}.episode-action-view[data-tool=rope] .episode-action-right img{transform:scaleX(-1)}
+.episode-action-view[data-tool=rope]{bottom:0;width:min(620px,80vw);height:min(540px,76vh);aspect-ratio:auto}.episode-action-view[data-tool=rope] .episode-action-hand{width:68%}.episode-action-view[data-tool=rope] .episode-action-hand img{bottom:-5%;width:100%;height:auto}.episode-action-view[data-tool=rope] .episode-action-left{left:8%;right:auto}.episode-action-view[data-tool=rope] .episode-action-right{right:8%;left:auto}
+.episode-action-view[data-pose=descent]:before,.episode-action-view[data-pose=climb]:before{content:"";position:absolute;z-index:0;left:49%;top:-60%;height:220%;width:12px;border-radius:6px;background:repeating-linear-gradient(35deg,#625037 0 3px,#c4a372 3px 6px,#92724a 6px 9px);box-shadow:1px 0 2px #000}
+.episode-action-view[data-tool=rope]:after{content:attr(data-label);position:absolute;left:8%;right:8%;top:6%;padding:4px;color:#f2e7c3;background:rgba(9,18,20,.72);text-align:center;font:11px system-ui;pointer-events:none}

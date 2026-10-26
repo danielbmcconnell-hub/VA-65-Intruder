@@ -169,6 +169,39 @@ test('shelter interaction requires reaching the bank and the physical shelter', 
   assert.ok(f.r.cover === undefined || Number.isFinite(f.r.cover));
 });
 
+test('both banks remain physically reachable and permit walking back into moving water', () => {
+  for (const side of [-1, 1]) {
+    const f = fixture(undefined, { coreCollision: true }), x = f.s.base[0] + 94;
+    f.s.stats.fatigue = 0; f.s.stats.physical = 100;
+    assert.equal(f.River.interact(f.game, 'float'), true);
+    // Heading pi makes negative strafe move right; use the actual swept core
+    // movement rather than installing a bank position or changing the mode.
+    f.s.input = { strafe: -side };
+    let frames = 0;
+    while (f.r.mode !== 'bank' && frames++ < 160) f.River.step(f.game, .1);
+    assert.ok(frames < 160, `side ${side} must be reachable by swimming`);
+    assert.ok(side * (f.e.p[0] - x) >= f.River.constants.channelHalfWidth);
+    near(f.e.p[1], f.r.waterY + .35);
+    assert.equal(realCollision.blocked(f.game, f.e.p[0], f.e.p[2], .34, f.e.p[1]), false);
+    const bankDistance = f.r.logicalDistance;
+    f.s.input = {}; advance(f, .3);
+    near(f.r.logicalDistance, bankDistance, 1e-6);
+    const bankX = f.e.p[0];
+    f.s.input = { strafe: side };
+    frames = 0;
+    while (f.r.mode === 'bank' && frames++ < 80) f.River.step(f.game, .1);
+    assert.ok(frames < 80, `side ${side} must allow a physical return to water`);
+    assert.ok(side * (bankX - f.e.p[0]) > 0);
+    assert.ok(Math.abs(f.e.p[0] - x) < f.River.constants.channelHalfWidth);
+    assert.equal(f.r.mode, 'swim'); near(f.e.p[1], f.r.waterY - .42);
+    assert.equal(realCollision.blocked(f.game, f.e.p[0], f.e.p[2], .34, f.e.p[1]), false);
+    f.s.input = {}; const waterZ = f.e.p[2]; advance(f, 1);
+    assert.ok(f.e.p[2] > waterZ + .3, 'the current resumes after the player walks into the channel');
+    assert.ok(f.r.logicalDistance > bankDistance);
+    assert.equal(f.calls.captures, 0); assert.equal(f.calls.finishes.length, 0);
+  }
+});
+
 test('dawn and the fifteen-mile historical comparison cannot force failure', () => {
   const f = fixture();
   f.r.hours = 5.49;

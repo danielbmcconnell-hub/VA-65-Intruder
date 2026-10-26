@@ -279,22 +279,19 @@
     box(game, 'river-bed', 'powMud', x, y - 2.7, z0 + 30, 65, .28, 136);
     box(game, 'river-water', 'powWater', x, y - .04, z0 + 30, HALF_WIDTH, .035, 136,
       { tint: [.60, .81, .87, 0] });
+    // The walking boundary and collision scene remain the original ones.
+    // A separate sampled shore supplies submerged mud, roots and reed fans;
+    // no long box face rises from the waterline.
+    if (root.RiverBanks) root.RiverBanks.build(game);
     for (const side of [-1, 1]) {
-      box(game, 'bank-' + side, 'powMud', x + side * 39.5, y - .12, z0 + 30, 25, .47, 136,
-        { tint: [.78, .83, .66, 0] });
       for (let i = 0; i < 12; i++) {
-        const z = z0 - 86 + i * 22;
+        const pattern = i * 1.73 + side * .9, z = z0 - 86 + i * 22 + Math.sin(pattern) * 3.2;
         prop(game, 'river-bamboo-' + side + '-' + i, i % 3 ? 'bamboo' : 'palm',
-          [x + side * (21 + i % 4 * 3), y + .35, z], [.48, .58, .48]);
-        // Thin reeds leave a navigable lane along the mud bank.
-        for (let k = 0; k < 3; k++) box(game, 'reed-' + side + '-' + i + '-' + k,
-          'powWood', x + side * (15.7 + k * .7), y + .65, z + k * .9,
-          .035, .7 + k * .12, .035, { tint: [.43, .64, .34, 0] });
+          [x + side * (21 + i % 4 * 3 + Math.cos(pattern) * 1.7), y + .35, z],
+          [.48, .50 + (i % 4) * .065, .48], pattern);
       }
       for (let i = 0; i < 5; i++) {
         const z = z0 - 72 + i * 48, px = x + side * 18;
-        box(game, 'mud-shelter-' + side + '-' + i, 'powMud', px, y + .48, z, 1.4, .16, 1.3,
-          { tint: [.44, .46, .35, 0] });
         object(game, 'river-hide-' + side + '-' + i, 'Dig a mud shelter / conceal and rest',
           [px, y + .35, z], 'hide', 3.2, { hold: 2, cover: .87, view: false });
       }
@@ -397,7 +394,7 @@
     // tick so an old NPC save is not enclosed by a newly introduced structure.
     r.layoutAuditPending = restoring;
     sectionState(game, false);
-    r.eyeHeight = r.mode === 'boat' ? 1.05 : r.mode === 'bank' || r.mode === 'hidden' ? 1.58 : .48;
+    r.eyeHeight = r.mode === 'boat' ? 1.05 : r.mode === 'bank' || r.mode === 'hidden' ? 1.58 : .72;
     e.camp = true; e.river = true; e.frozen = false; e.inCell = false; e.hasRadio = false; e.radio = -1;
     e.locals = []; e.cattle = []; e.spawn = e.localRefill = 1e9;
     s.p = e.p;
@@ -579,7 +576,7 @@
         ((-Math.cos(e.hdg) * i.forward + Math.sin(e.hdg) * i.strafe) * swimSpeed + r.currentWorldMps) * dt);
       // The core's standing collision body is 1.48m tall: this depth gives it
       // clearance below floating logs, while remaining above the river bed.
-      e.p[1] = r.waterY - (r.submerged ? 2.1 : .42); r.eyeHeight = r.submerged ? .3 : .48;
+      e.p[1] = r.waterY - (r.submerged ? 2.1 : .42); r.eyeHeight = r.submerged ? .3 : .72;
       modify(s, 'fatigue', (floating ? -.060 + (steer ? .028 : 0) : steer ? .17 : .035) * dt);
       // Fatigue takes away propulsion, never the player's ability to reach a
       // bank, float, breathe, or recover from an earlier poor decision.

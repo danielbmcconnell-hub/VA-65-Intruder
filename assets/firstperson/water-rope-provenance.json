@@ -1,0 +1,46 @@
+{
+  "generated": true,
+  "reference": "Existing first-person aviator hands; originals preserved. Runtime WebP derivatives retain every RGBA byte.",
+  "records": [
+    {
+      "file": "swim-stroke-a.png",
+      "runtime": "swim-stroke-a.webp",
+      "width": 1536,
+      "height": 1024,
+      "sourceSHA256": "7d4d505e49f1a8c42a09b8a7cf5d1219038a1ea4db7db6148845d2cb5e04be35",
+      "runtimeSHA256": "fe9a751e2bae1a67b59a8106ad1d9257e093437fd7d1bf308591160af366ace7",
+      "decodedRGBAIdentical": true,
+      "generatedSource": "/workspace/generated_images/exec-22f7608a-1a00-453e-91bf-1139993649f1.png"
+    },
+    {
+      "file": "swim-stroke-b.png",
+      "runtime": "swim-stroke-b.webp",
+      "width": 1536,
+      "height": 1024,
+      "sourceSHA256": "f565c68bd3dbce9d25f6a485b483e5e66368a13a37f2f47707db44ba82147ef8",
+      "runtimeSHA256": "e6599d2fe2731b28bb1684df0ed65f55ed461daa114035a888d428dd09f1508e",
+      "decodedRGBAIdentical": true,
+      "generatedSource": "/workspace/generated_images/exec-10062f6e-98db-4c28-b79f-c1dbf6e0a564.png"
+    },
+    {
+      "file": "rope-grip-open.png",
+      "runtime": "rope-grip-open.webp",
+      "width": 1536,
+      "height": 1024,
+      "sourceSHA256": "973ddc4c3ba2212ef205a37cb3cd93a553c73c4081d3c34fb35c341c5ee1ac98",
+      "runtimeSHA256": "8cb57b3b3d5b2e9ab76f2176c80b28b919964522359eceb9cdfcd6a3d4a4ccaf",
+      "decodedRGBAIdentical": true,
+      "generatedSource": "/workspace/generated_images/exec-13622ce9-7415-46ff-bb52-9b67473f65cc.png"
+    },
+    {
+      "file": "rope-grip-closed.png",
+      "runtime": "rope-grip-closed.webp",
+      "width": 1536,
+      "height": 1024,
+      "sourceSHA256": "abe3ce9c8a7ef072953d9fb3168cdbce23abfddcf45d6446dbfcfe0600dcc3fe",
+      "runtimeSHA256": "56a1a8c29bda6e308cb047ede487018702b9e9c1d47f67305de5c4ccfea91772",
+      "decodedRGBAIdentical": true,
+      "generatedSource": "/workspace/generated_images/exec-5d8f5cee-5eb9-48c2-a19f-f0a6a063a21f.png"
+    }
+  ]
+}

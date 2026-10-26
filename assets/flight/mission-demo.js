@@ -93,7 +93,7 @@
  }
  function record(g){return g&&states.get(g);}
  function current(g){const s=record(g);return !!(s&&session===s&&ctx&&ctx.App.game===g);}
- function clearInput(s){const app=s&&s.app;if(!app)return;for(const k of CONTROL_KEYS)if(app.keys)app.keys[k]=0;for(const k of ['pitch','roll','thrUp','thrDn','commit','run','crouch'])if(app.gctl)app.gctl[k]=0;}
+ function clearInput(s){const app=s&&s.app;if(!app)return;for(const k of CONTROL_KEYS)if(app.keys)app.keys[k]=0;for(const k of ['pitch','roll','turn','thrUp','thrDn','commit','run','crouch'])if(app.gctl)app.gctl[k]=0;}
  function stage(s,id,detail){const changed=s.stage!==id;if(changed){s.stage=id;s.stageTime=0;s.events.push({at:s.elapsed,stage:id,detail:detail||''});if(s.events.length>96)s.events.shift();}if(detail)s.detail=detail;else if(changed)s.detail='';}
  function eligible(g){return current(g)&&!root.document?.hidden&&!ctx.App.graphicsContextLost&&ctx.App.screen==='game';}
  function objective(g){try{return (g.objState&&g.objState()||[]).map(row=>[String(row[0]),String(row[1]),row[2]===true]);}catch(_){return [];}}
@@ -279,18 +279,44 @@
   stage(s,'attack');g.ripple=Math.min(g.mis.type==='ironhand'||g.mis.type==='maritime'||g.mis.id==='m7'&&s.lastImpact>0?1:w.targets.length<=2?4:2,ac.bombs);app.gctl.commit=!g.sol||g.sol.tRel>=-.035?1:0;if(!app.gctl.commit)s.detail='The release point has passed without a clean solution. Consent is withdrawn; the crew keeps its bombs and makes another normal run.';else s.detail='';
  }
  function navigate(g,s,p,dt,stop=.75){
-  const e=g.evade,dx=p[0]-e.p[0],dz=p[2]-e.p[2],d=Math.hypot(dx,dz),desired=Math.atan2(dx,-dz),he=angle(desired-e.hdg);g.app.gctl.roll=clamp(he*2,-1,1);g.app.gctl.pitch=d>stop&&Math.abs(he)<.8?1:0;g.app.gctl.crouch=g.pow?.stage==='compound';return d<=stop;
+  const e=g.evade,dx=p[0]-e.p[0],dz=p[2]-e.p[2],d=Math.hypot(dx,dz),desired=Math.atan2(dx,-dz),he=angle(desired-e.hdg);g.app.gctl.turn=clamp(he*2,-1,1);g.app.gctl.pitch=d>stop&&Math.abs(he)<.8?1:0;g.app.gctl.crouch=g.pow?.stage==='compound';return d<=stop;
  }
- function objectWork(g,s,id,dt){const obj=g.pow.objects.find(o=>o.id===id);if(!obj)return false;if(s.workId!==id){s.workId=id;return false;}const stop=id==='wall-contact'?1.1:id==='river-board'?2.5:id==='river-signal'?4.5:Math.min(.85,finite(obj.radius,1.2)*.65),near=navigate(g,s,obj.p,dt,stop);if(near){g.app.gctl.pitch=0;g.app.gctl.roll=clamp(angle(Math.atan2(obj.p[0]-g.evade.p[0],-(obj.p[2]-g.evade.p[2]))-g.evade.hdg)*2,-1,1);g.app.keys.KeyF=1;}return near;}
+ function objectWork(g,s,id,dt){const obj=g.pow.objects.find(o=>o.id===id);if(!obj)return false;if(s.workId!==id){s.workId=id;return false;}const stop=id==='wall-contact'?1.1:id==='river-board'?2.5:id==='river-signal'?4.5:Math.min(.85,finite(obj.radius,1.2)*.65),near=navigate(g,s,obj.p,dt,stop);if(near){g.app.gctl.pitch=0;g.app.gctl.turn=clamp(angle(Math.atan2(obj.p[0]-g.evade.p[0],-(obj.p[2]-g.evade.p[2]))-g.evade.hdg)*2,-1,1);g.app.keys.KeyF=1;}return near;}
  function captureApproach(g,s,dt){
   const e=g.evade,buttons=root.document?.querySelectorAll('#captVeil.on button')||[],choice=[...buttons].find(b=>/hands|surrender|submit|go quietly|continue|go on|lie still/i.test(b.textContent));
   stage(s,'capture');if(choice){action(s,g,()=>choice.click(),1);return;}if(e.held||e.frozen||g._capturePending)return;
   const people=(e.searchers||[]).concat(e.locals||[]).filter(a=>a.alive&&a.armed&&point(a.p)&&!(a.stunUntil&&g.t<a.stunUntil)),captor=people.sort((a,b)=>flat(a.p,e.p)-flat(b.p,e.p))[0];
   const near=!!(captor&&flat(captor.p,e.p)<5.5&&typeof g._groundLineOfSight==='function'&&g._groundLineOfSight(e.p,captor.p,e));
+  const current=root.RipCurrent?.sample(g);
+  if(current&&(current.strength>.12||s.leavingRip&&Math.abs(current.lateral)<28)){
+   if(!s.leavingRip)s.ripSide=current.lateral<0?-1:1;
+   s.leavingRip=true;s.captureShore=null;
+   const tangent=current.channel.tangent,goal=[e.p[0]+tangent[0]*s.ripSide*40,e.p[1],e.p[2]+tangent[1]*s.ripSide*40];
+   navigate(g,s,goal,dt,1);g.app.gctl.run=0;
+   stage(s,'capture','Rip current: the computer swims parallel to shore, out of the flowing channel, before returning diagonally toward land. It conserves strength instead of fighting the offshore flow.');return;
+  }
+  s.leavingRip=false;
   // Surrender is an edge action, not a polled KeyX input. Stay close enough
   // for the original guard/line-of-sight/held-time capture rules to decide.
   if(e.handsUp){if(near){stage(s,'capture','Hands are raised within sight of an actual armed captor. The original custody rules decide when the guards take control.');return;}if(typeof g.raiseHands==='function')action(s,g,()=>g.raiseHands(),.5);return;}
   if(near){stage(s,'capture','The crew has reached an actual armed captor. It uses the existing HANDS UP action and waits for custody.');if(typeof g.raiseHands==='function')action(s,g,()=>g.raiseHands(),.5);return;}
+  // A shoreline waypoint can lie behind a trunk or a wreck. Observe real
+  // movement and walk/swim around it; never move the actor through collision.
+  if(s.captureTrackAt===undefined){s.captureTrackAt=s.elapsed;s.captureTrack=e.p.slice();}
+  if(s.elapsed-s.captureTrackAt>6){
+   if(flat(e.p,s.captureTrack)<.3&&!s.captureDetour){
+    const side=s.captureSide===1?-1:1;s.captureSide=side;
+    for(const offset of[side*Math.PI/2,-side*Math.PI/2,Math.PI]){
+     const h=e.hdg+offset,dx=Math.sin(h),dz=-Math.cos(h),clear=[1,3,6,9].every(d=>!g._blockedAt||!g._blockedAt(e.p[0]+dx*d,e.p[2]+dz*d,.43,e));
+     if(clear){s.captureDetour=[e.p[0]+dx*9,e.p[1],e.p[2]+dz*9];s.captureDetourUntil=s.elapsed+22;s.captureShore=null;s.captureShoreAt=undefined;break;}
+    }
+   }
+   s.captureTrackAt=s.elapsed;s.captureTrack=e.p.slice();
+  }
+  if(s.captureDetour){
+   if(flat(e.p,s.captureDetour)<1.2||s.elapsed>s.captureDetourUntil)s.captureDetour=null;
+   else{navigate(g,s,s.captureDetour,dt,1);g.app.gctl.run=ctx.terrainH(e.p[0],e.p[2])<-.4?1:0;stage(s,'capture','The direct shoreline route is blocked. The computer follows a clear route around the obstacle, then resumes its approach to land or an actual captor.');return;}
+  }
   let goal=captor?.p;
   if(!goal){
    if(s.captureShoreAt===undefined||s.elapsed-s.captureShoreAt>12&&(!point(s.captureShore)||flat(e.p,s.captureShore)<8)){
@@ -320,7 +346,7 @@
  function solitaryWork(g,s,id,dt){
   const obj=g.pow.objects.find(o=>o.id===id);if(!obj)return;
   const e=g.evade,dx=obj.p[0]-e.p[0],dz=obj.p[2]-e.p[2],d=Math.hypot(dx,dz),heading=angle(Math.atan2(dx,-dz)-e.hdg),look=clamp(Math.atan2(obj.p[1]-(e.p[1]+1.65),Math.max(.1,d)),-.85,1.2),pitch=look-finite(e.pitchCmd,e.look);
-  g.app.gctl.roll=clamp(heading*2,-1,1);g.app.gctl.pitch=d>Math.min(.7,finite(obj.radius,1.2)*.7)&&Math.abs(heading)<.4?1:0;
+  g.app.gctl.turn=clamp(heading*2,-1,1);g.app.gctl.pitch=d>Math.min(.7,finite(obj.radius,1.2)*.7)&&Math.abs(heading)<.4?1:0;
   if(Math.abs(pitch)>.035)g.app.keys[pitch>0?'KeyQ':'KeyE']=1;
   if(g.pow.focus?.id===id&&Math.abs(heading)<.13){g.app.gctl.pitch=0;g.app.keys.KeyF=1;}
  }
@@ -385,7 +411,7 @@
     if(conceal&&!pow.episodeStealth?.tamper?.concealed){objectWork(g,s,'episode-conceal-fitting',dt);return;}
     if(pow.episodeStealth?.stones>0&&!s.stoneThrown&&p.EpisodeStealth?.throwStone){
      if(!s.atThrow){if(navigate(g,s,[b[0],e.p[1],b[2]-3.95],dt,.10))s.atThrow=true;return;}
-     g.app.gctl.roll=clamp(angle(-Math.PI/2-e.hdg)*2,-1,1);if(Math.abs(angle(-Math.PI/2-e.hdg))<.08)action(s,g,()=>{if(p.EpisodeStealth.throwStone(g))s.stoneThrown=true;},1);return;
+     g.app.gctl.turn=clamp(angle(-Math.PI/2-e.hdg)*2,-1,1);if(Math.abs(angle(-Math.PI/2-e.hdg))<.08)action(s,g,()=>{if(p.EpisodeStealth.throwStone(g))s.stoneThrown=true;},1);return;
     }
     if(!s.corridorClear){
      // The reconstructed cell's beds flank a one-metre aisle. Wait in the
