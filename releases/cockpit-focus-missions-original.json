@@ -1,0 +1,3523 @@
+{
+  "passed": false,
+  "scope": "Actual original game update/physics/weapon/objective code; CPU fast-forward with ordinary HUD state refresh, no position/HP/outcome injection. Chromium initialization uses real WebGL2; any separately counted final screenshots also use that renderer; native desktop and touch-emulated UI controls are checked. Additional storage checks exercise a completed POW save and the actual Willard retry button, then explicitly invoke a failed retry debrief to verify isolation; that is not an additional mission success. Mission 11 receives up to 3,600 seconds of original update calls (360 batches) to allow a real offshore landing to reach capture and complete the camp and river route; other missions retain 1,800 seconds (180 batches). Not actual iPhone Safari, hardware FPS, or a full-speed screen recording.",
+  "verificationBudget": {
+    "m11": {
+      "batches": 360,
+      "updateSeconds": 3600
+    },
+    "otherMissions": {
+      "batches": 180,
+      "updateSeconds": 1800
+    },
+    "stepsPerBatch": 300,
+    "stepSeconds": 0.03333333333333333,
+    "basis": "The preserved 2200-second m11 proof physically reached custody, escaped the camp and continued downstream to 68,482m; the longer bound allows that progressing original route to finish.",
+    "previousHarnessSHA256": "869a08ef66c2a9dd8be1dc41a88d1d15924eefa88fa818f39ccef3f9d296dfd5"
+  },
+  "begunAt": "2026-10-26T02:33:15.648Z",
+  "completedAt": "2026-10-26T02:35:49.307Z",
+  "renderedFinalScreenshots": 0,
+  "harnessStable": true,
+  "harness": {
+    "file": "/workspace/cloud-environment/va-65-intruder/coast-scenery/mission-demo/verify-native-long-capture.cjs",
+    "sha256": "ff34beb5921acabf76c7f0c222abe5267835d0330caaa782427a2335a5f20530",
+    "source": "'use strict';\nconst root='/workspace/Intruder_Yankee_Station',fs=require('node:fs/promises'),path=require('node:path'),crypto=require('node:crypto');\nconst {chromium}=require(root+'/node_modules/playwright'),{createServer}=require(root+'/tools/dev-server.cjs');\n(async()=>{const server=createServer();await new Promise(r=>server.listen(0,'127.0.0.1',r));let browser;\nconst output=process.env.DEMO_EVIDENCE_DIR||'/workspace/cloud-environment/va-65-intruder/night-realism/mission-demo',errors=[],missing=[],executedHTTP=[],bodyJobs=[],readFailures=[];\nawait fs.mkdir(output,{recursive:true});\nconst required=['m1','m2','m3','m4','m5','m6','m7','m8','m9','m10','m11','willard'];\nconst sourceFiles=['index.html'];\nasync function sourceTree(directory){for(const item of await fs.readdir(root+'/'+directory,{withFileTypes:true})){const file=directory+'/'+item.name;if(item.isDirectory())await sourceTree(file);else if(/\\.(js|css|json|glsl)$/.test(item.name))sourceFiles.push(file);}}\nawait sourceTree('assets');sourceFiles.sort();\nconst hashes=async()=>Object.fromEntries(await Promise.all(sourceFiles.map(async file=>[file,crypto.createHash('sha256').update(await fs.readFile(root+'/'+file)).digest('hex')])));\nconst sourceHashes=await hashes(),storage=page=>page.evaluate(()=>Object.fromEntries(Object.keys(localStorage).sort().map(k=>[k,localStorage.getItem(k)])));\nconst harnessBytes=await fs.readFile(__filename),harnessSHA256=crypto.createHash('sha256').update(harnessBytes).digest('hex');\nconst begunAt=new Date().toISOString();let rendered=0;const renderLimit=Number(process.env.DEMO_RENDER_LIMIT||2);\nfunction observeHTTP(page,profile){page.on('response',r=>{const url=new URL(r.url());const file=url.pathname==='/'?'index.html':url.pathname.slice(1);if(r.status()===200&&sourceFiles.includes(file))bodyJobs.push(r.body().then(bytes=>executedHTTP.push({profile,file,sha256:crypto.createHash('sha256').update(bytes).digest('hex')})).catch(e=>readFailures.push({profile,file,error:String(e)})));});}\ntry{browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader']});const context=await browser.newContext({viewport:{width:960,height:540}}),page=await context.newPage();page.setDefaultTimeout(120000);observeHTTP(page,'desktop');page.on('pageerror',e=>{errors.push(e.message);console.log('JSERROR',e.message);});page.on('response',r=>{if(r.status()>=400)missing.push({url:r.url(),status:r.status()});});\nawait page.addInitScript(()=>{localStorage.setItem('a6_set',JSON.stringify({quality:0,sound:0,voices:0,mouse:0,seat:1,assist:0,sens:1}));localStorage.setItem('a6_sawkeys','1');const raf=requestAnimationFrame.bind(window);window.requestAnimationFrame=cb=>window.__demoNativeStop?0:raf(t=>{if(!window.__demoNativeStop)cb(t);});});await page.goto('http://127.0.0.1:'+server.address().port+'/');await page.locator('#bootGo').click();await page.addScriptTag({path:root+'/assets/flight/mission-demo.js'});await page.evaluate(()=>MissionDemo.install({App,Game,missions:MISSIONS,Store,terrainH,localToWorld,worldToLocal,CV,POW}));\nconst ids=process.argv.slice(2);const reports=[],uiChecks=[{id:'all-twelve-demo-choices',passed:await page.locator('#missionDemoSelect option').count()===12}];\nfor(const id of ids.length?ids:['m1','m2']){\n const storageBefore=await storage(page);await page.evaluate(id=>MissionDemo.start(id),id);await page.waitForFunction(id=>App.game&&App.game.mis.id===id&&document.getElementById('loader').style.display==='none',id,{polling:50});await page.evaluate(()=>{window.__demoNativeStop=true;App.game.paused=true;});await page.waitForFunction(()=>{const p=PhotoCutouts.inspect(App.rend);if(p.status==='error')throw Error(p.failures.join('; '));return p.status==='ready';},null,{polling:50});\n await page.evaluate(()=>{App.frame=()=>{};MissionDemo.attach(App.game);App.game.paused=false;App.game.st=App.game.hudState();const oldPilot=App.game.autoFly;App.game.autoFly=function(){const command=oldPilot.apply(this,arguments);this.__demoObservedCommand=command;return command;};const w=App.game.world,fire=w.fireArm,detonate=w.detonate;w.__demoArms=[];w.fireArm=function(ac){const answer=fire.apply(this,arguments);if(answer)this.__demoArms.push({event:'launch',t:App.game.t,p:ac.p.slice(),v:ac.v.slice(),yaw:ac.yaw,pitch:ac.pitch,radar:this.radar&&{p:this.radar.p.slice(),hp:this.radar.hp,emitting:this.radar.emitting}});return answer;};w.detonate=function(p,scale,rad,damage,weapon){const before=this.radar?.hp,answer=detonate.apply(this,arguments);if(weapon==='arm')this.__demoArms.push({event:'impact',t:App.game.t,p:p.slice(),terrain:terrainH(p[0],p[2]),radar:this.radar&&{p:this.radar.p.slice(),before,hp:this.radar.hp,alive:this.radar.alive}});return answer;};});\n if(reports.length===0){\n  const demo=page.locator('#missionDemo'),toggle=demo.locator('button').first();await toggle.click();let hidden=await demo.locator('.demo-panel').isHidden();await toggle.click();uiChecks.push({id:'explanations-close-and-reopen',passed:hidden&&await demo.locator('.demo-panel').isVisible()});\n  const beforePause=await page.evaluate(()=>App.game.t);await demo.locator('[data-demo-action=pause]').click();await page.evaluate(()=>App.game.update(.1));uiChecks.push({id:'pause-freezes-original-game',passed:await page.evaluate(t=>App.game.t===t&&MissionDemo.snapshot().paused,beforePause)});await demo.locator('[data-demo-action=pause]').click();\n  await demo.locator('[data-demo-action=take]').click();uiChecks.push({id:'take-controls-releases-computer',passed:await page.evaluate(()=>!MissionDemo.snapshot().computerPlaying&&!App.game.rightSeat)});await demo.locator('[data-demo-action=resume]').click();uiChecks.push({id:'resume-computer-controls',passed:await page.evaluate(()=>MissionDemo.snapshot().computerPlaying&&App.game.rightSeat)});\n }\n let report;\n for(let batch=0;batch<(id==='m11'?360:180);batch++){\n  report=await page.evaluate(()=>{const g=App.game;const sample=()=>({t:g.t,phase:g.phase,p:g.ac.p.slice(),v:g.ac.v.slice(),yaw:g.ac.yaw,pitch:g.ac.pitch,roll:g.ac.roll,ias:g.ac.ias,crew:{...g.ac.crew},damage:{...g.ac.dmg},gear:g.ac.gear,hook:g.ac.hook,coupled:g.aclsCoupled,bolters:g.bolters,deck:g.deckL?.slice(),hookDeck:CarrierLaunch.angled(CarrierLaunch.deckLocal(g.world.carrier,CarrierLaunch.hookPoint(g.ac)),CV),relativeVelocity:g._carrierApproach?.velocity?.slice(),relativeSink:g._carrierApproach?.sink,carrier:{p:g.world.carrier.p.slice(),hdg:g.world.carrier.hdg,pitch:g.world.carrier.pitch,roll:g.world.carrier.roll,heave:g.world.carrier.heave},command:{...g.__demoObservedCommand}});for(let n=0;n<300&&!g.result&&!g.pow?.complete;n++){const alive=g.ac.alive;if(alive&&g.shipRange<2400&&g.ac.p[1]<400){const row=sample();if(row.deck&&row.deck[2]>850&&row.deck[2]<2200&&(g.__demoFirstApproach||=[]).length<480)g.__demoFirstApproach.push(row);if(g.shipRange<1500){(g.__demoFlightHistory||=[]).push(row);if(g.__demoFlightHistory.length>120)g.__demoFlightHistory.shift();}}g.st=g.hudState();g.update(1/30);if(alive&&!g.ac.alive&&!g.ejected&&!g.__demoFirstDeath)g.__demoFirstDeath={reason:g.world.deadReason,state:sample(),history:g.__demoFlightHistory||[]};}MissionDemo.render(g);return {armTrace:g.world.__demoArms,firstApproach:g.__demoFirstApproach,firstDeath:g.__demoFirstDeath,demo:MissionDemo.snapshot(g),deadReason:g.world.deadReason,debrief:document.getElementById('debriefBody')?.textContent,powInput:g.pow?{input:g.pow.input,latched:g.pow.interactLatched,holding:g.pow.holding,capOpen:g.pow.captivity?.open}:null,modal:document.querySelector('#captVeil.on')?.textContent,rescuedOK:g.rescuedOK,ejected:g.ejected,companionRescued:g.companionRescued,evade:g.evade?{radio:g.evade.radio,rescue:g.evade.rescue,eta:g.evade.eta,smoke:g.evade.smoke,lift:g.evade.lift,cableD:g.evade.cableD,jolly:g.evade.jolly&&{p:g.evade.jolly.p,down:g.evade.jolly.down,hoist:g.evade.jolly.hoist},companion:typeof AviatorCompanion!=='undefined'?AviatorCompanion.view(g):null,p:g.evade.p,held:g.evade.held,hdg:g.evade.hdg,focus:g.pow?.focus?.id,holding:g.pow?.holding,searchers:g.evade.searchers?.map(a=>({id:a.id,p:a.p,state:a.state,sus:a.sus}))}:null,phase:g.phase,t:g.t,p:g.ac.p.slice(),v:g.ac.v.slice(),yaw:g.ac.yaw,gear:g.ac.gear,ias:g.ac.ias,shipRange:g.shipRange,acls:g.aclsCoupled,alive:g.ac.alive,bombs:g.ac.bombs,arms:g.ac.arms,nav:g.world.rtIdx,designated:g.world.designated?{p:g.world.designated.p,label:g.world.designated.label,alive:g.world.designated.alive}:null,sol:g.sol?{valid:g.sol.valid,gr:g.sol.gr,tRel:g.sol.tRel,az:g.sol.az}:null,result:g.result,score:g.world.score,obj:g.objState(),pow:g.pow?{stage:g.pow.stage,complete:g.pow.complete,outcome:g.pow.outcome,flags:g.pow.flags,inventory:g.pow.inventory,p:g.evade?.p,river:g.pow.river?{mode:g.pow.river.mode,phase:g.pow.river.phase,distance:g.pow.river.logicalDistance}:null}:null,willard:g.willard?{phase:g.willard.phase,flakDisrupted:g.willard.flakDisrupted,terrainEscape:g.willard.terrainEscape,enemy:g.willard.enemy?{state:g.willard.enemy.state,p:g.willard.enemy.p,health:g.willard.enemy.health,flak:g.willard.enemy.flakPressure}:null}:null};});\n  if(batch%10===0||report.result||report.pow?.complete||!report.demo.computerPlaying){console.log(id,JSON.stringify({t:report.t,stage:report.demo.stage,phase:report.phase,result:report.result,obj:report.obj,score:{dropped:report.score.dropped,killed:report.score.killed,damage:report.score.damage},pow:report.pow&&{stage:report.pow.stage,complete:report.pow.complete,river:report.pow.river},reason:report.firstDeath?.reason}));await fs.writeFile(output+'/'+id+'-progress.json',JSON.stringify(report,null,2)+'\\n');}\n  if(report.result||report.pow?.complete||!report.demo.computerPlaying)break;\n  if(report.phase==='dead'||report.phase==='done'){await page.waitForTimeout(2500);}\n }\n report.passed=report.result?.pass===true||report.pow?.complete===true&&(report.pow?.outcome?.escaped===true||report.pow?.outcome?.rescued===true);reports.push({id,...report});await fs.writeFile(output+'/'+id+'-result.json',JSON.stringify(report,null,2)+'\\n');if(rendered<renderLimit){await page.evaluate(()=>{App.game.render(0);});await page.screenshot({path:output+'/'+id+'-final.png'});rendered++;}if(id==='m11'&&report.pow?.complete){await page.evaluate(()=>{POW.save(App.game);});uiChecks.push({id:'native-completed-pow-save-keeps-campaign',passed:await page.evaluate(()=>MissionDemo.snapshot().campaignIsolated)&&JSON.stringify(storageBefore)===JSON.stringify(await storage(page))});}\n if(id==='willard'&&report.result?.pass){const expected=await page.evaluate(()=>{const g=App.game,c=g.willard.checkpoint;return {token:App._missionStart,p:c.ac.p.slice(),retries:Math.max(c.retries,g.willard.retries)+1};});if(await page.locator('#missionDemo .demo-panel').isVisible())await page.locator('#missionDemo').locator('button').first().click();await page.locator('#willardResultRetry').click();await page.waitForFunction(token=>App.game?.mis.id==='willard'&&App._missionStart>token&&document.getElementById('loader').style.display==='none',expected.token,{polling:50});await page.evaluate(()=>{MissionDemo.attach(App.game);MissionDemo.render(App.game);});uiChecks.push({id:'native-completed-willard-retry-remains-practice',passed:await page.evaluate(e=>{const g=App.game,s=MissionDemo.snapshot();return s.computerPlaying&&s.campaignIsolated&&g.willard.retries===e.retries&&Math.hypot(...g.ac.p.map((v,i)=>v-e.p[i]))<1e-6;},expected)});await page.evaluate(()=>{App.game.debrief(false,'Explicit failed debrief for practice retry storage verification.');MissionDemo.render(App.game);});uiChecks.push({id:'native-retried-original-debrief-keeps-campaign',passed:await page.evaluate(()=>App.game.result?.pass===false&&MissionDemo.snapshot().campaignIsolated)&&JSON.stringify(storageBefore)===JSON.stringify(await storage(page))});}\n await page.evaluate(()=>MissionDemo.stop(false));reports[reports.length-1].storageUnchanged=JSON.stringify(storageBefore)===JSON.stringify(await storage(page));\n}\nif(required.every(id=>reports.some(r=>r.id===id))){\n await page.waitForLoadState('networkidle');await Promise.all(bodyJobs);await context.close();\n const touch=await browser.newContext({viewport:{width:844,height:390},deviceScaleFactor:1,hasTouch:true,isMobile:true}),phone=await touch.newPage();phone.setDefaultTimeout(120000);observeHTTP(phone,'iphone-layout-chromium');phone.on('pageerror',e=>errors.push(e.message));phone.on('response',r=>{if(r.status()>=400)missing.push({url:r.url(),status:r.status()});});\n await phone.addInitScript(()=>{localStorage.setItem('a6_set',JSON.stringify({quality:0,sound:0,voices:0,mouse:0,seat:1,assist:0,sens:1}));localStorage.setItem('a6_sawkeys','1');const raf=requestAnimationFrame.bind(window);window.requestAnimationFrame=cb=>window.__demoNativeStop?0:raf(t=>{if(!window.__demoNativeStop)cb(t);});});await phone.goto('http://127.0.0.1:'+server.address().port+'/');await phone.locator('#bootGo').tap();\n uiChecks.push({id:'touch-all-twelve-demo-choices',passed:await phone.locator('#missionDemoSelect option').count()===12});const beforeTouch=await storage(phone);await phone.locator('#missionDemoSelect').selectOption('m1');await phone.locator('#missionDemoStart').tap();await phone.waitForFunction(()=>App.game?.mis.id==='m1'&&document.getElementById('loader').style.display==='none',null,{polling:50});await phone.evaluate(()=>{window.__demoNativeStop=true;App.frame=()=>{};MissionDemo.attach(App.game);MissionDemo.render(App.game);});\n const d=phone.locator('#missionDemo'),toggle=d.locator('button').first();await toggle.tap();const closed=await d.locator('.demo-panel').isHidden();await toggle.tap();uiChecks.push({id:'touch-explanations-close-and-reopen',passed:closed&&await d.locator('.demo-panel').isVisible()});await d.locator('[data-demo-action=pause]').tap();const t=await phone.evaluate(()=>App.game.t);await phone.evaluate(()=>App.game.update(.1));uiChecks.push({id:'touch-pause-freezes-original-game',passed:await phone.evaluate(t=>App.game.t===t&&MissionDemo.snapshot().paused,t)});await d.locator('[data-demo-action=pause]').tap();await d.locator('[data-demo-action=take]').tap();uiChecks.push({id:'touch-take-controls-releases-computer',passed:await phone.evaluate(()=>!MissionDemo.snapshot().computerPlaying&&!App.game.rightSeat)});await d.locator('[data-demo-action=resume]').tap();uiChecks.push({id:'touch-resume-computer-controls',passed:await phone.evaluate(()=>MissionDemo.snapshot().computerPlaying&&App.game.rightSeat)});await d.locator('[data-demo-action=stop]').tap();uiChecks.push({id:'touch-stop-returns-to-chooser',passed:await phone.evaluate(()=>App.screen==='ready'&&!App.game&&!MissionDemo.snapshot().active)&&await phone.locator('#missionDemoStart').isVisible()});uiChecks.push({id:'touch-campaign-protected',passed:JSON.stringify(beforeTouch)===JSON.stringify(await storage(phone))});await phone.waitForLoadState('networkidle');await Promise.all(bodyJobs);await touch.close();\n}\nawait Promise.all(bodyJobs);const harnessStable=harnessBytes.equals(await fs.readFile(__filename));const sourceHashesAfter=await hashes(),sourceMismatches=executedHTTP.filter(row=>sourceHashes[row.file]!==row.sha256),sourceStable=JSON.stringify(sourceHashes)===JSON.stringify(sourceHashesAfter)&&!sourceMismatches.length&&!readFailures.length&&harnessStable,covered=new Set(reports.map(r=>r.id));\nconst checks=[...uiChecks,{id:'all-twelve-registered-missions',passed:required.every(id=>covered.has(id))&&covered.size===12},{id:'stable-integrated-source',passed:sourceStable},{id:'unchanged-executed-harness',passed:harnessStable},{id:'no-browser-errors',passed:errors.length===0},{id:'no-missing-resources',passed:missing.length===0},...reports.map(r=>({id:'actual-objectives-'+r.id,passed:r.passed===true&&r.obj.every(o=>o[2]===true)})),...reports.map(r=>({id:'campaign-protected-'+r.id,passed:r.storageUnchanged===true}))];\nconst evidence={passed:checks.every(c=>c.passed),scope:'Actual original game update/physics/weapon/objective code; CPU fast-forward with ordinary HUD state refresh, no position/HP/outcome injection. Chromium initialization uses real WebGL2; any separately counted final screenshots also use that renderer; native desktop and touch-emulated UI controls are checked. Additional storage checks exercise a completed POW save and the actual Willard retry button, then explicitly invoke a failed retry debrief to verify isolation; that is not an additional mission success. Mission 11 receives up to 3,600 seconds of original update calls (360 batches) to allow a real offshore landing to reach capture and complete the camp and river route; other missions retain 1,800 seconds (180 batches). Not actual iPhone Safari, hardware FPS, or a full-speed screen recording.',verificationBudget:{m11:{batches:360,updateSeconds:3600},otherMissions:{batches:180,updateSeconds:1800},stepsPerBatch:300,stepSeconds:1/30,basis:'The preserved 2200-second m11 proof physically reached custody, escaped the camp and continued downstream to 68,482m; the longer bound allows that progressing original route to finish.',previousHarnessSHA256:'869a08ef66c2a9dd8be1dc41a88d1d15924eefa88fa818f39ccef3f9d296dfd5'},begunAt,completedAt:new Date().toISOString(),renderedFinalScreenshots:rendered,harnessStable,harness:{file:__filename,sha256:harnessSHA256,source:harnessBytes.toString('utf8')},checks,sourceStable,sourceHashes,sourceHashesAfter,executedHTTP,sourceMismatches,readFailures,errors,missing,reports:reports.map(({firstApproach,firstDeath,debrief,modal,powInput,evade,...row})=>({...row,diagnostic:output+'/'+row.id+'-result.json',firstDeath:firstDeath?{reason:firstDeath.reason,state:firstDeath.state}:null}))};\nawait fs.writeFile(output+'/results.json',JSON.stringify(evidence,null,2)+'\\n');\nconst filename=required.every(id=>covered.has(id))?'native-all-missions.json':'native-partial-'+reports.map(r=>r.id).join('-')+'.json';await fs.writeFile(output+'/'+filename,JSON.stringify(evidence,null,2)+'\\n');\nconsole.log('EVIDENCE',filename,evidence.passed);process.exitCode=evidence.passed?0:1;\n}finally{await browser?.close();await new Promise(r=>server.close(r));}})().catch(e=>{console.error(e.stack);process.exitCode=1});\n"
+  },
+  "checks": [
+    {
+      "id": "all-twelve-demo-choices",
+      "passed": true
+    },
+    {
+      "id": "explanations-close-and-reopen",
+      "passed": false
+    },
+    {
+      "id": "pause-freezes-original-game",
+      "passed": true
+    },
+    {
+      "id": "take-controls-releases-computer",
+      "passed": true
+    },
+    {
+      "id": "resume-computer-controls",
+      "passed": true
+    },
+    {
+      "id": "native-completed-pow-save-keeps-campaign",
+      "passed": true
+    },
+    {
+      "id": "native-completed-willard-retry-remains-practice",
+      "passed": true
+    },
+    {
+      "id": "native-retried-original-debrief-keeps-campaign",
+      "passed": true
+    },
+    {
+      "id": "touch-all-twelve-demo-choices",
+      "passed": true
+    },
+    {
+      "id": "touch-explanations-close-and-reopen",
+      "passed": false
+    },
+    {
+      "id": "touch-pause-freezes-original-game",
+      "passed": true
+    },
+    {
+      "id": "touch-take-controls-releases-computer",
+      "passed": true
+    },
+    {
+      "id": "touch-resume-computer-controls",
+      "passed": true
+    },
+    {
+      "id": "touch-stop-returns-to-chooser",
+      "passed": true
+    },
+    {
+      "id": "touch-campaign-protected",
+      "passed": true
+    },
+    {
+      "id": "all-twelve-registered-missions",
+      "passed": true
+    },
+    {
+      "id": "stable-integrated-source",
+      "passed": true
+    },
+    {
+      "id": "unchanged-executed-harness",
+      "passed": true
+    },
+    {
+      "id": "no-browser-errors",
+      "passed": true
+    },
+    {
+      "id": "no-missing-resources",
+      "passed": true
+    },
+    {
+      "id": "actual-objectives-m1",
+      "passed": true
+    },
+    {
+      "id": "actual-objectives-m2",
+      "passed": true
+    },
+    {
+      "id": "actual-objectives-m3",
+      "passed": true
+    },
+    {
+      "id": "actual-objectives-m4",
+      "passed": true
+    },
+    {
+      "id": "actual-objectives-m5",
+      "passed": true
+    },
+    {
+      "id": "actual-objectives-m6",
+      "passed": true
+    },
+    {
+      "id": "actual-objectives-m7",
+      "passed": true
+    },
+    {
+      "id": "actual-objectives-m8",
+      "passed": true
+    },
+    {
+      "id": "actual-objectives-m9",
+      "passed": true
+    },
+    {
+      "id": "actual-objectives-m10",
+      "passed": true
+    },
+    {
+      "id": "actual-objectives-m11",
+      "passed": true
+    },
+    {
+      "id": "actual-objectives-willard",
+      "passed": true
+    },
+    {
+      "id": "campaign-protected-m1",
+      "passed": true
+    },
+    {
+      "id": "campaign-protected-m2",
+      "passed": true
+    },
+    {
+      "id": "campaign-protected-m3",
+      "passed": true
+    },
+    {
+      "id": "campaign-protected-m4",
+      "passed": true
+    },
+    {
+      "id": "campaign-protected-m5",
+      "passed": true
+    },
+    {
+      "id": "campaign-protected-m6",
+      "passed": true
+    },
+    {
+      "id": "campaign-protected-m7",
+      "passed": true
+    },
+    {
+      "id": "campaign-protected-m8",
+      "passed": true
+    },
+    {
+      "id": "campaign-protected-m9",
+      "passed": true
+    },
+    {
+      "id": "campaign-protected-m10",
+      "passed": true
+    },
+    {
+      "id": "campaign-protected-m11",
+      "passed": true
+    },
+    {
+      "id": "campaign-protected-willard",
+      "passed": true
+    }
+  ],
+  "sourceStable": true,
+  "sourceHashes": {
+    "assets/atlas-metadata.js": "042cc37786069adb0b58de7b17ba499ee8c0c2b93da0864288c4d184917e62d0",
+    "assets/atlas_manifest.json": "498deb24da5e88b5dd0bb34810898902bf655011ff8a93da1abe9af6db311c4e",
+    "assets/audio/crew-personality.js": "3cc3b1f6e2d74cc0d5a01af4b7ced45a88bb6b2a80d90ba10c593047ab91e820",
+    "assets/audio/voice-profiles.js": "efd44ff2256a8eb2ebede4d7490cd79bfa589828cb8c04ba1f2ca5af2b028c86",
+    "assets/carrier/hires/manifest.json": "8bcdf04bdb266bfa169af08f7773644aac883a7eaa381c97ac7fe70d58690c80",
+    "assets/carrier/hires/provenance.json": "6860d19cf6a1face963afce20951022387aa1e7cb4319ed4d0bbc9dd9e28db53",
+    "assets/firstperson/held-provenance-v1.json": "fe08f1f5a8891f9ab79a0ba71b24e5798e36bc45f95dcb8bf54282f5fc5636cc",
+    "assets/firstperson/held-provenance.json": "023f3124cb7197315f0e2c75fc0f312b75dc4e6a105e1a3fe7fedad0a1807220",
+    "assets/firstperson/punch-provenance-v1.json": "8c9c7d855b0dc2093e2ea21695092bd5fbea1eb31338d0fa4d87251f5735170b",
+    "assets/firstperson/punch-provenance.json": "5f8ef95d972dc91b4d07159f157fff8b376a7218d76271e25122b6aa587cfe3d",
+    "assets/flight/aircraft-detail.js": "5d3f7d2ff0b06ec1892d2af34049c7d22d46f78d08fd41f10e1284a85d5a719f",
+    "assets/flight/airframe-feedback.css": "3dc93c21f51a00943e5ea8e57d8787305cd5befdabb5b8f008309ad81179319f",
+    "assets/flight/airframe-feedback.js": "12ea94aee34381aef92f76dcdce86277cafd0a6dcad41763fd69bc7d608f7ff4",
+    "assets/flight/carrier-launch.js": "22edde86d396a6cfdb51082f0de430b4e5e3e2abb1204cc99b58f88274e161db",
+    "assets/flight/coach.js": "1b15658e48a2c01834585e8affc7aa6231f9af163832e77eee9d348befb5ab3b",
+    "assets/flight/immersion.css": "3c679a107cff030e627d60b10fce7af0e1de2064d72e0a9d4cab63b6f9757da6",
+    "assets/flight/immersion.js": "d0cd11bae2f9566aebcf08d7041ce7c335521d4149239c0fdb2327a7a08714f2",
+    "assets/flight/mission-demo.js": "8270b1360fac1364b1edab87b47375d9d61ff157435053f81dce2c0bb11cac17",
+    "assets/flight/route-scene.js": "0582c35231b6d490f6f3d6983ab4e710a7bb215ada0b3f03db1c18aac72b9169",
+    "assets/flight/sortie-checkpoint.js": "ed4af46b23268672454a1a99ae3d6b42281f6a4196f046e271fff0da85c32646",
+    "assets/flight/strike-board.css": "7c88726077eacb5468cd326f8c38d5ca4dcd351965fb93c623b0243c1a5f524a",
+    "assets/flight/strike-board.js": "102742e67d5e86271ee3a04db2d4cea7ab026c7c4282a7aac140d94ff8c91f68",
+    "assets/flight/strike-checkpoint.js": "9ac145ed9f1fcbc271013db170a1aa30b8f844c343b70fd61a29b846e2b183d7",
+    "assets/flight/strike-crew.css": "69d6d5ed33cf61c8692e5e4fe6e7f24ab62cac3c64c779345a3a78ae18edf931",
+    "assets/flight/strike-crew.js": "e3e5bda49f30933d7c5f14585aa0a6bfab104018f29bab7ba836493dea0fcf43",
+    "assets/flight/strike-effects.js": "e75c82e73725cd38b3f5591afd45c2647ebd26b6bf1c0df9ee6022c023d70848",
+    "assets/flight/strike-experience.css": "e59a8a9ec472d255d9cc740fdfb3d78af4d6fa090a724453414cfeaf290e481c",
+    "assets/flight/strike-experience.js": "f37815904bfa3ef66f22841c5ae8d3b14f212b32a433183b28a87ccf38291c6d",
+    "assets/flight/strike-scene.js": "6149c09d810b13219fe85aa0a10eaff8a80184e50e603de093f22ede9554e262",
+    "assets/flight/tactical-approach.css": "76652f890447df9f0021ef6e0f94fd8620f51b83cf151ac34e14cc31a3c732fc",
+    "assets/flight/tactical-approach.js": "7f2191f88352bdbafc6c8a0b2e94e5c756d922bab55606da439ad15969e3c0ad",
+    "assets/flight/threat-feedback.js": "f30012e2c5e986e6450ca2805a751bd76fc1db0dfc2a0960a17e27d0010fae55",
+    "assets/flight/visual-materials.js": "f876633635ffb855d98cc74bd712d6cf559cc1178bb14fcca979d7702566cdc2",
+    "assets/history/manifest.json": "93218bd49d70261c6093621d985328128111fb9c7075b69810622d9c3fb6e436",
+    "assets/items/manifest.json": "031b636e391f894af72ab3f23764dd914a5e788878943e35353e03e491e27a47",
+    "assets/items/provenance.json": "78f0a961339f29afdeca5984ce91041d4e41645a1e696b6ea2c1413a3e03ba82",
+    "assets/jungle/components-provenance.json": "81ee507dc3db742c5993719fa6ac420ab5897bc92352d05860100e7727ee978e",
+    "assets/jungle/crown-provenance.json": "21aa897ed9662436e641e4b6c44b00058d38b81eef07b973c5669874169aefb6",
+    "assets/jungle/floor-provenance.json": "0afe10c83d8d779c770971ab1e9c3d002373a1b869840632e818082b01d331fe",
+    "assets/jungle/manifest.json": "8b0ff7e0ac5d976b6b6bb3cfcc3ec78d3f92aafde497ae72292a296f29bf4f19",
+    "assets/photos/manifest.json": "750c4a0d6224c60e6f57babd3c4c3d21de55c67f36bd5f0cb1f47afcfebbb1a8",
+    "assets/pow/ai.js": "cdbcf5d01e66c0cb026eb3272e3402831566656de9e4cbbe5e905a67c082c509",
+    "assets/pow/captivity.js": "12b8d2bd43663366c2a49c98b822a47e360740f71d754477bd9516ef7a644f8e",
+    "assets/pow/confinement-goals.css": "0cb8b2126935a37cd6c7d343c6a3ed164ba14f2ceab0b332060cc49e299dc2b3",
+    "assets/pow/confinement-goals.js": "a9956ec825a35a427b1bee91329eaa66a2b6d2636d91117f6a515c8f7fd8e48a",
+    "assets/pow/core.css": "4a54f9f9e0d50abc3757da98f05b3c742a31dcff148f07d8dba5d81176f85200",
+    "assets/pow/core.js": "b5a2fb548cc3e3587aeb5af14a5f6f17cd605f2e6bf4c0d3ec848492fcffc3e9",
+    "assets/pow/denton-flashback.js": "3a434ee002427440ed01e6ea537f0b47c61ae7147bd3ab8c0222777a20eb0a04",
+    "assets/pow/episode-actions.css": "f4a9ddb0ae1efe7a8f8572858ef90c2d4969b7c56be87f39af0c7f1edc21d517",
+    "assets/pow/episode-actions.js": "20d421977af452a7e2f6612ee99a513ce08a4057562e5321185f972b30964ec2",
+    "assets/pow/episode-audio.js": "8f68268e3090c66188aba86e8f62f291114cfb05db38e8b0ba083fc8cee8b1c7",
+    "assets/pow/episode-scene.js": "07fbf32ca52be10f60d71b4e8631cbcc84fadeaa503048ff59c04f2d3d51c38f",
+    "assets/pow/episode-shaders.js": "9a45dd52b620f9d4fe1572403f154e5033fde2d68466738be025e97a19bacb9f",
+    "assets/pow/episode-stealth.js": "8235ee978bb06afbfdc9fd1ce30eae18cbbff51a274ee8ad02c065a9d7804ce8",
+    "assets/pow/feedback.js": "0a0cf3b7cdb8814b4cc7f3509c658191d5dad4342cd085f3505a120bfc17cf01",
+    "assets/pow/figure-motion.js": "57023d4d7ba67db3c800fa04d338d005bff593940400bdc4634caff5e1ec1efb",
+    "assets/pow/history.js": "47a10f0365dedc2e1e28647e53ae1f9f339f22bf5fbf000c14872f6ff04a7543",
+    "assets/pow/memory-detail.js": "7041ec840df46c7f815dae5ef5415b224deaf6025a2fd4825b508bf758c68c09",
+    "assets/pow/mindscape.js": "6244998f4ebb3c5eb7ce8258f854159ed9a9cb8c0cf0986c75058a9b8d41b151",
+    "assets/pow/onboarding.js": "f569883eaaa3e1afe794db3528025f55757d30d82af21b977bbc4da830bbca1a",
+    "assets/pow/prison-detail.js": "261bb88079e8c18bbbb9546826484d205c9b9de97335fb2102d028c61701de08",
+    "assets/pow/prison-food.css": "feda44c174780a1ec0465e36816ec03464f3ce82504ba379f561abec2c8f9f60",
+    "assets/pow/prison-food.js": "05533c8529a90debfb440c0feb68be2fdc5765cb177d654632ac60092752fae0",
+    "assets/pow/ration-photo.js": "382169c8d5efdd76df34b10b2efc664bb66447d36f705dfbe566bfba68b1724e",
+    "assets/pow/regular-confinement.js": "88c4e0d7190d59fd28dcbb8b4af491ad2f5064de35fd6acce7a71436dffcf65c",
+    "assets/pow/river.js": "fbe091b5b04db8256f7944dd9b72d84f06645e37514b655fe4b933e8d30a97c0",
+    "assets/pow/solidarity.js": "52aac5e8e3e96e552a585cce9b2aacf24709ab72e41d72e8b11b06e2d4d08fae",
+    "assets/prison/manifest.json": "8781daeacd47899474aabed7042eff9c25513a18106b64633dab086af36db0d4",
+    "assets/prison/provenance.json": "ac820f2e079c91e2cf99ea0de93058ee72278dcddca07ba644daeb4400f13b23",
+    "assets/processed/manifest.json": "c4cb27f5b5a855718e6455e6cd50f37753864e1fc9eaeb3ea6d9b47eb4c49c50",
+    "assets/render/coastal-scenery.js": "c786db647ba3d463b7fb350157a96c5b51bee7acd37347ad42c8f0ff2e89b4fb",
+    "assets/render/contact-shadows.js": "d6c1aa01dd809e6c240673e270a8731a26dc287bb36408adf549a7e5549f2364",
+    "assets/render/ground-items-render.js": "cc3f8044e93eca7acdf2d74c5704d74c5d0d934d0b044e97210fc3b1b470c08f",
+    "assets/render/jungle-scenery.js": "d9fc1254ffea210426127aff283a82240404ce62ef0179f3cb22515d9d550927",
+    "assets/render/near-ground.js": "4027ebe7fbff9abc5149cdcbc53230c13d79365f46873035a3be072a0bab049d",
+    "assets/render/photo-cutouts.js": "2e56a9923c45f1f15356603d1356576de5b303e70ba22bc85217615b60e68778",
+    "assets/render/photo-motion.js": "2d1aa85f076ac19fdf07cc17812312e1bc2a3ea22f7bf6e3ffb3a1c8b87531b1",
+    "assets/render/photographic-sprites.js": "ffd2a250bea9c022f5c5ef6526e3503cb67755049cde8b71627cbcd981af1697",
+    "assets/render/quality-policy.js": "0082327576dfad84fbb872adafc77bc40bb0d6a21dc97fe02f0f984ed0110316",
+    "assets/render/sprite-layers.js": "27492afd7aa06f6ddac03f2f058a7c03097e11cdb64f6abec52c88a0b00ce8aa",
+    "assets/render/terrain-shadows.js": "930e1bff5aee655c042259f78362902b1d53dc6e60adc0b31c9d18d48917e8a2",
+    "assets/render/village-detail.js": "83bff38d06bccd99e3ea13d5e4f35571414c8fcf7523940db3eefe906a802220",
+    "assets/render/visual-clarity.js": "4d0d48db6ca635b31373f81ddfb09478786c0203cfa49b34a0f62ef72386250a",
+    "assets/render/wildlife-render.js": "f855492d19f8c811fc669152b50bddb740b036d874a3db54618ecf8d814ad7e5",
+    "assets/sprites/atlas-metadata.js": "eeed898fc5a3afaca3af6191199e110d3b47a6577a296d8fa52ee215a01ed5d7",
+    "assets/sprites/hires/manifest.json": "767726986f513ebf43de3e03fb017d76656d0c61a5fcc60174cc64482b8369ab",
+    "assets/sprites/hires/motion-provenance.json": "6bcc7bb5f1c8286e1398660953331acfecbde60f6d5fcc2883b97f4574dbf497",
+    "assets/sprites/hires/provenance.json": "b6306266d4f31cbd5aa99a1744e480d38ec37a1349e76131a685c793fdf3e607",
+    "assets/sprites/hires/swim-provenance.json": "a51d6c318d1eabcc7c2495a05ab7b393dd2f977e6dd64e3770dd59918424d999",
+    "assets/sprites/provenance.json": "37f6432f77b3564d8932451837d9c1f52685bf986847b77b8591566ad8681216",
+    "assets/survival/ammunition.js": "c73bb800243d4125aa6bc57561a6f33531c938f1f148654f26227e8aab711dfb",
+    "assets/survival/aviator-companion.js": "ab6a54f73981a78618e7e039a50043d046566806c7d009eec16875097bdf8f69",
+    "assets/survival/capture-transition.css": "f9d4766b0c884f22aca342536ad06cabd80655d3c3801030e3cf3bf9a7ae4138",
+    "assets/survival/capture-transition.js": "520c6e9dd754a245cec7ecb1bf11ec366d4441d9ef03505309025a2633896f42",
+    "assets/survival/descent-threats.js": "179a6539ec7ee32ca9c166d97b1bc7235538f4fd029399905be6ebbaa2cb92ba",
+    "assets/survival/equipment-view.js": "3bb3bd6fbec01d7d6a268c533491b682e2ace58d68411f09fab5bb4b70f1d49b",
+    "assets/survival/ground-combat.js": "fd9a50db2f16669d2e01749b21cd6209ebddf54ee3b963e76d022367e598ea00",
+    "assets/survival/ground-items.css": "dc24c4f5df94fe29600eef4d4e344076913fe6b49cddd29bd766799a2255c5bd",
+    "assets/survival/ground-items.js": "86765674a5284056972429b8bafe446b539f9aa6b01e35227b526e5d5e3db866",
+    "assets/survival/ground-view.js": "88c7fca3e91ccc87f1bff2259933425a5e70a4538048c45ad1cb8f82faa538a0",
+    "assets/survival/landing-water.js": "486fe311d20afcbcd5cc61a2b065fb42eb5cdfaa2012bfc99c41e4c9ccae0057",
+    "assets/survival/wildlife-targeting.js": "d6938abf70372e8f037277a61139f104ae5a48fcf9e8a4b60797233b62e438d7",
+    "assets/survival/wildlife.js": "4b510b91ae6dead26ac777791a7ce93604bf03003530638d05654e0b9f7dd4ba",
+    "assets/ui/hud-layout.css": "d1cceafc01a55e25578629f36da6d3c9cbb6b13529e75d776ebac238c596c2fb",
+    "assets/ui/hud-layout.js": "6495e4fe686b36f47701f6f3fcf3d0742617008565d2037d3775351e56084e86",
+    "assets/wildlife/hires/encoding-provenance.json": "4540352e12459b369592cea9bbd6684b4c386099493b5e3fc5acec0bafdbd2c2",
+    "assets/wildlife/hires/manifest.json": "0d5a5968a839dc8615d92b12458665092e4f2d55a62d7744a47c79e515211955",
+    "assets/wildlife/hires/provenance.json": "e5fb9acc28512f33338b97e8c011bafe47c738b5e0f200b23e09226512b04417",
+    "assets/willard/flak.js": "fa7e371488953904251da7b41b93bb7a2060e4d654f49d91659b2d0b6c7a41e8",
+    "assets/willard/interceptor.js": "6980e53f5eb1e15089b3b1bd5707f6fc2706859624b23438f6b08546c6bb1395",
+    "assets/willard/media/MiG17PF_Willard_Egress_ATLAS.json": "0d87d3669ff2a85757e73f02ebdc947fe68439da08bf0f4497a3b83849606a49",
+    "assets/willard/mission.js": "7e2df552017674b8c99f20f2c2da31c61d7d2a0fa24960512d548912c9602a1a",
+    "assets/willard/presentation.css": "4309231f9379836f1034b5f90849640a58860728016665aab99de8ca1e29ecb2",
+    "assets/willard/presentation.js": "075daa060b0b8b27793c25d63b46e6d869dc633fb1579a07dbeb4a316429c54b",
+    "assets/willard/sprites.js": "b0a253e4650868f0c2ce636ff160f97e895a4839253f5ab759b5fe52d5f2f7a6",
+    "index.html": "c40e797f6c88f8de244a74d9336080ef5307c17d10aaf9455e2f5f1fc0e113ce"
+  },
+  "sourceHashesAfter": {
+    "assets/atlas-metadata.js": "042cc37786069adb0b58de7b17ba499ee8c0c2b93da0864288c4d184917e62d0",
+    "assets/atlas_manifest.json": "498deb24da5e88b5dd0bb34810898902bf655011ff8a93da1abe9af6db311c4e",
+    "assets/audio/crew-personality.js": "3cc3b1f6e2d74cc0d5a01af4b7ced45a88bb6b2a80d90ba10c593047ab91e820",
+    "assets/audio/voice-profiles.js": "efd44ff2256a8eb2ebede4d7490cd79bfa589828cb8c04ba1f2ca5af2b028c86",
+    "assets/carrier/hires/manifest.json": "8bcdf04bdb266bfa169af08f7773644aac883a7eaa381c97ac7fe70d58690c80",
+    "assets/carrier/hires/provenance.json": "6860d19cf6a1face963afce20951022387aa1e7cb4319ed4d0bbc9dd9e28db53",
+    "assets/firstperson/held-provenance-v1.json": "fe08f1f5a8891f9ab79a0ba71b24e5798e36bc45f95dcb8bf54282f5fc5636cc",
+    "assets/firstperson/held-provenance.json": "023f3124cb7197315f0e2c75fc0f312b75dc4e6a105e1a3fe7fedad0a1807220",
+    "assets/firstperson/punch-provenance-v1.json": "8c9c7d855b0dc2093e2ea21695092bd5fbea1eb31338d0fa4d87251f5735170b",
+    "assets/firstperson/punch-provenance.json": "5f8ef95d972dc91b4d07159f157fff8b376a7218d76271e25122b6aa587cfe3d",
+    "assets/flight/aircraft-detail.js": "5d3f7d2ff0b06ec1892d2af34049c7d22d46f78d08fd41f10e1284a85d5a719f",
+    "assets/flight/airframe-feedback.css": "3dc93c21f51a00943e5ea8e57d8787305cd5befdabb5b8f008309ad81179319f",
+    "assets/flight/airframe-feedback.js": "12ea94aee34381aef92f76dcdce86277cafd0a6dcad41763fd69bc7d608f7ff4",
+    "assets/flight/carrier-launch.js": "22edde86d396a6cfdb51082f0de430b4e5e3e2abb1204cc99b58f88274e161db",
+    "assets/flight/coach.js": "1b15658e48a2c01834585e8affc7aa6231f9af163832e77eee9d348befb5ab3b",
+    "assets/flight/immersion.css": "3c679a107cff030e627d60b10fce7af0e1de2064d72e0a9d4cab63b6f9757da6",
+    "assets/flight/immersion.js": "d0cd11bae2f9566aebcf08d7041ce7c335521d4149239c0fdb2327a7a08714f2",
+    "assets/flight/mission-demo.js": "8270b1360fac1364b1edab87b47375d9d61ff157435053f81dce2c0bb11cac17",
+    "assets/flight/route-scene.js": "0582c35231b6d490f6f3d6983ab4e710a7bb215ada0b3f03db1c18aac72b9169",
+    "assets/flight/sortie-checkpoint.js": "ed4af46b23268672454a1a99ae3d6b42281f6a4196f046e271fff0da85c32646",
+    "assets/flight/strike-board.css": "7c88726077eacb5468cd326f8c38d5ca4dcd351965fb93c623b0243c1a5f524a",
+    "assets/flight/strike-board.js": "102742e67d5e86271ee3a04db2d4cea7ab026c7c4282a7aac140d94ff8c91f68",
+    "assets/flight/strike-checkpoint.js": "9ac145ed9f1fcbc271013db170a1aa30b8f844c343b70fd61a29b846e2b183d7",
+    "assets/flight/strike-crew.css": "69d6d5ed33cf61c8692e5e4fe6e7f24ab62cac3c64c779345a3a78ae18edf931",
+    "assets/flight/strike-crew.js": "e3e5bda49f30933d7c5f14585aa0a6bfab104018f29bab7ba836493dea0fcf43",
+    "assets/flight/strike-effects.js": "e75c82e73725cd38b3f5591afd45c2647ebd26b6bf1c0df9ee6022c023d70848",
+    "assets/flight/strike-experience.css": "e59a8a9ec472d255d9cc740fdfb3d78af4d6fa090a724453414cfeaf290e481c",
+    "assets/flight/strike-experience.js": "f37815904bfa3ef66f22841c5ae8d3b14f212b32a433183b28a87ccf38291c6d",
+    "assets/flight/strike-scene.js": "6149c09d810b13219fe85aa0a10eaff8a80184e50e603de093f22ede9554e262",
+    "assets/flight/tactical-approach.css": "76652f890447df9f0021ef6e0f94fd8620f51b83cf151ac34e14cc31a3c732fc",
+    "assets/flight/tactical-approach.js": "7f2191f88352bdbafc6c8a0b2e94e5c756d922bab55606da439ad15969e3c0ad",
+    "assets/flight/threat-feedback.js": "f30012e2c5e986e6450ca2805a751bd76fc1db0dfc2a0960a17e27d0010fae55",
+    "assets/flight/visual-materials.js": "f876633635ffb855d98cc74bd712d6cf559cc1178bb14fcca979d7702566cdc2",
+    "assets/history/manifest.json": "93218bd49d70261c6093621d985328128111fb9c7075b69810622d9c3fb6e436",
+    "assets/items/manifest.json": "031b636e391f894af72ab3f23764dd914a5e788878943e35353e03e491e27a47",
+    "assets/items/provenance.json": "78f0a961339f29afdeca5984ce91041d4e41645a1e696b6ea2c1413a3e03ba82",
+    "assets/jungle/components-provenance.json": "81ee507dc3db742c5993719fa6ac420ab5897bc92352d05860100e7727ee978e",
+    "assets/jungle/crown-provenance.json": "21aa897ed9662436e641e4b6c44b00058d38b81eef07b973c5669874169aefb6",
+    "assets/jungle/floor-provenance.json": "0afe10c83d8d779c770971ab1e9c3d002373a1b869840632e818082b01d331fe",
+    "assets/jungle/manifest.json": "8b0ff7e0ac5d976b6b6bb3cfcc3ec78d3f92aafde497ae72292a296f29bf4f19",
+    "assets/photos/manifest.json": "750c4a0d6224c60e6f57babd3c4c3d21de55c67f36bd5f0cb1f47afcfebbb1a8",
+    "assets/pow/ai.js": "cdbcf5d01e66c0cb026eb3272e3402831566656de9e4cbbe5e905a67c082c509",
+    "assets/pow/captivity.js": "12b8d2bd43663366c2a49c98b822a47e360740f71d754477bd9516ef7a644f8e",
+    "assets/pow/confinement-goals.css": "0cb8b2126935a37cd6c7d343c6a3ed164ba14f2ceab0b332060cc49e299dc2b3",
+    "assets/pow/confinement-goals.js": "a9956ec825a35a427b1bee91329eaa66a2b6d2636d91117f6a515c8f7fd8e48a",
+    "assets/pow/core.css": "4a54f9f9e0d50abc3757da98f05b3c742a31dcff148f07d8dba5d81176f85200",
+    "assets/pow/core.js": "b5a2fb548cc3e3587aeb5af14a5f6f17cd605f2e6bf4c0d3ec848492fcffc3e9",
+    "assets/pow/denton-flashback.js": "3a434ee002427440ed01e6ea537f0b47c61ae7147bd3ab8c0222777a20eb0a04",
+    "assets/pow/episode-actions.css": "f4a9ddb0ae1efe7a8f8572858ef90c2d4969b7c56be87f39af0c7f1edc21d517",
+    "assets/pow/episode-actions.js": "20d421977af452a7e2f6612ee99a513ce08a4057562e5321185f972b30964ec2",
+    "assets/pow/episode-audio.js": "8f68268e3090c66188aba86e8f62f291114cfb05db38e8b0ba083fc8cee8b1c7",
+    "assets/pow/episode-scene.js": "07fbf32ca52be10f60d71b4e8631cbcc84fadeaa503048ff59c04f2d3d51c38f",
+    "assets/pow/episode-shaders.js": "9a45dd52b620f9d4fe1572403f154e5033fde2d68466738be025e97a19bacb9f",
+    "assets/pow/episode-stealth.js": "8235ee978bb06afbfdc9fd1ce30eae18cbbff51a274ee8ad02c065a9d7804ce8",
+    "assets/pow/feedback.js": "0a0cf3b7cdb8814b4cc7f3509c658191d5dad4342cd085f3505a120bfc17cf01",
+    "assets/pow/figure-motion.js": "57023d4d7ba67db3c800fa04d338d005bff593940400bdc4634caff5e1ec1efb",
+    "assets/pow/history.js": "47a10f0365dedc2e1e28647e53ae1f9f339f22bf5fbf000c14872f6ff04a7543",
+    "assets/pow/memory-detail.js": "7041ec840df46c7f815dae5ef5415b224deaf6025a2fd4825b508bf758c68c09",
+    "assets/pow/mindscape.js": "6244998f4ebb3c5eb7ce8258f854159ed9a9cb8c0cf0986c75058a9b8d41b151",
+    "assets/pow/onboarding.js": "f569883eaaa3e1afe794db3528025f55757d30d82af21b977bbc4da830bbca1a",
+    "assets/pow/prison-detail.js": "261bb88079e8c18bbbb9546826484d205c9b9de97335fb2102d028c61701de08",
+    "assets/pow/prison-food.css": "feda44c174780a1ec0465e36816ec03464f3ce82504ba379f561abec2c8f9f60",
+    "assets/pow/prison-food.js": "05533c8529a90debfb440c0feb68be2fdc5765cb177d654632ac60092752fae0",
+    "assets/pow/ration-photo.js": "382169c8d5efdd76df34b10b2efc664bb66447d36f705dfbe566bfba68b1724e",
+    "assets/pow/regular-confinement.js": "88c4e0d7190d59fd28dcbb8b4af491ad2f5064de35fd6acce7a71436dffcf65c",
+    "assets/pow/river.js": "fbe091b5b04db8256f7944dd9b72d84f06645e37514b655fe4b933e8d30a97c0",
+    "assets/pow/solidarity.js": "52aac5e8e3e96e552a585cce9b2aacf24709ab72e41d72e8b11b06e2d4d08fae",
+    "assets/prison/manifest.json": "8781daeacd47899474aabed7042eff9c25513a18106b64633dab086af36db0d4",
+    "assets/prison/provenance.json": "ac820f2e079c91e2cf99ea0de93058ee72278dcddca07ba644daeb4400f13b23",
+    "assets/processed/manifest.json": "c4cb27f5b5a855718e6455e6cd50f37753864e1fc9eaeb3ea6d9b47eb4c49c50",
+    "assets/render/coastal-scenery.js": "c786db647ba3d463b7fb350157a96c5b51bee7acd37347ad42c8f0ff2e89b4fb",
+    "assets/render/contact-shadows.js": "d6c1aa01dd809e6c240673e270a8731a26dc287bb36408adf549a7e5549f2364",
+    "assets/render/ground-items-render.js": "cc3f8044e93eca7acdf2d74c5704d74c5d0d934d0b044e97210fc3b1b470c08f",
+    "assets/render/jungle-scenery.js": "d9fc1254ffea210426127aff283a82240404ce62ef0179f3cb22515d9d550927",
+    "assets/render/near-ground.js": "4027ebe7fbff9abc5149cdcbc53230c13d79365f46873035a3be072a0bab049d",
+    "assets/render/photo-cutouts.js": "2e56a9923c45f1f15356603d1356576de5b303e70ba22bc85217615b60e68778",
+    "assets/render/photo-motion.js": "2d1aa85f076ac19fdf07cc17812312e1bc2a3ea22f7bf6e3ffb3a1c8b87531b1",
+    "assets/render/photographic-sprites.js": "ffd2a250bea9c022f5c5ef6526e3503cb67755049cde8b71627cbcd981af1697",
+    "assets/render/quality-policy.js": "0082327576dfad84fbb872adafc77bc40bb0d6a21dc97fe02f0f984ed0110316",
+    "assets/render/sprite-layers.js": "27492afd7aa06f6ddac03f2f058a7c03097e11cdb64f6abec52c88a0b00ce8aa",
+    "assets/render/terrain-shadows.js": "930e1bff5aee655c042259f78362902b1d53dc6e60adc0b31c9d18d48917e8a2",
+    "assets/render/village-detail.js": "83bff38d06bccd99e3ea13d5e4f35571414c8fcf7523940db3eefe906a802220",
+    "assets/render/visual-clarity.js": "4d0d48db6ca635b31373f81ddfb09478786c0203cfa49b34a0f62ef72386250a",
+    "assets/render/wildlife-render.js": "f855492d19f8c811fc669152b50bddb740b036d874a3db54618ecf8d814ad7e5",
+    "assets/sprites/atlas-metadata.js": "eeed898fc5a3afaca3af6191199e110d3b47a6577a296d8fa52ee215a01ed5d7",
+    "assets/sprites/hires/manifest.json": "767726986f513ebf43de3e03fb017d76656d0c61a5fcc60174cc64482b8369ab",
+    "assets/sprites/hires/motion-provenance.json": "6bcc7bb5f1c8286e1398660953331acfecbde60f6d5fcc2883b97f4574dbf497",
+    "assets/sprites/hires/provenance.json": "b6306266d4f31cbd5aa99a1744e480d38ec37a1349e76131a685c793fdf3e607",
+    "assets/sprites/hires/swim-provenance.json": "a51d6c318d1eabcc7c2495a05ab7b393dd2f977e6dd64e3770dd59918424d999",
+    "assets/sprites/provenance.json": "37f6432f77b3564d8932451837d9c1f52685bf986847b77b8591566ad8681216",
+    "assets/survival/ammunition.js": "c73bb800243d4125aa6bc57561a6f33531c938f1f148654f26227e8aab711dfb",
+    "assets/survival/aviator-companion.js": "ab6a54f73981a78618e7e039a50043d046566806c7d009eec16875097bdf8f69",
+    "assets/survival/capture-transition.css": "f9d4766b0c884f22aca342536ad06cabd80655d3c3801030e3cf3bf9a7ae4138",
+    "assets/survival/capture-transition.js": "520c6e9dd754a245cec7ecb1bf11ec366d4441d9ef03505309025a2633896f42",
+    "assets/survival/descent-threats.js": "179a6539ec7ee32ca9c166d97b1bc7235538f4fd029399905be6ebbaa2cb92ba",
+    "assets/survival/equipment-view.js": "3bb3bd6fbec01d7d6a268c533491b682e2ace58d68411f09fab5bb4b70f1d49b",
+    "assets/survival/ground-combat.js": "fd9a50db2f16669d2e01749b21cd6209ebddf54ee3b963e76d022367e598ea00",
+    "assets/survival/ground-items.css": "dc24c4f5df94fe29600eef4d4e344076913fe6b49cddd29bd766799a2255c5bd",
+    "assets/survival/ground-items.js": "86765674a5284056972429b8bafe446b539f9aa6b01e35227b526e5d5e3db866",
+    "assets/survival/ground-view.js": "88c7fca3e91ccc87f1bff2259933425a5e70a4538048c45ad1cb8f82faa538a0",
+    "assets/survival/landing-water.js": "486fe311d20afcbcd5cc61a2b065fb42eb5cdfaa2012bfc99c41e4c9ccae0057",
+    "assets/survival/wildlife-targeting.js": "d6938abf70372e8f037277a61139f104ae5a48fcf9e8a4b60797233b62e438d7",
+    "assets/survival/wildlife.js": "4b510b91ae6dead26ac777791a7ce93604bf03003530638d05654e0b9f7dd4ba",
+    "assets/ui/hud-layout.css": "d1cceafc01a55e25578629f36da6d3c9cbb6b13529e75d776ebac238c596c2fb",
+    "assets/ui/hud-layout.js": "6495e4fe686b36f47701f6f3fcf3d0742617008565d2037d3775351e56084e86",
+    "assets/wildlife/hires/encoding-provenance.json": "4540352e12459b369592cea9bbd6684b4c386099493b5e3fc5acec0bafdbd2c2",
+    "assets/wildlife/hires/manifest.json": "0d5a5968a839dc8615d92b12458665092e4f2d55a62d7744a47c79e515211955",
+    "assets/wildlife/hires/provenance.json": "e5fb9acc28512f33338b97e8c011bafe47c738b5e0f200b23e09226512b04417",
+    "assets/willard/flak.js": "fa7e371488953904251da7b41b93bb7a2060e4d654f49d91659b2d0b6c7a41e8",
+    "assets/willard/interceptor.js": "6980e53f5eb1e15089b3b1bd5707f6fc2706859624b23438f6b08546c6bb1395",
+    "assets/willard/media/MiG17PF_Willard_Egress_ATLAS.json": "0d87d3669ff2a85757e73f02ebdc947fe68439da08bf0f4497a3b83849606a49",
+    "assets/willard/mission.js": "7e2df552017674b8c99f20f2c2da31c61d7d2a0fa24960512d548912c9602a1a",
+    "assets/willard/presentation.css": "4309231f9379836f1034b5f90849640a58860728016665aab99de8ca1e29ecb2",
+    "assets/willard/presentation.js": "075daa060b0b8b27793c25d63b46e6d869dc633fb1579a07dbeb4a316429c54b",
+    "assets/willard/sprites.js": "b0a253e4650868f0c2ce636ff160f97e895a4839253f5ab759b5fe52d5f2f7a6",
+    "index.html": "c40e797f6c88f8de244a74d9336080ef5307c17d10aaf9455e2f5f1fc0e113ce"
+  },
+  "executedHTTP": [
+    {
+      "profile": "desktop",
+      "file": "index.html",
+      "sha256": "c40e797f6c88f8de244a74d9336080ef5307c17d10aaf9455e2f5f1fc0e113ce"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/core.css",
+      "sha256": "4a54f9f9e0d50abc3757da98f05b3c742a31dcff148f07d8dba5d81176f85200"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/confinement-goals.css",
+      "sha256": "0cb8b2126935a37cd6c7d343c6a3ed164ba14f2ceab0b332060cc49e299dc2b3"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/ui/hud-layout.css",
+      "sha256": "d1cceafc01a55e25578629f36da6d3c9cbb6b13529e75d776ebac238c596c2fb"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/prison-food.css",
+      "sha256": "feda44c174780a1ec0465e36816ec03464f3ce82504ba379f561abec2c8f9f60"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/episode-actions.css",
+      "sha256": "f4a9ddb0ae1efe7a8f8572858ef90c2d4969b7c56be87f39af0c7f1edc21d517"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/survival/ground-items.css",
+      "sha256": "dc24c4f5df94fe29600eef4d4e344076913fe6b49cddd29bd766799a2255c5bd"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/survival/capture-transition.css",
+      "sha256": "f9d4766b0c884f22aca342536ad06cabd80655d3c3801030e3cf3bf9a7ae4138"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/willard/presentation.css",
+      "sha256": "4309231f9379836f1034b5f90849640a58860728016665aab99de8ca1e29ecb2"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/strike-board.css",
+      "sha256": "7c88726077eacb5468cd326f8c38d5ca4dcd351965fb93c623b0243c1a5f524a"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/immersion.css",
+      "sha256": "3c679a107cff030e627d60b10fce7af0e1de2064d72e0a9d4cab63b6f9757da6"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/strike-crew.css",
+      "sha256": "69d6d5ed33cf61c8692e5e4fe6e7f24ab62cac3c64c779345a3a78ae18edf931"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/strike-experience.css",
+      "sha256": "e59a8a9ec472d255d9cc740fdfb3d78af4d6fa090a724453414cfeaf290e481c"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/tactical-approach.css",
+      "sha256": "76652f890447df9f0021ef6e0f94fd8620f51b83cf151ac34e14cc31a3c732fc"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/sprites/atlas-metadata.js",
+      "sha256": "eeed898fc5a3afaca3af6191199e110d3b47a6577a296d8fa52ee215a01ed5d7"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/atlas-metadata.js",
+      "sha256": "042cc37786069adb0b58de7b17ba499ee8c0c2b93da0864288c4d184917e62d0"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/airframe-feedback.css",
+      "sha256": "3dc93c21f51a00943e5ea8e57d8787305cd5befdabb5b8f008309ad81179319f"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/survival/ammunition.js",
+      "sha256": "c73bb800243d4125aa6bc57561a6f33531c938f1f148654f26227e8aab711dfb"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/ai.js",
+      "sha256": "cdbcf5d01e66c0cb026eb3272e3402831566656de9e4cbbe5e905a67c082c509"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/river.js",
+      "sha256": "fbe091b5b04db8256f7944dd9b72d84f06645e37514b655fe4b933e8d30a97c0"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/feedback.js",
+      "sha256": "0a0cf3b7cdb8814b4cc7f3509c658191d5dad4342cd085f3505a120bfc17cf01"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/core.js",
+      "sha256": "b5a2fb548cc3e3587aeb5af14a5f6f17cd605f2e6bf4c0d3ec848492fcffc3e9"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/solidarity.js",
+      "sha256": "52aac5e8e3e96e552a585cce9b2aacf24709ab72e41d72e8b11b06e2d4d08fae"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/denton-flashback.js",
+      "sha256": "3a434ee002427440ed01e6ea537f0b47c61ae7147bd3ab8c0222777a20eb0a04"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/confinement-goals.js",
+      "sha256": "a9956ec825a35a427b1bee91329eaa66a2b6d2636d91117f6a515c8f7fd8e48a"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/captivity.js",
+      "sha256": "12b8d2bd43663366c2a49c98b822a47e360740f71d754477bd9516ef7a644f8e"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/mindscape.js",
+      "sha256": "6244998f4ebb3c5eb7ce8258f854159ed9a9cb8c0cf0986c75058a9b8d41b151"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/regular-confinement.js",
+      "sha256": "88c4e0d7190d59fd28dcbb8b4af491ad2f5064de35fd6acce7a71436dffcf65c"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/history.js",
+      "sha256": "47a10f0365dedc2e1e28647e53ae1f9f339f22bf5fbf000c14872f6ff04a7543"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/episode-shaders.js",
+      "sha256": "9a45dd52b620f9d4fe1572403f154e5033fde2d68466738be025e97a19bacb9f"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/onboarding.js",
+      "sha256": "f569883eaaa3e1afe794db3528025f55757d30d82af21b977bbc4da830bbca1a"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/episode-scene.js",
+      "sha256": "07fbf32ca52be10f60d71b4e8631cbcc84fadeaa503048ff59c04f2d3d51c38f"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/figure-motion.js",
+      "sha256": "57023d4d7ba67db3c800fa04d338d005bff593940400bdc4634caff5e1ec1efb"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/episode-stealth.js",
+      "sha256": "8235ee978bb06afbfdc9fd1ce30eae18cbbff51a274ee8ad02c065a9d7804ce8"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/memory-detail.js",
+      "sha256": "7041ec840df46c7f815dae5ef5415b224deaf6025a2fd4825b508bf758c68c09"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/prison-detail.js",
+      "sha256": "261bb88079e8c18bbbb9546826484d205c9b9de97335fb2102d028c61701de08"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/episode-audio.js",
+      "sha256": "8f68268e3090c66188aba86e8f62f291114cfb05db38e8b0ba083fc8cee8b1c7"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/episode-actions.js",
+      "sha256": "20d421977af452a7e2f6612ee99a513ce08a4057562e5321185f972b30964ec2"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/ration-photo.js",
+      "sha256": "382169c8d5efdd76df34b10b2efc664bb66447d36f705dfbe566bfba68b1724e"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/pow/prison-food.js",
+      "sha256": "05533c8529a90debfb440c0feb68be2fdc5765cb177d654632ac60092752fae0"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/coach.js",
+      "sha256": "1b15658e48a2c01834585e8affc7aa6231f9af163832e77eee9d348befb5ab3b"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/strike-board.js",
+      "sha256": "102742e67d5e86271ee3a04db2d4cea7ab026c7c4282a7aac140d94ff8c91f68"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/sortie-checkpoint.js",
+      "sha256": "ed4af46b23268672454a1a99ae3d6b42281f6a4196f046e271fff0da85c32646"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/strike-effects.js",
+      "sha256": "e75c82e73725cd38b3f5591afd45c2647ebd26b6bf1c0df9ee6022c023d70848"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/route-scene.js",
+      "sha256": "0582c35231b6d490f6f3d6983ab4e710a7bb215ada0b3f03db1c18aac72b9169"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/immersion.js",
+      "sha256": "d0cd11bae2f9566aebcf08d7041ce7c335521d4149239c0fdb2327a7a08714f2"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/strike-experience.js",
+      "sha256": "f37815904bfa3ef66f22841c5ae8d3b14f212b32a433183b28a87ccf38291c6d"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/strike-scene.js",
+      "sha256": "6149c09d810b13219fe85aa0a10eaff8a80184e50e603de093f22ede9554e262"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/strike-checkpoint.js",
+      "sha256": "9ac145ed9f1fcbc271013db170a1aa30b8f844c343b70fd61a29b846e2b183d7"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/tactical-approach.js",
+      "sha256": "7f2191f88352bdbafc6c8a0b2e94e5c756d922bab55606da439ad15969e3c0ad"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/strike-crew.js",
+      "sha256": "e3e5bda49f30933d7c5f14585aa0a6bfab104018f29bab7ba836493dea0fcf43"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/visual-materials.js",
+      "sha256": "f876633635ffb855d98cc74bd712d6cf559cc1178bb14fcca979d7702566cdc2"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/threat-feedback.js",
+      "sha256": "f30012e2c5e986e6450ca2805a751bd76fc1db0dfc2a0960a17e27d0010fae55"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/render/visual-clarity.js",
+      "sha256": "4d0d48db6ca635b31373f81ddfb09478786c0203cfa49b34a0f62ef72386250a"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/aircraft-detail.js",
+      "sha256": "5d3f7d2ff0b06ec1892d2af34049c7d22d46f78d08fd41f10e1284a85d5a719f"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/airframe-feedback.js",
+      "sha256": "12ea94aee34381aef92f76dcdce86277cafd0a6dcad41763fd69bc7d608f7ff4"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/render/sprite-layers.js",
+      "sha256": "27492afd7aa06f6ddac03f2f058a7c03097e11cdb64f6abec52c88a0b00ce8aa"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/survival/wildlife.js",
+      "sha256": "4b510b91ae6dead26ac777791a7ce93604bf03003530638d05654e0b9f7dd4ba"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/survival/wildlife-targeting.js",
+      "sha256": "d6938abf70372e8f037277a61139f104ae5a48fcf9e8a4b60797233b62e438d7"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/audio/voice-profiles.js",
+      "sha256": "efd44ff2256a8eb2ebede4d7490cd79bfa589828cb8c04ba1f2ca5af2b028c86"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/render/photo-cutouts.js",
+      "sha256": "2e56a9923c45f1f15356603d1356576de5b303e70ba22bc85217615b60e68778"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/render/photographic-sprites.js",
+      "sha256": "ffd2a250bea9c022f5c5ef6526e3503cb67755049cde8b71627cbcd981af1697"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/render/photo-motion.js",
+      "sha256": "2d1aa85f076ac19fdf07cc17812312e1bc2a3ea22f7bf6e3ffb3a1c8b87531b1"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/survival/landing-water.js",
+      "sha256": "486fe311d20afcbcd5cc61a2b065fb42eb5cdfaa2012bfc99c41e4c9ccae0057"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/survival/descent-threats.js",
+      "sha256": "179a6539ec7ee32ca9c166d97b1bc7235538f4fd029399905be6ebbaa2cb92ba"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/survival/aviator-companion.js",
+      "sha256": "ab6a54f73981a78618e7e039a50043d046566806c7d009eec16875097bdf8f69"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/audio/crew-personality.js",
+      "sha256": "3cc3b1f6e2d74cc0d5a01af4b7ced45a88bb6b2a80d90ba10c593047ab91e820"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/carrier-launch.js",
+      "sha256": "22edde86d396a6cfdb51082f0de430b4e5e3e2abb1204cc99b58f88274e161db"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/flight/mission-demo.js",
+      "sha256": "8270b1360fac1364b1edab87b47375d9d61ff157435053f81dce2c0bb11cac17"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/render/wildlife-render.js",
+      "sha256": "f855492d19f8c811fc669152b50bddb740b036d874a3db54618ecf8d814ad7e5"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/render/village-detail.js",
+      "sha256": "83bff38d06bccd99e3ea13d5e4f35571414c8fcf7523940db3eefe906a802220"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/render/contact-shadows.js",
+      "sha256": "d6c1aa01dd809e6c240673e270a8731a26dc287bb36408adf549a7e5549f2364"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/render/quality-policy.js",
+      "sha256": "0082327576dfad84fbb872adafc77bc40bb0d6a21dc97fe02f0f984ed0110316"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/render/jungle-scenery.js",
+      "sha256": "d9fc1254ffea210426127aff283a82240404ce62ef0179f3cb22515d9d550927"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/survival/ground-view.js",
+      "sha256": "88c7fca3e91ccc87f1bff2259933425a5e70a4538048c45ad1cb8f82faa538a0"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/survival/ground-combat.js",
+      "sha256": "fd9a50db2f16669d2e01749b21cd6209ebddf54ee3b963e76d022367e598ea00"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/survival/ground-items.js",
+      "sha256": "86765674a5284056972429b8bafe446b539f9aa6b01e35227b526e5d5e3db866"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/survival/capture-transition.js",
+      "sha256": "520c6e9dd754a245cec7ecb1bf11ec366d4441d9ef03505309025a2633896f42"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/render/terrain-shadows.js",
+      "sha256": "930e1bff5aee655c042259f78362902b1d53dc6e60adc0b31c9d18d48917e8a2"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/render/ground-items-render.js",
+      "sha256": "cc3f8044e93eca7acdf2d74c5704d74c5d0d934d0b044e97210fc3b1b470c08f"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/render/coastal-scenery.js",
+      "sha256": "c786db647ba3d463b7fb350157a96c5b51bee7acd37347ad42c8f0ff2e89b4fb"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/render/near-ground.js",
+      "sha256": "4027ebe7fbff9abc5149cdcbc53230c13d79365f46873035a3be072a0bab049d"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/ui/hud-layout.js",
+      "sha256": "6495e4fe686b36f47701f6f3fcf3d0742617008565d2037d3775351e56084e86"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/willard/interceptor.js",
+      "sha256": "6980e53f5eb1e15089b3b1bd5707f6fc2706859624b23438f6b08546c6bb1395"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/willard/flak.js",
+      "sha256": "fa7e371488953904251da7b41b93bb7a2060e4d654f49d91659b2d0b6c7a41e8"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/willard/sprites.js",
+      "sha256": "b0a253e4650868f0c2ce636ff160f97e895a4839253f5ab759b5fe52d5f2f7a6"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/survival/equipment-view.js",
+      "sha256": "3bb3bd6fbec01d7d6a268c533491b682e2ace58d68411f09fab5bb4b70f1d49b"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/willard/mission.js",
+      "sha256": "7e2df552017674b8c99f20f2c2da31c61d7d2a0fa24960512d548912c9602a1a"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/willard/presentation.js",
+      "sha256": "075daa060b0b8b27793c25d63b46e6d869dc633fb1579a07dbeb4a316429c54b"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/sprites/hires/manifest.json",
+      "sha256": "767726986f513ebf43de3e03fb017d76656d0c61a5fcc60174cc64482b8369ab"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/carrier/hires/manifest.json",
+      "sha256": "8bcdf04bdb266bfa169af08f7773644aac883a7eaa381c97ac7fe70d58690c80"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/jungle/manifest.json",
+      "sha256": "8b0ff7e0ac5d976b6b6bb3cfcc3ec78d3f92aafde497ae72292a296f29bf4f19"
+    },
+    {
+      "profile": "desktop",
+      "file": "assets/willard/media/MiG17PF_Willard_Egress_ATLAS.json",
+      "sha256": "0d87d3669ff2a85757e73f02ebdc947fe68439da08bf0f4497a3b83849606a49"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "index.html",
+      "sha256": "c40e797f6c88f8de244a74d9336080ef5307c17d10aaf9455e2f5f1fc0e113ce"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/core.css",
+      "sha256": "4a54f9f9e0d50abc3757da98f05b3c742a31dcff148f07d8dba5d81176f85200"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/confinement-goals.css",
+      "sha256": "0cb8b2126935a37cd6c7d343c6a3ed164ba14f2ceab0b332060cc49e299dc2b3"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/ui/hud-layout.css",
+      "sha256": "d1cceafc01a55e25578629f36da6d3c9cbb6b13529e75d776ebac238c596c2fb"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/prison-food.css",
+      "sha256": "feda44c174780a1ec0465e36816ec03464f3ce82504ba379f561abec2c8f9f60"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/episode-actions.css",
+      "sha256": "f4a9ddb0ae1efe7a8f8572858ef90c2d4969b7c56be87f39af0c7f1edc21d517"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/survival/ground-items.css",
+      "sha256": "dc24c4f5df94fe29600eef4d4e344076913fe6b49cddd29bd766799a2255c5bd"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/survival/capture-transition.css",
+      "sha256": "f9d4766b0c884f22aca342536ad06cabd80655d3c3801030e3cf3bf9a7ae4138"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/willard/presentation.css",
+      "sha256": "4309231f9379836f1034b5f90849640a58860728016665aab99de8ca1e29ecb2"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/strike-board.css",
+      "sha256": "7c88726077eacb5468cd326f8c38d5ca4dcd351965fb93c623b0243c1a5f524a"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/immersion.css",
+      "sha256": "3c679a107cff030e627d60b10fce7af0e1de2064d72e0a9d4cab63b6f9757da6"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/strike-experience.css",
+      "sha256": "e59a8a9ec472d255d9cc740fdfb3d78af4d6fa090a724453414cfeaf290e481c"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/tactical-approach.css",
+      "sha256": "76652f890447df9f0021ef6e0f94fd8620f51b83cf151ac34e14cc31a3c732fc"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/strike-crew.css",
+      "sha256": "69d6d5ed33cf61c8692e5e4fe6e7f24ab62cac3c64c779345a3a78ae18edf931"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/airframe-feedback.css",
+      "sha256": "3dc93c21f51a00943e5ea8e57d8787305cd5befdabb5b8f008309ad81179319f"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/sprites/atlas-metadata.js",
+      "sha256": "eeed898fc5a3afaca3af6191199e110d3b47a6577a296d8fa52ee215a01ed5d7"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/atlas-metadata.js",
+      "sha256": "042cc37786069adb0b58de7b17ba499ee8c0c2b93da0864288c4d184917e62d0"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/survival/ammunition.js",
+      "sha256": "c73bb800243d4125aa6bc57561a6f33531c938f1f148654f26227e8aab711dfb"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/core.js",
+      "sha256": "b5a2fb548cc3e3587aeb5af14a5f6f17cd605f2e6bf4c0d3ec848492fcffc3e9"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/ai.js",
+      "sha256": "cdbcf5d01e66c0cb026eb3272e3402831566656de9e4cbbe5e905a67c082c509"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/feedback.js",
+      "sha256": "0a0cf3b7cdb8814b4cc7f3509c658191d5dad4342cd085f3505a120bfc17cf01"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/solidarity.js",
+      "sha256": "52aac5e8e3e96e552a585cce9b2aacf24709ab72e41d72e8b11b06e2d4d08fae"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/captivity.js",
+      "sha256": "12b8d2bd43663366c2a49c98b822a47e360740f71d754477bd9516ef7a644f8e"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/river.js",
+      "sha256": "fbe091b5b04db8256f7944dd9b72d84f06645e37514b655fe4b933e8d30a97c0"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/denton-flashback.js",
+      "sha256": "3a434ee002427440ed01e6ea537f0b47c61ae7147bd3ab8c0222777a20eb0a04"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/mindscape.js",
+      "sha256": "6244998f4ebb3c5eb7ce8258f854159ed9a9cb8c0cf0986c75058a9b8d41b151"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/regular-confinement.js",
+      "sha256": "88c4e0d7190d59fd28dcbb8b4af491ad2f5064de35fd6acce7a71436dffcf65c"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/history.js",
+      "sha256": "47a10f0365dedc2e1e28647e53ae1f9f339f22bf5fbf000c14872f6ff04a7543"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/episode-shaders.js",
+      "sha256": "9a45dd52b620f9d4fe1572403f154e5033fde2d68466738be025e97a19bacb9f"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/onboarding.js",
+      "sha256": "f569883eaaa3e1afe794db3528025f55757d30d82af21b977bbc4da830bbca1a"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/confinement-goals.js",
+      "sha256": "a9956ec825a35a427b1bee91329eaa66a2b6d2636d91117f6a515c8f7fd8e48a"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/episode-stealth.js",
+      "sha256": "8235ee978bb06afbfdc9fd1ce30eae18cbbff51a274ee8ad02c065a9d7804ce8"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/episode-audio.js",
+      "sha256": "8f68268e3090c66188aba86e8f62f291114cfb05db38e8b0ba083fc8cee8b1c7"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/memory-detail.js",
+      "sha256": "7041ec840df46c7f815dae5ef5415b224deaf6025a2fd4825b508bf758c68c09"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/episode-actions.js",
+      "sha256": "20d421977af452a7e2f6612ee99a513ce08a4057562e5321185f972b30964ec2"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/episode-scene.js",
+      "sha256": "07fbf32ca52be10f60d71b4e8631cbcc84fadeaa503048ff59c04f2d3d51c38f"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/figure-motion.js",
+      "sha256": "57023d4d7ba67db3c800fa04d338d005bff593940400bdc4634caff5e1ec1efb"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/prison-detail.js",
+      "sha256": "261bb88079e8c18bbbb9546826484d205c9b9de97335fb2102d028c61701de08"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/prison-food.js",
+      "sha256": "05533c8529a90debfb440c0feb68be2fdc5765cb177d654632ac60092752fae0"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/coach.js",
+      "sha256": "1b15658e48a2c01834585e8affc7aa6231f9af163832e77eee9d348befb5ab3b"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/pow/ration-photo.js",
+      "sha256": "382169c8d5efdd76df34b10b2efc664bb66447d36f705dfbe566bfba68b1724e"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/strike-board.js",
+      "sha256": "102742e67d5e86271ee3a04db2d4cea7ab026c7c4282a7aac140d94ff8c91f68"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/strike-effects.js",
+      "sha256": "e75c82e73725cd38b3f5591afd45c2647ebd26b6bf1c0df9ee6022c023d70848"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/sortie-checkpoint.js",
+      "sha256": "ed4af46b23268672454a1a99ae3d6b42281f6a4196f046e271fff0da85c32646"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/immersion.js",
+      "sha256": "d0cd11bae2f9566aebcf08d7041ce7c335521d4149239c0fdb2327a7a08714f2"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/strike-checkpoint.js",
+      "sha256": "9ac145ed9f1fcbc271013db170a1aa30b8f844c343b70fd61a29b846e2b183d7"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/strike-experience.js",
+      "sha256": "f37815904bfa3ef66f22841c5ae8d3b14f212b32a433183b28a87ccf38291c6d"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/strike-crew.js",
+      "sha256": "e3e5bda49f30933d7c5f14585aa0a6bfab104018f29bab7ba836493dea0fcf43"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/route-scene.js",
+      "sha256": "0582c35231b6d490f6f3d6983ab4e710a7bb215ada0b3f03db1c18aac72b9169"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/strike-scene.js",
+      "sha256": "6149c09d810b13219fe85aa0a10eaff8a80184e50e603de093f22ede9554e262"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/render/visual-clarity.js",
+      "sha256": "4d0d48db6ca635b31373f81ddfb09478786c0203cfa49b34a0f62ef72386250a"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/tactical-approach.js",
+      "sha256": "7f2191f88352bdbafc6c8a0b2e94e5c756d922bab55606da439ad15969e3c0ad"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/visual-materials.js",
+      "sha256": "f876633635ffb855d98cc74bd712d6cf559cc1178bb14fcca979d7702566cdc2"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/threat-feedback.js",
+      "sha256": "f30012e2c5e986e6450ca2805a751bd76fc1db0dfc2a0960a17e27d0010fae55"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/aircraft-detail.js",
+      "sha256": "5d3f7d2ff0b06ec1892d2af34049c7d22d46f78d08fd41f10e1284a85d5a719f"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/airframe-feedback.js",
+      "sha256": "12ea94aee34381aef92f76dcdce86277cafd0a6dcad41763fd69bc7d608f7ff4"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/render/photographic-sprites.js",
+      "sha256": "ffd2a250bea9c022f5c5ef6526e3503cb67755049cde8b71627cbcd981af1697"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/survival/wildlife.js",
+      "sha256": "4b510b91ae6dead26ac777791a7ce93604bf03003530638d05654e0b9f7dd4ba"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/survival/wildlife-targeting.js",
+      "sha256": "d6938abf70372e8f037277a61139f104ae5a48fcf9e8a4b60797233b62e438d7"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/render/photo-motion.js",
+      "sha256": "2d1aa85f076ac19fdf07cc17812312e1bc2a3ea22f7bf6e3ffb3a1c8b87531b1"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/render/sprite-layers.js",
+      "sha256": "27492afd7aa06f6ddac03f2f058a7c03097e11cdb64f6abec52c88a0b00ce8aa"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/render/photo-cutouts.js",
+      "sha256": "2e56a9923c45f1f15356603d1356576de5b303e70ba22bc85217615b60e68778"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/audio/voice-profiles.js",
+      "sha256": "efd44ff2256a8eb2ebede4d7490cd79bfa589828cb8c04ba1f2ca5af2b028c86"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/audio/crew-personality.js",
+      "sha256": "3cc3b1f6e2d74cc0d5a01af4b7ced45a88bb6b2a80d90ba10c593047ab91e820"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/survival/aviator-companion.js",
+      "sha256": "ab6a54f73981a78618e7e039a50043d046566806c7d009eec16875097bdf8f69"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/survival/descent-threats.js",
+      "sha256": "179a6539ec7ee32ca9c166d97b1bc7235538f4fd029399905be6ebbaa2cb92ba"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/survival/landing-water.js",
+      "sha256": "486fe311d20afcbcd5cc61a2b065fb42eb5cdfaa2012bfc99c41e4c9ccae0057"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/carrier-launch.js",
+      "sha256": "22edde86d396a6cfdb51082f0de430b4e5e3e2abb1204cc99b58f88274e161db"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/flight/mission-demo.js",
+      "sha256": "8270b1360fac1364b1edab87b47375d9d61ff157435053f81dce2c0bb11cac17"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/render/wildlife-render.js",
+      "sha256": "f855492d19f8c811fc669152b50bddb740b036d874a3db54618ecf8d814ad7e5"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/render/contact-shadows.js",
+      "sha256": "d6c1aa01dd809e6c240673e270a8731a26dc287bb36408adf549a7e5549f2364"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/render/jungle-scenery.js",
+      "sha256": "d9fc1254ffea210426127aff283a82240404ce62ef0179f3cb22515d9d550927"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/survival/equipment-view.js",
+      "sha256": "3bb3bd6fbec01d7d6a268c533491b682e2ace58d68411f09fab5bb4b70f1d49b"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/survival/ground-view.js",
+      "sha256": "88c7fca3e91ccc87f1bff2259933425a5e70a4538048c45ad1cb8f82faa538a0"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/render/village-detail.js",
+      "sha256": "83bff38d06bccd99e3ea13d5e4f35571414c8fcf7523940db3eefe906a802220"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/render/quality-policy.js",
+      "sha256": "0082327576dfad84fbb872adafc77bc40bb0d6a21dc97fe02f0f984ed0110316"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/survival/ground-items.js",
+      "sha256": "86765674a5284056972429b8bafe446b539f9aa6b01e35227b526e5d5e3db866"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/render/near-ground.js",
+      "sha256": "4027ebe7fbff9abc5149cdcbc53230c13d79365f46873035a3be072a0bab049d"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/render/terrain-shadows.js",
+      "sha256": "930e1bff5aee655c042259f78362902b1d53dc6e60adc0b31c9d18d48917e8a2"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/survival/ground-combat.js",
+      "sha256": "fd9a50db2f16669d2e01749b21cd6209ebddf54ee3b963e76d022367e598ea00"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/render/ground-items-render.js",
+      "sha256": "cc3f8044e93eca7acdf2d74c5704d74c5d0d934d0b044e97210fc3b1b470c08f"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/survival/capture-transition.js",
+      "sha256": "520c6e9dd754a245cec7ecb1bf11ec366d4441d9ef03505309025a2633896f42"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/willard/interceptor.js",
+      "sha256": "6980e53f5eb1e15089b3b1bd5707f6fc2706859624b23438f6b08546c6bb1395"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/willard/flak.js",
+      "sha256": "fa7e371488953904251da7b41b93bb7a2060e4d654f49d91659b2d0b6c7a41e8"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/willard/sprites.js",
+      "sha256": "b0a253e4650868f0c2ce636ff160f97e895a4839253f5ab759b5fe52d5f2f7a6"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/ui/hud-layout.js",
+      "sha256": "6495e4fe686b36f47701f6f3fcf3d0742617008565d2037d3775351e56084e86"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/render/coastal-scenery.js",
+      "sha256": "c786db647ba3d463b7fb350157a96c5b51bee7acd37347ad42c8f0ff2e89b4fb"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/willard/presentation.js",
+      "sha256": "075daa060b0b8b27793c25d63b46e6d869dc633fb1579a07dbeb4a316429c54b"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/willard/mission.js",
+      "sha256": "7e2df552017674b8c99f20f2c2da31c61d7d2a0fa24960512d548912c9602a1a"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/sprites/hires/manifest.json",
+      "sha256": "767726986f513ebf43de3e03fb017d76656d0c61a5fcc60174cc64482b8369ab"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/carrier/hires/manifest.json",
+      "sha256": "8bcdf04bdb266bfa169af08f7773644aac883a7eaa381c97ac7fe70d58690c80"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "file": "assets/jungle/manifest.json",
+      "sha256": "8b0ff7e0ac5d976b6b6bb3cfcc3ec78d3f92aafde497ae72292a296f29bf4f19"
+    }
+  ],
+  "sourceMismatches": [],
+  "readFailures": [],
+  "errors": [],
+  "missing": [],
+  "reports": [
+    {
+      "id": "m1",
+      "armTrace": [],
+      "demo": {
+        "active": false,
+        "missionId": "m1",
+        "chapter": null,
+        "computerPlaying": false,
+        "paused": false,
+        "speed": 1,
+        "elapsed": 320.3500000000373,
+        "stage": "completed",
+        "stageTime": 0,
+        "pending": false,
+        "success": true,
+        "finished": true,
+        "detail": "",
+        "events": [
+          {
+            "at": 5.533333333333319,
+            "stage": "departure",
+            "detail": ""
+          },
+          {
+            "at": 42.76666666666552,
+            "stage": "home",
+            "detail": ""
+          },
+          {
+            "at": 280.2000000000738,
+            "stage": "landing",
+            "detail": ""
+          },
+          {
+            "at": 320.3500000000373,
+            "stage": "completed",
+            "detail": ""
+          }
+        ],
+        "objectives": [
+          [
+            "Get airborne",
+            "launched and recovered",
+            true
+          ],
+          [
+            "Return to the ship",
+            "in the pattern",
+            true
+          ],
+          [
+            "Arrested landing",
+            "aboard",
+            true
+          ]
+        ],
+        "outcome": {
+          "pts": 90,
+          "grade": "A",
+          "pass": true,
+          "recovered": true,
+          "escaped": false
+        },
+        "campaignIsolated": true
+      },
+      "phase": "done",
+      "t": 320.3500000000373,
+      "p": [
+        12154.452383115373,
+        20.832487575917373,
+        -0.35304683798572156
+      ],
+      "v": [
+        -12,
+        0,
+        2.204364238465236e-15
+      ],
+      "yaw": -1.404984611025098,
+      "gear": true,
+      "ias": 11.992784165410338,
+      "shipRange": 1.39283492980611,
+      "acls": false,
+      "alive": true,
+      "bombs": 0,
+      "arms": 0,
+      "designated": null,
+      "sol": null,
+      "result": {
+        "pts": 90,
+        "grade": "A",
+        "pass": true,
+        "recovered": true,
+        "escaped": false
+      },
+      "score": {
+        "hits": 0,
+        "misses": 0,
+        "cep": [],
+        "dropped": 0,
+        "killed": 0,
+        "total": 0,
+        "damage": 0,
+        "discipline": true
+      },
+      "obj": [
+        [
+          "Get airborne",
+          "launched and recovered",
+          true
+        ],
+        [
+          "Return to the ship",
+          "in the pattern",
+          true
+        ],
+        [
+          "Arrested landing",
+          "aboard",
+          true
+        ]
+      ],
+      "pow": null,
+      "willard": null,
+      "passed": true,
+      "storageUnchanged": true,
+      "diagnostic": "/workspace/cloud-environment/va-65-intruder/cockpit-focus/mission-demo/m1-result.json",
+      "firstDeath": null
+    },
+    {
+      "id": "m2",
+      "armTrace": [],
+      "demo": {
+        "active": false,
+        "missionId": "m2",
+        "chapter": null,
+        "computerPlaying": false,
+        "paused": false,
+        "speed": 1,
+        "elapsed": 659.9999999997284,
+        "stage": "completed",
+        "stageTime": 0,
+        "pending": false,
+        "success": true,
+        "finished": true,
+        "detail": "",
+        "events": [
+          {
+            "at": 5.533333333333319,
+            "stage": "navigation",
+            "detail": ""
+          },
+          {
+            "at": 51.69999999999835,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 53.733333333331565,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 67.11666666666414,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 79.6333333333301,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 131.43333333333007,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 161.51666666668734,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 174.11666666669737,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 174.13333333336405,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 260.15000000009206,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 273.066666666747,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 330.0166666666952,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 359.76666666666813,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 372.74999999998965,
+            "stage": "home",
+            "detail": ""
+          },
+          {
+            "at": 618.0666666664332,
+            "stage": "landing",
+            "detail": ""
+          },
+          {
+            "at": 659.9999999997284,
+            "stage": "completed",
+            "detail": ""
+          }
+        ],
+        "objectives": [
+          [
+            "Destroy the supply depot",
+            "3 / 5 destroyed  (3 needed)",
+            true
+          ],
+          [
+            "Return to the ship",
+            "aboard",
+            true
+          ]
+        ],
+        "outcome": {
+          "pts": 100,
+          "grade": "A",
+          "pass": true,
+          "recovered": true,
+          "escaped": false
+        },
+        "campaignIsolated": true
+      },
+      "phase": "done",
+      "t": 659.9999999997284,
+      "p": [
+        -184.7192646908677,
+        20.311459187642342,
+        -459.66605723490073
+      ],
+      "v": [
+        -12,
+        0,
+        2.204364238465236e-15
+      ],
+      "yaw": -1.4050072402458869,
+      "gear": true,
+      "ias": 12.006935832209939,
+      "shipRange": 10.834327010504389,
+      "acls": false,
+      "alive": true,
+      "bombs": 4,
+      "arms": 0,
+      "nav": 3,
+      "designated": {
+        "p": [
+          -9200.151710306507,
+          66.40460332685556,
+          -1315.2253351991951
+        ],
+        "label": "SUPPLY DEPOT",
+        "alive": false
+      },
+      "sol": {
+        "valid": false,
+        "gr": 9258.32089782931,
+        "tRel": 99,
+        "az": -0.04151613757025885
+      },
+      "result": {
+        "pts": 100,
+        "grade": "A",
+        "pass": true,
+        "recovered": true,
+        "escaped": false
+      },
+      "score": {
+        "hits": 5,
+        "misses": 3,
+        "cep": [
+          47.6867239988917,
+          54.838468506135385,
+          57.713020228089924,
+          40.701491430635365,
+          48.36527127531346,
+          44.016615744422836,
+          60.04944330999055,
+          30.625580791249998
+        ],
+        "dropped": 8,
+        "killed": 3,
+        "total": 5,
+        "damage": 0.35991246252118353,
+        "discipline": true
+      },
+      "obj": [
+        [
+          "Destroy the supply depot",
+          "3 / 5 destroyed  (3 needed)",
+          true
+        ],
+        [
+          "Return to the ship",
+          "aboard",
+          true
+        ]
+      ],
+      "pow": null,
+      "willard": null,
+      "passed": true,
+      "storageUnchanged": true,
+      "diagnostic": "/workspace/cloud-environment/va-65-intruder/cockpit-focus/mission-demo/m2-result.json",
+      "firstDeath": null
+    },
+    {
+      "id": "m3",
+      "armTrace": [],
+      "demo": {
+        "active": false,
+        "missionId": "m3",
+        "chapter": null,
+        "computerPlaying": false,
+        "paused": false,
+        "speed": 1,
+        "elapsed": 469.9999999999012,
+        "stage": "completed",
+        "stageTime": 0,
+        "pending": false,
+        "success": true,
+        "finished": true,
+        "detail": "",
+        "events": [
+          {
+            "at": 5.533333333333319,
+            "stage": "navigation",
+            "detail": ""
+          },
+          {
+            "at": 53.83333333333156,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 55.86666666666478,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 67.01666666666415,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 79.33333333333012,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 133.13333333333142,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 163.60000000002233,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 175.9166666666988,
+            "stage": "home",
+            "detail": ""
+          },
+          {
+            "at": 434.0499999999339,
+            "stage": "landing",
+            "detail": ""
+          },
+          {
+            "at": 469.9999999999012,
+            "stage": "completed",
+            "detail": ""
+          }
+        ],
+        "objectives": [
+          [
+            "Destroy the highway bridge",
+            "1 / 1 destroyed",
+            true
+          ],
+          [
+            "Return to the ship",
+            "aboard",
+            true
+          ]
+        ],
+        "outcome": {
+          "pts": 100,
+          "grade": "A",
+          "pass": true,
+          "recovered": true,
+          "escaped": false
+        },
+        "campaignIsolated": true
+      },
+      "phase": "done",
+      "t": 469.9999999999012,
+      "p": [
+        3320.4359893781684,
+        20.864859128474258,
+        -609.028671706142
+      ],
+      "v": [
+        -12,
+        0,
+        2.204364238465236e-15
+      ],
+      "yaw": -1.4050347299021393,
+      "gear": true,
+      "ias": 11.987678318311204,
+      "shipRange": 10.453680854883045,
+      "acls": false,
+      "alive": true,
+      "bombs": 10,
+      "arms": 0,
+      "nav": 3,
+      "designated": {
+        "p": [
+          -7986.722595157702,
+          91.76146015816724,
+          -2075.090538932384
+        ],
+        "label": "BRIDGE",
+        "alive": false
+      },
+      "sol": {
+        "valid": false,
+        "gr": 11585.607445015961,
+        "tRel": 99,
+        "az": -0.006309765616174801
+      },
+      "result": {
+        "pts": 100,
+        "grade": "A",
+        "pass": true,
+        "recovered": true,
+        "escaped": false
+      },
+      "score": {
+        "hits": 3,
+        "misses": 1,
+        "cep": [
+          25.860650062826824,
+          33.70484952530813,
+          1.54196194980265,
+          31.946945247788545
+        ],
+        "dropped": 4,
+        "killed": 1,
+        "total": 1,
+        "damage": 0.25497033229882526,
+        "discipline": true
+      },
+      "obj": [
+        [
+          "Destroy the highway bridge",
+          "1 / 1 destroyed",
+          true
+        ],
+        [
+          "Return to the ship",
+          "aboard",
+          true
+        ]
+      ],
+      "pow": null,
+      "willard": null,
+      "passed": true,
+      "storageUnchanged": true,
+      "diagnostic": "/workspace/cloud-environment/va-65-intruder/cockpit-focus/mission-demo/m3-result.json",
+      "firstDeath": null
+    },
+    {
+      "id": "m4",
+      "armTrace": [],
+      "demo": {
+        "active": false,
+        "missionId": "m4",
+        "chapter": null,
+        "computerPlaying": false,
+        "paused": false,
+        "speed": 1,
+        "elapsed": 549.9999999998284,
+        "stage": "completed",
+        "stageTime": 0,
+        "pending": false,
+        "success": true,
+        "finished": true,
+        "detail": "",
+        "events": [
+          {
+            "at": 5.533333333333319,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 9.583333333333389,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 105.04999999999532,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 117.24999999999463,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 169.4333333333603,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 199.48333333338422,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 211.7166666667273,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 273.016666666747,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 305.5833333333841,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 317.80000000003963,
+            "stage": "home",
+            "detail": ""
+          },
+          {
+            "at": 508.0166666665333,
+            "stage": "landing",
+            "detail": ""
+          },
+          {
+            "at": 549.9999999998284,
+            "stage": "completed",
+            "detail": ""
+          }
+        ],
+        "objectives": [
+          [
+            "Sink the patrol craft",
+            "2 / 3 destroyed  (2 needed)",
+            true
+          ],
+          [
+            "Return to the ship",
+            "aboard",
+            true
+          ]
+        ],
+        "outcome": {
+          "pts": 100,
+          "grade": "A",
+          "pass": true,
+          "recovered": true,
+          "escaped": false
+        },
+        "campaignIsolated": true
+      },
+      "phase": "done",
+      "t": 549.9999999998284,
+      "p": [
+        3734.2036026504466,
+        21.582862262761275,
+        42.17714386937433
+      ],
+      "v": [
+        -12,
+        0,
+        2.204364238465236e-15
+      ],
+      "yaw": -1.4050504552531384,
+      "gear": true,
+      "ias": 12.008745115580103,
+      "shipRange": 11.206485183353523,
+      "acls": false,
+      "alive": true,
+      "bombs": 7,
+      "arms": 0,
+      "nav": 0,
+      "designated": {
+        "p": [
+          7104.37809755096,
+          0,
+          335.65220797155155
+        ],
+        "label": "PATROL CRAFT",
+        "alive": false
+      },
+      "sol": {
+        "valid": false,
+        "gr": 2288.9799343849627,
+        "tRel": 108.52701984518426,
+        "az": 2.933573851534099
+      },
+      "result": {
+        "pts": 100,
+        "grade": "A",
+        "pass": true,
+        "recovered": true,
+        "escaped": false
+      },
+      "score": {
+        "hits": 3,
+        "misses": 0,
+        "cep": [
+          31.45489165346421,
+          8.622615860288084,
+          7.619430102926328
+        ],
+        "dropped": 3,
+        "killed": 2,
+        "total": 3,
+        "damage": 0,
+        "discipline": true
+      },
+      "obj": [
+        [
+          "Sink the patrol craft",
+          "2 / 3 destroyed  (2 needed)",
+          true
+        ],
+        [
+          "Return to the ship",
+          "aboard",
+          true
+        ]
+      ],
+      "pow": null,
+      "willard": null,
+      "passed": true,
+      "storageUnchanged": true,
+      "diagnostic": "/workspace/cloud-environment/va-65-intruder/cockpit-focus/mission-demo/m4-result.json",
+      "firstDeath": null
+    },
+    {
+      "id": "m5",
+      "armTrace": [],
+      "demo": {
+        "active": false,
+        "missionId": "m5",
+        "chapter": null,
+        "computerPlaying": false,
+        "paused": false,
+        "speed": 1,
+        "elapsed": 929.9999999994828,
+        "stage": "completed",
+        "stageTime": 0,
+        "pending": false,
+        "success": true,
+        "finished": true,
+        "detail": "",
+        "events": [
+          {
+            "at": 5.533333333333319,
+            "stage": "navigation",
+            "detail": ""
+          },
+          {
+            "at": 59.89999999999788,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 60.91666666666449,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 66.96666666666415,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 79.93333333333008,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 134.7333333333327,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 164.31666666668957,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 176.95000000003296,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 176.96666666669964,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 270.01666666674976,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 282.53333333340504,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 343.5500000000162,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 376.7166666666527,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 389.1333333333081,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 389.14999999997474,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 489.84999999988315,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 502.3499999998718,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 562.3499999998172,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 599.9666666664497,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 612.483333333105,
+            "stage": "home",
+            "detail": ""
+          },
+          {
+            "at": 886.8833333328554,
+            "stage": "landing",
+            "detail": ""
+          },
+          {
+            "at": 929.9999999994828,
+            "stage": "completed",
+            "detail": ""
+          }
+        ],
+        "objectives": [
+          [
+            "Destroy the POL storage",
+            "3 / 6 destroyed  (3 needed)",
+            true
+          ],
+          [
+            "Recover aboard, Case III",
+            "aboard",
+            true
+          ]
+        ],
+        "outcome": {
+          "pts": 96,
+          "grade": "A",
+          "pass": true,
+          "recovered": true,
+          "escaped": false
+        },
+        "campaignIsolated": true
+      },
+      "phase": "done",
+      "t": 929.9999999994828,
+      "p": [
+        -2282.5410619034815,
+        21.645486629574926,
+        616.7121121477977
+      ],
+      "v": [
+        -12,
+        0,
+        2.204364238465236e-15
+      ],
+      "yaw": -1.4050133321266332,
+      "gear": true,
+      "ias": 12.01562557538895,
+      "shipRange": 11.76856475504271,
+      "acls": false,
+      "alive": true,
+      "bombs": 4,
+      "arms": 0,
+      "nav": 3,
+      "designated": {
+        "p": [
+          -7945.144589095682,
+          37.94118228985956,
+          2001.798834735121
+        ],
+        "label": "MANUAL POINT",
+        "alive": true
+      },
+      "sol": {
+        "valid": false,
+        "gr": 6031.824649251771,
+        "tRel": 99,
+        "az": -0.36781525984139307
+      },
+      "result": {
+        "pts": 96,
+        "grade": "A",
+        "pass": true,
+        "recovered": true,
+        "escaped": false
+      },
+      "score": {
+        "hits": 7,
+        "misses": 5,
+        "cep": [
+          61.658211925345114,
+          55.179248584312624,
+          48.619997670304315,
+          48.38367855488135,
+          38.44095852175407,
+          32.289630034538234,
+          51.93126062907856,
+          42.00072081404133,
+          38.10882204862926,
+          51.365238784955196,
+          45.96052157831089,
+          45.301003385460014
+        ],
+        "dropped": 12,
+        "killed": 3,
+        "total": 6,
+        "damage": 1.9367145574324751,
+        "discipline": true
+      },
+      "obj": [
+        [
+          "Destroy the POL storage",
+          "3 / 6 destroyed  (3 needed)",
+          true
+        ],
+        [
+          "Recover aboard, Case III",
+          "aboard",
+          true
+        ]
+      ],
+      "pow": null,
+      "willard": null,
+      "passed": true,
+      "storageUnchanged": true,
+      "diagnostic": "/workspace/cloud-environment/va-65-intruder/cockpit-focus/mission-demo/m5-result.json",
+      "firstDeath": null
+    },
+    {
+      "id": "m6",
+      "armTrace": [],
+      "demo": {
+        "active": false,
+        "missionId": "m6",
+        "chapter": null,
+        "computerPlaying": false,
+        "paused": false,
+        "speed": 1,
+        "elapsed": 539.9999999998375,
+        "stage": "completed",
+        "stageTime": 0,
+        "pending": false,
+        "success": true,
+        "finished": true,
+        "detail": "",
+        "events": [
+          {
+            "at": 5.533333333333319,
+            "stage": "navigation",
+            "detail": ""
+          },
+          {
+            "at": 69.86666666666399,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 71.8999999999972,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 82.5499999999966,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 88.66666666666292,
+            "stage": "home",
+            "detail": ""
+          },
+          {
+            "at": 355.9333333333383,
+            "stage": "emergency",
+            "detail": "The combat objectives are complete, but an incoming SAM threatens recovery. The crew reaches clear ocean and uses the original ejection and SAR controls before another hit."
+          },
+          {
+            "at": 355.95000000000493,
+            "stage": "eject",
+            "detail": "The combat objectives are complete, but an incoming SAM threatens recovery. The crew uses the original offshore ejection and SAR controls before another hit."
+          },
+          {
+            "at": 392.5666666666383,
+            "stage": "rescue",
+            "detail": ""
+          },
+          {
+            "at": 535.5666666665082,
+            "stage": "emergency",
+            "detail": "The combat objectives are complete, but an incoming SAM threatens recovery. The crew reaches clear ocean and uses the original ejection and SAR controls before another hit."
+          },
+          {
+            "at": 539.9999999998375,
+            "stage": "completed",
+            "detail": ""
+          }
+        ],
+        "objectives": [
+          [
+            "Destroy the rolling stock",
+            "4 / 4 destroyed  (3 needed)",
+            true
+          ],
+          [
+            "Return to the ship",
+            "recovered by SAR",
+            true
+          ]
+        ],
+        "outcome": {
+          "pts": 100,
+          "grade": "A",
+          "pass": true,
+          "recovered": true,
+          "escaped": false
+        },
+        "campaignIsolated": true
+      },
+      "deadReason": "",
+      "rescuedOK": true,
+      "ejected": true,
+      "companionRescued": false,
+      "phase": "done",
+      "t": 539.9999999998375,
+      "p": [
+        7862.222881212233,
+        180.22912085257119,
+        825.1693456836085
+      ],
+      "v": [
+        -92.67530348817597,
+        -11.373731872209339,
+        -1.4672154969568474
+      ],
+      "yaw": 4.728235916359198,
+      "gear": false,
+      "ias": 92.36650906116178,
+      "shipRange": 2640.498504003574,
+      "acls": true,
+      "alive": false,
+      "bombs": 11,
+      "arms": 0,
+      "nav": 3,
+      "designated": {
+        "p": [
+          -7329.228466699,
+          58.03730938917831,
+          2837.185485455268
+        ],
+        "label": "TARGET (OFFSET)",
+        "alive": true
+      },
+      "sol": {
+        "valid": false,
+        "gr": 15324.11181774186,
+        "tRel": 163.3328836166181,
+        "az": -0.14750806561223584
+      },
+      "result": {
+        "pts": 100,
+        "grade": "A",
+        "pass": true,
+        "recovered": true,
+        "escaped": false
+      },
+      "score": {
+        "hits": 2,
+        "misses": 0,
+        "cep": [
+          51.133419368849644,
+          35.90958686452896
+        ],
+        "dropped": 2,
+        "killed": 4,
+        "total": 4,
+        "damage": 0.347849282534423,
+        "discipline": true
+      },
+      "obj": [
+        [
+          "Destroy the rolling stock",
+          "4 / 4 destroyed  (3 needed)",
+          true
+        ],
+        [
+          "Return to the ship",
+          "recovered by SAR",
+          true
+        ]
+      ],
+      "pow": null,
+      "willard": null,
+      "passed": true,
+      "storageUnchanged": true,
+      "diagnostic": "/workspace/cloud-environment/va-65-intruder/cockpit-focus/mission-demo/m6-result.json",
+      "firstDeath": null
+    },
+    {
+      "id": "m7",
+      "armTrace": [],
+      "demo": {
+        "active": false,
+        "missionId": "m7",
+        "chapter": null,
+        "computerPlaying": false,
+        "paused": false,
+        "speed": 1,
+        "elapsed": 449.9999999999194,
+        "stage": "completed",
+        "stageTime": 0,
+        "pending": false,
+        "success": true,
+        "finished": true,
+        "detail": "",
+        "events": [
+          {
+            "at": 5.533333333333319,
+            "stage": "navigation",
+            "detail": ""
+          },
+          {
+            "at": 58.34999999999797,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 60.38333333333119,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 64.81666666666428,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 79.79999999999676,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 127.59999999999404,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 152.0000000000131,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 168.9333333333599,
+            "stage": "home",
+            "detail": ""
+          },
+          {
+            "at": 418.933333333281,
+            "stage": "landing",
+            "detail": ""
+          },
+          {
+            "at": 449.9999999999194,
+            "stage": "completed",
+            "detail": ""
+          }
+        ],
+        "objectives": [
+          [
+            "Destroy the truck park",
+            "4 / 6 destroyed  (4 needed)",
+            true
+          ],
+          [
+            "Return to the ship",
+            "aboard",
+            true
+          ]
+        ],
+        "outcome": {
+          "pts": 100,
+          "grade": "A",
+          "pass": true,
+          "recovered": true,
+          "escaped": false
+        },
+        "campaignIsolated": true
+      },
+      "phase": "done",
+      "t": 449.9999999999194,
+      "p": [
+        3936.349814157211,
+        20.837904440310194,
+        303.52492145457757
+      ],
+      "v": [
+        -12,
+        0,
+        2.204364238465236e-15
+      ],
+      "yaw": -1.4049938435078861,
+      "gear": true,
+      "ias": 11.988198130580384,
+      "shipRange": 23.59871084517507,
+      "acls": false,
+      "alive": true,
+      "bombs": 15,
+      "arms": 0,
+      "nav": 3,
+      "designated": {
+        "p": [
+          -7726.460034738091,
+          129.92828588462834,
+          1188.5816541048698
+        ],
+        "label": "MANUAL POINT",
+        "alive": true
+      },
+      "sol": {
+        "valid": false,
+        "gr": 11828.516640559807,
+        "tRel": 99,
+        "az": -0.2051584962863906
+      },
+      "result": {
+        "pts": 100,
+        "grade": "A",
+        "pass": true,
+        "recovered": true,
+        "escaped": false
+      },
+      "score": {
+        "hits": 3,
+        "misses": 0,
+        "cep": [
+          60.15292301823435,
+          57.065366146151234,
+          6.186554627521554
+        ],
+        "dropped": 3,
+        "killed": 4,
+        "total": 6,
+        "damage": 0.8822313621541512,
+        "discipline": true
+      },
+      "obj": [
+        [
+          "Destroy the truck park",
+          "4 / 6 destroyed  (4 needed)",
+          true
+        ],
+        [
+          "Return to the ship",
+          "aboard",
+          true
+        ]
+      ],
+      "pow": null,
+      "willard": null,
+      "passed": true,
+      "storageUnchanged": true,
+      "diagnostic": "/workspace/cloud-environment/va-65-intruder/cockpit-focus/mission-demo/m7-result.json",
+      "firstDeath": null
+    },
+    {
+      "id": "m8",
+      "armTrace": [
+        {
+          "event": "launch",
+          "t": 265.61666666675376,
+          "p": [
+            17089.606361333615,
+            1695.609793718899,
+            945.0399136518621
+          ],
+          "v": [
+            -141.49112869398724,
+            0.025242836639572146,
+            -3.573671097275035
+          ],
+          "yaw": 4.737640821313938,
+          "pitch": 0.05116093875080892,
+          "radar": {
+            "p": [
+              -7898.158221936732,
+              56.00959338502113,
+              313.91870555213814
+            ],
+            "hp": 40,
+            "emitting": true
+          }
+        },
+        {
+          "event": "impact",
+          "t": 304.4000000000518,
+          "p": [
+            -7896.112363424979,
+            56.14458795596548,
+            313.9701643199589
+          ],
+          "terrain": 56.058045434739434,
+          "radar": {
+            "p": [
+              -7898.158221936732,
+              56.00959338502113,
+              313.91870555213814
+            ],
+            "before": 40,
+            "hp": -28.119959664884917,
+            "alive": false
+          }
+        }
+      ],
+      "demo": {
+        "active": false,
+        "missionId": "m8",
+        "chapter": null,
+        "computerPlaying": false,
+        "paused": false,
+        "speed": 1,
+        "elapsed": 1019.999999999401,
+        "stage": "completed",
+        "stageTime": 0,
+        "pending": false,
+        "success": true,
+        "finished": true,
+        "detail": "",
+        "events": [
+          {
+            "at": 5.533333333333319,
+            "stage": "arm",
+            "detail": "The carrier starts inside the radar threat envelope. The crew turns offshore at about 145 m terrain clearance; it waits until beyond 26.5 km before climbing into radar view."
+          },
+          {
+            "at": 265.6333333334204,
+            "stage": "assess",
+            "detail": "ARM in flight. With speed already settled, the crew turns offshore and descends while the real seeker continues independently."
+          },
+          {
+            "at": 304.41666666671847,
+            "stage": "departure",
+            "detail": "Radar suppressed. The crew climbs outside the site before the conventional attack. Above 1,600m the light gun ring cannot engage; the existing heavy flak remains dangerous."
+          },
+          {
+            "at": 332.800000000026,
+            "stage": "navigation",
+            "detail": ""
+          },
+          {
+            "at": 466.06666666657145,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 467.0833333332372,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 467.09999999990384,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 486.28333333321973,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 540.1833333331707,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 561.9333333331509,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 581.0999999998002,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 634.9999999997511,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 656.4166666663983,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 675.6999999997141,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 728.5833333329994,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 750.8166666663125,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 769.7833333329619,
+            "stage": "home",
+            "detail": ""
+          },
+          {
+            "at": 985.4166666660991,
+            "stage": "landing",
+            "detail": ""
+          },
+          {
+            "at": 1019.999999999401,
+            "stage": "completed",
+            "detail": ""
+          }
+        ],
+        "objectives": [
+          [
+            "Destroy the Fan Song radar",
+            "destroyed",
+            true
+          ],
+          [
+            "Destroy the launchers",
+            "4 / 4",
+            true
+          ],
+          [
+            "Return to the ship",
+            "aboard",
+            true
+          ]
+        ],
+        "outcome": {
+          "pts": 100,
+          "grade": "A",
+          "pass": true,
+          "recovered": true,
+          "escaped": false
+        },
+        "campaignIsolated": true
+      },
+      "phase": "done",
+      "t": 1019.999999999401,
+      "p": [
+        -3123.947865293603,
+        20.0334058184741,
+        84.67308458465831
+      ],
+      "v": [
+        -12,
+        0,
+        2.204364238465236e-15
+      ],
+      "yaw": -1.4050358955595745,
+      "gear": true,
+      "ias": 12.001004317566753,
+      "shipRange": 1.2909003724011212,
+      "acls": false,
+      "alive": true,
+      "bombs": 2,
+      "arms": 1,
+      "nav": 3,
+      "designated": {
+        "p": [
+          -7914.88701324204,
+          54.203302909242794,
+          435.62684999413216
+        ],
+        "label": "LAUNCHER",
+        "alive": false
+      },
+      "sol": {
+        "valid": false,
+        "gr": 4913.940493899188,
+        "tRel": 99,
+        "az": -0.2056587048878118
+      },
+      "result": {
+        "pts": 100,
+        "grade": "A",
+        "pass": true,
+        "recovered": true,
+        "escaped": false
+      },
+      "score": {
+        "hits": 5,
+        "misses": 0,
+        "cep": [
+          22.305985393695295,
+          9.550999426413528,
+          9.28940411945992,
+          10.156700689316542
+        ],
+        "dropped": 4,
+        "killed": 5,
+        "total": 5,
+        "damage": 0.16,
+        "discipline": true,
+        "armsReleased": 1
+      },
+      "obj": [
+        [
+          "Destroy the Fan Song radar",
+          "destroyed",
+          true
+        ],
+        [
+          "Destroy the launchers",
+          "4 / 4",
+          true
+        ],
+        [
+          "Return to the ship",
+          "aboard",
+          true
+        ]
+      ],
+      "pow": null,
+      "willard": null,
+      "passed": true,
+      "storageUnchanged": true,
+      "diagnostic": "/workspace/cloud-environment/va-65-intruder/cockpit-focus/mission-demo/m8-result.json",
+      "firstDeath": null
+    },
+    {
+      "id": "m9",
+      "armTrace": [],
+      "demo": {
+        "active": false,
+        "missionId": "m9",
+        "chapter": null,
+        "computerPlaying": false,
+        "paused": false,
+        "speed": 1,
+        "elapsed": 300.0000000000558,
+        "stage": "completed",
+        "stageTime": 0,
+        "pending": false,
+        "success": true,
+        "finished": true,
+        "detail": "",
+        "events": [
+          {
+            "at": 5.533333333333319,
+            "stage": "identify",
+            "detail": ""
+          },
+          {
+            "at": 81.88333333332997,
+            "stage": "home",
+            "detail": ""
+          },
+          {
+            "at": 265.2833333334207,
+            "stage": "landing",
+            "detail": ""
+          },
+          {
+            "at": 300.0000000000558,
+            "stage": "completed",
+            "detail": ""
+          }
+        ],
+        "objectives": [
+          [
+            "Identify all surface contacts",
+            "4 / 4 identified",
+            true
+          ],
+          [
+            "Release nothing",
+            "maintained",
+            true
+          ],
+          [
+            "Return to the ship",
+            "aboard",
+            true
+          ]
+        ],
+        "outcome": {
+          "pts": 90,
+          "grade": "A",
+          "pass": true,
+          "recovered": true,
+          "escaped": false
+        },
+        "campaignIsolated": true
+      },
+      "phase": "done",
+      "t": 300.0000000000558,
+      "p": [
+        6902.531102295363,
+        21.49812254599923,
+        569.4605672744159
+      ],
+      "v": [
+        -12,
+        0,
+        2.204364238465236e-15
+      ],
+      "yaw": -1.4051559862409044,
+      "gear": true,
+      "ias": 11.984429615255792,
+      "shipRange": 10.52833157271935,
+      "acls": false,
+      "alive": true,
+      "bombs": 6,
+      "arms": 0,
+      "nav": 0,
+      "designated": null,
+      "sol": null,
+      "result": {
+        "pts": 90,
+        "grade": "A",
+        "pass": true,
+        "recovered": true,
+        "escaped": false
+      },
+      "score": {
+        "hits": 0,
+        "misses": 0,
+        "cep": [],
+        "dropped": 0,
+        "killed": 0,
+        "total": 4,
+        "damage": 0,
+        "discipline": true
+      },
+      "obj": [
+        [
+          "Identify all surface contacts",
+          "4 / 4 identified",
+          true
+        ],
+        [
+          "Release nothing",
+          "maintained",
+          true
+        ],
+        [
+          "Return to the ship",
+          "aboard",
+          true
+        ]
+      ],
+      "pow": null,
+      "willard": null,
+      "passed": true,
+      "storageUnchanged": true,
+      "diagnostic": "/workspace/cloud-environment/va-65-intruder/cockpit-focus/mission-demo/m9-result.json",
+      "firstDeath": null
+    },
+    {
+      "id": "m10",
+      "armTrace": [],
+      "demo": {
+        "active": false,
+        "missionId": "m10",
+        "chapter": null,
+        "computerPlaying": false,
+        "paused": false,
+        "speed": 1,
+        "elapsed": 569.9999999998103,
+        "stage": "completed",
+        "stageTime": 0,
+        "pending": false,
+        "success": true,
+        "finished": true,
+        "detail": "",
+        "events": [
+          {
+            "at": 5.533333333333319,
+            "stage": "navigation",
+            "detail": ""
+          },
+          {
+            "at": 52.949999999998276,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 54.983333333331494,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 66.8499999999975,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 79.29999999999679,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 134.09999999999886,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 163.8000000000225,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 176.15000000003232,
+            "stage": "acquire",
+            "detail": ""
+          },
+          {
+            "at": 231.16666666674277,
+            "stage": "attack",
+            "detail": ""
+          },
+          {
+            "at": 260.966666666758,
+            "stage": "assess",
+            "detail": ""
+          },
+          {
+            "at": 273.6500000000798,
+            "stage": "home",
+            "detail": ""
+          },
+          {
+            "at": 541.5999999998361,
+            "stage": "landing",
+            "detail": ""
+          },
+          {
+            "at": 569.9999999998103,
+            "stage": "completed",
+            "detail": ""
+          }
+        ],
+        "objectives": [
+          [
+            "Destroy the storage area",
+            "4 / 4 destroyed  (3 needed)",
+            true
+          ],
+          [
+            "Recover aboard",
+            "aboard",
+            true
+          ]
+        ],
+        "outcome": {
+          "pts": 99,
+          "grade": "A",
+          "pass": true,
+          "recovered": true,
+          "escaped": false
+        },
+        "campaignIsolated": true
+      },
+      "phase": "done",
+      "t": 569.9999999998103,
+      "p": [
+        1991.3015094734144,
+        20.319569259709503,
+        -820.3793535027378
+      ],
+      "v": [
+        -12,
+        0,
+        2.204364238465236e-15
+      ],
+      "yaw": -1.404875732654719,
+      "gear": true,
+      "ias": 12.008946345747889,
+      "shipRange": 1.5405538041187201,
+      "acls": false,
+      "alive": true,
+      "bombs": 6,
+      "arms": 0,
+      "nav": 3,
+      "designated": {
+        "p": [
+          -8119.624456289253,
+          91.71100710660001,
+          -2764.0378203364453
+        ],
+        "label": "MANUAL POINT",
+        "alive": true
+      },
+      "sol": {
+        "valid": false,
+        "gr": 10401.2466829162,
+        "tRel": 99,
+        "az": 0.059246440642759524
+      },
+      "result": {
+        "pts": 99,
+        "grade": "A",
+        "pass": true,
+        "recovered": true,
+        "escaped": false
+      },
+      "score": {
+        "hits": 6,
+        "misses": 0,
+        "cep": [
+          51.710475622317134,
+          49.30418451471645,
+          47.5729668403188,
+          39.062310604469495,
+          49.92534622376938,
+          40.75592009764323
+        ],
+        "dropped": 6,
+        "killed": 4,
+        "total": 4,
+        "damage": 1.349580908041153,
+        "discipline": true
+      },
+      "obj": [
+        [
+          "Destroy the storage area",
+          "4 / 4 destroyed  (3 needed)",
+          true
+        ],
+        [
+          "Recover aboard",
+          "aboard",
+          true
+        ]
+      ],
+      "pow": null,
+      "willard": null,
+      "passed": true,
+      "storageUnchanged": true,
+      "diagnostic": "/workspace/cloud-environment/va-65-intruder/cockpit-focus/mission-demo/m10-result.json",
+      "firstDeath": null
+    },
+    {
+      "id": "m11",
+      "armTrace": [],
+      "demo": {
+        "active": false,
+        "missionId": "m11",
+        "chapter": null,
+        "computerPlaying": false,
+        "paused": false,
+        "speed": 1,
+        "elapsed": 1248.749999999193,
+        "stage": "completed",
+        "stageTime": 0,
+        "pending": false,
+        "success": true,
+        "finished": true,
+        "detail": "",
+        "events": [
+          {
+            "at": 0.016666666666666666,
+            "stage": "departure",
+            "detail": ""
+          },
+          {
+            "at": 64.86666666666427,
+            "stage": "eject",
+            "detail": ""
+          },
+          {
+            "at": 342.0333333333509,
+            "stage": "capture",
+            "detail": ""
+          },
+          {
+            "at": 347.86666666667895,
+            "stage": "cell",
+            "detail": ""
+          },
+          {
+            "at": 388.3333333333088,
+            "stage": "roof",
+            "detail": ""
+          },
+          {
+            "at": 405.81666666662625,
+            "stage": "hanoi",
+            "detail": ""
+          },
+          {
+            "at": 424.2833333332761,
+            "stage": "river",
+            "detail": ""
+          },
+          {
+            "at": 1132.199999999299,
+            "stage": "gulf",
+            "detail": ""
+          },
+          {
+            "at": 1248.749999999193,
+            "stage": "completed",
+            "detail": ""
+          }
+        ],
+        "objectives": [
+          [
+            "Survive the ejection",
+            "survived",
+            true
+          ],
+          [
+            "Get out of the camp",
+            "out of the camp",
+            true
+          ],
+          [
+            "Reach the sea",
+            "reached the sea",
+            true
+          ]
+        ],
+        "outcome": {
+          "id": "pow-fictional-river-rescue",
+          "title": "Fictional alternate-history rescue",
+          "rescued": true,
+          "escaped": true,
+          "historical": false,
+          "text": "FICTIONAL ALTERNATE HISTORY: after reaching the delta, approaching an unnamed offshore naval contact and signaling at close range, you are brought aboard. Coker and McKnight were recaptured during their actual 1967 escape; this playable successful continuation is hypothetical."
+        },
+        "campaignIsolated": true
+      },
+      "deadReason": "",
+      "ejected": true,
+      "phase": "evade",
+      "t": 1243.0333333325316,
+      "p": [
+        21.140210099403216,
+        1768.7276058411317,
+        -1995.045998733637
+      ],
+      "v": [
+        -223.80287272519558,
+        0.7030079708074392,
+        53.187374012141525
+      ],
+      "yaw": 4.479056129945678,
+      "gear": false,
+      "ias": 207.3156209616754,
+      "shipRange": 8656.48579392916,
+      "acls": false,
+      "alive": false,
+      "bombs": 12,
+      "arms": 0,
+      "nav": 0,
+      "designated": null,
+      "sol": null,
+      "result": null,
+      "score": {
+        "hits": 0,
+        "misses": 0,
+        "cep": [],
+        "dropped": 0,
+        "killed": 0,
+        "total": 4,
+        "damage": 5,
+        "discipline": true
+      },
+      "obj": [
+        [
+          "Survive the ejection",
+          "survived",
+          true
+        ],
+        [
+          "Get out of the camp",
+          "out of the camp",
+          true
+        ],
+        [
+          "Reach the sea",
+          "reached the sea",
+          true
+        ]
+      ],
+      "pow": {
+        "stage": "river",
+        "complete": true,
+        "outcome": {
+          "id": "pow-fictional-river-rescue",
+          "title": "Fictional alternate-history rescue",
+          "rescued": true,
+          "escaped": true,
+          "historical": false,
+          "text": "FICTIONAL ALTERNATE HISTORY: after reaching the delta, approaching an unnamed offshore naval contact and signaling at close range, you are brought aboard. Coker and McKnight were recaptured during their actual 1967 escape; this playable successful continuation is hypothetical."
+        },
+        "flags": {
+          "bunkSearched": true,
+          "inspections": 1,
+          "doorOpen": true,
+          "roofHintShown": true,
+          "outside": true,
+          "roofCrossed": true,
+          "riverEntered": true,
+          "deltaReached": true,
+          "fictionalContinuation": true,
+          "navalSignalAcknowledged": true,
+          "fictionalRescue": true
+        },
+        "inventory": {
+          "bracket": true,
+          "rope": true
+        },
+        "p": [
+          144.25861466369577,
+          55.77239117989683,
+          -1872.6553249527876
+        ],
+        "river": {
+          "mode": "swim",
+          "phase": "gulf",
+          "distance": 96000.68962420255
+        }
+      },
+      "willard": null,
+      "passed": true,
+      "storageUnchanged": true,
+      "diagnostic": "/workspace/cloud-environment/va-65-intruder/cockpit-focus/mission-demo/m11-result.json",
+      "firstDeath": null
+    },
+    {
+      "id": "willard",
+      "armTrace": [],
+      "demo": {
+        "active": false,
+        "missionId": "willard",
+        "chapter": null,
+        "computerPlaying": false,
+        "paused": false,
+        "speed": 1,
+        "elapsed": 408.14999999995746,
+        "stage": "completed",
+        "stageTime": 0,
+        "pending": false,
+        "success": true,
+        "finished": true,
+        "detail": "",
+        "events": [
+          {
+            "at": 0.016666666666666666,
+            "stage": "willard",
+            "detail": ""
+          },
+          {
+            "at": 408.14999999995746,
+            "stage": "completed",
+            "detail": ""
+          }
+        ],
+        "objectives": [
+          [
+            "Survive the interceptor",
+            "engaged",
+            true
+          ],
+          [
+            "Break pursuit through hostile defenses",
+            "alternate terrain evasion",
+            true
+          ],
+          [
+            "Reach safe naval approach with both crew",
+            "both crew safe",
+            true
+          ]
+        ],
+        "outcome": {
+          "pts": 87,
+          "grade": "B",
+          "pass": true,
+          "recovered": false,
+          "safeEgress": true,
+          "escaped": false
+        },
+        "campaignIsolated": true
+      },
+      "phase": "airborne",
+      "t": 408.14999999995746,
+      "p": [
+        31410.5695577584,
+        1112.4911183874406,
+        -13831.170964600436
+      ],
+      "v": [
+        283.15011480667937,
+        -0.5441405455819579,
+        -9.568358771527011
+      ],
+      "yaw": 1.5370166508683187,
+      "gear": false,
+      "ias": 265.3657243359795,
+      "shipRange": 14884.892810150455,
+      "acls": false,
+      "alive": true,
+      "bombs": 4,
+      "arms": 0,
+      "nav": 0,
+      "designated": null,
+      "sol": null,
+      "result": {
+        "pts": 87,
+        "grade": "B",
+        "pass": true,
+        "recovered": false,
+        "safeEgress": true,
+        "escaped": false
+      },
+      "score": {
+        "hits": 0,
+        "misses": 0,
+        "cep": [],
+        "dropped": 0,
+        "killed": 0,
+        "total": 1,
+        "damage": 0.2986234197317102,
+        "discipline": true
+      },
+      "obj": [
+        [
+          "Survive the interceptor",
+          "engaged",
+          true
+        ],
+        [
+          "Break pursuit through hostile defenses",
+          "alternate terrain evasion",
+          true
+        ],
+        [
+          "Reach safe naval approach with both crew",
+          "both crew safe",
+          true
+        ]
+      ],
+      "pow": null,
+      "willard": {
+        "phase": "complete",
+        "flakDisrupted": false,
+        "terrainEscape": true,
+        "enemy": {
+          "state": "PATROL",
+          "p": [
+            -61124.604397250834,
+            1185.9735480968582,
+            12980.642583598958
+          ],
+          "health": 1,
+          "flak": 0
+        }
+      },
+      "passed": true,
+      "storageUnchanged": true,
+      "diagnostic": "/workspace/cloud-environment/va-65-intruder/cockpit-focus/mission-demo/willard-result.json",
+      "firstDeath": null
+    }
+  ]
+}

@@ -1,3 +1,11 @@
+# Clear cockpit, branched jungle and parachute threats
+
+- Use preserved user jungle photos as references for generated leaf clusters and palm fronds; add real forks, curved palm stems, bamboo culms and leaf-shaped fallbacks.
+- Compact flight utilities into COCKPIT, keep explicit WIN/Next demo cues and full warnings, and fix native keyboard, scrolling and phone preference-button dispatch.
+- Add visible small-arms threats to either descending aviator, with cover checks, tracers, persistent bounded injuries and normal ground NPC ownership.
+- Verify 1,131 CPU cases/94 programs, 151 checks across 7 selected native suites, all 12 earned mission outcomes and 319 exact packaged files. Physical iPhone Safari remains untested.
+- [Controls, verification and private complete-game download](releases/cockpit-focus-notes.md).
+
 # Jungle scenery and clear survival training
 
 - Load complete photographic vegetation in flight and captivity exteriors as well as on foot; use detailed overhead crowns and spend bounded visual budgets on visible trees.

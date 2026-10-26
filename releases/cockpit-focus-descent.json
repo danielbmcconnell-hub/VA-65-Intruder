@@ -1,0 +1,5554 @@
+{
+  "passed": true,
+  "sourceStable": true,
+  "sourceSHA256": {
+    "index.html": "c40e797f6c88f8de244a74d9336080ef5307c17d10aaf9455e2f5f1fc0e113ce",
+    "assets/survival/descent-threats.js": "179a6539ec7ee32ca9c166d97b1bc7235538f4fd029399905be6ebbaa2cb92ba",
+    "assets/survival/aviator-companion.js": "ab6a54f73981a78618e7e039a50043d046566806c7d009eec16875097bdf8f69",
+    "assets/survival/landing-water.js": "486fe311d20afcbcd5cc61a2b065fb42eb5cdfaa2012bfc99c41e4c9ccae0057"
+  },
+  "testSHA256": "512b421341a01d19ae04c09b11ad07564b3a3ad67736d0ceb310bb4cecfdde5d",
+  "checks": [
+    {
+      "name": "desktop-pilot",
+      "fixture": {
+        "sourceIndex": 184,
+        "source": [
+          -7326.81639119595,
+          30.155748702924924,
+          1625.920873010168
+        ],
+        "aircraft": [
+          -7136.81639119595,
+          142.73272763268568,
+          1625.920873010168
+        ],
+        "crew": {
+          "pilot": 1,
+          "bn": 1
+        },
+        "sourceCount": 202,
+        "seat": false,
+        "presentation": {
+          "requested": 2,
+          "effective": 2,
+          "canvas": [
+            1280,
+            720
+          ],
+          "dpr": 1,
+          "devicePixelRatio": 1
+        },
+        "scope": "Aircraft only is placed before native ejection,190m east/115m above ground at an existing original World.saf weapon position. The original ejection random draw is declared constant. Subsequent chute motion, camera, hits and landing remain original."
+      },
+      "firstShot": {
+        "steps": 4,
+        "time": 4.566666666666659,
+        "phase": "chute",
+        "descent": {
+          "active": true,
+          "clock": 4.199999999999993,
+          "shots": 1,
+          "injuries": {
+            "pilot": 1,
+            "bn": 0
+          },
+          "transferred": false,
+          "checks": 3,
+          "shooters": [
+            {
+              "id": "descent-rifle-71",
+              "p": [
+                -7256.410478126291,
+                26.958929702408717,
+                1608.512136939271
+              ],
+              "face": 1.2905564775267409,
+              "alive": true,
+              "armed": true,
+              "source": 71
+            },
+            {
+              "id": "descent-rifle-118",
+              "p": [
+                -7268.985587646401,
+                24.94299286322728,
+                1559.4735720932058
+              ],
+              "face": -0.07755886480303938,
+              "alive": true,
+              "armed": true,
+              "source": 118
+            },
+            {
+              "id": "descent-rifle-184",
+              "p": [
+                -7326.81639119595,
+                28.555748702924923,
+                1625.920873010168
+              ],
+              "face": -2.8084068380867664,
+              "alive": true,
+              "armed": true,
+              "source": 184
+            }
+          ],
+          "events": [
+            {
+              "type": "shot",
+              "role": "pilot",
+              "source": 71,
+              "distance": 143.35416105076004,
+              "hit": true,
+              "at": 4.199999999999993
+            },
+            {
+              "type": "injury",
+              "role": "pilot",
+              "at": 4.199999999999993
+            }
+          ],
+          "limits": {
+            "shooters": 4,
+            "range": 400,
+            "height": 300,
+            "grace": 4,
+            "open": 0.85,
+            "step": 0.05,
+            "maxStep": 0.25,
+            "lookInterval": 0.45,
+            "scanInterval": 0.8,
+            "terrainSamples": 64,
+            "coverObjects": 1800,
+            "maxInjuries": 2,
+            "history": 12
+          }
+        },
+        "currentShots": [
+          {
+            "type": "shot",
+            "role": "pilot",
+            "source": 71,
+            "distance": 143.35416105076004,
+            "hit": true,
+            "at": 4.199999999999993
+          }
+        ],
+        "crew": {
+          "pilot": 0.84,
+          "bn": 1
+        },
+        "photos": [
+          {
+            "id": "descent-rifle-71",
+            "name": "photo_hr_militia_idle",
+            "asset": "militia:idle",
+            "kind": "militia",
+            "p": [
+              -7256.410478126291,
+              26.922459114173424,
+              1608.512136939271
+            ],
+            "alive": true
+          },
+          {
+            "id": "descent-rifle-118",
+            "name": "photo_hr_militia_idle",
+            "asset": "militia:idle",
+            "kind": "militia",
+            "p": [
+              -7268.985587646401,
+              24.906522274991985,
+              1559.4735720932058
+            ],
+            "alive": true
+          },
+          {
+            "id": "descent-rifle-184",
+            "name": "photo_hr_militia_idle",
+            "asset": "militia:idle",
+            "kind": "militia",
+            "p": [
+              -7326.81639119595,
+              28.51927811468963,
+              1625.920873010168
+            ],
+            "alive": true
+          }
+        ],
+        "originalSources": 202,
+        "sourcePositionsUnchanged": true,
+        "streaks": [
+          {
+            "p": [
+              -7256.410478126291,
+              28.55892970240872,
+              1608.512136939271
+            ],
+            "projected": {
+              "x": 718.3568540434185,
+              "y": 584.5427127356996,
+              "w": 132.79450274665578
+            },
+            "length": 4.5
+          }
+        ],
+        "photoPositions": [
+          {
+            "id": "descent-rifle-71",
+            "x": 718.2717561564,
+            "y": 586.155243242325,
+            "w": 132.93887834452562,
+            "obscuredBy": [
+              "radio"
+            ]
+          },
+          {
+            "id": "descent-rifle-118",
+            "x": 913.4561441157506,
+            "y": 557.3355908871482,
+            "w": 145.48642907286467,
+            "obscuredBy": []
+          },
+          {
+            "id": "descent-rifle-184",
+            "x": 639.8128408160347,
+            "y": 436.48874882180996,
+            "w": 198.84851384465583,
+            "obscuredBy": [
+              "radio"
+            ]
+          }
+        ],
+        "gl": 0,
+        "contextLost": false,
+        "chute": {
+          "p": [
+            -7147.538745420427,
+            120.57932708532786,
+            1625.920873010168
+          ],
+          "open": 1,
+          "t": 4.199999999999993
+        },
+        "caption": "CREW: Rifle fire from the ground. Steer away from the armed positions.CREW: Hit under the canopy. Still able to steer — get clear of the rifles."
+      },
+      "visibleShot": {
+        "steps": 1,
+        "time": 5.416666666666656,
+        "phase": "chute",
+        "descent": {
+          "active": true,
+          "clock": 5.04999999999999,
+          "shots": 3,
+          "injuries": {
+            "pilot": 1,
+            "bn": 0
+          },
+          "transferred": false,
+          "checks": 9,
+          "shooters": [
+            {
+              "id": "descent-rifle-71",
+              "p": [
+                -7256.410478126291,
+                26.958929702408717,
+                1608.512136939271
+              ],
+              "face": 1.7347779887442942,
+              "alive": true,
+              "armed": true,
+              "source": 71
+            },
+            {
+              "id": "descent-rifle-118",
+              "p": [
+                -7268.985587646401,
+                24.94299286322728,
+                1559.4735720932058
+              ],
+              "face": 1.452441135196961,
+              "alive": true,
+              "armed": true,
+              "source": 118
+            },
+            {
+              "id": "descent-rifle-184",
+              "p": [
+                -7326.81639119595,
+                28.555748702924923,
+                1625.920873010168
+              ],
+              "face": 1.9447784690928225,
+              "alive": true,
+              "armed": true,
+              "source": 184
+            }
+          ],
+          "events": [
+            {
+              "type": "shot",
+              "role": "pilot",
+              "source": 71,
+              "distance": 143.35416105076004,
+              "hit": true,
+              "at": 4.199999999999993
+            },
+            {
+              "type": "injury",
+              "role": "pilot",
+              "at": 4.199999999999993
+            },
+            {
+              "type": "shot",
+              "role": "pilot",
+              "source": 184,
+              "distance": 195.31165471463402,
+              "hit": false,
+              "at": 4.99999999999999
+            },
+            {
+              "type": "shot",
+              "role": "bn",
+              "source": 118,
+              "distance": 159.28387478584858,
+              "hit": false,
+              "at": 5.04999999999999
+            }
+          ],
+          "limits": {
+            "shooters": 4,
+            "range": 400,
+            "height": 300,
+            "grace": 4,
+            "open": 0.85,
+            "step": 0.05,
+            "maxStep": 0.25,
+            "lookInterval": 0.45,
+            "scanInterval": 0.8,
+            "terrainSamples": 64,
+            "coverObjects": 1800,
+            "maxInjuries": 2,
+            "history": 12
+          }
+        },
+        "currentShots": [
+          {
+            "type": "shot",
+            "role": "bn",
+            "source": 118,
+            "distance": 159.28387478584858,
+            "hit": false,
+            "at": 5.04999999999999
+          }
+        ],
+        "crew": {
+          "pilot": 0.84,
+          "bn": 1
+        },
+        "photos": [
+          {
+            "id": "descent-rifle-71",
+            "name": "photo_hr_militia_aim",
+            "asset": "militia:aim",
+            "kind": "militia",
+            "p": [
+              -7256.410478126291,
+              26.918902946555875,
+              1608.512136939271
+            ],
+            "alive": true
+          },
+          {
+            "id": "descent-rifle-118",
+            "name": "photo_hr_militia_aim",
+            "asset": "militia:aim",
+            "kind": "militia",
+            "p": [
+              -7268.985587646401,
+              24.902966107374436,
+              1559.4735720932058
+            ],
+            "alive": true
+          },
+          {
+            "id": "descent-rifle-184",
+            "name": "photo_hr_militia_aim",
+            "asset": "militia:aim",
+            "kind": "militia",
+            "p": [
+              -7326.81639119595,
+              28.51572194707208,
+              1625.920873010168
+            ],
+            "alive": true
+          }
+        ],
+        "originalSources": 202,
+        "sourcePositionsUnchanged": true,
+        "streaks": [
+          {
+            "p": [
+              -7133.757708906909,
+              131.77668124086665,
+              1628.1244792308512
+            ],
+            "projected": {
+              "x": 699.2578017641358,
+              "y": 651.9478867524323,
+              "w": -22.28033524474813
+            },
+            "length": 4.5
+          },
+          {
+            "p": [
+              -7318.34749860823,
+              34.452182336913886,
+              1625.6591166990909
+            ],
+            "projected": {
+              "x": 640.8518050479574,
+              "y": 425.1692895384306,
+              "w": 184.09747551369583
+            },
+            "length": 4.5
+          },
+          {
+            "p": [
+              -7268.985587646401,
+              26.54299286322728,
+              1559.4735720932058
+            ],
+            "projected": {
+              "x": 924.1233939389987,
+              "y": 547.270001836744,
+              "w": 140.11962608274916
+            },
+            "length": 4.5
+          }
+        ],
+        "photoPositions": [
+          {
+            "id": "descent-rifle-71",
+            "x": 721.6587756804632,
+            "y": 577.9439958773938,
+            "w": 127.72990094700981,
+            "obscuredBy": [
+              "radio"
+            ]
+          },
+          {
+            "id": "descent-rifle-118",
+            "x": 923.8289438628592,
+            "y": 548.8499735359662,
+            "w": 140.26498911023737,
+            "obscuredBy": []
+          },
+          {
+            "id": "descent-rifle-184",
+            "x": 639.9999293547024,
+            "y": 427.1283002092809,
+            "w": 193.65560251587976,
+            "obscuredBy": [
+              "radio"
+            ]
+          }
+        ],
+        "gl": 0,
+        "contextLost": false,
+        "chute": {
+          "p": [
+            -7151.201058977618,
+            115.26921010506648,
+            1625.920873010168
+          ],
+          "open": 1,
+          "t": 5.04999999999999
+        },
+        "caption": ""
+      },
+      "firstInjury": {
+        "steps": 4,
+        "time": 4.566666666666659,
+        "phase": "chute",
+        "descent": {
+          "active": true,
+          "clock": 4.199999999999993,
+          "shots": 1,
+          "injuries": {
+            "pilot": 1,
+            "bn": 0
+          },
+          "transferred": false,
+          "checks": 3,
+          "shooters": [
+            {
+              "id": "descent-rifle-71",
+              "p": [
+                -7256.410478126291,
+                26.958929702408717,
+                1608.512136939271
+              ],
+              "face": 1.2905564775267409,
+              "alive": true,
+              "armed": true,
+              "source": 71
+            },
+            {
+              "id": "descent-rifle-118",
+              "p": [
+                -7268.985587646401,
+                24.94299286322728,
+                1559.4735720932058
+              ],
+              "face": -0.07755886480303938,
+              "alive": true,
+              "armed": true,
+              "source": 118
+            },
+            {
+              "id": "descent-rifle-184",
+              "p": [
+                -7326.81639119595,
+                28.555748702924923,
+                1625.920873010168
+              ],
+              "face": -2.8084068380867664,
+              "alive": true,
+              "armed": true,
+              "source": 184
+            }
+          ],
+          "events": [
+            {
+              "type": "shot",
+              "role": "pilot",
+              "source": 71,
+              "distance": 143.35416105076004,
+              "hit": true,
+              "at": 4.199999999999993
+            },
+            {
+              "type": "injury",
+              "role": "pilot",
+              "at": 4.199999999999993
+            }
+          ],
+          "limits": {
+            "shooters": 4,
+            "range": 400,
+            "height": 300,
+            "grace": 4,
+            "open": 0.85,
+            "step": 0.05,
+            "maxStep": 0.25,
+            "lookInterval": 0.45,
+            "scanInterval": 0.8,
+            "terrainSamples": 64,
+            "coverObjects": 1800,
+            "maxInjuries": 2,
+            "history": 12
+          }
+        },
+        "currentShots": [
+          {
+            "type": "shot",
+            "role": "pilot",
+            "source": 71,
+            "distance": 143.35416105076004,
+            "hit": true,
+            "at": 4.199999999999993
+          }
+        ],
+        "crew": {
+          "pilot": 0.84,
+          "bn": 1
+        },
+        "photos": [
+          {
+            "id": "descent-rifle-71",
+            "name": "photo_hr_militia_idle",
+            "asset": "militia:idle",
+            "kind": "militia",
+            "p": [
+              -7256.410478126291,
+              26.922459114173424,
+              1608.512136939271
+            ],
+            "alive": true
+          },
+          {
+            "id": "descent-rifle-118",
+            "name": "photo_hr_militia_idle",
+            "asset": "militia:idle",
+            "kind": "militia",
+            "p": [
+              -7268.985587646401,
+              24.906522274991985,
+              1559.4735720932058
+            ],
+            "alive": true
+          },
+          {
+            "id": "descent-rifle-184",
+            "name": "photo_hr_militia_idle",
+            "asset": "militia:idle",
+            "kind": "militia",
+            "p": [
+              -7326.81639119595,
+              28.51927811468963,
+              1625.920873010168
+            ],
+            "alive": true
+          }
+        ],
+        "originalSources": 202,
+        "sourcePositionsUnchanged": true,
+        "streaks": [
+          {
+            "p": [
+              -7256.410478126291,
+              28.55892970240872,
+              1608.512136939271
+            ],
+            "projected": {
+              "x": 718.3568540434185,
+              "y": 584.5427127356996,
+              "w": 132.79450274665578
+            },
+            "length": 4.5
+          }
+        ],
+        "photoPositions": [
+          {
+            "id": "descent-rifle-71",
+            "x": 718.2717561564,
+            "y": 586.155243242325,
+            "w": 132.93887834452562,
+            "obscuredBy": [
+              "radio"
+            ]
+          },
+          {
+            "id": "descent-rifle-118",
+            "x": 913.4561441157506,
+            "y": 557.3355908871482,
+            "w": 145.48642907286467,
+            "obscuredBy": []
+          },
+          {
+            "id": "descent-rifle-184",
+            "x": 639.8128408160347,
+            "y": 436.48874882180996,
+            "w": 198.84851384465583,
+            "obscuredBy": [
+              "radio"
+            ]
+          }
+        ],
+        "gl": 0,
+        "contextLost": false,
+        "chute": {
+          "p": [
+            -7147.538745420427,
+            120.57932708532786,
+            1625.920873010168
+          ],
+          "open": 1,
+          "t": 4.199999999999993
+        },
+        "caption": "CREW: Rifle fire from the ground. Steer away from the armed positions.CREW: Hit under the canopy. Still able to steer — get clear of the rifles."
+      },
+      "samples": [
+        {
+          "steps": 10,
+          "time": 0.8666666666666669,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 0.49999999999999994,
+            "shots": 0,
+            "injuries": {
+              "pilot": 0,
+              "bn": 0
+            },
+            "transferred": false,
+            "checks": 0,
+            "shooters": [
+              {
+                "id": "descent-rifle-71",
+                "p": [
+                  -7256.410478126291,
+                  26.958929702408717,
+                  1608.512136939271
+                ],
+                "face": 0.9305564775267406,
+                "alive": true,
+                "armed": true,
+                "source": 71
+              },
+              {
+                "id": "descent-rifle-118",
+                "p": [
+                  -7268.985587646401,
+                  24.94299286322728,
+                  1559.4735720932058
+                ],
+                "face": 5.845626442376547,
+                "alive": true,
+                "armed": true,
+                "source": 118
+              },
+              {
+                "id": "descent-rifle-184",
+                "p": [
+                  -7326.81639119595,
+                  28.555748702924923,
+                  1625.920873010168
+                ],
+                "face": 3.8347784690928197,
+                "alive": true,
+                "armed": true,
+                "source": 184
+              }
+            ],
+            "events": [],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [],
+          "crew": {
+            "pilot": 1,
+            "bn": 1
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-71",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7256.410478126291,
+                26.922459114173424,
+                1608.512136939271
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-118",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7268.985587646401,
+                24.906522274991985,
+                1559.4735720932058
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-184",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7326.81639119595,
+                28.51927811468963,
+                1625.920873010168
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 202,
+          "sourcePositionsUnchanged": true,
+          "streaks": [],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-71",
+              "x": 518.7960415841485,
+              "y": 1023.0371876272733,
+              "w": 143.99814804029847,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-118",
+              "x": 679.6571998839983,
+              "y": 931.9709569987019,
+              "w": 173.60054378061886,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-184",
+              "x": 426.89509760577783,
+              "y": 852.7101304422869,
+              "w": 202.17643724985737,
+              "obscuredBy": []
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -7136.879835359093,
+              154.87188671565914,
+              1625.920873010168
+            ],
+            "open": 0.3499999999999999,
+            "t": 0.49999999999999994
+          },
+          "caption": "BN: Ejecting — go, go, GO."
+        },
+        {
+          "steps": 10,
+          "time": 1.3666666666666674,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 1.0000000000000002,
+            "shots": 0,
+            "injuries": {
+              "pilot": 0,
+              "bn": 0
+            },
+            "transferred": false,
+            "checks": 0,
+            "shooters": [
+              {
+                "id": "descent-rifle-71",
+                "p": [
+                  -7256.410478126291,
+                  26.958929702408717,
+                  1608.512136939271
+                ],
+                "face": 0.9305564775267406,
+                "alive": true,
+                "armed": true,
+                "source": 71
+              },
+              {
+                "id": "descent-rifle-118",
+                "p": [
+                  -7268.985587646401,
+                  24.94299286322728,
+                  1559.4735720932058
+                ],
+                "face": 5.845626442376547,
+                "alive": true,
+                "armed": true,
+                "source": 118
+              },
+              {
+                "id": "descent-rifle-184",
+                "p": [
+                  -7326.81639119595,
+                  28.555748702924923,
+                  1625.920873010168
+                ],
+                "face": 3.8347784690928197,
+                "alive": true,
+                "armed": true,
+                "source": 184
+              }
+            ],
+            "events": [],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [],
+          "crew": {
+            "pilot": 1,
+            "bn": 1
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-71",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7256.410478126291,
+                26.922459114173424,
+                1608.512136939271
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-118",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7268.985587646401,
+                24.906522274991985,
+                1559.4735720932058
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-184",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7326.81639119595,
+                28.51927811468963,
+                1625.920873010168
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 202,
+          "sourcePositionsUnchanged": true,
+          "streaks": [],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-71",
+              "x": 628.4331017435995,
+              "y": 616.0914599348246,
+              "w": 176.14093111769307,
+              "obscuredBy": [
+                "radio"
+              ]
+            },
+            {
+              "id": "descent-rifle-118",
+              "x": 766.4064909129931,
+              "y": 572.4133814393622,
+              "w": 198.37747584236786,
+              "obscuredBy": [
+                "radio"
+              ]
+            },
+            {
+              "id": "descent-rifle-184",
+              "x": 550.8974844222626,
+              "y": 496.18769466426096,
+              "w": 237.70344393156665,
+              "obscuredBy": [
+                "radio"
+              ]
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -7137.2212181558725,
+              146.24985624697868,
+              1625.920873010168
+            ],
+            "open": 0.7,
+            "t": 1.0000000000000002
+          },
+          "caption": "BN: Ejecting — go, go, GO."
+        },
+        {
+          "steps": 10,
+          "time": 1.8666666666666678,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 1.5000000000000007,
+            "shots": 0,
+            "injuries": {
+              "pilot": 0,
+              "bn": 0
+            },
+            "transferred": false,
+            "checks": 0,
+            "shooters": [
+              {
+                "id": "descent-rifle-71",
+                "p": [
+                  -7256.410478126291,
+                  26.958929702408717,
+                  1608.512136939271
+                ],
+                "face": 0.9305564775267406,
+                "alive": true,
+                "armed": true,
+                "source": 71
+              },
+              {
+                "id": "descent-rifle-118",
+                "p": [
+                  -7268.985587646401,
+                  24.94299286322728,
+                  1559.4735720932058
+                ],
+                "face": 5.845626442376547,
+                "alive": true,
+                "armed": true,
+                "source": 118
+              },
+              {
+                "id": "descent-rifle-184",
+                "p": [
+                  -7326.81639119595,
+                  28.555748702924923,
+                  1625.920873010168
+                ],
+                "face": 3.8347784690928197,
+                "alive": true,
+                "armed": true,
+                "source": 184
+              }
+            ],
+            "events": [],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [],
+          "crew": {
+            "pilot": 1,
+            "bn": 1
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-71",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7256.410478126291,
+                26.922459114173424,
+                1608.512136939271
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-118",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7268.985587646401,
+                24.906522274991985,
+                1559.4735720932058
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-184",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7326.81639119595,
+                28.51927811468963,
+                1625.920873010168
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 202,
+          "sourcePositionsUnchanged": true,
+          "streaks": [],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-71",
+              "x": 710.2917052422063,
+              "y": 624.6746046280717,
+              "w": 148.38546444676194,
+              "obscuredBy": [
+                "radio"
+              ]
+            },
+            {
+              "id": "descent-rifle-118",
+              "x": 887.3970109746117,
+              "y": 595.6749215433733,
+              "w": 160.9205526099895,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-184",
+              "x": 639.9999361635797,
+              "y": 474.01958659819655,
+              "w": 214.3111660156319,
+              "obscuredBy": [
+                "radio"
+              ]
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -7138.010613326253,
+              140.1119937220924,
+              1625.920873010168
+            ],
+            "open": 1,
+            "t": 1.5000000000000007
+          },
+          "caption": "BN: Ejecting — go, go, GO.PILOT: Good chute. I have a good chute."
+        },
+        {
+          "steps": 10,
+          "time": 2.3666666666666667,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 2.000000000000001,
+            "shots": 0,
+            "injuries": {
+              "pilot": 0,
+              "bn": 0
+            },
+            "transferred": false,
+            "checks": 0,
+            "shooters": [
+              {
+                "id": "descent-rifle-71",
+                "p": [
+                  -7256.410478126291,
+                  26.958929702408717,
+                  1608.512136939271
+                ],
+                "face": 0.9305564775267406,
+                "alive": true,
+                "armed": true,
+                "source": 71
+              },
+              {
+                "id": "descent-rifle-118",
+                "p": [
+                  -7268.985587646401,
+                  24.94299286322728,
+                  1559.4735720932058
+                ],
+                "face": 5.845626442376547,
+                "alive": true,
+                "armed": true,
+                "source": 118
+              },
+              {
+                "id": "descent-rifle-184",
+                "p": [
+                  -7326.81639119595,
+                  28.555748702924923,
+                  1625.920873010168
+                ],
+                "face": 3.8347784690928197,
+                "alive": true,
+                "armed": true,
+                "source": 184
+              }
+            ],
+            "events": [],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [],
+          "crew": {
+            "pilot": 1,
+            "bn": 1
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-71",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7256.410478126291,
+                26.922459114173424,
+                1608.512136939271
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-118",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7268.985587646401,
+                24.906522274991985,
+                1559.4735720932058
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-184",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7326.81639119595,
+                28.51927811468963,
+                1625.920873010168
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 202,
+          "sourcePositionsUnchanged": true,
+          "streaks": [],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-71",
+              "x": 711.5950027624417,
+              "y": 613.5572826806551,
+              "w": 145.68429257176194,
+              "obscuredBy": [
+                "radio"
+              ]
+            },
+            {
+              "id": "descent-rifle-118",
+              "x": 891.6206518768788,
+              "y": 584.9432886445048,
+              "w": 158.2193807349895,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-184",
+              "x": 639.9999353487168,
+              "y": 464.4427030064649,
+              "w": 211.6099941406319,
+              "obscuredBy": [
+                "radio"
+              ]
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -7139.272884445531,
+              135.54172200840446,
+              1625.920873010168
+            ],
+            "open": 1,
+            "t": 2.000000000000001
+          },
+          "caption": "BN: Ejecting — go, go, GO.PILOT: Good chute. I have a good chute."
+        },
+        {
+          "steps": 10,
+          "time": 2.866666666666665,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 2.499999999999999,
+            "shots": 0,
+            "injuries": {
+              "pilot": 0,
+              "bn": 0
+            },
+            "transferred": false,
+            "checks": 0,
+            "shooters": [
+              {
+                "id": "descent-rifle-71",
+                "p": [
+                  -7256.410478126291,
+                  26.958929702408717,
+                  1608.512136939271
+                ],
+                "face": 0.9305564775267406,
+                "alive": true,
+                "armed": true,
+                "source": 71
+              },
+              {
+                "id": "descent-rifle-118",
+                "p": [
+                  -7268.985587646401,
+                  24.94299286322728,
+                  1559.4735720932058
+                ],
+                "face": 5.845626442376547,
+                "alive": true,
+                "armed": true,
+                "source": 118
+              },
+              {
+                "id": "descent-rifle-184",
+                "p": [
+                  -7326.81639119595,
+                  28.555748702924923,
+                  1625.920873010168
+                ],
+                "face": 3.8347784690928197,
+                "alive": true,
+                "armed": true,
+                "source": 184
+              }
+            ],
+            "events": [],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [],
+          "crew": {
+            "pilot": 1,
+            "bn": 1
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-71",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7256.410478126291,
+                26.922459114173424,
+                1608.512136939271
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-118",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7268.985587646401,
+                24.906522274991985,
+                1559.4735720932058
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-184",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7326.81639119595,
+                28.51927811468963,
+                1625.920873010168
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 202,
+          "sourcePositionsUnchanged": true,
+          "streaks": [],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-71",
+              "x": 712.9791939322577,
+              "y": 605.5834529866362,
+              "w": 142.92110897801194,
+              "obscuredBy": [
+                "radio"
+              ]
+            },
+            {
+              "id": "descent-rifle-118",
+              "x": 896.0931275317616,
+              "y": 577.1038179514447,
+              "w": 155.4561971412395,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-184",
+              "x": 639.9999344933369,
+              "y": 457.0130489995281,
+              "w": 208.8468105468819,
+              "obscuredBy": [
+                "radio"
+              ]
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -7140.866210050118,
+              131.7301365122333,
+              1625.920873010168
+            ],
+            "open": 1,
+            "t": 2.499999999999999
+          },
+          "caption": "PILOT: Good chute. I have a good chute."
+        },
+        {
+          "steps": 10,
+          "time": 3.366666666666663,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 2.9999999999999973,
+            "shots": 0,
+            "injuries": {
+              "pilot": 0,
+              "bn": 0
+            },
+            "transferred": false,
+            "checks": 0,
+            "shooters": [
+              {
+                "id": "descent-rifle-71",
+                "p": [
+                  -7256.410478126291,
+                  26.958929702408717,
+                  1608.512136939271
+                ],
+                "face": 0.9305564775267406,
+                "alive": true,
+                "armed": true,
+                "source": 71
+              },
+              {
+                "id": "descent-rifle-118",
+                "p": [
+                  -7268.985587646401,
+                  24.94299286322728,
+                  1559.4735720932058
+                ],
+                "face": 5.845626442376547,
+                "alive": true,
+                "armed": true,
+                "source": 118
+              },
+              {
+                "id": "descent-rifle-184",
+                "p": [
+                  -7326.81639119595,
+                  28.555748702924923,
+                  1625.920873010168
+                ],
+                "face": 3.8347784690928197,
+                "alive": true,
+                "armed": true,
+                "source": 184
+              }
+            ],
+            "events": [],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [],
+          "crew": {
+            "pilot": 1,
+            "bn": 1
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-71",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7256.410478126291,
+                26.922459114173424,
+                1608.512136939271
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-118",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7268.985587646401,
+                24.906522274991985,
+                1559.4735720932058
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-184",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7326.81639119595,
+                28.51927811468963,
+                1625.920873010168
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 202,
+          "sourcePositionsUnchanged": true,
+          "streaks": [],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-71",
+              "x": 714.46387993761,
+              "y": 599.2374509088139,
+              "w": 140.07149960301194,
+              "obscuredBy": [
+                "radio"
+              ]
+            },
+            {
+              "id": "descent-rifle-118",
+              "x": 900.8751319508987,
+              "y": 570.7472780620712,
+              "w": 152.6065877662395,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-184",
+              "x": 639.9999335871673,
+              "y": 450.64276029604866,
+              "w": 205.9972011718819,
+              "obscuredBy": [
+                "radio"
+              ]
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -7142.679631480825,
+              128.28574172204102,
+              1625.920873010168
+            ],
+            "open": 1,
+            "t": 2.9999999999999973
+          },
+          "caption": "PILOT: Good chute. I have a good chute."
+        },
+        {
+          "steps": 10,
+          "time": 3.8666666666666614,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 3.4999999999999956,
+            "shots": 0,
+            "injuries": {
+              "pilot": 0,
+              "bn": 0
+            },
+            "transferred": false,
+            "checks": 0,
+            "shooters": [
+              {
+                "id": "descent-rifle-71",
+                "p": [
+                  -7256.410478126291,
+                  26.958929702408717,
+                  1608.512136939271
+                ],
+                "face": 0.9305564775267406,
+                "alive": true,
+                "armed": true,
+                "source": 71
+              },
+              {
+                "id": "descent-rifle-118",
+                "p": [
+                  -7268.985587646401,
+                  24.94299286322728,
+                  1559.4735720932058
+                ],
+                "face": 5.845626442376547,
+                "alive": true,
+                "armed": true,
+                "source": 118
+              },
+              {
+                "id": "descent-rifle-184",
+                "p": [
+                  -7326.81639119595,
+                  28.555748702924923,
+                  1625.920873010168
+                ],
+                "face": 3.8347784690928197,
+                "alive": true,
+                "armed": true,
+                "source": 184
+              }
+            ],
+            "events": [],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [],
+          "crew": {
+            "pilot": 1,
+            "bn": 1
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-71",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7256.410478126291,
+                26.922459114173424,
+                1608.512136939271
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-118",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7268.985587646401,
+                24.906522274991985,
+                1559.4735720932058
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-184",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7326.81639119595,
+                28.51927811468963,
+                1625.920873010168
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 202,
+          "sourcePositionsUnchanged": true,
+          "streaks": [],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-71",
+              "x": 716.0540705830247,
+              "y": 593.7041349612683,
+              "w": 137.14278866551194,
+              "obscuredBy": [
+                "radio"
+              ]
+            },
+            {
+              "id": "descent-rifle-118",
+              "x": 905.9796127763486,
+              "y": 565.1199009353567,
+              "w": 149.6778768287395,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-184",
+              "x": 639.9999326293427,
+              "y": 444.76274772547407,
+              "w": 203.0684902343819,
+              "obscuredBy": [
+                "radio"
+              ]
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -7144.639379799785,
+              125.01906073690324,
+              1625.920873010168
+            ],
+            "open": 1,
+            "t": 3.4999999999999956
+          },
+          "caption": "PILOT: Good chute. I have a good chute."
+        },
+        {
+          "steps": 10,
+          "time": 4.36666666666666,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 3.999999999999994,
+            "shots": 0,
+            "injuries": {
+              "pilot": 0,
+              "bn": 0
+            },
+            "transferred": false,
+            "checks": 0,
+            "shooters": [
+              {
+                "id": "descent-rifle-71",
+                "p": [
+                  -7256.410478126291,
+                  26.958929702408717,
+                  1608.512136939271
+                ],
+                "face": 0.9305564775267406,
+                "alive": true,
+                "armed": true,
+                "source": 71
+              },
+              {
+                "id": "descent-rifle-118",
+                "p": [
+                  -7268.985587646401,
+                  24.94299286322728,
+                  1559.4735720932058
+                ],
+                "face": 5.845626442376547,
+                "alive": true,
+                "armed": true,
+                "source": 118
+              },
+              {
+                "id": "descent-rifle-184",
+                "p": [
+                  -7326.81639119595,
+                  28.555748702924923,
+                  1625.920873010168
+                ],
+                "face": 3.8347784690928197,
+                "alive": true,
+                "armed": true,
+                "source": 184
+              }
+            ],
+            "events": [],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [],
+          "crew": {
+            "pilot": 1,
+            "bn": 1
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-71",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7256.410478126291,
+                26.922459114173424,
+                1608.512136939271
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-118",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7268.985587646401,
+                24.906522274991985,
+                1559.4735720932058
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-184",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7326.81639119595,
+                28.51927811468963,
+                1625.920873010168
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 202,
+          "sourcePositionsUnchanged": true,
+          "streaks": [],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-71",
+              "x": 717.7504330096222,
+              "y": 588.5429686384552,
+              "w": 134.15060116551194,
+              "obscuredBy": [
+                "radio"
+              ]
+            },
+            {
+              "id": "descent-rifle-118",
+              "x": 911.4052332049414,
+              "y": 559.8167049914999,
+              "w": 146.6856893287395,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-184",
+              "x": 639.9999316217989,
+              "y": 439.0747471652527,
+              "w": 200.0763027343819,
+              "obscuredBy": [
+                "radio"
+              ]
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -7146.696411009579,
+              121.83839008915336,
+              1625.920873010168
+            ],
+            "open": 1,
+            "t": 3.999999999999994
+          },
+          "caption": ""
+        },
+        {
+          "steps": 4,
+          "time": 4.566666666666659,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 4.199999999999993,
+            "shots": 1,
+            "injuries": {
+              "pilot": 1,
+              "bn": 0
+            },
+            "transferred": false,
+            "checks": 3,
+            "shooters": [
+              {
+                "id": "descent-rifle-71",
+                "p": [
+                  -7256.410478126291,
+                  26.958929702408717,
+                  1608.512136939271
+                ],
+                "face": 1.2905564775267409,
+                "alive": true,
+                "armed": true,
+                "source": 71
+              },
+              {
+                "id": "descent-rifle-118",
+                "p": [
+                  -7268.985587646401,
+                  24.94299286322728,
+                  1559.4735720932058
+                ],
+                "face": -0.07755886480303938,
+                "alive": true,
+                "armed": true,
+                "source": 118
+              },
+              {
+                "id": "descent-rifle-184",
+                "p": [
+                  -7326.81639119595,
+                  28.555748702924923,
+                  1625.920873010168
+                ],
+                "face": -2.8084068380867664,
+                "alive": true,
+                "armed": true,
+                "source": 184
+              }
+            ],
+            "events": [
+              {
+                "type": "shot",
+                "role": "pilot",
+                "source": 71,
+                "distance": 143.35416105076004,
+                "hit": true,
+                "at": 4.199999999999993
+              },
+              {
+                "type": "injury",
+                "role": "pilot",
+                "at": 4.199999999999993
+              }
+            ],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [
+            {
+              "type": "shot",
+              "role": "pilot",
+              "source": 71,
+              "distance": 143.35416105076004,
+              "hit": true,
+              "at": 4.199999999999993
+            }
+          ],
+          "crew": {
+            "pilot": 0.84,
+            "bn": 1
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-71",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7256.410478126291,
+                26.922459114173424,
+                1608.512136939271
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-118",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7268.985587646401,
+                24.906522274991985,
+                1559.4735720932058
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-184",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7326.81639119595,
+                28.51927811468963,
+                1625.920873010168
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 202,
+          "sourcePositionsUnchanged": true,
+          "streaks": [
+            {
+              "p": [
+                -7256.410478126291,
+                28.55892970240872,
+                1608.512136939271
+              ],
+              "projected": {
+                "x": 718.3568540434185,
+                "y": 584.5427127356996,
+                "w": 132.79450274665578
+              },
+              "length": 4.5
+            }
+          ],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-71",
+              "x": 718.2717561564,
+              "y": 586.155243242325,
+              "w": 132.93887834452562,
+              "obscuredBy": [
+                "radio"
+              ]
+            },
+            {
+              "id": "descent-rifle-118",
+              "x": 913.4561441157506,
+              "y": 557.3355908871482,
+              "w": 145.48642907286467,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-184",
+              "x": 639.8128408160347,
+              "y": 436.48874882180996,
+              "w": 198.84851384465583,
+              "obscuredBy": [
+                "radio"
+              ]
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -7147.538745420427,
+              120.57932708532786,
+              1625.920873010168
+            ],
+            "open": 1,
+            "t": 4.199999999999993
+          },
+          "caption": "CREW: Rifle fire from the ground. Steer away from the armed positions.CREW: Hit under the canopy. Still able to steer — get clear of the rifles."
+        },
+        {
+          "steps": 10,
+          "time": 5.0666666666666575,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 4.699999999999991,
+            "shots": 1,
+            "injuries": {
+              "pilot": 1,
+              "bn": 0
+            },
+            "transferred": false,
+            "checks": 6,
+            "shooters": [
+              {
+                "id": "descent-rifle-71",
+                "p": [
+                  -7256.410478126291,
+                  26.958929702408717,
+                  1608.512136939271
+                ],
+                "face": 1.7324814955076675,
+                "alive": true,
+                "armed": true,
+                "source": 71
+              },
+              {
+                "id": "descent-rifle-118",
+                "p": [
+                  -7268.985587646401,
+                  24.94299286322728,
+                  1559.4735720932058
+                ],
+                "face": 0.8224411351969606,
+                "alive": true,
+                "armed": true,
+                "source": 118
+              },
+              {
+                "id": "descent-rifle-184",
+                "p": [
+                  -7326.81639119595,
+                  28.555748702924923,
+                  1625.920873010168
+                ],
+                "face": 2.5747784690928217,
+                "alive": true,
+                "armed": true,
+                "source": 184
+              }
+            ],
+            "events": [
+              {
+                "type": "shot",
+                "role": "pilot",
+                "source": 71,
+                "distance": 143.35416105076004,
+                "hit": true,
+                "at": 4.199999999999993
+              },
+              {
+                "type": "injury",
+                "role": "pilot",
+                "at": 4.199999999999993
+              }
+            ],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [],
+          "crew": {
+            "pilot": 0.84,
+            "bn": 1
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-118",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7268.985587646401,
+                24.906522274991985,
+                1559.4735720932058
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-184",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7326.81639119595,
+                28.51927811468963,
+                1625.920873010168
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-71",
+              "name": "photo_hr_militia_aim",
+              "asset": "militia:aim",
+              "kind": "militia",
+              "p": [
+                -7256.410478126291,
+                26.918902946555875,
+                1608.512136939271
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 202,
+          "sourcePositionsUnchanged": true,
+          "streaks": [
+            {
+              "p": [
+                -7184.261790350184,
+                89.27525413679574,
+                1620.0488088754946
+              ],
+              "projected": {
+                "x": 724.6021443308325,
+                "y": 563.5856442517434,
+                "w": 41.58498017583315
+              },
+              "length": 4.5
+            }
+          ],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-118",
+              "x": 919.534094495283,
+              "y": 552.5234099058227,
+              "w": 142.4200643287395,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-184",
+              "x": 639.9999301322184,
+              "y": 431.13977912826505,
+              "w": 195.8106777343819,
+              "obscuredBy": [
+                "radio"
+              ]
+            },
+            {
+              "id": "descent-rifle-71",
+              "x": 720.3031520533312,
+              "y": 581.5026988204654,
+              "w": 129.8861509470098,
+              "obscuredBy": [
+                "radio"
+              ]
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -7149.67978109448,
+              117.4501207663605,
+              1625.920873010168
+            ],
+            "open": 1,
+            "t": 4.699999999999991
+          },
+          "caption": "CREW: Rifle fire from the ground. Steer away from the armed positions.CREW: Hit under the canopy. Still able to steer — get clear of the rifles."
+        },
+        {
+          "steps": 6,
+          "time": 5.3666666666666565,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 4.99999999999999,
+            "shots": 2,
+            "injuries": {
+              "pilot": 1,
+              "bn": 0
+            },
+            "transferred": false,
+            "checks": 6,
+            "shooters": [
+              {
+                "id": "descent-rifle-71",
+                "p": [
+                  -7256.410478126291,
+                  26.958929702408717,
+                  1608.512136939271
+                ],
+                "face": 1.7344445847868415,
+                "alive": true,
+                "armed": true,
+                "source": 71
+              },
+              {
+                "id": "descent-rifle-118",
+                "p": [
+                  -7268.985587646401,
+                  24.94299286322728,
+                  1559.4735720932058
+                ],
+                "face": 1.362441135196961,
+                "alive": true,
+                "armed": true,
+                "source": 118
+              },
+              {
+                "id": "descent-rifle-184",
+                "p": [
+                  -7326.81639119595,
+                  28.555748702924923,
+                  1625.920873010168
+                ],
+                "face": 2.0347784690928226,
+                "alive": true,
+                "armed": true,
+                "source": 184
+              }
+            ],
+            "events": [
+              {
+                "type": "shot",
+                "role": "pilot",
+                "source": 71,
+                "distance": 143.35416105076004,
+                "hit": true,
+                "at": 4.199999999999993
+              },
+              {
+                "type": "injury",
+                "role": "pilot",
+                "at": 4.199999999999993
+              },
+              {
+                "type": "shot",
+                "role": "pilot",
+                "source": 184,
+                "distance": 195.31165471463402,
+                "hit": false,
+                "at": 4.99999999999999
+              }
+            ],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [
+            {
+              "type": "shot",
+              "role": "pilot",
+              "source": 184,
+              "distance": 195.31165471463402,
+              "hit": false,
+              "at": 4.99999999999999
+            }
+          ],
+          "crew": {
+            "pilot": 0.84,
+            "bn": 1
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-118",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -7268.985587646401,
+                24.906522274991985,
+                1559.4735720932058
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-71",
+              "name": "photo_hr_militia_aim",
+              "asset": "militia:aim",
+              "kind": "militia",
+              "p": [
+                -7256.410478126291,
+                26.918902946555875,
+                1608.512136939271
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-184",
+              "name": "photo_hr_militia_aim",
+              "asset": "militia:aim",
+              "kind": "militia",
+              "p": [
+                -7326.81639119595,
+                28.51572194707208,
+                1625.920873010168
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 202,
+          "sourcePositionsUnchanged": true,
+          "streaks": [
+            {
+              "p": [
+                -7140.97257768452,
+                125.70504879742795,
+                1626.9708120372288
+              ],
+              "projected": {
+                "x": 687.8159866782714,
+                "y": 691.8815529860561,
+                "w": -13.156160720379376
+              },
+              "length": 4.5
+            },
+            {
+              "p": [
+                -7326.81639119595,
+                30.155748702924924,
+                1625.920873010168
+              ],
+              "projected": {
+                "x": 639.9999294141986,
+                "y": 426.4735463784248,
+                "w": 193.81883323839156
+              },
+              "length": 4.5
+            }
+          ],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-118",
+              "x": 923.2082359846497,
+              "y": 549.3680235236122,
+              "w": 140.5724080787395,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-71",
+              "x": 721.4619646521294,
+              "y": 578.4566110106592,
+              "w": 128.0384946970098,
+              "obscuredBy": [
+                "radio"
+              ]
+            },
+            {
+              "id": "descent-rifle-184",
+              "x": 639.9999294670979,
+              "y": 427.7066298869578,
+              "w": 193.96419626587976,
+              "obscuredBy": [
+                "radio"
+              ]
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -7150.982826385188,
+              115.58045072126718,
+              1625.920873010168
+            ],
+            "open": 1,
+            "t": 4.99999999999999
+          },
+          "caption": "CREW: Rifle fire from the ground. Steer away from the armed positions.CREW: Hit under the canopy. Still able to steer — get clear of the rifles."
+        },
+        {
+          "steps": 1,
+          "time": 5.416666666666656,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 5.04999999999999,
+            "shots": 3,
+            "injuries": {
+              "pilot": 1,
+              "bn": 0
+            },
+            "transferred": false,
+            "checks": 9,
+            "shooters": [
+              {
+                "id": "descent-rifle-71",
+                "p": [
+                  -7256.410478126291,
+                  26.958929702408717,
+                  1608.512136939271
+                ],
+                "face": 1.7347779887442942,
+                "alive": true,
+                "armed": true,
+                "source": 71
+              },
+              {
+                "id": "descent-rifle-118",
+                "p": [
+                  -7268.985587646401,
+                  24.94299286322728,
+                  1559.4735720932058
+                ],
+                "face": 1.452441135196961,
+                "alive": true,
+                "armed": true,
+                "source": 118
+              },
+              {
+                "id": "descent-rifle-184",
+                "p": [
+                  -7326.81639119595,
+                  28.555748702924923,
+                  1625.920873010168
+                ],
+                "face": 1.9447784690928225,
+                "alive": true,
+                "armed": true,
+                "source": 184
+              }
+            ],
+            "events": [
+              {
+                "type": "shot",
+                "role": "pilot",
+                "source": 71,
+                "distance": 143.35416105076004,
+                "hit": true,
+                "at": 4.199999999999993
+              },
+              {
+                "type": "injury",
+                "role": "pilot",
+                "at": 4.199999999999993
+              },
+              {
+                "type": "shot",
+                "role": "pilot",
+                "source": 184,
+                "distance": 195.31165471463402,
+                "hit": false,
+                "at": 4.99999999999999
+              },
+              {
+                "type": "shot",
+                "role": "bn",
+                "source": 118,
+                "distance": 159.28387478584858,
+                "hit": false,
+                "at": 5.04999999999999
+              }
+            ],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [
+            {
+              "type": "shot",
+              "role": "bn",
+              "source": 118,
+              "distance": 159.28387478584858,
+              "hit": false,
+              "at": 5.04999999999999
+            }
+          ],
+          "crew": {
+            "pilot": 0.84,
+            "bn": 1
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-71",
+              "name": "photo_hr_militia_aim",
+              "asset": "militia:aim",
+              "kind": "militia",
+              "p": [
+                -7256.410478126291,
+                26.918902946555875,
+                1608.512136939271
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-118",
+              "name": "photo_hr_militia_aim",
+              "asset": "militia:aim",
+              "kind": "militia",
+              "p": [
+                -7268.985587646401,
+                24.902966107374436,
+                1559.4735720932058
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-184",
+              "name": "photo_hr_militia_aim",
+              "asset": "militia:aim",
+              "kind": "militia",
+              "p": [
+                -7326.81639119595,
+                28.51572194707208,
+                1625.920873010168
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 202,
+          "sourcePositionsUnchanged": true,
+          "streaks": [
+            {
+              "p": [
+                -7133.757708906909,
+                131.77668124086665,
+                1628.1244792308512
+              ],
+              "projected": {
+                "x": 699.2578017641358,
+                "y": 651.9478867524323,
+                "w": -22.28033524474813
+              },
+              "length": 4.5
+            },
+            {
+              "p": [
+                -7318.34749860823,
+                34.452182336913886,
+                1625.6591166990909
+              ],
+              "projected": {
+                "x": 640.8518050479574,
+                "y": 425.1692895384306,
+                "w": 184.09747551369583
+              },
+              "length": 4.5
+            },
+            {
+              "p": [
+                -7268.985587646401,
+                26.54299286322728,
+                1559.4735720932058
+              ],
+              "projected": {
+                "x": 924.1233939389987,
+                "y": 547.270001836744,
+                "w": 140.11962608274916
+              },
+              "length": 4.5
+            }
+          ],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-71",
+              "x": 721.6587756804632,
+              "y": 577.9439958773938,
+              "w": 127.72990094700981,
+              "obscuredBy": [
+                "radio"
+              ]
+            },
+            {
+              "id": "descent-rifle-118",
+              "x": 923.8289438628592,
+              "y": 548.8499735359662,
+              "w": 140.26498911023737,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-184",
+              "x": 639.9999293547024,
+              "y": 427.1283002092809,
+              "w": 193.65560251587976,
+              "obscuredBy": [
+                "radio"
+              ]
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -7151.201058977618,
+              115.26921010506648,
+              1625.920873010168
+            ],
+            "open": 1,
+            "t": 5.04999999999999
+          },
+          "caption": ""
+        }
+      ],
+      "frozen": {
+        "before": {
+          "active": false,
+          "clock": 5.04999999999999,
+          "shots": 3,
+          "injuries": {
+            "pilot": 1,
+            "bn": 0
+          },
+          "transferred": false,
+          "checks": 9,
+          "shooters": [
+            {
+              "id": "descent-rifle-71",
+              "p": [
+                -7256.410478126291,
+                26.958929702408717,
+                1608.512136939271
+              ],
+              "face": 1.7347779887442942,
+              "alive": true,
+              "armed": true,
+              "source": 71
+            },
+            {
+              "id": "descent-rifle-118",
+              "p": [
+                -7268.985587646401,
+                24.94299286322728,
+                1559.4735720932058
+              ],
+              "face": 1.452441135196961,
+              "alive": true,
+              "armed": true,
+              "source": 118
+            },
+            {
+              "id": "descent-rifle-184",
+              "p": [
+                -7326.81639119595,
+                28.555748702924923,
+                1625.920873010168
+              ],
+              "face": 1.9447784690928225,
+              "alive": true,
+              "armed": true,
+              "source": 184
+            }
+          ],
+          "events": [
+            {
+              "type": "shot",
+              "role": "pilot",
+              "source": 71,
+              "distance": 143.35416105076004,
+              "hit": true,
+              "at": 4.199999999999993
+            },
+            {
+              "type": "injury",
+              "role": "pilot",
+              "at": 4.199999999999993
+            },
+            {
+              "type": "shot",
+              "role": "pilot",
+              "source": 184,
+              "distance": 195.31165471463402,
+              "hit": false,
+              "at": 4.99999999999999
+            },
+            {
+              "type": "shot",
+              "role": "bn",
+              "source": 118,
+              "distance": 159.28387478584858,
+              "hit": false,
+              "at": 5.04999999999999
+            }
+          ],
+          "limits": {
+            "shooters": 4,
+            "range": 400,
+            "height": 300,
+            "grace": 4,
+            "open": 0.85,
+            "step": 0.05,
+            "maxStep": 0.25,
+            "lookInterval": 0.45,
+            "scanInterval": 0.8,
+            "terrainSamples": 64,
+            "coverObjects": 1800,
+            "maxInjuries": 2,
+            "history": 12
+          }
+        },
+        "after": {
+          "active": false,
+          "clock": 5.04999999999999,
+          "shots": 3,
+          "injuries": {
+            "pilot": 1,
+            "bn": 0
+          },
+          "transferred": false,
+          "checks": 9,
+          "shooters": [
+            {
+              "id": "descent-rifle-71",
+              "p": [
+                -7256.410478126291,
+                26.958929702408717,
+                1608.512136939271
+              ],
+              "face": 1.7347779887442942,
+              "alive": true,
+              "armed": true,
+              "source": 71
+            },
+            {
+              "id": "descent-rifle-118",
+              "p": [
+                -7268.985587646401,
+                24.94299286322728,
+                1559.4735720932058
+              ],
+              "face": 1.452441135196961,
+              "alive": true,
+              "armed": true,
+              "source": 118
+            },
+            {
+              "id": "descent-rifle-184",
+              "p": [
+                -7326.81639119595,
+                28.555748702924923,
+                1625.920873010168
+              ],
+              "face": 1.9447784690928225,
+              "alive": true,
+              "armed": true,
+              "source": 184
+            }
+          ],
+          "events": [
+            {
+              "type": "shot",
+              "role": "pilot",
+              "source": 71,
+              "distance": 143.35416105076004,
+              "hit": true,
+              "at": 4.199999999999993
+            },
+            {
+              "type": "injury",
+              "role": "pilot",
+              "at": 4.199999999999993
+            },
+            {
+              "type": "shot",
+              "role": "pilot",
+              "source": 184,
+              "distance": 195.31165471463402,
+              "hit": false,
+              "at": 4.99999999999999
+            },
+            {
+              "type": "shot",
+              "role": "bn",
+              "source": 118,
+              "distance": 159.28387478584858,
+              "hit": false,
+              "at": 5.04999999999999
+            }
+          ],
+          "limits": {
+            "shooters": 4,
+            "range": 400,
+            "height": 300,
+            "grace": 4,
+            "open": 0.85,
+            "step": 0.05,
+            "maxStep": 0.25,
+            "lookInterval": 0.45,
+            "scanInterval": 0.8,
+            "terrainSamples": 64,
+            "coverObjects": 1800,
+            "maxInjuries": 2,
+            "history": 12
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "phone-bn",
+      "fixture": {
+        "sourceIndex": 41,
+        "source": [
+          -4052.0498284096348,
+          136.5309809266881,
+          9912.069689671023
+        ],
+        "aircraft": [
+          -3862.0498284096348,
+          250.0296374001645,
+          9912.069689671023
+        ],
+        "crew": {
+          "pilot": 1,
+          "bn": 1
+        },
+        "sourceCount": 219,
+        "seat": true,
+        "presentation": {
+          "requested": 1,
+          "effective": 1,
+          "canvas": [
+            1114,
+            515
+          ],
+          "dpr": 1.32,
+          "devicePixelRatio": 3
+        },
+        "scope": "Aircraft only is placed before native ejection,190m east/115m above ground at an existing original World.saf weapon position. The original ejection random draw is declared constant. Subsequent chute motion, camera, hits and landing remain original."
+      },
+      "firstShot": {
+        "steps": 2,
+        "time": 4.649999999999992,
+        "phase": "chute",
+        "descent": {
+          "active": true,
+          "clock": 4.099999999999993,
+          "shots": 1,
+          "injuries": {
+            "pilot": 0,
+            "bn": 1
+          },
+          "transferred": false,
+          "checks": 3,
+          "shooters": [
+            {
+              "id": "descent-rifle-88",
+              "p": [
+                -3864.2878750918126,
+                136.1836134063194,
+                9786.575357626138
+              ],
+              "face": -2.6667474690936572,
+              "alive": true,
+              "armed": true,
+              "source": 88
+            },
+            {
+              "id": "descent-rifle-41",
+              "p": [
+                -4052.0498284096348,
+                134.9309809266881,
+                9912.069689671023
+              ],
+              "face": 0.12467735657269854,
+              "alive": true,
+              "armed": true,
+              "source": 41
+            },
+            {
+              "id": "descent-rifle-201",
+              "p": [
+                -4059.1528377543773,
+                137.58927149946894,
+                9791.705233716059
+              ],
+              "face": -2.0266092604478136,
+              "alive": true,
+              "armed": true,
+              "source": 201
+            }
+          ],
+          "events": [
+            {
+              "type": "shot",
+              "role": "bn",
+              "source": 88,
+              "distance": 154.8282583361633,
+              "hit": true,
+              "at": 4.099999999999993
+            },
+            {
+              "type": "injury",
+              "role": "bn",
+              "at": 4.099999999999993
+            }
+          ],
+          "limits": {
+            "shooters": 4,
+            "range": 400,
+            "height": 300,
+            "grace": 4,
+            "open": 0.85,
+            "step": 0.05,
+            "maxStep": 0.25,
+            "lookInterval": 0.45,
+            "scanInterval": 0.8,
+            "terrainSamples": 64,
+            "coverObjects": 1800,
+            "maxInjuries": 2,
+            "history": 12
+          }
+        },
+        "currentShots": [
+          {
+            "type": "shot",
+            "role": "bn",
+            "source": 88,
+            "distance": 154.8282583361633,
+            "hit": true,
+            "at": 4.099999999999993
+          }
+        ],
+        "crew": {
+          "pilot": 1,
+          "bn": 0.84
+        },
+        "photos": [
+          {
+            "id": "descent-rifle-88",
+            "name": "photo_hr_militia_idle",
+            "asset": "militia:idle",
+            "kind": "militia",
+            "p": [
+              -3864.2878750918126,
+              136.14714281808412,
+              9786.575357626138
+            ],
+            "alive": true
+          },
+          {
+            "id": "descent-rifle-41",
+            "name": "photo_hr_militia_idle",
+            "asset": "militia:idle",
+            "kind": "militia",
+            "p": [
+              -4052.0498284096348,
+              134.89451033845282,
+              9912.069689671023
+            ],
+            "alive": true
+          },
+          {
+            "id": "descent-rifle-201",
+            "name": "photo_hr_militia_idle",
+            "asset": "militia:idle",
+            "kind": "militia",
+            "p": [
+              -4059.1528377543773,
+              137.55280091123365,
+              9791.705233716059
+            ],
+            "alive": true
+          }
+        ],
+        "originalSources": 219,
+        "sourcePositionsUnchanged": true,
+        "streaks": [
+          {
+            "p": [
+              -3864.2878750918126,
+              137.7836134063194,
+              9786.575357626138
+            ],
+            "projected": {
+              "x": 2268.7735472272634,
+              "y": 1478.0109148571776,
+              "w": 22.0699981373632
+            },
+            "length": 4.500000000000001
+          }
+        ],
+        "photoPositions": [
+          {
+            "id": "descent-rifle-88",
+            "x": 2256.7895517875186,
+            "y": 1475.704017057946,
+            "w": 22.214149141916096,
+            "obscuredBy": []
+          },
+          {
+            "id": "descent-rifle-41",
+            "x": 421.91103509811643,
+            "y": 238.62116804109306,
+            "w": 199.79568309811611,
+            "obscuredBy": []
+          },
+          {
+            "id": "descent-rifle-201",
+            "x": 611.9154824339519,
+            "y": 229.68203001550668,
+            "w": 205.67824501213727,
+            "obscuredBy": []
+          }
+        ],
+        "gl": 0,
+        "contextLost": false,
+        "chute": {
+          "p": [
+            -3872.3498390698783,
+            228.50507785876334,
+            9912.069689671023
+          ],
+          "open": 1,
+          "t": 4.099999999999993
+        },
+        "caption": "CREW: Rifle fire from the ground. Steer away from the armed positions.CREW: Hit under the canopy. Still able to steer — get clear of the rifles."
+      },
+      "visibleShot": {
+        "steps": 1,
+        "time": 5.19999999999999,
+        "phase": "chute",
+        "descent": {
+          "active": true,
+          "clock": 4.6499999999999915,
+          "shots": 2,
+          "injuries": {
+            "pilot": 0,
+            "bn": 1
+          },
+          "transferred": false,
+          "checks": 6,
+          "shooters": [
+            {
+              "id": "descent-rifle-88",
+              "p": [
+                -3864.2878750918126,
+                136.1836134063194,
+                9786.575357626138
+              ],
+              "face": -3.058835334912622,
+              "alive": true,
+              "armed": true,
+              "source": 88
+            },
+            {
+              "id": "descent-rifle-41",
+              "p": [
+                -4052.0498284096348,
+                134.9309809266881,
+                9912.069689671023
+              ],
+              "face": 1.1146773565726984,
+              "alive": true,
+              "armed": true,
+              "source": 41
+            },
+            {
+              "id": "descent-rifle-201",
+              "p": [
+                -4059.1528377543773,
+                137.58927149946894,
+                9791.705233716059
+              ],
+              "face": -3.016609260447812,
+              "alive": true,
+              "armed": true,
+              "source": 201
+            }
+          ],
+          "events": [
+            {
+              "type": "shot",
+              "role": "bn",
+              "source": 88,
+              "distance": 154.8282583361633,
+              "hit": true,
+              "at": 4.099999999999993
+            },
+            {
+              "type": "injury",
+              "role": "bn",
+              "at": 4.099999999999993
+            },
+            {
+              "type": "shot",
+              "role": "bn",
+              "source": 41,
+              "distance": 198.04168821482094,
+              "hit": false,
+              "at": 4.6499999999999915
+            }
+          ],
+          "limits": {
+            "shooters": 4,
+            "range": 400,
+            "height": 300,
+            "grace": 4,
+            "open": 0.85,
+            "step": 0.05,
+            "maxStep": 0.25,
+            "lookInterval": 0.45,
+            "scanInterval": 0.8,
+            "terrainSamples": 64,
+            "coverObjects": 1800,
+            "maxInjuries": 2,
+            "history": 12
+          }
+        },
+        "currentShots": [
+          {
+            "type": "shot",
+            "role": "bn",
+            "source": 41,
+            "distance": 198.04168821482094,
+            "hit": false,
+            "at": 4.6499999999999915
+          }
+        ],
+        "crew": {
+          "pilot": 1,
+          "bn": 0.84
+        },
+        "photos": [
+          {
+            "id": "descent-rifle-201",
+            "name": "photo_hr_militia_idle",
+            "asset": "militia:idle",
+            "kind": "militia",
+            "p": [
+              -4059.1528377543773,
+              137.55280091123365,
+              9791.705233716059
+            ],
+            "alive": true
+          },
+          {
+            "id": "descent-rifle-88",
+            "name": "photo_hr_militia_aim",
+            "asset": "militia:aim",
+            "kind": "militia",
+            "p": [
+              -3864.2878750918126,
+              136.14358665046657,
+              9786.575357626138
+            ],
+            "alive": true
+          },
+          {
+            "id": "descent-rifle-41",
+            "name": "photo_hr_militia_aim",
+            "asset": "militia:aim",
+            "kind": "militia",
+            "p": [
+              -4052.0498284096348,
+              134.89095417083527,
+              9912.069689671023
+            ],
+            "alive": true
+          }
+        ],
+        "originalSources": 219,
+        "sourcePositionsUnchanged": true,
+        "streaks": [
+          {
+            "p": [
+              -3869.729228270885,
+              198.74530823328905,
+              9871.276676620606
+            ],
+            "projected": {
+              "x": 4060.309898164224,
+              "y": 2462.8961386019296,
+              "w": 3.6403623934443203
+            },
+            "length": 4.500000000000001
+          },
+          {
+            "p": [
+              -4052.0498284096348,
+              136.5309809266881,
+              9912.069689671023
+            ],
+            "projected": {
+              "x": 421.9996517579318,
+              "y": 234.56898129437815,
+              "w": 196.27771931278767
+            },
+            "length": 4.5
+          }
+        ],
+        "photoPositions": [
+          {
+            "id": "descent-rifle-201",
+            "x": 615.2297890038769,
+            "y": 226.27061737268983,
+            "w": 202.24797505751303,
+            "obscuredBy": []
+          },
+          {
+            "id": "descent-rifle-88",
+            "x": 2590.653533552309,
+            "y": 1666.5095881402492,
+            "w": 18.788580624312544,
+            "obscuredBy": []
+          },
+          {
+            "id": "descent-rifle-41",
+            "x": 421.9996520156486,
+            "y": 235.22590387871045,
+            "w": 196.42308234027587,
+            "obscuredBy": []
+          }
+        ],
+        "gl": 0,
+        "contextLost": false,
+        "chute": {
+          "p": [
+            -3874.697224137273,
+            225.05909238261052,
+            9912.069689671023
+          ],
+          "open": 1,
+          "t": 4.6499999999999915
+        },
+        "caption": "CREW: Rifle fire from the ground. Steer away from the armed positions.CREW: Hit under the canopy. Still able to steer — get clear of the rifles."
+      },
+      "firstInjury": {
+        "steps": 2,
+        "time": 4.649999999999992,
+        "phase": "chute",
+        "descent": {
+          "active": true,
+          "clock": 4.099999999999993,
+          "shots": 1,
+          "injuries": {
+            "pilot": 0,
+            "bn": 1
+          },
+          "transferred": false,
+          "checks": 3,
+          "shooters": [
+            {
+              "id": "descent-rifle-88",
+              "p": [
+                -3864.2878750918126,
+                136.1836134063194,
+                9786.575357626138
+              ],
+              "face": -2.6667474690936572,
+              "alive": true,
+              "armed": true,
+              "source": 88
+            },
+            {
+              "id": "descent-rifle-41",
+              "p": [
+                -4052.0498284096348,
+                134.9309809266881,
+                9912.069689671023
+              ],
+              "face": 0.12467735657269854,
+              "alive": true,
+              "armed": true,
+              "source": 41
+            },
+            {
+              "id": "descent-rifle-201",
+              "p": [
+                -4059.1528377543773,
+                137.58927149946894,
+                9791.705233716059
+              ],
+              "face": -2.0266092604478136,
+              "alive": true,
+              "armed": true,
+              "source": 201
+            }
+          ],
+          "events": [
+            {
+              "type": "shot",
+              "role": "bn",
+              "source": 88,
+              "distance": 154.8282583361633,
+              "hit": true,
+              "at": 4.099999999999993
+            },
+            {
+              "type": "injury",
+              "role": "bn",
+              "at": 4.099999999999993
+            }
+          ],
+          "limits": {
+            "shooters": 4,
+            "range": 400,
+            "height": 300,
+            "grace": 4,
+            "open": 0.85,
+            "step": 0.05,
+            "maxStep": 0.25,
+            "lookInterval": 0.45,
+            "scanInterval": 0.8,
+            "terrainSamples": 64,
+            "coverObjects": 1800,
+            "maxInjuries": 2,
+            "history": 12
+          }
+        },
+        "currentShots": [
+          {
+            "type": "shot",
+            "role": "bn",
+            "source": 88,
+            "distance": 154.8282583361633,
+            "hit": true,
+            "at": 4.099999999999993
+          }
+        ],
+        "crew": {
+          "pilot": 1,
+          "bn": 0.84
+        },
+        "photos": [
+          {
+            "id": "descent-rifle-88",
+            "name": "photo_hr_militia_idle",
+            "asset": "militia:idle",
+            "kind": "militia",
+            "p": [
+              -3864.2878750918126,
+              136.14714281808412,
+              9786.575357626138
+            ],
+            "alive": true
+          },
+          {
+            "id": "descent-rifle-41",
+            "name": "photo_hr_militia_idle",
+            "asset": "militia:idle",
+            "kind": "militia",
+            "p": [
+              -4052.0498284096348,
+              134.89451033845282,
+              9912.069689671023
+            ],
+            "alive": true
+          },
+          {
+            "id": "descent-rifle-201",
+            "name": "photo_hr_militia_idle",
+            "asset": "militia:idle",
+            "kind": "militia",
+            "p": [
+              -4059.1528377543773,
+              137.55280091123365,
+              9791.705233716059
+            ],
+            "alive": true
+          }
+        ],
+        "originalSources": 219,
+        "sourcePositionsUnchanged": true,
+        "streaks": [
+          {
+            "p": [
+              -3864.2878750918126,
+              137.7836134063194,
+              9786.575357626138
+            ],
+            "projected": {
+              "x": 2268.7735472272634,
+              "y": 1478.0109148571776,
+              "w": 22.0699981373632
+            },
+            "length": 4.500000000000001
+          }
+        ],
+        "photoPositions": [
+          {
+            "id": "descent-rifle-88",
+            "x": 2256.7895517875186,
+            "y": 1475.704017057946,
+            "w": 22.214149141916096,
+            "obscuredBy": []
+          },
+          {
+            "id": "descent-rifle-41",
+            "x": 421.91103509811643,
+            "y": 238.62116804109306,
+            "w": 199.79568309811611,
+            "obscuredBy": []
+          },
+          {
+            "id": "descent-rifle-201",
+            "x": 611.9154824339519,
+            "y": 229.68203001550668,
+            "w": 205.67824501213727,
+            "obscuredBy": []
+          }
+        ],
+        "gl": 0,
+        "contextLost": false,
+        "chute": {
+          "p": [
+            -3872.3498390698783,
+            228.50507785876334,
+            9912.069689671023
+          ],
+          "open": 1,
+          "t": 4.099999999999993
+        },
+        "caption": "CREW: Rifle fire from the ground. Steer away from the armed positions.CREW: Hit under the canopy. Still able to steer — get clear of the rifles."
+      },
+      "samples": [
+        {
+          "steps": 10,
+          "time": 1.0500000000000005,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 0.49999999999999994,
+            "shots": 0,
+            "injuries": {
+              "pilot": 0,
+              "bn": 0
+            },
+            "transferred": false,
+            "checks": 0,
+            "shooters": [
+              {
+                "id": "descent-rifle-88",
+                "p": [
+                  -3864.2878750918126,
+                  136.1836134063194,
+                  9786.575357626138
+                ],
+                "face": 3.7964378380859287,
+                "alive": true,
+                "armed": true,
+                "source": 88
+              },
+              {
+                "id": "descent-rifle-41",
+                "p": [
+                  -4052.0498284096348,
+                  134.9309809266881,
+                  9912.069689671023
+                ],
+                "face": 6.227862663752285,
+                "alive": true,
+                "armed": true,
+                "source": 41
+              },
+              {
+                "id": "descent-rifle-201",
+                "p": [
+                  -4059.1528377543773,
+                  137.58927149946894,
+                  9791.705233716059
+                ],
+                "face": 4.436576046731773,
+                "alive": true,
+                "armed": true,
+                "source": 201
+              }
+            ],
+            "events": [],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [],
+          "crew": {
+            "pilot": 1,
+            "bn": 1
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-88",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -3864.2878750918126,
+                136.14714281808412,
+                9786.575357626138
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-41",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -4052.0498284096348,
+                134.89451033845282,
+                9912.069689671023
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-201",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -4059.1528377543773,
+                137.55280091123365,
+                9791.705233716059
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 219,
+          "sourcePositionsUnchanged": true,
+          "streaks": [],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-88",
+              "x": 906.8744518209616,
+              "y": 816.5591052035971,
+              "w": 77.18208120967302,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-41",
+              "x": 305.9557227008237,
+              "y": 464.5345178008395,
+              "w": 201.72896388198205,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-201",
+              "x": 468.77746808151636,
+              "y": 415.66187593360576,
+              "w": 253.80349080286624,
+              "obscuredBy": []
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -3862.1132725727775,
+              262.16879648313795,
+              9912.069689671023
+            ],
+            "open": 0.3499999999999999,
+            "t": 0.49999999999999994
+          },
+          "caption": "BN: Ejecting — go, go, GO."
+        },
+        {
+          "steps": 10,
+          "time": 1.550000000000001,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 1.0000000000000002,
+            "shots": 0,
+            "injuries": {
+              "pilot": 0,
+              "bn": 0
+            },
+            "transferred": false,
+            "checks": 0,
+            "shooters": [
+              {
+                "id": "descent-rifle-88",
+                "p": [
+                  -3864.2878750918126,
+                  136.1836134063194,
+                  9786.575357626138
+                ],
+                "face": 3.7964378380859287,
+                "alive": true,
+                "armed": true,
+                "source": 88
+              },
+              {
+                "id": "descent-rifle-41",
+                "p": [
+                  -4052.0498284096348,
+                  134.9309809266881,
+                  9912.069689671023
+                ],
+                "face": 6.227862663752285,
+                "alive": true,
+                "armed": true,
+                "source": 41
+              },
+              {
+                "id": "descent-rifle-201",
+                "p": [
+                  -4059.1528377543773,
+                  137.58927149946894,
+                  9791.705233716059
+                ],
+                "face": 4.436576046731773,
+                "alive": true,
+                "armed": true,
+                "source": 201
+              }
+            ],
+            "events": [],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [],
+          "crew": {
+            "pilot": 1,
+            "bn": 1
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-88",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -3864.2878750918126,
+                136.14714281808412,
+                9786.575357626138
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-41",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -4052.0498284096348,
+                134.89451033845282,
+                9912.069689671023
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-201",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -4059.1528377543773,
+                137.55280091123365,
+                9791.705233716059
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 219,
+          "sourcePositionsUnchanged": true,
+          "streaks": [],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-88",
+              "x": 890.3811228651879,
+              "y": 567.922112576087,
+              "w": 88.12207011583928,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-41",
+              "x": 373.7653939251901,
+              "y": 269.8773537909078,
+              "w": 237.9805949078161,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-201",
+              "x": 519.7978984116907,
+              "y": 246.47558307693774,
+              "w": 268.12731540295,
+              "obscuredBy": []
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -3862.454655369558,
+              253.54676601445746,
+              9912.069689671023
+            ],
+            "open": 0.7,
+            "t": 1.0000000000000002
+          },
+          "caption": "BN: Ejecting — go, go, GO."
+        },
+        {
+          "steps": 10,
+          "time": 2.050000000000001,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 1.5000000000000007,
+            "shots": 0,
+            "injuries": {
+              "pilot": 0,
+              "bn": 0
+            },
+            "transferred": false,
+            "checks": 0,
+            "shooters": [
+              {
+                "id": "descent-rifle-88",
+                "p": [
+                  -3864.2878750918126,
+                  136.1836134063194,
+                  9786.575357626138
+                ],
+                "face": 3.7964378380859287,
+                "alive": true,
+                "armed": true,
+                "source": 88
+              },
+              {
+                "id": "descent-rifle-41",
+                "p": [
+                  -4052.0498284096348,
+                  134.9309809266881,
+                  9912.069689671023
+                ],
+                "face": 6.227862663752285,
+                "alive": true,
+                "armed": true,
+                "source": 41
+              },
+              {
+                "id": "descent-rifle-201",
+                "p": [
+                  -4059.1528377543773,
+                  137.58927149946894,
+                  9791.705233716059
+                ],
+                "face": 4.436576046731773,
+                "alive": true,
+                "armed": true,
+                "source": 201
+              }
+            ],
+            "events": [],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [],
+          "crew": {
+            "pilot": 1,
+            "bn": 1
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-88",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -3864.2878750918126,
+                136.14714281808412,
+                9786.575357626138
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-41",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -4052.0498284096348,
+                134.89451033845282,
+                9912.069689671023
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-201",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -4059.1528377543773,
+                137.55280091123365,
+                9791.705233716059
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 219,
+          "sourcePositionsUnchanged": true,
+          "streaks": [],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-88",
+              "x": 1523.8066426044818,
+              "y": 1094.5072679218313,
+              "w": 36.98100935844013,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-41",
+              "x": 421.9996815134257,
+              "y": 257.98895228441154,
+              "w": 214.61551107440346,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-201",
+              "x": 599.2820436134672,
+              "y": 249.1758890614781,
+              "w": 220.44157857313803,
+              "obscuredBy": []
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -3863.2440505399404,
+              247.40890348957117,
+              9912.069689671023
+            ],
+            "open": 1,
+            "t": 1.5000000000000007
+          },
+          "caption": "BN: Ejecting — go, go, GO.PILOT: Good chute. I have a good chute."
+        },
+        {
+          "steps": 10,
+          "time": 2.5499999999999994,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 2.000000000000001,
+            "shots": 0,
+            "injuries": {
+              "pilot": 0,
+              "bn": 0
+            },
+            "transferred": false,
+            "checks": 0,
+            "shooters": [
+              {
+                "id": "descent-rifle-88",
+                "p": [
+                  -3864.2878750918126,
+                  136.1836134063194,
+                  9786.575357626138
+                ],
+                "face": 3.7964378380859287,
+                "alive": true,
+                "armed": true,
+                "source": 88
+              },
+              {
+                "id": "descent-rifle-41",
+                "p": [
+                  -4052.0498284096348,
+                  134.9309809266881,
+                  9912.069689671023
+                ],
+                "face": 6.227862663752285,
+                "alive": true,
+                "armed": true,
+                "source": 41
+              },
+              {
+                "id": "descent-rifle-201",
+                "p": [
+                  -4059.1528377543773,
+                  137.58927149946894,
+                  9791.705233716059
+                ],
+                "face": 4.436576046731773,
+                "alive": true,
+                "armed": true,
+                "source": 201
+              }
+            ],
+            "events": [],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [],
+          "crew": {
+            "pilot": 1,
+            "bn": 1
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-88",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -3864.2878750918126,
+                136.14714281808412,
+                9786.575357626138
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-41",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -4052.0498284096348,
+                134.89451033845282,
+                9912.069689671023
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-201",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -4059.1528377543773,
+                137.55280091123365,
+                9791.705233716059
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 219,
+          "sourcePositionsUnchanged": true,
+          "streaks": [],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-88",
+              "x": 1610.634922061817,
+              "y": 1128.5012471792272,
+              "w": 34.27959334281513,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-41",
+              "x": 421.9996774534564,
+              "y": 252.82419818971397,
+              "w": 211.91409505877846,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-201",
+              "x": 601.4815117606156,
+              "y": 244.0399879618327,
+              "w": 217.74016255751303,
+              "obscuredBy": []
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -3864.50632165922,
+              242.83863177588324,
+              9912.069689671023
+            ],
+            "open": 1,
+            "t": 2.000000000000001
+          },
+          "caption": "BN: Ejecting — go, go, GO.PILOT: Good chute. I have a good chute."
+        },
+        {
+          "steps": 10,
+          "time": 3.0499999999999976,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 2.499999999999999,
+            "shots": 0,
+            "injuries": {
+              "pilot": 0,
+              "bn": 0
+            },
+            "transferred": false,
+            "checks": 0,
+            "shooters": [
+              {
+                "id": "descent-rifle-88",
+                "p": [
+                  -3864.2878750918126,
+                  136.1836134063194,
+                  9786.575357626138
+                ],
+                "face": 3.7964378380859287,
+                "alive": true,
+                "armed": true,
+                "source": 88
+              },
+              {
+                "id": "descent-rifle-41",
+                "p": [
+                  -4052.0498284096348,
+                  134.9309809266881,
+                  9912.069689671023
+                ],
+                "face": 6.227862663752285,
+                "alive": true,
+                "armed": true,
+                "source": 41
+              },
+              {
+                "id": "descent-rifle-201",
+                "p": [
+                  -4059.1528377543773,
+                  137.58927149946894,
+                  9791.705233716059
+                ],
+                "face": 4.436576046731773,
+                "alive": true,
+                "armed": true,
+                "source": 201
+              }
+            ],
+            "events": [],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [],
+          "crew": {
+            "pilot": 1,
+            "bn": 1
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-88",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -3864.2878750918126,
+                136.14714281808412,
+                9786.575357626138
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-41",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -4052.0498284096348,
+                134.89451033845282,
+                9912.069689671023
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-201",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -4059.1528377543773,
+                137.55280091123365,
+                9791.705233716059
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 219,
+          "sourcePositionsUnchanged": true,
+          "streaks": [],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-88",
+              "x": 1714.837808986976,
+              "y": 1178.7112358130034,
+              "w": 31.516653889690133,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-41",
+              "x": 421.9996731925352,
+              "y": 248.82234684517104,
+              "w": 209.15115560565346,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-201",
+              "x": 603.788251715616,
+              "y": 240.03369342588485,
+              "w": 214.97722310438803,
+              "obscuredBy": []
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -3866.0996472638044,
+              239.02704627971207,
+              9912.069689671023
+            ],
+            "open": 1,
+            "t": 2.499999999999999
+          },
+          "caption": "BN: Ejecting — go, go, GO.PILOT: Good chute. I have a good chute."
+        },
+        {
+          "steps": 10,
+          "time": 3.549999999999996,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 2.9999999999999973,
+            "shots": 0,
+            "injuries": {
+              "pilot": 0,
+              "bn": 0
+            },
+            "transferred": false,
+            "checks": 0,
+            "shooters": [
+              {
+                "id": "descent-rifle-88",
+                "p": [
+                  -3864.2878750918126,
+                  136.1836134063194,
+                  9786.575357626138
+                ],
+                "face": 3.7964378380859287,
+                "alive": true,
+                "armed": true,
+                "source": 88
+              },
+              {
+                "id": "descent-rifle-41",
+                "p": [
+                  -4052.0498284096348,
+                  134.9309809266881,
+                  9912.069689671023
+                ],
+                "face": 6.227862663752285,
+                "alive": true,
+                "armed": true,
+                "source": 41
+              },
+              {
+                "id": "descent-rifle-201",
+                "p": [
+                  -4059.1528377543773,
+                  137.58927149946894,
+                  9791.705233716059
+                ],
+                "face": 4.436576046731773,
+                "alive": true,
+                "armed": true,
+                "source": 201
+              }
+            ],
+            "events": [],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [],
+          "crew": {
+            "pilot": 1,
+            "bn": 1
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-88",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -3864.2878750918126,
+                136.14714281808412,
+                9786.575357626138
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-41",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -4052.0498284096348,
+                134.89451033845282,
+                9912.069689671023
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-201",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -4059.1528377543773,
+                137.55280091123365,
+                9791.705233716059
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 219,
+          "sourcePositionsUnchanged": true,
+          "streaks": [],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-88",
+              "x": 1843.3385245902298,
+              "y": 1246.4646130746955,
+              "w": 28.667288655315133,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-41",
+              "x": 421.99966867878953,
+              "y": 245.39393525722383,
+              "w": 206.30179037127846,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-201",
+              "x": 606.2300862283356,
+              "y": 236.58139093442335,
+              "w": 212.12785787001303,
+              "obscuredBy": []
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -3867.9130686945127,
+              235.5826514895198,
+              9912.069689671023
+            ],
+            "open": 1,
+            "t": 2.9999999999999973
+          },
+          "caption": "PILOT: Good chute. I have a good chute."
+        },
+        {
+          "steps": 10,
+          "time": 4.0499999999999945,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 3.4999999999999956,
+            "shots": 0,
+            "injuries": {
+              "pilot": 0,
+              "bn": 0
+            },
+            "transferred": false,
+            "checks": 0,
+            "shooters": [
+              {
+                "id": "descent-rifle-88",
+                "p": [
+                  -3864.2878750918126,
+                  136.1836134063194,
+                  9786.575357626138
+                ],
+                "face": 3.7964378380859287,
+                "alive": true,
+                "armed": true,
+                "source": 88
+              },
+              {
+                "id": "descent-rifle-41",
+                "p": [
+                  -4052.0498284096348,
+                  134.9309809266881,
+                  9912.069689671023
+                ],
+                "face": 6.227862663752285,
+                "alive": true,
+                "armed": true,
+                "source": 41
+              },
+              {
+                "id": "descent-rifle-201",
+                "p": [
+                  -4059.1528377543773,
+                  137.58927149946894,
+                  9791.705233716059
+                ],
+                "face": 4.436576046731773,
+                "alive": true,
+                "armed": true,
+                "source": 201
+              }
+            ],
+            "events": [],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [],
+          "crew": {
+            "pilot": 1,
+            "bn": 1
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-88",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -3864.2878750918126,
+                136.14714281808412,
+                9786.575357626138
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-41",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -4052.0498284096348,
+                134.89451033845282,
+                9912.069689671023
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-201",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -4059.1528377543773,
+                137.55280091123365,
+                9791.705233716059
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 219,
+          "sourcePositionsUnchanged": true,
+          "streaks": [],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-88",
+              "x": 2005.0831331464972,
+              "y": 1335.4066177408454,
+              "w": 25.738333577190133,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-41",
+              "x": 421.99966390713485,
+              "y": 242.23288349085848,
+              "w": 203.37283529315346,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-201",
+              "x": 608.8094575319159,
+              "y": 233.3849898168476,
+              "w": 209.19890279188803,
+              "obscuredBy": []
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -3869.8728170134737,
+              232.31597050438205,
+              9912.069689671023
+            ],
+            "open": 1,
+            "t": 3.4999999999999956
+          },
+          "caption": "PILOT: Good chute. I have a good chute."
+        },
+        {
+          "steps": 10,
+          "time": 4.549999999999993,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 3.999999999999994,
+            "shots": 0,
+            "injuries": {
+              "pilot": 0,
+              "bn": 0
+            },
+            "transferred": false,
+            "checks": 0,
+            "shooters": [
+              {
+                "id": "descent-rifle-88",
+                "p": [
+                  -3864.2878750918126,
+                  136.1836134063194,
+                  9786.575357626138
+                ],
+                "face": 3.7964378380859287,
+                "alive": true,
+                "armed": true,
+                "source": 88
+              },
+              {
+                "id": "descent-rifle-41",
+                "p": [
+                  -4052.0498284096348,
+                  134.9309809266881,
+                  9912.069689671023
+                ],
+                "face": 6.227862663752285,
+                "alive": true,
+                "armed": true,
+                "source": 41
+              },
+              {
+                "id": "descent-rifle-201",
+                "p": [
+                  -4059.1528377543773,
+                  137.58927149946894,
+                  9791.705233716059
+                ],
+                "face": 4.436576046731773,
+                "alive": true,
+                "armed": true,
+                "source": 201
+              }
+            ],
+            "events": [],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [],
+          "crew": {
+            "pilot": 1,
+            "bn": 1
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-88",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -3864.2878750918126,
+                136.14714281808412,
+                9786.575357626138
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-41",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -4052.0498284096348,
+                134.89451033845282,
+                9912.069689671023
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-201",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -4059.1528377543773,
+                137.55280091123365,
+                9791.705233716059
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 219,
+          "sourcePositionsUnchanged": true,
+          "streaks": [],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-88",
+              "x": 2213.332985512122,
+              "y": 1452.283318502854,
+              "w": 22.746146077190133,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-41",
+              "x": 421.9996588884223,
+              "y": 239.1762695855541,
+              "w": 200.38064779315346,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-201",
+              "x": 611.5201787754872,
+              "y": 230.28634761042525,
+              "w": 206.20671529188803,
+              "obscuredBy": []
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -3871.929848223267,
+              229.13529985663214,
+              9912.069689671023
+            ],
+            "open": 1,
+            "t": 3.999999999999994
+          },
+          "caption": ""
+        },
+        {
+          "steps": 2,
+          "time": 4.649999999999992,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 4.099999999999993,
+            "shots": 1,
+            "injuries": {
+              "pilot": 0,
+              "bn": 1
+            },
+            "transferred": false,
+            "checks": 3,
+            "shooters": [
+              {
+                "id": "descent-rifle-88",
+                "p": [
+                  -3864.2878750918126,
+                  136.1836134063194,
+                  9786.575357626138
+                ],
+                "face": -2.6667474690936572,
+                "alive": true,
+                "armed": true,
+                "source": 88
+              },
+              {
+                "id": "descent-rifle-41",
+                "p": [
+                  -4052.0498284096348,
+                  134.9309809266881,
+                  9912.069689671023
+                ],
+                "face": 0.12467735657269854,
+                "alive": true,
+                "armed": true,
+                "source": 41
+              },
+              {
+                "id": "descent-rifle-201",
+                "p": [
+                  -4059.1528377543773,
+                  137.58927149946894,
+                  9791.705233716059
+                ],
+                "face": -2.0266092604478136,
+                "alive": true,
+                "armed": true,
+                "source": 201
+              }
+            ],
+            "events": [
+              {
+                "type": "shot",
+                "role": "bn",
+                "source": 88,
+                "distance": 154.8282583361633,
+                "hit": true,
+                "at": 4.099999999999993
+              },
+              {
+                "type": "injury",
+                "role": "bn",
+                "at": 4.099999999999993
+              }
+            ],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [
+            {
+              "type": "shot",
+              "role": "bn",
+              "source": 88,
+              "distance": 154.8282583361633,
+              "hit": true,
+              "at": 4.099999999999993
+            }
+          ],
+          "crew": {
+            "pilot": 1,
+            "bn": 0.84
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-88",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -3864.2878750918126,
+                136.14714281808412,
+                9786.575357626138
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-41",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -4052.0498284096348,
+                134.89451033845282,
+                9912.069689671023
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-201",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -4059.1528377543773,
+                137.55280091123365,
+                9791.705233716059
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 219,
+          "sourcePositionsUnchanged": true,
+          "streaks": [
+            {
+              "p": [
+                -3864.2878750918126,
+                137.7836134063194,
+                9786.575357626138
+              ],
+              "projected": {
+                "x": 2268.7735472272634,
+                "y": 1478.0109148571776,
+                "w": 22.0699981373632
+              },
+              "length": 4.500000000000001
+            }
+          ],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-88",
+              "x": 2256.7895517875186,
+              "y": 1475.704017057946,
+              "w": 22.214149141916096,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-41",
+              "x": 421.91103509811643,
+              "y": 238.62116804109306,
+              "w": 199.79568309811611,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-201",
+              "x": 611.9154824339519,
+              "y": 229.68203001550668,
+              "w": 205.67824501213727,
+              "obscuredBy": []
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -3872.3498390698783,
+              228.50507785876334,
+              9912.069689671023
+            ],
+            "open": 1,
+            "t": 4.099999999999993
+          },
+          "caption": "CREW: Rifle fire from the ground. Steer away from the armed positions.CREW: Hit under the canopy. Still able to steer — get clear of the rifles."
+        },
+        {
+          "steps": 10,
+          "time": 5.149999999999991,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 4.599999999999992,
+            "shots": 1,
+            "injuries": {
+              "pilot": 0,
+              "bn": 1
+            },
+            "transferred": false,
+            "checks": 6,
+            "shooters": [
+              {
+                "id": "descent-rifle-88",
+                "p": [
+                  -3864.2878750918126,
+                  136.1836134063194,
+                  9786.575357626138
+                ],
+                "face": -3.060541991096344,
+                "alive": true,
+                "armed": true,
+                "source": 88
+              },
+              {
+                "id": "descent-rifle-41",
+                "p": [
+                  -4052.0498284096348,
+                  134.9309809266881,
+                  9912.069689671023
+                ],
+                "face": 1.0246773565726983,
+                "alive": true,
+                "armed": true,
+                "source": 41
+              },
+              {
+                "id": "descent-rifle-201",
+                "p": [
+                  -4059.1528377543773,
+                  137.58927149946894,
+                  9791.705233716059
+                ],
+                "face": -2.926609260447812,
+                "alive": true,
+                "armed": true,
+                "source": 201
+              }
+            ],
+            "events": [
+              {
+                "type": "shot",
+                "role": "bn",
+                "source": 88,
+                "distance": 154.8282583361633,
+                "hit": true,
+                "at": 4.099999999999993
+              },
+              {
+                "type": "injury",
+                "role": "bn",
+                "at": 4.099999999999993
+              }
+            ],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [],
+          "crew": {
+            "pilot": 1,
+            "bn": 0.84
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-41",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -4052.0498284096348,
+                134.89451033845282,
+                9912.069689671023
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-201",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -4059.1528377543773,
+                137.55280091123365,
+                9791.705233716059
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-88",
+              "name": "photo_hr_militia_aim",
+              "asset": "militia:aim",
+              "kind": "militia",
+              "p": [
+                -3864.2878750918126,
+                136.14358665046657,
+                9786.575357626138
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 219,
+          "sourcePositionsUnchanged": true,
+          "streaks": [
+            {
+              "p": [
+                -3869.23455980006,
+                193.2033359762918,
+                9863.576556712018
+              ],
+              "projected": {
+                "x": 3386.6339932497763,
+                "y": 2092.8125125835004,
+                "w": 5.310898946024281
+              },
+              "length": 4.500000000000001
+            }
+          ],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-41",
+              "x": 421.99965255597346,
+              "y": 235.52646604059368,
+              "w": 196.72854818377846,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-201",
+              "x": 614.9372649205866,
+              "y": 226.5812361243205,
+              "w": 202.55461568251303,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-88",
+              "x": 2555.828209129274,
+              "y": 1646.6764313864971,
+              "w": 19.095221249312544,
+              "obscuredBy": []
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -3874.4816052092583,
+              225.3713094243,
+              9912.069689671023
+            ],
+            "open": 1,
+            "t": 4.599999999999992
+          },
+          "caption": "CREW: Rifle fire from the ground. Steer away from the armed positions.CREW: Hit under the canopy. Still able to steer — get clear of the rifles."
+        },
+        {
+          "steps": 1,
+          "time": 5.19999999999999,
+          "phase": "chute",
+          "descent": {
+            "active": true,
+            "clock": 4.6499999999999915,
+            "shots": 2,
+            "injuries": {
+              "pilot": 0,
+              "bn": 1
+            },
+            "transferred": false,
+            "checks": 6,
+            "shooters": [
+              {
+                "id": "descent-rifle-88",
+                "p": [
+                  -3864.2878750918126,
+                  136.1836134063194,
+                  9786.575357626138
+                ],
+                "face": -3.058835334912622,
+                "alive": true,
+                "armed": true,
+                "source": 88
+              },
+              {
+                "id": "descent-rifle-41",
+                "p": [
+                  -4052.0498284096348,
+                  134.9309809266881,
+                  9912.069689671023
+                ],
+                "face": 1.1146773565726984,
+                "alive": true,
+                "armed": true,
+                "source": 41
+              },
+              {
+                "id": "descent-rifle-201",
+                "p": [
+                  -4059.1528377543773,
+                  137.58927149946894,
+                  9791.705233716059
+                ],
+                "face": -3.016609260447812,
+                "alive": true,
+                "armed": true,
+                "source": 201
+              }
+            ],
+            "events": [
+              {
+                "type": "shot",
+                "role": "bn",
+                "source": 88,
+                "distance": 154.8282583361633,
+                "hit": true,
+                "at": 4.099999999999993
+              },
+              {
+                "type": "injury",
+                "role": "bn",
+                "at": 4.099999999999993
+              },
+              {
+                "type": "shot",
+                "role": "bn",
+                "source": 41,
+                "distance": 198.04168821482094,
+                "hit": false,
+                "at": 4.6499999999999915
+              }
+            ],
+            "limits": {
+              "shooters": 4,
+              "range": 400,
+              "height": 300,
+              "grace": 4,
+              "open": 0.85,
+              "step": 0.05,
+              "maxStep": 0.25,
+              "lookInterval": 0.45,
+              "scanInterval": 0.8,
+              "terrainSamples": 64,
+              "coverObjects": 1800,
+              "maxInjuries": 2,
+              "history": 12
+            }
+          },
+          "currentShots": [
+            {
+              "type": "shot",
+              "role": "bn",
+              "source": 41,
+              "distance": 198.04168821482094,
+              "hit": false,
+              "at": 4.6499999999999915
+            }
+          ],
+          "crew": {
+            "pilot": 1,
+            "bn": 0.84
+          },
+          "photos": [
+            {
+              "id": "descent-rifle-201",
+              "name": "photo_hr_militia_idle",
+              "asset": "militia:idle",
+              "kind": "militia",
+              "p": [
+                -4059.1528377543773,
+                137.55280091123365,
+                9791.705233716059
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-88",
+              "name": "photo_hr_militia_aim",
+              "asset": "militia:aim",
+              "kind": "militia",
+              "p": [
+                -3864.2878750918126,
+                136.14358665046657,
+                9786.575357626138
+              ],
+              "alive": true
+            },
+            {
+              "id": "descent-rifle-41",
+              "name": "photo_hr_militia_aim",
+              "asset": "militia:aim",
+              "kind": "militia",
+              "p": [
+                -4052.0498284096348,
+                134.89095417083527,
+                9912.069689671023
+              ],
+              "alive": true
+            }
+          ],
+          "originalSources": 219,
+          "sourcePositionsUnchanged": true,
+          "streaks": [
+            {
+              "p": [
+                -3869.729228270885,
+                198.74530823328905,
+                9871.276676620606
+              ],
+              "projected": {
+                "x": 4060.309898164224,
+                "y": 2462.8961386019296,
+                "w": 3.6403623934443203
+              },
+              "length": 4.500000000000001
+            },
+            {
+              "p": [
+                -4052.0498284096348,
+                136.5309809266881,
+                9912.069689671023
+              ],
+              "projected": {
+                "x": 421.9996517579318,
+                "y": 234.56898129437815,
+                "w": 196.27771931278767
+              },
+              "length": 4.5
+            }
+          ],
+          "photoPositions": [
+            {
+              "id": "descent-rifle-201",
+              "x": 615.2297890038769,
+              "y": 226.27061737268983,
+              "w": 202.24797505751303,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-88",
+              "x": 2590.653533552309,
+              "y": 1666.5095881402492,
+              "w": 18.788580624312544,
+              "obscuredBy": []
+            },
+            {
+              "id": "descent-rifle-41",
+              "x": 421.9996520156486,
+              "y": 235.22590387871045,
+              "w": 196.42308234027587,
+              "obscuredBy": []
+            }
+          ],
+          "gl": 0,
+          "contextLost": false,
+          "chute": {
+            "p": [
+              -3874.697224137273,
+              225.05909238261052,
+              9912.069689671023
+            ],
+            "open": 1,
+            "t": 4.6499999999999915
+          },
+          "caption": "CREW: Rifle fire from the ground. Steer away from the armed positions.CREW: Hit under the canopy. Still able to steer — get clear of the rifles."
+        }
+      ],
+      "frozen": {
+        "before": {
+          "active": false,
+          "clock": 4.6499999999999915,
+          "shots": 2,
+          "injuries": {
+            "pilot": 0,
+            "bn": 1
+          },
+          "transferred": false,
+          "checks": 6,
+          "shooters": [
+            {
+              "id": "descent-rifle-88",
+              "p": [
+                -3864.2878750918126,
+                136.1836134063194,
+                9786.575357626138
+              ],
+              "face": -3.058835334912622,
+              "alive": true,
+              "armed": true,
+              "source": 88
+            },
+            {
+              "id": "descent-rifle-41",
+              "p": [
+                -4052.0498284096348,
+                134.9309809266881,
+                9912.069689671023
+              ],
+              "face": 1.1146773565726984,
+              "alive": true,
+              "armed": true,
+              "source": 41
+            },
+            {
+              "id": "descent-rifle-201",
+              "p": [
+                -4059.1528377543773,
+                137.58927149946894,
+                9791.705233716059
+              ],
+              "face": -3.016609260447812,
+              "alive": true,
+              "armed": true,
+              "source": 201
+            }
+          ],
+          "events": [
+            {
+              "type": "shot",
+              "role": "bn",
+              "source": 88,
+              "distance": 154.8282583361633,
+              "hit": true,
+              "at": 4.099999999999993
+            },
+            {
+              "type": "injury",
+              "role": "bn",
+              "at": 4.099999999999993
+            },
+            {
+              "type": "shot",
+              "role": "bn",
+              "source": 41,
+              "distance": 198.04168821482094,
+              "hit": false,
+              "at": 4.6499999999999915
+            }
+          ],
+          "limits": {
+            "shooters": 4,
+            "range": 400,
+            "height": 300,
+            "grace": 4,
+            "open": 0.85,
+            "step": 0.05,
+            "maxStep": 0.25,
+            "lookInterval": 0.45,
+            "scanInterval": 0.8,
+            "terrainSamples": 64,
+            "coverObjects": 1800,
+            "maxInjuries": 2,
+            "history": 12
+          }
+        },
+        "after": {
+          "active": false,
+          "clock": 4.6499999999999915,
+          "shots": 2,
+          "injuries": {
+            "pilot": 0,
+            "bn": 1
+          },
+          "transferred": false,
+          "checks": 6,
+          "shooters": [
+            {
+              "id": "descent-rifle-88",
+              "p": [
+                -3864.2878750918126,
+                136.1836134063194,
+                9786.575357626138
+              ],
+              "face": -3.058835334912622,
+              "alive": true,
+              "armed": true,
+              "source": 88
+            },
+            {
+              "id": "descent-rifle-41",
+              "p": [
+                -4052.0498284096348,
+                134.9309809266881,
+                9912.069689671023
+              ],
+              "face": 1.1146773565726984,
+              "alive": true,
+              "armed": true,
+              "source": 41
+            },
+            {
+              "id": "descent-rifle-201",
+              "p": [
+                -4059.1528377543773,
+                137.58927149946894,
+                9791.705233716059
+              ],
+              "face": -3.016609260447812,
+              "alive": true,
+              "armed": true,
+              "source": 201
+            }
+          ],
+          "events": [
+            {
+              "type": "shot",
+              "role": "bn",
+              "source": 88,
+              "distance": 154.8282583361633,
+              "hit": true,
+              "at": 4.099999999999993
+            },
+            {
+              "type": "injury",
+              "role": "bn",
+              "at": 4.099999999999993
+            },
+            {
+              "type": "shot",
+              "role": "bn",
+              "source": 41,
+              "distance": 198.04168821482094,
+              "hit": false,
+              "at": 4.6499999999999915
+            }
+          ],
+          "limits": {
+            "shooters": 4,
+            "range": 400,
+            "height": 300,
+            "grace": 4,
+            "open": 0.85,
+            "step": 0.05,
+            "maxStep": 0.25,
+            "lookInterval": 0.45,
+            "scanInterval": 0.8,
+            "terrainSamples": 64,
+            "coverObjects": 1800,
+            "maxInjuries": 2,
+            "history": 12
+          }
+        }
+      },
+      "passed": true
+    }
+  ],
+  "screenshots": [
+    "desktop-pilot-native-rifle-fire.png",
+    "desktop-pilot-native-injury-warning.png",
+    "desktop-pilot-native-visible-gunman-fire.png",
+    "phone-bn-native-rifle-fire.png",
+    "phone-bn-native-injury-warning.png",
+    "phone-bn-native-visible-gunman-fire.png"
+  ],
+  "executedHTTP": [
+    {
+      "name": "desktop-pilot",
+      "file": "index.html",
+      "sha256": "c40e797f6c88f8de244a74d9336080ef5307c17d10aaf9455e2f5f1fc0e113ce"
+    },
+    {
+      "name": "desktop-pilot",
+      "file": "assets/survival/aviator-companion.js",
+      "sha256": "ab6a54f73981a78618e7e039a50043d046566806c7d009eec16875097bdf8f69"
+    },
+    {
+      "name": "desktop-pilot",
+      "file": "assets/survival/descent-threats.js",
+      "sha256": "179a6539ec7ee32ca9c166d97b1bc7235538f4fd029399905be6ebbaa2cb92ba"
+    },
+    {
+      "name": "desktop-pilot",
+      "file": "assets/survival/landing-water.js",
+      "sha256": "486fe311d20afcbcd5cc61a2b065fb42eb5cdfaa2012bfc99c41e4c9ccae0057"
+    },
+    {
+      "name": "phone-bn",
+      "file": "index.html",
+      "sha256": "c40e797f6c88f8de244a74d9336080ef5307c17d10aaf9455e2f5f1fc0e113ce"
+    },
+    {
+      "name": "phone-bn",
+      "file": "assets/survival/aviator-companion.js",
+      "sha256": "ab6a54f73981a78618e7e039a50043d046566806c7d009eec16875097bdf8f69"
+    },
+    {
+      "name": "phone-bn",
+      "file": "assets/survival/descent-threats.js",
+      "sha256": "179a6539ec7ee32ca9c166d97b1bc7235538f4fd029399905be6ebbaa2cb92ba"
+    },
+    {
+      "name": "phone-bn",
+      "file": "assets/survival/landing-water.js",
+      "sha256": "486fe311d20afcbcd5cc61a2b065fb42eb5cdfaa2012bfc99c41e4c9ccae0057"
+    }
+  ],
+  "readFailures": [],
+  "errors": [],
+  "missing": [],
+  "scope": "Real Chromium/SwiftShader WebGL2 desktop/phone-layout native J/two-tap ejection over original existing World.saf positions. Aircraft start, original ejection random draw and new encounter seed1 are explicit fixtures. Original simulation supplies all later chute motion, facing, terrain/building LOS, projectiles and crew injury. Seed1 deliberately exercises a positive random roll and does not establish natural encounter frequency or difficulty. No chute/camera/health/outcome assignment. Physical iPhone Safari and hardware FPS are not tested."
+}
