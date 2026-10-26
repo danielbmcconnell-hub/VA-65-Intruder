@@ -34,3 +34,5 @@ Chromium phone-layout checks use the actual WebGL2 renderer but do not establish
 The local complete ZIP is 228,798,693 bytes with SHA256 `d17caaab763a67600a04100d0d08d24f905d1d76471659c1811777439f98acc6`. GitHub generates a different archive wrapper. All 799 protected media/archive blobs, 81 prior remote records and the earlier Jungle Training ZIP are preserved. No public site deployment is included.
 
 Extract the complete game, serve the folder containing `index.html` and `assets/` with `python3 -m http.server 8080`, and open `http://localhost:8080`. The earlier [jungle training release](jungle-training-notes.md) remains available.
+
+Runtime-only commit `beb39415dc7f4e60be3cdb9220467fc0c3eb9046` has the tested runtime source as its sole parent. The `cockpit-focus-playable` tag marks the source documentation release. [Local delivery integrity](cockpit-focus-delivery.json) records the exact ZIP, CRC, source tree, protected media and previous release checks.
