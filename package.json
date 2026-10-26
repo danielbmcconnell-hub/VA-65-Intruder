@@ -50,7 +50,9 @@
     "test:cockpit-focus:domain": "node --test tests/hud-layout.cjs tests/strike-crew.cjs tests/airframe-feedback.cjs tests/flight-objective-cues.cjs tests/mission-demo-ui.cjs tests/descent-threats.cjs tests/aviator-companion.cjs tests/landing-water.cjs tests/jungle-scenery.cjs tests/wildlife-assets.cjs",
     "test:cockpit-focus": "npm run test:cockpit-focus:domain && node tests/run-browser.cjs --suite=hud-layout && node tests/run-browser.cjs --suite=cockpit-feedback && node tests/run-browser.cjs --suite=descent-threats && node tests/run-browser.cjs --suite=jungle-ordinary && node tests/run-browser.cjs --suite=mission-demo-tutorial",
     "test:prison-water:domain": "node --test tests/prison-roster.cjs tests/river-bank.cjs tests/water-controls.cjs tests/landing-water.cjs tests/voice-profiles.cjs tests/strike-effects.cjs tests/strike-sensory.cjs tests/mission-demo-capture.cjs",
-    "test:prison-water": "npm run test:prison-water:domain && node tests/run-browser.cjs --suite=prison-roster && node tests/run-browser.cjs --suite=water-realism && node tests/run-browser.cjs --suite=water-interactions && node tests/run-browser.cjs --suite=strike-sensory && node tests/run-browser.cjs --suite=mission-demo-tutorial"
+    "test:prison-water": "npm run test:prison-water:domain && node tests/run-browser.cjs --suite=prison-roster && node tests/run-browser.cjs --suite=water-realism && node tests/run-browser.cjs --suite=water-interactions && node tests/run-browser.cjs --suite=strike-sensory && node tests/run-browser.cjs --suite=mission-demo-tutorial",
+    "test:living-river:domain": "node --test tests/fishing-boats.cjs tests/riverbank-wildlife.cjs tests/jungle-scenery.cjs tests/river-bank.cjs tests/archival-footage.cjs tests/media-ranges.cjs tests/voice-profiles.cjs",
+    "test:living-river": "npm run test:living-river:domain && node tests/run-browser.cjs --suite=living-river && node tests/run-browser.cjs --suite=living-forest && node tests/run-browser.cjs --suite=archival-footage"
   },
   "devDependencies": {
     "playwright": "1.62.1"

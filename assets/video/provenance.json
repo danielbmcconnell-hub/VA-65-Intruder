@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "label": "A-6 carrier operations · reference footage",
+  "purpose": "Short, silent, skippable reference-footage sequence and optional replay; not a rendering of the player flight.",
+  "source": "User-uploaded movie files, originals preserved byte-for-byte. No invented date or carrier identification.",
+  "derivativePolicy": "Only trim time, apply display rotation, remove blank capture borders, downscale at exact aspect ratio, encode H264/yuv420p, convert display color range for decoder compatibility, and remove audio. Embedded picture logos and captions retained. No image retouching, watermark removal, frame interpolation or upscaling.",
+  "audioPolicy": "No source dialogue or music included, so original audio cannot conflict with the game voice selection.",
+  "totalDurationSeconds": 12.2,
+  "clips": [
+    {
+      "id": "carrier-launch",
+      "title": "Catapult departure",
+      "file": "carrier-launch.mp4",
+      "sourceFilename": "IMG_8179.mov",
+      "sourcePath": "/workspace/attachments/07044f6c-de0c-4f2a-85a0-921526d160b5/IMG_8179.mov",
+      "sourceSHA256": "c5e1b053588096c256d588c7e2b18096c96ead4ba35f0b6658123e5363c60dd0",
+      "sourceBytes": 24450910,
+      "sourceEncodedSize": [
+        1320,
+        2868
+      ],
+      "sourceDisplaySize": [
+        2868,
+        1320
+      ],
+      "sourceDisplayRotationDegrees": -90,
+      "startSeconds": 15.0,
+      "requestedDurationSeconds": 5.0,
+      "durationSeconds": 5.0,
+      "frames": 150,
+      "cropDisplayPixels": {
+        "x": 532,
+        "y": 0,
+        "width": 1804,
+        "height": 1320
+      },
+      "width": 984,
+      "height": 720,
+      "frameRate": "30/1",
+      "codec": "h264",
+      "profile": "Main",
+      "pixelFormat": "yuv420p",
+      "colorRange": "tv",
+      "colorSpace": "bt709",
+      "audioStreams": 0,
+      "silent": true,
+      "faststart": true,
+      "sourceLimitedResolution": true,
+      "aspectRatioPreserved": true,
+      "embeddedMarksRetained": true,
+      "observedContent": "A-6 and yellow-shirt deck director, launch stroke and departure over the bow. Source documentary caption and any creator mark retained inside the full picture.",
+      "outputBytes": 640433,
+      "outputSHA256": "2a5cdc19aea31357bbf76b5ee97104aca7a319493b781c22288e37bcb3c0aa68",
+      "ffmpegVideoFilter": "crop=1804:1320:532:0,scale=984:720:flags=lanczos:in_range=auto:out_range=tv,format=yuv420p,setsar=1,fps=30",
+      "sourceUploadPointer": "sediment://file_00000000386081f698ba08cd159a4e41"
+    },
+    {
+      "id": "carrier-approach",
+      "title": "Carrier approach",
+      "file": "carrier-approach.mp4",
+      "sourceFilename": "IMG_8182.mov",
+      "sourcePath": "/workspace/attachments/29a7ac1e-a654-4692-92c2-5f819ca137c6/IMG_8182.mov",
+      "sourceSHA256": "b46a375411c0a73e6e6f9c006c82d771281f68f4a5c7eb0cc8ec4083c1b0c7b2",
+      "sourceBytes": 9697934,
+      "sourceEncodedSize": [
+        1320,
+        2868
+      ],
+      "sourceDisplaySize": [
+        2868,
+        1320
+      ],
+      "sourceDisplayRotationDegrees": -90,
+      "startSeconds": 6.5,
+      "requestedDurationSeconds": 5.0,
+      "durationSeconds": 5.0,
+      "frames": 150,
+      "cropDisplayPixels": {
+        "x": 532,
+        "y": 0,
+        "width": 1804,
+        "height": 1320
+      },
+      "width": 984,
+      "height": 720,
+      "frameRate": "30/1",
+      "codec": "h264",
+      "profile": "Main",
+      "pixelFormat": "yuv420p",
+      "colorRange": "tv",
+      "colorSpace": "bt709",
+      "audioStreams": 0,
+      "silent": true,
+      "faststart": true,
+      "sourceLimitedResolution": true,
+      "aspectRatioPreserved": true,
+      "embeddedMarksRetained": true,
+      "observedContent": "A-6 approach over the wake and arrival at the deck. Round creator logo at bottom left retained.",
+      "outputBytes": 595893,
+      "outputSHA256": "66ad5f9e4a78d14322f69d750684c26120ddeff53d17fcd01a939aaf170749eb",
+      "ffmpegVideoFilter": "crop=1804:1320:532:0,scale=984:720:flags=lanczos:in_range=auto:out_range=tv,format=yuv420p,setsar=1,fps=30",
+      "sourceUploadPointer": "sediment://file_00000000350881f6bebb30aa40ce4602"
+    },
+    {
+      "id": "carrier-night",
+      "title": "Night recovery",
+      "file": "carrier-night.mp4",
+      "sourceFilename": "IMG_8184.mov",
+      "sourcePath": "/workspace/attachments/b813ff8d-74e8-47dd-84b2-8089dde4c317/IMG_8184.mov",
+      "sourceSHA256": "d0a1efaa37dc72f16f265781fc7f037e84bd3964486fd6d6e6f8ac5b11fbfc36",
+      "sourceBytes": 2051010,
+      "sourceEncodedSize": [
+        1320,
+        2868
+      ],
+      "sourceDisplaySize": [
+        2868,
+        1320
+      ],
+      "sourceDisplayRotationDegrees": 90,
+      "startSeconds": 0.03,
+      "requestedDurationSeconds": 2.2,
+      "durationSeconds": 2.2,
+      "frames": 66,
+      "cropDisplayPixels": {
+        "x": 258,
+        "y": 164,
+        "width": 2352,
+        "height": 992
+      },
+      "width": 1176,
+      "height": 496,
+      "frameRate": "30/1",
+      "codec": "h264",
+      "profile": "Main",
+      "pixelFormat": "yuv420p",
+      "colorRange": "tv",
+      "colorSpace": "bt709",
+      "audioStreams": 0,
+      "silent": true,
+      "faststart": true,
+      "sourceLimitedResolution": true,
+      "aspectRatioPreserved": true,
+      "embeddedMarksRetained": true,
+      "observedContent": "A-6 landing at night with deck lights, wheel contact and rollout. Full visually identified picture retained; surrounding blank capture padding removed.",
+      "outputBytes": 361896,
+      "outputSHA256": "1d762474c9a12fe5fc09622192d32fcca1871b153b50e0a2ea36b7e341d09248",
+      "ffmpegVideoFilter": "crop=2352:992:258:164,scale=1176:496:flags=lanczos:in_range=auto:out_range=tv,format=yuv420p,setsar=1,fps=30",
+      "sourceUploadPointer": "sediment://file_00000000b02481f6892bb464585f25a6"
+    }
+  ]
+}

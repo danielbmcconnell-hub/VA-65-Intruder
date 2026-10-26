@@ -3,7 +3,8 @@
  * Only the submerged toe, shore surfaces and non-solid plants change here. */
 (function(root){
   'use strict';
-  const C=Object.freeze({zMin:-106,zMax:166,zStep:2,walkEdge:14.5,walkY:.35,outer:65,maxPlants:64,maxRoots:28,maxReeds:44});
+  const C=Object.freeze({zMin:-106,zMax:166,zStep:2,walkEdge:14.5,walkY:.35,outer:65,maxPlants:144,maxRoots:36,maxReeds:70,maxCanopies:72});
+  const DENSITY=Object.freeze([Object.freeze({spacing:19,layers:2,maxPlants:64,maxRoots:28,maxReeds:44,canopySpacing:28,maxCanopies:40}),Object.freeze({spacing:14,layers:3,maxPlants:120,maxRoots:32,maxReeds:60,canopySpacing:20,maxCanopies:56}),Object.freeze({spacing:12,layers:3,maxPlants:144,maxRoots:36,maxReeds:70,canopySpacing:16,maxCanopies:72})]);
   const states=new WeakMap(),renderers=new WeakMap();let MB=null,makeProgram=null,glsl='';
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),smooth=(a,b,v)=>{const t=clamp((v-a)/(b-a),0,1);return t*t*(3-2*t);};
   function configure(o){if(!o||typeof o.MB!=='function')return false;MB=o.MB;if(typeof o.program==='function')makeProgram=o.program;if(typeof o.glsl==='string')glsl=o.glsl;return true;}
@@ -69,22 +70,49 @@
     const names=['powRiverBankLeft','powRiverBankRight'];let triangles=0;
     for(const side of[-1,1]){const name=names[side<0?0:1];if(s.offset!==offset||!r.meshes?.[name]){const m=buildBank(Builder,side,offset);retireMesh(r,name);r.meshFromBuilder(name,m);s[name]=m.bank;}triangles+=s[name].triangles;}
     s.offset=offset;
-    const props=[],put=(id,m,p,scale=[1,1,1],yaw=0)=>props.push({id:'natural-bank-'+id,m,p,scale,s:1,y:yaw,t:[1,1,1,0]});let roots=0,reeds=0,plants=0;
+    const q=clamp(Math.round(Number.isFinite(r.quality)?r.quality:1),0,2),density=DENSITY[q];
+    const props=[],put=(id,m,p,scale=[1,1,1],yaw=0)=>props.push({id:'natural-bank-'+id,m,p,scale,s:1,y:yaw,t:[1,1,1,0]});let roots=0,reeds=0,plants=0,nipa=0,ferns=0,bamboo=0,canopies=0,accessGaps=0;
     for(const side of[-1,1]){
       put('surface-'+side,names[side<0?0:1],[x,y,z0]);
-      for(let i=0;i<14;i++){
-        const logical=Math.floor((C.zMin+offset)/19)*19+i*19,local=logical-offset;if(local<C.zMin||local>C.zMax)continue;
-        const phase=logical*.37+side*1.4,z=local+Math.sin(phase)*2.1,shape=profile(side,z+offset),v=Math.abs(Math.floor(logical/19+side))%3,rootName='powRiverRoot'+v,reedName='powRiverReeds'+v;
+      const first=Math.floor((C.zMin+offset)/density.spacing)*density.spacing,rows=Math.ceil((C.zMax-C.zMin)/density.spacing)+2;
+      for(let i=0;i<rows;i++){
+        const logical=first+i*density.spacing,local=logical-offset;if(local<C.zMin||local>C.zMax)continue;
+        const cycle=((Math.round(logical/density.spacing)%12)+12)%12,phase=logical*.37+side*1.4,z=local+Math.sin(phase)*2.1,shape=profile(side,z+offset),v=Math.abs(Math.floor(logical/19+side))%3,rootName='powRiverRoot'+v,reedName='powRiverReeds'+v;
         if(!r.meshes?.[rootName])r.meshFromBuilder(rootName,rootMesh(Builder,v));if(!r.meshes?.[reedName])r.meshFromBuilder(reedName,reedMesh(Builder,v));
-        if(i%3!==1){put('roots-'+side+'-'+i,rootName,[x+side*13.65,y,z0+z],[1,1,1],side<0?Math.PI:0);roots++;}
-        // Thin fans leave exposed mud and open access between clumps.
-        put('reeds-'+side+'-'+i,reedName,[x+side*(shape.waterline+.15),y+.015,z0+z+2.7],[1,.85+(i%3)*.19,1],phase);reeds++;
-        if(i%2===0){put('reeds-back-'+side+'-'+i,reedName,[x+side*(15.25+.3*Math.sin(phase)),y+C.walkY,z0+z-2.1],[1.3,1.15,1.3],phase+1);reeds++;}
-        const back=17.2+(Math.sin(phase)+1)*3.3;put('understory-'+side+'-'+i,'bush',[x+side*back,y+C.walkY,z0+z+5.2],[.55,.68+(i%3)*.12,.55],phase);plants++;
+        if(cycle%3!==1&&roots<density.maxRoots){put('roots-'+side+'-'+i,rootName,[x+side*13.65,y,z0+z],[1,1,1],side<0?Math.PI:0);roots++;}
+        // Short reed fans and exposed muddy access gaps keep the 14.5m
+        // walking boundary readable; the channel itself remains open.
+        const gap=Math.abs(((logical+37)%64+64)%64-32)<4.2;
+        if(gap)accessGaps++;
+        if(!gap&&reeds<density.maxReeds){put('reeds-'+side+'-'+i,reedName,[x+side*(shape.waterline+.15),y+.015,z0+z+2.7],[1,.85+(cycle%3)*.19,1],phase);reeds++;}
+        if(cycle%3===0&&reeds<density.maxReeds){put('reeds-back-'+side+'-'+i,reedName,[x+side*(15.25+.3*Math.sin(phase)),y+C.walkY,z0+z-2.1],[1.3,1.15,1.3],phase+1);reeds++;}
+        for(let layer=0;layer<density.layers&&plants<density.maxPlants;layer++){
+          if(gap&&layer===0)continue;
+          // The preserved swamp reference has broad nipa fronds over a
+          // lower fern layer and bamboo behind. Register every whole source
+          // to the flat dry bank, rather than stretch a spherical crown.
+          const kind=layer===0?'nipa':layer===1?'fern':cycle%3===0?'bamboo':'nipa',back=layer===0?16.7+(Math.sin(phase)+1)*.55:layer===1?21.3+(Math.cos(phase*.7)+1)*1.4:28.4+(Math.sin(phase*.6)+1)*2.4;
+          const height=layer===0?.48+(cycle%3)*.08:layer===1?.95+(cycle%4)*.18:kind==='bamboo'?.70+(cycle%3)*.075:.78+(cycle%3)*.12;
+          put('understory-'+side+'-'+i+'-'+layer,kind,[x+side*back,y+C.walkY,z0+z+layer*2.6],[.72,height,.72],phase+layer*.9);plants++;if(kind==='nipa')nipa++;else if(kind==='fern')ferns++;else bamboo++;
+        }
       }
     }
-    game.campGeo.push(...props);states.set(game,{surfaces:2,triangles,roots,reeds,plants,collisionSolids:0,streamOffset:offset,waterY:y,walkY:y+C.walkY,bankMeshes:names.slice(),referenceFiles:['river-and-swamp-references/2-Photo-2.jpg','river-and-swamp-references/4-Photo-4.jpg']});return true;
+    // Two staggered, overlapping canopy belts give the low shoreline plants
+    // an actual forest behind them. The nearer belt is rooted around 28m,
+    // the rear around 40m; both are well beyond the clear 14.5m transition.
+    // Near trees retain real branches; the rear belt deliberately keeps
+    // complete canopy photographs to fill the gaps between close leaves.
+    // Both reuse the same sources, not an opaque wall or green crown.
+    for(const side of[-1,1])for(let belt=0;belt<2;belt++){
+      const step=density.canopySpacing,first=Math.floor((C.zMin+offset)/step)*step,rows=Math.ceil((C.zMax-C.zMin)/step)+2;
+      for(let i=0;i<rows&&canopies<density.maxCanopies;i++){
+        const logical=first+(i+belt*.5)*step,local=logical-offset;if(local<C.zMin||local>C.zMax)continue;
+        const phase=logical*.113+side*1.7+belt*.83,back=(belt?39.5:28)+Math.sin(phase)*2.35,scale=(belt?.96:.84)+(.5+.5*Math.sin(phase*1.91))*.23;
+        put('canopy-'+side+'-'+belt+'-'+i,belt?'river-canopy-photo':'tree',[x+side*back,y+C.walkY,z0+local],[1,scale,1],phase);canopies++;
+      }
+    }
+    game.campGeo.push(...props);states.set(game,{surfaces:2,triangles,roots,reeds,plants,nipa,ferns,bamboo,canopies,canopyBelts:2,quality:q,accessGaps,density:{...density},collisionSolids:0,streamOffset:offset,waterY:y,walkY:y+C.walkY,bankMeshes:names.slice(),referenceFiles:['river-and-swamp-references/2-Photo-2.jpg','river-and-swamp-references/4-Photo-4.jpg']});return true;
   }
-  function inspect(game){const s=states.get(game),r=game?.rend||game?.app?.rend,rs=r&&renderers.get(r);return s?{...s,bankMeshes:s.bankMeshes.slice(),referenceFiles:s.referenceFiles.slice(),draws:rs?.draws||0,photographicDraws:rs?.photographicDraws||0,additionalTextureBytes:0}:null;}
-  root.RiverBanks=Object.freeze({configure,profile,buildBank,build,inspect,constants:C});
+  function inspect(game){const s=states.get(game),r=game?.rend||game?.app?.rend,rs=r&&renderers.get(r);return s?{...s,bankMeshes:s.bankMeshes.slice(),density:{...s.density},referenceFiles:s.referenceFiles.slice(),draws:rs?.draws||0,photographicDraws:rs?.photographicDraws||0,additionalTextureBytes:0}:null;}
+  root.RiverBanks=Object.freeze({configure,profile,buildBank,build,inspect,constants:C,densityProfiles:DENSITY});
 })(typeof window!=='undefined'?window:globalThis);

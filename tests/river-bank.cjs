@@ -207,3 +207,28 @@ test('the actual river rebuild submits sloped shores and preserves original core
   near(game.evade.p[1], game.pow.river.waterY - .42);
   assert.equal(P.blocked(game, game.evade.p[0], game.evade.p[2], .34, game.evade.p[1]), false);
 });
+
+
+test('denser riverbank layers scale near detail by quality and keep open access and original simulation state',()=>{
+ const counts=[];
+ for(const quality of [0,1,2]){
+  const renderer={quality,meshes:{},meshFromBuilder(name,builder){this.meshes[name]=builder;}},game={rend:renderer,campGeo:[],pow:{base:[100,20,300],solids:[{id:'retained-log'}],objects:[{id:'retained-hide'}],nav:{xmin:129,xmax:259},river:{waterY:20,phase:'stream',streamOffset:0}},evade:{p:[194,19.58,300],hdg:Math.PI}};
+  const saved=JSON.stringify({pow:game.pow,evade:game.evade});assert.equal(Banks.build(game),true);const info=Banks.inspect(game),profile=Banks.densityProfiles[quality];counts.push(info.plants);
+  assert.ok(info.plants<=profile.maxPlants&&info.roots<=profile.maxRoots&&info.reeds<=profile.maxReeds);assert.ok(info.nipa>0&&info.ferns>0&&info.accessGaps>0);if(quality>0)assert.ok(info.bamboo>0);
+  assert.equal(info.additionalTextureBytes,0);assert.equal(JSON.stringify({pow:game.pow,evade:game.evade}),saved);
+  for(const prop of game.campGeo.filter(p=>p.id.includes('understory'))){assert.ok(Math.abs(prop.p[0]-194)>16.5,'soft layers leave the channel and walking transition clear');near(prop.p[1],20.35);assert.ok(['nipa','fern','bamboo'].includes(prop.m));assert.equal(prop.solid,undefined);}
+  const original=JSON.stringify(info.density);info.density.layers=99;assert.equal(JSON.stringify(Banks.inspect(game).density),original);
+ }
+ assert.ok(counts[0]>40&&counts[1]>counts[0]&&counts[2]>counts[1],JSON.stringify(counts));
+});
+
+
+test('two overlapping background tree belts fill bank depth without occupying shore access or adding collision',()=>{
+ for(const quality of [0,1,2]){
+  const renderer={quality,meshes:{},meshFromBuilder(name,builder){this.meshes[name]=builder;}},g={rend:renderer,campGeo:[],pow:{base:[100,20,300],solids:[{id:'existing-river-solid'}],nav:{xmin:129,xmax:259},river:{waterY:20,phase:'stream',streamOffset:0}},evade:{p:[194,19.58,300]}};
+  const saved=JSON.stringify({pow:g.pow,evade:g.evade});assert.equal(Banks.build(g),true);const info=Banks.inspect(g),trees=g.campGeo.filter(p=>p.id.includes('canopy-'));assert.equal(trees.length,info.canopies);assert.ok(trees.length>=32&&trees.length<=Banks.densityProfiles[quality].maxCanopies);assert.equal(info.canopyBelts,2);
+  for(const tree of trees){const offset=Math.abs(tree.p[0]-194);assert.ok(offset>=25&&offset<=45);near(tree.p[1],20.35);assert.equal(tree.m,offset>35?'river-canopy-photo':'tree');assert.ok(tree.scale[1]>=.84&&tree.scale[1]<=1.20);assert.equal(tree.solid,undefined);}
+  for(const side of[-1,1]){const bank=trees.filter(p=>side*(p.p[0]-194)>0);assert.ok(bank.some(p=>p.m==='tree')&&bank.some(p=>p.m==='river-canopy-photo'),'Both shores retain near branches and a complete-photo rear belt');}
+  for(const side of[-1,1])assert.ok(trees.filter(p=>side*(p.p[0]-194)>0).length>=16);assert.equal(info.additionalTextureBytes,0);assert.equal(info.collisionSolids,0);assert.equal(JSON.stringify({pow:g.pow,evade:g.evade}),saved);
+ }
+});

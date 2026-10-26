@@ -5,21 +5,45 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const root=path.resolve(__dirname,'..'),site=path.join(root,'dist/site'),evidenceDir=path.resolve(process.argv[2]||path.join(root,'test-results'));
 const sha=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
 const {chromium}=require(path.join(root,'node_modules/playwright'));
-const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.jpg':'image/jpeg','.jpeg':'image/jpeg','.png':'image/png','.webp':'image/webp'};
+const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.jpg':'image/jpeg','.jpeg':'image/jpeg','.png':'image/png','.webp':'image/webp','.mp4':'video/mp4','.cjs':'application/octet-stream'};
+const localServerFile=path.join(site,'assets/local-server.cjs');
+assert.ok(fs.existsSync(localServerFile)&&fs.statSync(localServerFile).isFile(),'The complete download must include assets/local-server.cjs');
+// Exercise the exact helper shipped in the archive, rather than a source-tree
+// copy which could accidentally hide a packaging or Safari range regression.
+const {sendFile,createServer:packagedServer}=require(localServerFile);
+assert.equal(typeof sendFile,'function');assert.equal(typeof packagedServer,'function');
+const VIDEO_FILES=['assets/video/carrier-launch.mp4','assets/video/carrier-approach.mp4','assets/video/carrier-night.mp4'];
+function mp4Handlers(bytes){
+ const boxes=(start,end)=>{const rows=[];for(let at=start;at+8<=end;){assert.ok(rows.length<4096,'MP4 box count must stay bounded');let size=bytes.readUInt32BE(at),header=8;if(size===1){assert.ok(at+16<=end);const large=bytes.readBigUInt64BE(at+8);assert.ok(large<=BigInt(Number.MAX_SAFE_INTEGER));size=Number(large);header=16;}else if(size===0)size=end-at;assert.ok(size>=header&&at+size<=end,'MP4 box must remain within its container');rows.push({type:bytes.toString('ascii',at+4,at+8),start:at+header,end:at+size});at+=size;}return rows;};
+ const movie=boxes(0,bytes.length).find(b=>b.type==='moov');assert.ok(movie,'Packaged MP4 must contain movie metadata');
+ return boxes(movie.start,movie.end).filter(b=>b.type==='trak').map(track=>{const media=boxes(track.start,track.end).find(b=>b.type==='mdia');assert.ok(media,'MP4 track needs media metadata');const handler=boxes(media.start,media.end).find(b=>b.type==='hdlr');assert.ok(handler&&handler.end-handler.start>=12,'MP4 track needs a complete handler');return bytes.toString('ascii',handler.start+8,handler.start+12);});
+}
 const server=http.createServer((req,res)=>{
  let relative;try{relative=decodeURIComponent(new URL(req.url,'http://localhost').pathname)}catch{res.writeHead(400);res.end();return}
  const file=path.resolve(site,'.'+relative+(relative.endsWith('/')?'index.html':'')),rel=path.relative(site,file);
  if(rel.startsWith('..')||path.isAbsolute(rel)||!fs.existsSync(file)||!fs.statSync(file).isFile()){res.writeHead(404);res.end();return}
- res.writeHead(200,{'Content-Type':mime[path.extname(file)]||'text/plain','Cache-Control':'no-cache'});fs.createReadStream(file).pipe(res);
+ if(!['GET','HEAD'].includes(req.method)){res.writeHead(405);res.end();return;}sendFile(req,res,file,fs.statSync(file));
 });
 (async()=>{
  await new Promise(r=>server.listen(0,'127.0.0.1',r));const target='http://127.0.0.1:'+server.address().port+'/';let browser;
- const checks=[],executedHTTP=[];
+ const checks=[],executedHTTP=[],rangeHTTP=[];
  try{
   fs.mkdirSync(evidenceDir,{recursive:true});
   const manifestPath=path.join(root,'dist/build-manifest.json'),manifestBytes=fs.readFileSync(manifestPath),testBytes=fs.readFileSync(__filename),manifest=JSON.parse(manifestBytes);
-  for(const item of manifest.files){const response=await fetch(target+item.file);assert.equal(response.status,200);assert.equal(response.headers.get('content-type'),mime[path.extname(item.file)]||'text/plain');const bytes=Buffer.from(await response.arrayBuffer()),observed=sha(bytes);assert.equal(observed,item.sha256);executedHTTP.push({file:item.file,sha256:observed,contentType:response.headers.get('content-type')});}
+  for(const item of manifest.files){const response=await fetch(target+item.file);assert.equal(response.status,200);assert.equal(response.headers.get('content-type')?.split(';')[0].trim(),mime[path.extname(item.file)]||'application/octet-stream');const bytes=Buffer.from(await response.arrayBuffer()),observed=sha(bytes);assert.equal(observed,item.sha256);executedHTTP.push({file:item.file,sha256:observed,contentType:response.headers.get('content-type')});}
   checks.push({name:'All '+manifest.files.length+' packaged runtime files served with exact hashes',passed:true});
+  assert.ok(manifest.files.some(item=>item.file==='assets/local-server.cjs'));
+  assert.deepEqual(manifest.files.filter(item=>item.file.endsWith('.mp4')).map(item=>item.file).sort(),VIDEO_FILES.slice().sort());
+  const mediaTracks=[];
+  for(const file of VIDEO_FILES){
+   const bytes=fs.readFileSync(path.join(site,file)),handlers=mp4Handlers(bytes);assert.ok(handlers.includes('vide'));assert.equal(handlers.includes('soun'),false,'Reference clips must contain no spoken or music audio track');mediaTracks.push({file,handlers,bytes:bytes.length});
+   for(const [range,start,end]of[['bytes=0-1',0,1],['bytes=1024-1151',1024,1151],['bytes=-64',bytes.length-64,bytes.length-1]]){
+    const response=await fetch(target+file,{headers:{Range:range}}),actual=Buffer.from(await response.arrayBuffer()),expected=bytes.subarray(start,end+1);
+    assert.equal(response.status,206);assert.equal(response.headers.get('content-type'),'video/mp4');assert.equal(response.headers.get('accept-ranges'),'bytes');assert.equal(response.headers.get('content-range'),'bytes '+start+'-'+end+'/'+bytes.length);assert.equal(response.headers.get('content-length'),String(expected.length));assert.deepEqual(actual,expected);
+    rangeHTTP.push({file,request:range,status:response.status,contentRange:response.headers.get('content-range'),bytes:actual.length,sha256:sha(actual),expectedSHA256:sha(expected)});
+   }
+  }
+  checks.push({name:'Packaged local server returns exact HTTP 206 probes, body slices and suffixes for all three silent MP4 clips',passed:true,observed:{localServer:'assets/local-server.cjs',mediaTracks,rangeRequests:rangeHTTP.length}});
   browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE||(fs.existsSync('/usr/bin/chromium')?'/usr/bin/chromium':undefined),headless:true,args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
   for(const profile of [{name:'desktop',viewport:{width:1280,height:720}},{name:'iphone-layout-chromium',viewport:{width:844,height:390},deviceScaleFactor:3,isMobile:true,hasTouch:true}]){
    const {name,...opts}=profile,ctx=await browser.newContext(opts),page=await ctx.newPage(),errors=[],missing=[];
@@ -29,7 +53,7 @@ const server=http.createServer((req,res)=>{
    const utility=async selector=>{const control=page.locator(selector);if(!await control.isVisible())await native(page.locator('#hudUtilityToggle'));await native(control);};
    const closeUtility=async()=>{const toggle=page.locator('#hudUtilityToggle');if(await toggle.isVisible()){if(await toggle.getAttribute('aria-expanded')!=='true')await native(toggle);await page.locator('#hudUtilityMenu').waitFor({state:'visible'});await native(toggle);await page.locator('#hudUtilityMenu').waitFor({state:'hidden'});}};
    page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400&&r.url().startsWith(target))missing.push(r.url())});
-   await ctx.addInitScript(()=>{const raf=window.requestAnimationFrame.bind(window);window.requestAnimationFrame=cb=>window.__packagedFixedClock?0:raf(t=>{if(!window.__packagedFixedClock)cb(t)})});
+   await ctx.addInitScript(()=>{sessionStorage.setItem('a6_archival_intro_seen','1');const raf=window.requestAnimationFrame.bind(window);window.requestAnimationFrame=cb=>window.__packagedFixedClock?0:raf(t=>{if(!window.__packagedFixedClock)cb(t)})});
    await page.goto(target,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.App);await page.click('#bootGo');await page.locator('#readyBody .mcard').first().click();await page.getByRole('button',{name:'Man Aircraft',exact:true}).click();
    await page.waitForFunction(()=>App.game&&document.getElementById('loader').style.display==='none',null,{timeout:60000});
    // Drive original flight explicitly below. Unattended live frames during
@@ -65,8 +89,24 @@ const server=http.createServer((req,res)=>{
    assert.equal(await toggle.getAttribute('aria-pressed'),'false');assert.equal(await page.evaluate(()=>FlightCoach.enabled(App.game)),false);
    const m24=await page.evaluate(()=>({ammunition:!!window.SurvivalAmmunition,board:!!window.FlightStrikeBoard,effects:!!window.FlightStrikeEffects,sortie:!!window.FlightSortieCheckpoint}));
    assert.ok(Object.values(m24).every(Boolean),'All new production modules must load from the exact package');
-   const realismModules=await page.evaluate(()=>Object.fromEntries(['VoiceProfiles','AircraftDetail','CarrierLaunch','MissionDemo','LandingWater','AviatorCompanion','DescentThreats','Wildlife','WildlifeRender','WildlifeTargeting','JungleScenery','VisualClarity','FlightThreatFeedback','PrisonDetail','PrisonFood','RationPhoto','GroundItems','GroundItemsRender','CoastalScenery','HUDLayout','VillageDetail','CrewPersonality'].map(name=>[name,!!window[name]])));
+   const realismModules=await page.evaluate(()=>Object.fromEntries(['VoiceProfiles','AircraftDetail','CarrierLaunch','MissionDemo','LandingWater','AviatorCompanion','DescentThreats','Wildlife','WildlifeRender','WildlifeTargeting','JungleScenery','VisualClarity','FlightThreatFeedback','PrisonDetail','PrisonFood','RationPhoto','GroundItems','GroundItemsRender','CoastalScenery','HUDLayout','VillageDetail','CrewPersonality','FishingBoats','FishingMaterials','RiverbankWildlife','ArchivalFootage'].map(name=>[name,!!window[name]])));
    assert.ok(Object.values(realismModules).every(Boolean),'Every carrier, survival, wildlife, voice and demonstration module must load from the package');
+   const fishingArtwork=await page.evaluate(async()=>{const rows=[];for(const file of ['assets/fishing/fisher-paddle.webp','assets/fishing/wood.webp']){const image=new Image();image.src=file;await image.decode();rows.push({file,width:image.naturalWidth,height:image.naturalHeight});}return rows;});
+   assert.equal(fishingArtwork.length,2);assert.ok(fishingArtwork.every(a=>a.width===1536&&a.height===1024));
+   checks.push({name:name+' packaged fishing, bank wildlife and archival modules load with complete 1536×1024 fisher and wood artwork',passed:true,observed:{modules:realismModules,fishingArtwork}});
+   const clipMetadata=await page.evaluate(async()=>{
+    const g=App.game,before={p:g.ac.p.slice(),crew:{...g.ac.crew},score:JSON.stringify(g.world.score),mission:g.mis.id},rows=[];
+    for(const clip of ArchivalFootage.clips){
+     // Metadata-only probes deliberately never call play or open the montage.
+     const video=document.createElement('video');video.preload='metadata';video.muted=true;video.defaultMuted=true;video.volume=0;video.playsInline=true;video.setAttribute('muted','');video.setAttribute('playsinline','');
+     try{await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Packaged clip metadata timed out: '+clip.file)),20000);video.onloadedmetadata=()=>{clearTimeout(timer);resolve();};video.onerror=()=>{clearTimeout(timer);reject(Error('Packaged clip metadata failed: '+clip.file+' / '+video.error?.code));};video.src=clip.file;video.load();});
+      rows.push({file:clip.file,width:video.videoWidth,height:video.videoHeight,duration:video.duration,muted:video.muted&&video.defaultMuted&&video.volume===0,playsInline:video.playsInline,paused:video.paused,currentTime:video.currentTime});
+     }finally{video.pause();video.removeAttribute('src');video.load();}
+    }
+    return {rows,before,after:{p:g.ac.p.slice(),crew:{...g.ac.crew},score:JSON.stringify(g.world.score),mission:g.mis.id},montageActive:ArchivalFootage.inspect().active};
+   });
+   assert.deepEqual(clipMetadata.rows.map(row=>row.file),VIDEO_FILES);assert.ok(clipMetadata.rows.every(row=>row.width>0&&row.height>0&&Number.isFinite(row.duration)&&row.duration>0&&row.muted&&row.playsInline&&row.paused&&row.currentTime===0));assert.equal(clipMetadata.montageActive,false);assert.deepEqual(clipMetadata.after,clipMetadata.before);
+   checks.push({name:name+' all three packaged silent clips decode inline metadata without playback, montage opening or flight changes',passed:true,observed:clipMetadata});
    const groundArtwork=await page.evaluate(async()=>{const rows=[];for(const file of ['assets/firstperson/punch-left.webp','assets/firstperson/punch-right.webp','assets/items/pickups.webp','assets/firstperson/stick.webp','assets/firstperson/rifle.webp']){const image=new Image();image.src=file;await image.decode();rows.push({file,width:image.naturalWidth,height:image.naturalHeight});}return rows;});
    const waterArtwork=await page.evaluate(async()=>{const rows=[];for(const file of ['assets/firstperson/swim-stroke-a.webp','assets/firstperson/swim-stroke-b.webp','assets/firstperson/rope-grip-open.webp','assets/firstperson/rope-grip-closed.webp','assets/crocodile/swim.webp']){const image=new Image();image.src=file;await image.decode();rows.push({file,width:image.naturalWidth,height:image.naturalHeight});}return rows;});assert.equal(waterArtwork.length,5);assert.ok(waterArtwork.every(r=>r.width>=1024&&r.height>=600));
    checks.push({name:name+' packaged swimming, rope grips and crocodile frames decode fully',passed:true,observed:waterArtwork});
@@ -213,7 +253,7 @@ const server=http.createServer((req,res)=>{
   }
   const sourceStable=manifestBytes.equals(fs.readFileSync(manifestPath))&&testBytes.equals(fs.readFileSync(__filename))&&manifest.files.every(item=>sha(fs.readFileSync(path.join(site,item.file)))===item.sha256);
   assert.equal(sourceStable,true,'Packaged runtime, manifest and executed test must remain unchanged');
-  fs.writeFileSync(path.join(evidenceDir,'build.json'),JSON.stringify({suite:'packaged-runtime',passed:true,fullCoverage:true,sourceStable,scope:'Every exact runtime file served over HTTP plus native Chromium WebGL2 desktop/touch flight, prison, photographs and mission-control smoke; declared fixed-clock and checkpoint fixtures. Physical devices and hardware FPS are not tested.',sourceSha256:manifest.entrySHA256,sourceSHA256:Object.fromEntries(manifest.files.map(item=>[item.file,item.sha256])),testSHA256:{'tests/build-browser.cjs':sha(testBytes)},executedHTTP,checks,recordedAt:new Date().toISOString()},null,2)+'\n');
+  fs.writeFileSync(path.join(evidenceDir,'build.json'),JSON.stringify({suite:'packaged-runtime',passed:true,fullCoverage:true,sourceStable,scope:'Every exact runtime file served over HTTP; actual packaged local-server range responses and MP4 video-only track metadata; native Chromium WebGL2 desktop/touch flight, prison, photographs and mission-control smoke; metadata-only muted inline video probes, no montage playback during a live mission. Declared fixed-clock and checkpoint fixtures. Physical devices, Safari media playback and hardware FPS are not tested.',sourceSha256:manifest.entrySHA256,sourceSHA256:Object.fromEntries(manifest.files.map(item=>[item.file,item.sha256])),testSHA256:{'tests/build-browser.cjs':sha(testBytes)},executedHTTP,rangeHTTP,checks,recordedAt:new Date().toISOString()},null,2)+'\n');
   console.log('PASS deployment folder: all exact runtime hashes and desktop/native-touch flight, zero missing local assets or JavaScript/WebGL errors');
  }finally{if(browser)await browser.close();await new Promise(r=>server.close(r))}
 })().catch(e=>{console.error(e.stack);process.exitCode=1});

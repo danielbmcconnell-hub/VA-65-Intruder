@@ -587,7 +587,7 @@
       && (steer || r.phase !== 'gulf') && !r.resting;
     if (collision && r.damageCooldown <= 0) {
       modify(s, 'physical', -1.2); modify(s, 'fatigue', 2.4); r.damageCooldown = 6;
-      e.hurt = true; notify(game, 'The current presses you against an obstacle. Steer sideways or dive beneath the floating log.', 'warn');
+      e.hurt = true; notify(game, 'The current presses you against an obstacle. Swim sideways to clear it, or dive below a floating hull or log.', 'warn');
     }
     e.p[0] = clamp(e.p[0], s.nav.xmin + 1, s.nav.xmax - 1);
     e.p[2] = clamp(e.p[2], s.nav.zmin + 1, s.nav.zmax - 1);

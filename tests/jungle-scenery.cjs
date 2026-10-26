@@ -321,3 +321,48 @@ test('actual floor manifest and lossless encoding retain the unchanged generated
  assert.equal(sha(png),'48b60e0d211034c7f78d1882e79fd06d0609336867ec9de4fc4a4e0e85639604');assert.equal(sha(png),proof.sourceSHA256);assert.equal(proof.sourceSHA256,proof.rawSHA256);assert.equal(sha(webp),proof.runtimeSHA256);assert.equal(proof.rawSourceByteIdentical,true);assert.equal(proof.allDecodedRGBAIdentical,true);assert.equal(proof.fullyOpaque,true);assert.equal(png.length,proof.sourceBytes);assert.equal(webp.length,proof.runtimeBytes);
  assert.equal(webp.toString('ascii',0,4),'RIFF');assert.equal(webp.toString('ascii',8,12),'WEBP');assert.equal(webp.toString('ascii',12,16),'VP8L','The shipped floor is a lossless WebP stream, not a lossy replacement');
 });
+
+
+test('close thickets add rooted broadleaf midstory within unchanged GPU, source and sample budgets',async()=>{
+ for(const q of [0,1,2]){
+  const {M,g,r,allocations}=fixture();r.quality=q;const terrain=(x,z)=>10+x*.03-z*.02;M.configure({terrainH:terrain,jungle:()=>true});await M.load(r);const saved=JSON.stringify(g),profile=M.profiles[q];
+  for(let frame=0;frame<72;frame++){
+   M.beginFrame(g,r);for(let i=0;i<90;i++)M.queue(g,r,'tree',[(i%10-5)*7,10,-8-Math.floor(i/10)*8],[1,1,1]);M.populate(g,r,{solid:()=>false});M.draw(g,r);
+   const info=M.inspect(g,r);assert.ok(info.count<=profile.total);assert.ok(info.terrainSamples<=72&&info.solidChecks<=36);assert.ok(info.thicketUpdates<=1&&info.thicketCache<=128);
+  }
+  const info=M.inspect(g,r),rows=info.plants.filter(p=>p.id.startsWith('thicket:'));assert.equal(rows.length,profile.thicket);assert.ok(rows.some(p=>p.kind==='nipa')&&rows.some(p=>p.kind==='fern'));
+  for(const p of rows){near(p.groundRoot[1],terrain(p.groundRoot[0],p.groundRoot[2]));assert.ok(Math.hypot(p.groundRoot[0]-g.evade.p[0],p.groundRoot[2]-g.evade.p[2])<profile.thicketRange);assert.ok(!info.obstacles.some(o=>o.id===p.id),'soft thickets never become invisible trunk colliders');}
+  assert.equal(info.readySources,6);assert.equal(allocations(),6);assert.equal(JSON.stringify(g),saved,'visual density must not edit actors, AI, objectives or save state');
+ }
+});
+
+test('thickets respect water, solid structures and the cultivated-land boundary',async()=>{
+ for(const fixtureOptions of [{terrain:()=>0,forest:true,solid:false},{terrain:()=>10,forest:false,solid:false},{terrain:()=>10,forest:true,solid:true}]){
+  const {M,g,r}=fixture();M.configure({terrainH:fixtureOptions.terrain,jungle:()=>fixtureOptions.forest});await M.load(r);for(let i=0;i<36;i++){M.beginFrame(g,r);M.populate(g,r,{solid:()=>fixtureOptions.solid});M.draw(g,r);}
+  assert.equal(M.inspect(g,r).nearThickets,0);
+ }
+});
+
+test('authored nipa and fern bank layers use whole photographs without forest generation or collision',async()=>{
+ const {M,g,r}=fixture();M.configure({terrainH:()=>0,jungle:()=>false});await M.load(r);g.pow={stage:'river',river:{waterY:20}};g.evade.p=[0,19.58,0];r.eye=[0,20.3,0];const saved=JSON.stringify(g);
+ M.beginFrame(g,r);assert.equal(M.queue(g,r,'nipa',[17,20.35,6],[.7,.6,.7]),true);assert.equal(M.queue(g,r,'fern',[-19,20.35,-4],[.7,1.3,.7]),true);M.populate(g,r,{solid:()=>{throw Error('Authored bank layers must remain visual');}});M.draw(g,r);
+ const info=M.inspect(g,r);assert.equal(info.count,2);assert.equal(info.eligible,false);assert.equal(info.nearThickets,0);assert.deepEqual(Array.from(info.obstacles),[]);assert.equal(info.terrainSamples,0);assert.equal(JSON.stringify(g),saved);
+ assert.ok(info.plants.some(p=>p.kind==='nipa')&&info.plants.some(p=>p.kind==='fern'));for(const plant of info.plants){const record=info.records.find(p=>p.kind===plant.kind);near(plant.p[1]+plant.h*(1-record.baseline),20.35);}
+});
+
+
+test('river canopy structures retain leaf detail before lower bamboo can exhaust the fixed branch budget',async()=>{
+ const {M,g,r}=fixture({components:true});r.quality=1;M.configure({terrainH:()=>0,jungle:()=>false});await M.load(r);g.pow={stage:'river',river:{waterY:10}};g.evade.p=[0,9.58,0];r.eye=[0,10.3,0];const saved=JSON.stringify(g);
+ M.beginFrame(g,r);for(let i=0;i<48;i++)M.queue(g,r,'bamboo',[18+(i%4),10.35,-24+Math.floor(i/4)*4],[1,.55,1]);for(let i=0;i<24;i++)M.queue(g,r,'tree',[28+(i%2)*12,10.35,-35+Math.floor(i/2)*6],[1,1.1,1]);M.populate(g,r);M.draw(g,r);
+ const info=M.inspect(g,r),trees=info.structural.filter(t=>t.kind==='tree');assert.ok(trees.length>=8,'The visible bank forest must get real fork/leaf geometry, not just left-over source cards');assert.ok(trees.every(t=>t.height>10&&t.branches>10&&t.material==='photographic-components'));assert.ok(info.primitiveCounts.plannedLeafCards<=M.profiles[1].leafCards&&info.structural.length<=M.profiles[1].structuralTrees);assert.ok(info.count<=M.profiles[1].total);assert.equal(info.primitiveCounts.roundCrownSurfaces,0);assert.deepEqual(Array.from(info.obstacles),[]);assert.equal(JSON.stringify(g),saved);
+});
+
+test('rear river canopy aliases submit complete existing photographs while near trees retain branches',async()=>{
+ for(const quality of [0,1,2]){
+  const {M,g,r,allocations}=fixture({components:true});r.quality=quality;M.configure({terrainH:()=>0,jungle:()=>false});await M.load(r);g.pow={stage:'river',river:{waterY:10}};g.evade.p=[0,9.58,0];r.eye=[0,10.3,0];const saved=JSON.stringify(g),textures=allocations();
+  M.beginFrame(g,r);assert.equal(M.queue(g,r,'tree',[28,10.35,0],[1,1.1,1]),true);assert.equal(M.queue(g,r,'river-canopy-photo',[40,10.35,10],[1,1.1,1]),true);M.populate(g,r);M.draw(g,r);
+  const info=M.inspect(g,r),rear=info.plants.find(p=>p.id==='river-canopy-photo:40.000:10.000'),front=info.structural.find(p=>p.id==='tree:28.000:0.000');assert.ok(rear&&front);assert.equal(rear.kind,'canopy');assert.ok(!info.structural.some(p=>p.id===rear.id),'Rear canopy must not be replaced by sparse component leaves');
+  const submitted=r.draws.flatMap(batch=>batch.list.map(sprite=>({sprite,texture:batch.name}))).find(row=>row.sprite.id===rear.id);assert.ok(submitted,'The complete rear photograph reaches the real sprite submission adapter');assert.equal(submitted.texture,'jungle_canopy');assert.equal(submitted.sprite.cols,1);assert.equal(submitted.sprite.rows,1);assert.deepEqual(Array.from(rear.groundRoot),[40,10.35,10]);
+  const record=info.records.find(v=>v.kind==='canopy');near(rear.w/rear.h,record.width/record.height);assert.equal(info.count,2);assert.equal(info.primitiveCounts.photoCards,1);assert.equal(allocations(),textures);assert.ok(info.structural.length<=M.profiles[quality].structuralTrees&&info.primitiveCounts.plannedLeafCards<=M.profiles[quality].leafCards);assert.deepEqual(Array.from(info.obstacles),[]);assert.equal(JSON.stringify(g),saved);
+ }
+});

@@ -1,0 +1,16 @@
+#archivalFootage{position:fixed;inset:0;z-index:500;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;box-sizing:border-box;padding:max(12px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:#05090dfc;color:#f1eddf;font:13px/1.4 system-ui,sans-serif;overscroll-behavior:contain;touch-action:manipulation}
+#archivalFootage[hidden]{display:none!important}
+#archivalFootage header,#archivalFootage footer{width:min(1120px,100%);margin:0 auto;box-sizing:border-box}
+#archivalFootage h2{margin:0 0 3px;font-size:clamp(14px,2.5vw,21px);font-weight:600}
+#archivalFootage header p,#archivalFootageCaption{margin:0;color:#b9c6ca;font-size:12px}
+#archivalFootageVideo{display:block;width:100%;height:100%;min-height:0;object-fit:contain;background:#000;align-self:stretch}
+#archivalFootage footer{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.archival-footage-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#archivalFootage button{min-width:88px;min-height:44px;padding:9px 14px;border:1px solid #879999;border-radius:4px;background:#192b32;color:#f3eedf;font:600 12px system-ui,sans-serif;cursor:pointer;touch-action:manipulation}
+#archivalFootage button[hidden]{display:none!important}
+#archivalFootageSkip{background:#d5c89b!important;border-color:#e6dbba!important;color:#13232a!important}
+#archivalFootage button:focus-visible{outline:3px solid #f6e6ae;outline-offset:3px}
+#archivalFootageCard button{min-height:44px}
+@media(max-height:470px){#archivalFootage{padding-top:max(8px,env(safe-area-inset-top));padding-bottom:max(8px,env(safe-area-inset-bottom));gap:4px}#archivalFootage h2{font-size:14px}#archivalFootage header p{font-size:10px}#archivalFootage footer{gap:4px}#archivalFootageCaption{font-size:10px}}
+@media(max-width:520px){#archivalFootage footer{flex-direction:column;align-items:stretch}.archival-footage-controls{justify-content:space-between}#archivalFootage button{flex:1;padding:8px}#archivalFootage header p{font-size:10px}}
+@media(prefers-reduced-motion:reduce){#archivalFootage{scroll-behavior:auto}}
