@@ -1,6 +1,10 @@
+# Intruder: Yankee Station — Living River update
+
+The latest update is on `living-river`: [complete private game download](https://github.com/danielbmcconnell-hub/VA-65-Intruder/archive/refs/heads/living-river-site.zip) · [features, controls and verification](releases/living-river-notes.md). It adds a short skippable carrier montage, moving Vietnamese fishing boats, bank wildlife and denser layered jungle. After extracting the download, run `node assets/local-server.cjs` and open `http://127.0.0.1:8000`. Actual iPhone Safari remains untested.
+
 # Intruder: Yankee Station — Codex handoff
 
-The latest private game update is on `prison-water-realism`: [complete game download](https://github.com/danielbmcconnell-hub/VA-65-Intruder/archive/refs/heads/prison-water-site.zip) · [controls, verification and limits](releases/prison-water-notes.md). It adds clearer bomb bursts and fuel/ammunition secondaries, directional ground controls, selectable aircraft views, toggleable instructions, NVA prison rosters, visible rope work, photographic swimming and playable river hazards. Actual iPhone Safari remains untested.
+The preceding private game update is on `prison-water-realism`: [complete game download](https://github.com/danielbmcconnell-hub/VA-65-Intruder/archive/refs/heads/prison-water-site.zip) · [controls, verification and limits](releases/prison-water-notes.md). It adds clearer bomb bursts and fuel/ammunition secondaries, directional ground controls, selectable aircraft views, toggleable instructions, NVA prison rosters, visible rope work, photographic swimming and playable river hazards. Actual iPhone Safari remains untested.
 
 The preceding [Cockpit Focus release](releases/cockpit-focus-notes.md) remains available.
 

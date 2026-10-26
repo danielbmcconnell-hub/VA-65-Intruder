@@ -1,0 +1,58 @@
+{
+  "passed": true,
+  "testedRuntimeSource": "5fc56898000fb0b29bad8acb2f72fb6a5215844e",
+  "proofs": {
+    "cpu": {
+      "file": "living-river-cpu.json",
+      "passed": true,
+      "checks": 2,
+      "scope": "All CPU-only node:test and legacy assertion programs; browser modules excluded. Legacy assertion scripts contribute file-level runner cases, not a fabricated count of every inner assertion.",
+      "sourceStable": true,
+      "programs": 101,
+      "runnerTests": 1215,
+      "runnerPass": 1215
+    },
+    "river": {
+      "file": "living-river-river.json",
+      "passed": true,
+      "checks": 14,
+      "scope": "Actual Chromium WebGL2 desktop/phone original river entry, real moving boats, texture/crew submission, native swim and dive, plus labelled close-hull and near-bank-event fixtures. Daylight material screenshot changes renderer lighting only. Wildlife/boat collision and detection also have production-engine CPU cases. No mission success, damage or capture is granted. Physical Safari and subjective speech are untested.",
+      "sourceStable": true
+    },
+    "forest": {
+      "file": "living-river-forest.json",
+      "passed": true,
+      "checks": 8,
+      "scope": "Actual WebGL2 desktop and phone Chromium layouts at Medium quality. Native forest and river chapter entry, production visual cache warming, observed renderer submissions and original collision queries. View steering changes orientation only. The two explicitly labelled daylight bank images override renderer atmosphere/episode ambient for material inspection; original night clock and all actor/gameplay state remain unchanged. No mission success, health or player position is assigned. Physical Safari, human difficulty and hardware frame rate are not tested.",
+      "sourceStable": true
+    },
+    "footage": {
+      "file": "living-river-footage.json",
+      "passed": true,
+      "checks": 14,
+      "scope": "Actual Chromium desktop/phone media decoding, natural automatic progression/completion on desktop, native Skip/Replay/Next, session and reduced-motion policy, original mission-start closure and real byte-range HTTP. Radio routing uses explicit stubbed provider acceptance/decline through actual App.radio; it is not a listening test. Phone layout is not physical iPhone Safari. Clips are silent.",
+      "sourceStable": true
+    },
+    "package": {
+      "file": "living-river-package.json",
+      "passed": true,
+      "checks": 38,
+      "scope": "Every exact runtime file served over HTTP; actual packaged local-server range responses and MP4 video-only track metadata; native Chromium WebGL2 desktop/touch flight, prison, photographs and mission-control smoke; metadata-only muted inline video probes, no montage playback during a live mission. Declared fixed-clock and checkpoint fixtures. Physical devices, Safari media playback and hardware FPS are not tested.",
+      "sourceStable": true
+    },
+    "route": {
+      "file": "living-river-route.json",
+      "passed": true,
+      "checks": 5,
+      "scope": "Original river practice chapter entry followed by original MissionDemo controller, 1/30-second game updates, physical boat collisions, wildlife and river objective code. No position/health/outcome injection after the declared original chapter entry. Checks full river/delta/offshore signal only, not flight/ejection/camp success. Chromium initializes actual WebGL2; update fast-forward is not a full-speed video or hardware FPS test. Physical Safari is untested.",
+      "sourceStable": true
+    }
+  },
+  "limits": [
+    "Physical iPhone Safari and hardware frame rate untested.",
+    "Voice dispatch is tested with controlled provider returns; no subjective listening-quality claim.",
+    "The route run begins at the original river practice entry and does not establish a flight or prison escape outcome.",
+    "Daylight foliage and hull images are labelled renderer-lighting fixtures; native night images preserve the scene clock."
+  ],
+  "recordedAt": "2026-10-26T10:57:08.665Z"
+}

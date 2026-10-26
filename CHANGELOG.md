@@ -1,3 +1,14 @@
+# Living river and carrier opening
+
+- Add a 12.2-second silent montage from three uploaded carrier clips, with immediate Skip, Pause, Replay, automatic completion and reduced-motion support. Preserve original uploads.
+- Reconstruct Vietnamese sampans, canopy boats and blue workboats from the supplied visual references, with weathered wood, seated paddlers, oars, nets, wakes and real moving-hull collisions.
+- Add warned fisher sightings, diving and hull concealment, with delayed calls heard only by actual nearby NVA soldiers. Keep river civilians separate from prison guard rosters.
+- Add route-driven bank wildlife using the existing animal simulation and photographic poses; keep swimmers safe from land-animal contact.
+- Layer riverbank canopies, nipa, bamboo, ferns, roots and reeds; add close jungle undergrowth within explicit rendering budgets.
+- Remove synthetic chatter fallback from Spoken voice mode; retain captions when a suitable voice is unavailable and retain the separate Tones option.
+- Add a dependency-free local server with byte-range support for inline media playback.
+- [Controls, verification and private complete-game download](releases/living-river-notes.md).
+
 # Clear controls, prison and water realism
 
 - Make ground controls translate and strafe; reserve mouse/drag and arrow keys for looking. Add explicit Pilot, B/N and long A-6 views without changing the player's mission role.

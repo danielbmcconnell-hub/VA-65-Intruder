@@ -1,0 +1,513 @@
+{
+  "passed": true,
+  "suite": "archival-footage",
+  "sourceStable": true,
+  "sourceSHA256": {
+    "index.html": "150db9ea220c93358958f93ea11bfb3de2d5375f87e4c3b218b46b96837c8234",
+    "assets/ui/archival-footage.js": "9e990b6af179428d89d9ffb926669c1bc3ccbfd3e616cdd656db4d6bab2a48ae",
+    "assets/ui/archival-footage.css": "553a3b59c9cb7177ab38246d83e0f33a4b1f22b44d3e0ac956cd0448152fd359",
+    "assets/audio/voice-profiles.js": "336373530e5affa4de32897c4386f681815f5b708a82f5a8146c78f81e5002b0",
+    "assets/video/provenance.json": "ff36464e5d41635cbf120401d4488be17caf7e95ed5628fc0a43708a62819703",
+    "assets/video/carrier-launch.mp4": "2a5cdc19aea31357bbf76b5ee97104aca7a319493b781c22288e37bcb3c0aa68",
+    "assets/video/carrier-approach.mp4": "66ad5f9e4a78d14322f69d750684c26120ddeff53d17fcd01a939aaf170749eb",
+    "assets/video/carrier-night.mp4": "1d762474c9a12fe5fc09622192d32fcca1871b153b50e0a2ea36b7e341d09248"
+  },
+  "testSHA256": "5a1ddd3be1cf011756998f64ed5f7ff0554299443a1bd15a6e6f62f081f4ed9a",
+  "checks": [
+    {
+      "profile": "desktop",
+      "name": "Actual uploaded clip decodes in the silent skippable opening",
+      "passed": true,
+      "actual": {
+        "state": {
+          "active": true,
+          "mode": "intro",
+          "index": 0,
+          "clip": "launch",
+          "seen": true,
+          "reduced": false,
+          "playing": true,
+          "muted": true,
+          "opens": 1,
+          "lastClose": null,
+          "source": "assets/video/carrier-launch.mp4"
+        },
+        "time": 0.246072,
+        "size": [
+          984,
+          720
+        ],
+        "decoded": 4,
+        "inline": true,
+        "screen": "ready",
+        "game": false,
+        "skip": {
+          "w": 148.5625,
+          "h": 44,
+          "hit": true
+        }
+      }
+    },
+    {
+      "profile": "desktop",
+      "name": "All three actual clips advance automatically and completion returns to Ready Room",
+      "passed": true,
+      "actual": {
+        "clips": [
+          {
+            "index": 0,
+            "clip": "launch",
+            "source": "http://127.0.0.1:34649/assets/video/carrier-launch.mp4",
+            "time": 0.238251,
+            "width": 984,
+            "height": 720,
+            "decoded": 4,
+            "muted": true
+          },
+          {
+            "index": 1,
+            "clip": "approach",
+            "source": "http://127.0.0.1:34649/assets/video/carrier-approach.mp4",
+            "time": 0.246729,
+            "width": 984,
+            "height": 720,
+            "decoded": 12,
+            "muted": true
+          },
+          {
+            "index": 2,
+            "clip": "night",
+            "source": "http://127.0.0.1:34649/assets/video/carrier-night.mp4",
+            "time": 0.24255,
+            "width": 1176,
+            "height": 496,
+            "decoded": 12,
+            "muted": true
+          }
+        ],
+        "elapsedSeconds": 12.143899999976158,
+        "state": {
+          "active": false,
+          "mode": null,
+          "index": null,
+          "clip": null,
+          "seen": true,
+          "reduced": false,
+          "playing": false,
+          "muted": true,
+          "opens": 1,
+          "lastClose": "complete",
+          "source": null
+        },
+        "screen": "ready",
+        "game": false,
+        "readyInert": false,
+        "progressUnchanged": true,
+        "paused": true
+      }
+    },
+    {
+      "profile": "desktop",
+      "name": "Native Skip restores Ready Room without changing campaign or mission",
+      "passed": true,
+      "actual": {
+        "state": {
+          "active": false,
+          "mode": null,
+          "index": null,
+          "clip": null,
+          "seen": true,
+          "reduced": false,
+          "playing": false,
+          "muted": true,
+          "opens": 2,
+          "lastClose": "skip",
+          "source": null
+        },
+        "ready": "ready",
+        "game": false,
+        "progressUnchanged": true,
+        "paused": true
+      }
+    },
+    {
+      "profile": "desktop",
+      "name": "Replay and Next play all three source-derived carrier clips",
+      "passed": true,
+      "actual": [
+        {
+          "state": {
+            "active": true,
+            "mode": "viewer",
+            "index": 0,
+            "clip": "launch",
+            "seen": true,
+            "reduced": false,
+            "playing": true,
+            "muted": true,
+            "opens": 3,
+            "lastClose": null,
+            "source": "assets/video/carrier-launch.mp4"
+          },
+          "time": 0.171128,
+          "width": 984,
+          "height": 720,
+          "decoded": 12
+        },
+        {
+          "state": {
+            "active": true,
+            "mode": "viewer",
+            "index": 1,
+            "clip": "approach",
+            "seen": true,
+            "reduced": false,
+            "playing": true,
+            "muted": true,
+            "opens": 3,
+            "lastClose": null,
+            "source": "assets/video/carrier-approach.mp4"
+          },
+          "time": 0.174511,
+          "width": 984,
+          "height": 720,
+          "decoded": 12
+        },
+        {
+          "state": {
+            "active": true,
+            "mode": "viewer",
+            "index": 2,
+            "clip": "night",
+            "seen": true,
+            "reduced": false,
+            "playing": true,
+            "muted": true,
+            "opens": 3,
+            "lastClose": null,
+            "source": "assets/video/carrier-night.mp4"
+          },
+          "time": 0.088059,
+          "width": 1176,
+          "height": 496,
+          "decoded": 4
+        }
+      ]
+    },
+    {
+      "profile": "desktop",
+      "name": "Actual browser radio dispatch keeps Spoken mode free of synthetic fallback noise",
+      "passed": true,
+      "actual": {
+        "rows": [
+          {
+            "language": "en-US",
+            "mode": 2,
+            "providerAccepted": true,
+            "events": [
+              "speech",
+              "chirp"
+            ]
+          },
+          {
+            "language": "en-US",
+            "mode": 2,
+            "providerAccepted": false,
+            "events": [
+              "speech"
+            ]
+          },
+          {
+            "language": "en-US",
+            "mode": 1,
+            "providerAccepted": false,
+            "events": [
+              "synthetic-noise"
+            ]
+          },
+          {
+            "language": "en-US",
+            "mode": 0,
+            "providerAccepted": false,
+            "events": []
+          },
+          {
+            "language": "vi-VN",
+            "mode": 2,
+            "providerAccepted": true,
+            "events": [
+              "speech",
+              "chirp"
+            ]
+          },
+          {
+            "language": "vi-VN",
+            "mode": 2,
+            "providerAccepted": false,
+            "events": [
+              "speech"
+            ]
+          },
+          {
+            "language": "vi-VN",
+            "mode": 1,
+            "providerAccepted": false,
+            "events": [
+              "synthetic-noise"
+            ]
+          },
+          {
+            "language": "vi-VN",
+            "mode": 0,
+            "providerAccepted": false,
+            "events": []
+          }
+        ],
+        "progressUnchanged": true,
+        "screen": "ready",
+        "game": false
+      }
+    },
+    {
+      "profile": "desktop",
+      "name": "Same-session restart does not repeat the automatic intro",
+      "passed": true,
+      "actual": {}
+    },
+    {
+      "profile": "desktop",
+      "name": "Original mission start closes footage and prevents a live-game overlay",
+      "passed": true,
+      "actual": {
+        "active": false,
+        "reopen": false,
+        "paused": true,
+        "progressUnchanged": true,
+        "screen": "game"
+      }
+    },
+    {
+      "profile": "phone",
+      "name": "Actual uploaded clip decodes in the silent skippable opening",
+      "passed": true,
+      "actual": {
+        "state": {
+          "active": true,
+          "mode": "intro",
+          "index": 0,
+          "clip": "launch",
+          "seen": true,
+          "reduced": false,
+          "playing": true,
+          "muted": true,
+          "opens": 1,
+          "lastClose": null,
+          "source": "assets/video/carrier-launch.mp4"
+        },
+        "time": 0.189166,
+        "size": [
+          984,
+          720
+        ],
+        "decoded": 10,
+        "inline": true,
+        "screen": "ready",
+        "game": false,
+        "skip": {
+          "w": 148.5625,
+          "h": 44,
+          "hit": true
+        }
+      }
+    },
+    {
+      "profile": "phone",
+      "name": "Native Skip restores Ready Room without changing campaign or mission",
+      "passed": true,
+      "actual": {
+        "state": {
+          "active": false,
+          "mode": null,
+          "index": null,
+          "clip": null,
+          "seen": true,
+          "reduced": false,
+          "playing": false,
+          "muted": true,
+          "opens": 1,
+          "lastClose": "skip",
+          "source": null
+        },
+        "ready": "ready",
+        "game": false,
+        "progressUnchanged": true,
+        "paused": true
+      }
+    },
+    {
+      "profile": "phone",
+      "name": "Replay and Next play all three source-derived carrier clips",
+      "passed": true,
+      "actual": [
+        {
+          "state": {
+            "active": true,
+            "mode": "viewer",
+            "index": 0,
+            "clip": "launch",
+            "seen": true,
+            "reduced": false,
+            "playing": true,
+            "muted": true,
+            "opens": 2,
+            "lastClose": null,
+            "source": "assets/video/carrier-launch.mp4"
+          },
+          "time": 0.086306,
+          "width": 984,
+          "height": 720,
+          "decoded": 6
+        },
+        {
+          "state": {
+            "active": true,
+            "mode": "viewer",
+            "index": 1,
+            "clip": "approach",
+            "seen": true,
+            "reduced": false,
+            "playing": true,
+            "muted": true,
+            "opens": 2,
+            "lastClose": null,
+            "source": "assets/video/carrier-approach.mp4"
+          },
+          "time": 0.156315,
+          "width": 984,
+          "height": 720,
+          "decoded": 9
+        },
+        {
+          "state": {
+            "active": true,
+            "mode": "viewer",
+            "index": 2,
+            "clip": "night",
+            "seen": true,
+            "reduced": false,
+            "playing": true,
+            "muted": true,
+            "opens": 2,
+            "lastClose": null,
+            "source": "assets/video/carrier-night.mp4"
+          },
+          "time": 0.161598,
+          "width": 1176,
+          "height": 496,
+          "decoded": 10
+        }
+      ]
+    },
+    {
+      "profile": "phone",
+      "name": "Same-session restart does not repeat the automatic intro",
+      "passed": true,
+      "actual": {}
+    },
+    {
+      "profile": "phone",
+      "name": "Original mission start closes footage and prevents a live-game overlay",
+      "passed": true,
+      "actual": {
+        "active": false,
+        "reopen": false,
+        "paused": true,
+        "progressUnchanged": true,
+        "screen": "game"
+      }
+    },
+    {
+      "name": "Reduced motion skips automatic footage while retaining explicit Replay",
+      "passed": true
+    },
+    {
+      "name": "Actual media endpoint supports Safari-style initial byte requests",
+      "passed": true,
+      "range": "bytes 0-1/361896"
+    }
+  ],
+  "screenshots": [
+    "desktop-actual-opening.png",
+    "phone-actual-opening.png"
+  ],
+  "media": [
+    {
+      "profile": "desktop",
+      "url": "http://127.0.0.1:34649/assets/video/carrier-launch.mp4",
+      "status": 206,
+      "type": "video/mp4",
+      "range": "bytes 0-640432/640433"
+    },
+    {
+      "profile": "desktop",
+      "url": "http://127.0.0.1:34649/assets/video/carrier-approach.mp4",
+      "status": 206,
+      "type": "video/mp4",
+      "range": "bytes 0-595892/595893"
+    },
+    {
+      "profile": "desktop",
+      "url": "http://127.0.0.1:34649/assets/video/carrier-night.mp4",
+      "status": 206,
+      "type": "video/mp4",
+      "range": "bytes 0-361895/361896"
+    },
+    {
+      "profile": "desktop",
+      "url": "http://127.0.0.1:34649/assets/video/carrier-launch.mp4",
+      "status": 206,
+      "type": "video/mp4",
+      "range": "bytes 0-640432/640433"
+    },
+    {
+      "profile": "desktop",
+      "url": "http://127.0.0.1:34649/assets/video/carrier-approach.mp4",
+      "status": 206,
+      "type": "video/mp4",
+      "range": "bytes 0-595892/595893"
+    },
+    {
+      "profile": "desktop",
+      "url": "http://127.0.0.1:34649/assets/video/carrier-night.mp4",
+      "status": 206,
+      "type": "video/mp4",
+      "range": "bytes 0-361895/361896"
+    },
+    {
+      "profile": "phone",
+      "url": "http://127.0.0.1:34649/assets/video/carrier-launch.mp4",
+      "status": 206,
+      "type": "video/mp4",
+      "range": "bytes 0-640432/640433"
+    },
+    {
+      "profile": "phone",
+      "url": "http://127.0.0.1:34649/assets/video/carrier-approach.mp4",
+      "status": 206,
+      "type": "video/mp4",
+      "range": "bytes 0-595892/595893"
+    },
+    {
+      "profile": "phone",
+      "url": "http://127.0.0.1:34649/assets/video/carrier-night.mp4",
+      "status": 206,
+      "type": "video/mp4",
+      "range": "bytes 0-361895/361896"
+    }
+  ],
+  "errors": [],
+  "missing": [],
+  "scope": "Actual Chromium desktop/phone media decoding, natural automatic progression/completion on desktop, native Skip/Replay/Next, session and reduced-motion policy, original mission-start closure and real byte-range HTTP. Radio routing uses explicit stubbed provider acceptance/decline through actual App.radio; it is not a listening test. Phone layout is not physical iPhone Safari. Clips are silent.",
+  "target": "http://127.0.0.1:34649/",
+  "recordedAt": "2026-10-26T10:46:06.617Z"
+}

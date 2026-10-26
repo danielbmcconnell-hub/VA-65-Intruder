@@ -1,0 +1,50 @@
+{
+  "passed": true,
+  "testedRuntimeSource": "5fc56898000fb0b29bad8acb2f72fb6a5215844e",
+  "proofs": {
+    "cpu": {
+      "record": "living-river-cpu.json",
+      "recordSHA256": "f42b78e17e938d62a7c8c435893420a19b588a1d3b44fb415b72843298a195a6",
+      "hashedFiles": 136,
+      "currentSourceMismatches": [],
+      "scope": "All CPU-only node:test and legacy assertion programs; browser modules excluded. Legacy assertion scripts contribute file-level runner cases, not a fabricated count of every inner assertion."
+    },
+    "river": {
+      "record": "living-river-river.json",
+      "recordSHA256": "2895562d6eb377f3fdb08e55e261d7f49b1ca72c6c7d6f83230571e8327a6d95",
+      "hashedFiles": 138,
+      "currentSourceMismatches": [],
+      "scope": "Actual Chromium WebGL2 desktop/phone original river entry, real moving boats, texture/crew submission, native swim and dive, plus labelled close-hull and near-bank-event fixtures. Daylight material screenshot changes renderer lighting only. Wildlife/boat collision and detection also have production-engine CPU cases. No mission success, damage or capture is granted. Physical Safari and subjective speech are untested."
+    },
+    "forest": {
+      "record": "living-river-forest.json",
+      "recordSHA256": "3ab1fda071ca5c4458cf4048adaaa196cc1629908df94e361fca8b4be15ebc38",
+      "hashedFiles": 146,
+      "currentSourceMismatches": [],
+      "scope": "Actual WebGL2 desktop and phone Chromium layouts at Medium quality. Native forest and river chapter entry, production visual cache warming, observed renderer submissions and original collision queries. View steering changes orientation only. The two explicitly labelled daylight bank images override renderer atmosphere/episode ambient for material inspection; original night clock and all actor/gameplay state remain unchanged. No mission success, health or player position is assigned. Physical Safari, human difficulty and hardware frame rate are not tested."
+    },
+    "footage": {
+      "record": "living-river-footage.json",
+      "recordSHA256": "e0dd91097f5f79cc5120301359efe45b77e90e5562f7ecf1d3a2ed7963b71886",
+      "hashedFiles": 8,
+      "currentSourceMismatches": [],
+      "scope": "Actual Chromium desktop/phone media decoding, natural automatic progression/completion on desktop, native Skip/Replay/Next, session and reduced-motion policy, original mission-start closure and real byte-range HTTP. Radio routing uses explicit stubbed provider acceptance/decline through actual App.radio; it is not a listening test. Phone layout is not physical iPhone Safari. Clips are silent."
+    },
+    "package": {
+      "record": "living-river-package.json",
+      "recordSHA256": "b5a222b5d872a959bf1ab43e7498d4cb74f7f0586a5637c76939216e9dee7a49",
+      "hashedFiles": 347,
+      "currentSourceMismatches": [],
+      "scope": "Every exact runtime file served over HTTP; actual packaged local-server range responses and MP4 video-only track metadata; native Chromium WebGL2 desktop/touch flight, prison, photographs and mission-control smoke; metadata-only muted inline video probes, no montage playback during a live mission. Declared fixed-clock and checkpoint fixtures. Physical devices, Safari media playback and hardware FPS are not tested."
+    },
+    "route": {
+      "record": "living-river-route.json",
+      "recordSHA256": "62027588b6cfb81a33f8fcd63b7660d4fedd0c91933e90c8131b6f3cf981d7eb",
+      "hashedFiles": 136,
+      "currentSourceMismatches": [],
+      "scope": "Original river practice chapter entry followed by original MissionDemo controller, 1/30-second game updates, physical boat collisions, wildlife and river objective code. No position/health/outcome injection after the declared original chapter entry. Checks full river/delta/offshore signal only, not flight/ejection/camp success. Chromium initializes actual WebGL2; update fast-forward is not a full-speed video or hardware FPS test. Physical Safari is untested."
+    }
+  },
+  "buildManifestSHA256": "e03eb9a1944d751ed7a55dbd172355d62a49d955b36c302fc8f098fba3804bf5",
+  "scope": "All passing current task reports match their recorded source files. Exact package verification covers every runtime byte, including MP4 and WebP assets. Previous NVA native roster evidence remains separately preserved; final complete CPU checks include the current prison-roster domain."
+}

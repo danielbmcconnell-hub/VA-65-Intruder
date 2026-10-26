@@ -1,0 +1,1238 @@
+{
+  "passed": true,
+  "suite": "living-river",
+  "sourceStable": true,
+  "sourceSHA256": {
+    "assets/atlas-metadata.js": "042cc37786069adb0b58de7b17ba499ee8c0c2b93da0864288c4d184917e62d0",
+    "assets/atlas_manifest.json": "498deb24da5e88b5dd0bb34810898902bf655011ff8a93da1abe9af6db311c4e",
+    "assets/audio/crew-personality.js": "3cc3b1f6e2d74cc0d5a01af4b7ced45a88bb6b2a80d90ba10c593047ab91e820",
+    "assets/audio/voice-profiles.js": "336373530e5affa4de32897c4386f681815f5b708a82f5a8146c78f81e5002b0",
+    "assets/carrier/hires/manifest.json": "8bcdf04bdb266bfa169af08f7773644aac883a7eaa381c97ac7fe70d58690c80",
+    "assets/carrier/hires/provenance.json": "6860d19cf6a1face963afce20951022387aa1e7cb4319ed4d0bbc9dd9e28db53",
+    "assets/crocodile/manifest.json": "939e73b1cebd05031239dc21ff72a5ed0eb69b0c0cc90bd39c3d64002f0c995c",
+    "assets/firstperson/held-provenance-v1.json": "fe08f1f5a8891f9ab79a0ba71b24e5798e36bc45f95dcb8bf54282f5fc5636cc",
+    "assets/firstperson/held-provenance.json": "023f3124cb7197315f0e2c75fc0f312b75dc4e6a105e1a3fe7fedad0a1807220",
+    "assets/firstperson/punch-provenance-v1.json": "8c9c7d855b0dc2093e2ea21695092bd5fbea1eb31338d0fa4d87251f5735170b",
+    "assets/firstperson/punch-provenance.json": "5f8ef95d972dc91b4d07159f157fff8b376a7218d76271e25122b6aa587cfe3d",
+    "assets/firstperson/water-rope-provenance.json": "21f163cf4cec87a04efbb940b175ed786df5d49c96bdda0d73bf4b28b85337ff",
+    "assets/fishing/fisher-paddle.webp": "db300fb44041591a7ac16d28c9276eed4b4ac33d04e638dd7d938f4f00edaead",
+    "assets/fishing/provenance.json": "96469ed4c0723fdfaf593cecb64e7f1c455ad4ed5271cef73f31b6e71eee1e58",
+    "assets/fishing/wood.webp": "15cbf7c97e6df122a86718503ce6063c0312d29a1851e04e2571867946da1a88",
+    "assets/flight/aircraft-detail.js": "5d3f7d2ff0b06ec1892d2af34049c7d22d46f78d08fd41f10e1284a85d5a719f",
+    "assets/flight/airframe-feedback.css": "3dc93c21f51a00943e5ea8e57d8787305cd5befdabb5b8f008309ad81179319f",
+    "assets/flight/airframe-feedback.js": "12ea94aee34381aef92f76dcdce86277cafd0a6dcad41763fd69bc7d608f7ff4",
+    "assets/flight/carrier-launch.js": "22edde86d396a6cfdb51082f0de430b4e5e3e2abb1204cc99b58f88274e161db",
+    "assets/flight/coach.js": "1b15658e48a2c01834585e8affc7aa6231f9af163832e77eee9d348befb5ab3b",
+    "assets/flight/immersion.css": "3c679a107cff030e627d60b10fce7af0e1de2064d72e0a9d4cab63b6f9757da6",
+    "assets/flight/immersion.js": "d0cd11bae2f9566aebcf08d7041ce7c335521d4149239c0fdb2327a7a08714f2",
+    "assets/flight/mission-demo.js": "18e15e78435902af375b3fbaba1cfdd65f1411f854da1a89ceed10dae31d0050",
+    "assets/flight/route-scene.js": "0582c35231b6d490f6f3d6983ab4e710a7bb215ada0b3f03db1c18aac72b9169",
+    "assets/flight/sortie-checkpoint.js": "ed4af46b23268672454a1a99ae3d6b42281f6a4196f046e271fff0da85c32646",
+    "assets/flight/strike-board.css": "7c88726077eacb5468cd326f8c38d5ca4dcd351965fb93c623b0243c1a5f524a",
+    "assets/flight/strike-board.js": "102742e67d5e86271ee3a04db2d4cea7ab026c7c4282a7aac140d94ff8c91f68",
+    "assets/flight/strike-checkpoint.js": "9ac145ed9f1fcbc271013db170a1aa30b8f844c343b70fd61a29b846e2b183d7",
+    "assets/flight/strike-crew.css": "69d6d5ed33cf61c8692e5e4fe6e7f24ab62cac3c64c779345a3a78ae18edf931",
+    "assets/flight/strike-crew.js": "e3e5bda49f30933d7c5f14585aa0a6bfab104018f29bab7ba836493dea0fcf43",
+    "assets/flight/strike-effects.js": "3210e7015ad9364ed34e3e1b00d9cef08c93acab48f7e2bf9d9344aa28fadf16",
+    "assets/flight/strike-experience.css": "e59a8a9ec472d255d9cc740fdfb3d78af4d6fa090a724453414cfeaf290e481c",
+    "assets/flight/strike-experience.js": "f37815904bfa3ef66f22841c5ae8d3b14f212b32a433183b28a87ccf38291c6d",
+    "assets/flight/strike-scene.js": "6149c09d810b13219fe85aa0a10eaff8a80184e50e603de093f22ede9554e262",
+    "assets/flight/tactical-approach.css": "76652f890447df9f0021ef6e0f94fd8620f51b83cf151ac34e14cc31a3c732fc",
+    "assets/flight/tactical-approach.js": "7f2191f88352bdbafc6c8a0b2e94e5c756d922bab55606da439ad15969e3c0ad",
+    "assets/flight/threat-feedback.js": "f30012e2c5e986e6450ca2805a751bd76fc1db0dfc2a0960a17e27d0010fae55",
+    "assets/flight/visual-materials.js": "f876633635ffb855d98cc74bd712d6cf559cc1178bb14fcca979d7702566cdc2",
+    "assets/history/manifest.json": "93218bd49d70261c6093621d985328128111fb9c7075b69810622d9c3fb6e436",
+    "assets/items/manifest.json": "031b636e391f894af72ab3f23764dd914a5e788878943e35353e03e491e27a47",
+    "assets/items/provenance.json": "78f0a961339f29afdeca5984ce91041d4e41645a1e696b6ea2c1413a3e03ba82",
+    "assets/jungle/components-provenance.json": "81ee507dc3db742c5993719fa6ac420ab5897bc92352d05860100e7727ee978e",
+    "assets/jungle/crown-provenance.json": "21aa897ed9662436e641e4b6c44b00058d38b81eef07b973c5669874169aefb6",
+    "assets/jungle/floor-provenance.json": "0afe10c83d8d779c770971ab1e9c3d002373a1b869840632e818082b01d331fe",
+    "assets/jungle/manifest.json": "8b0ff7e0ac5d976b6b6bb3cfcc3ec78d3f92aafde497ae72292a296f29bf4f19",
+    "assets/photos/manifest.json": "750c4a0d6224c60e6f57babd3c4c3d21de55c67f36bd5f0cb1f47afcfebbb1a8",
+    "assets/pow/ai.js": "f214f3071c594d18d219a4590af14d85df0c0b9fe4fb6d1a7108ef14566f85ae",
+    "assets/pow/captivity.js": "12b8d2bd43663366c2a49c98b822a47e360740f71d754477bd9516ef7a644f8e",
+    "assets/pow/confinement-goals.css": "0cb8b2126935a37cd6c7d343c6a3ed164ba14f2ceab0b332060cc49e299dc2b3",
+    "assets/pow/confinement-goals.js": "a9956ec825a35a427b1bee91329eaa66a2b6d2636d91117f6a515c8f7fd8e48a",
+    "assets/pow/core.css": "4a54f9f9e0d50abc3757da98f05b3c742a31dcff148f07d8dba5d81176f85200",
+    "assets/pow/core.js": "e3283e524df4c22e5adfb56e6f32cfd0a9797d610096d7d8357b7e0048578017",
+    "assets/pow/denton-flashback.js": "3a434ee002427440ed01e6ea537f0b47c61ae7147bd3ab8c0222777a20eb0a04",
+    "assets/pow/episode-actions.css": "6d3ce6760ac16076539e70854c897731bca90291a4a78df13df230bb11567192",
+    "assets/pow/episode-actions.js": "8fe6818cc384e823ce44a36fd56b391c10861ceefa3d72151e1ff1fa6880d5fa",
+    "assets/pow/episode-audio.js": "8f68268e3090c66188aba86e8f62f291114cfb05db38e8b0ba083fc8cee8b1c7",
+    "assets/pow/episode-scene.js": "21faac9770746f220f26f4beb250f998c571baf3b8f8b655829fee0247521ccc",
+    "assets/pow/episode-shaders.js": "9a45dd52b620f9d4fe1572403f154e5033fde2d68466738be025e97a19bacb9f",
+    "assets/pow/episode-stealth.js": "8235ee978bb06afbfdc9fd1ce30eae18cbbff51a274ee8ad02c065a9d7804ce8",
+    "assets/pow/feedback.js": "0a0cf3b7cdb8814b4cc7f3509c658191d5dad4342cd085f3505a120bfc17cf01",
+    "assets/pow/figure-motion.js": "57023d4d7ba67db3c800fa04d338d005bff593940400bdc4634caff5e1ec1efb",
+    "assets/pow/history.js": "47a10f0365dedc2e1e28647e53ae1f9f339f22bf5fbf000c14872f6ff04a7543",
+    "assets/pow/memory-detail.js": "7041ec840df46c7f815dae5ef5415b224deaf6025a2fd4825b508bf758c68c09",
+    "assets/pow/mindscape.js": "6244998f4ebb3c5eb7ce8258f854159ed9a9cb8c0cf0986c75058a9b8d41b151",
+    "assets/pow/onboarding.js": "f569883eaaa3e1afe794db3528025f55757d30d82af21b977bbc4da830bbca1a",
+    "assets/pow/prison-detail.js": "d2b2da04aed43c95d84720f2ecd2b25b7dcd1b37e3cc015a984a974f8b454e38",
+    "assets/pow/prison-food.css": "feda44c174780a1ec0465e36816ec03464f3ce82504ba379f561abec2c8f9f60",
+    "assets/pow/prison-food.js": "05533c8529a90debfb440c0feb68be2fdc5765cb177d654632ac60092752fae0",
+    "assets/pow/ration-photo.js": "382169c8d5efdd76df34b10b2efc664bb66447d36f705dfbe566bfba68b1724e",
+    "assets/pow/regular-confinement.js": "961a989bfd8799b794e1678e651094a3cb543cb6f85eb03bc7e4ced594ab0177",
+    "assets/pow/river.js": "c062527afd62fc76c72cebb796916f4a52d4a1ebd86bfb7ec36381e10f6094a2",
+    "assets/pow/solidarity.js": "52aac5e8e3e96e552a585cce9b2aacf24709ab72e41d72e8b11b06e2d4d08fae",
+    "assets/prison/manifest.json": "8781daeacd47899474aabed7042eff9c25513a18106b64633dab086af36db0d4",
+    "assets/prison/provenance.json": "ac820f2e079c91e2cf99ea0de93058ee72278dcddca07ba644daeb4400f13b23",
+    "assets/processed/manifest.json": "c4cb27f5b5a855718e6455e6cd50f37753864e1fc9eaeb3ea6d9b47eb4c49c50",
+    "assets/render/coastal-scenery.js": "c786db647ba3d463b7fb350157a96c5b51bee7acd37347ad42c8f0ff2e89b4fb",
+    "assets/render/contact-shadows.js": "d6c1aa01dd809e6c240673e270a8731a26dc287bb36408adf549a7e5549f2364",
+    "assets/render/fishing-material.js": "4feb34de2333c18620a2ffecf69d58d64ba1e6800e090f237a391b798b07e040",
+    "assets/render/ground-items-render.js": "cc3f8044e93eca7acdf2d74c5704d74c5d0d934d0b044e97210fc3b1b470c08f",
+    "assets/render/jungle-scenery.js": "63f70fa62447fcaa1379f6da7940eca0f6b882ca4bdc6b57a5d3f321a2bb0a2d",
+    "assets/render/near-ground.js": "4027ebe7fbff9abc5149cdcbc53230c13d79365f46873035a3be072a0bab049d",
+    "assets/render/photo-cutouts.js": "2e56a9923c45f1f15356603d1356576de5b303e70ba22bc85217615b60e68778",
+    "assets/render/photo-motion.js": "2d1aa85f076ac19fdf07cc17812312e1bc2a3ea22f7bf6e3ffb3a1c8b87531b1",
+    "assets/render/photographic-sprites.js": "ffd2a250bea9c022f5c5ef6526e3503cb67755049cde8b71627cbcd981af1697",
+    "assets/render/quality-policy.js": "0082327576dfad84fbb872adafc77bc40bb0d6a21dc97fe02f0f984ed0110316",
+    "assets/render/river-bank.js": "c86e7b0313335d915bc3e23a894786ab413b31f6ca8b2d3400a171ec9218ebd8",
+    "assets/render/sprite-layers.js": "27492afd7aa06f6ddac03f2f058a7c03097e11cdb64f6abec52c88a0b00ce8aa",
+    "assets/render/terrain-shadows.js": "930e1bff5aee655c042259f78362902b1d53dc6e60adc0b31c9d18d48917e8a2",
+    "assets/render/village-detail.js": "83bff38d06bccd99e3ea13d5e4f35571414c8fcf7523940db3eefe906a802220",
+    "assets/render/visual-clarity.js": "4d0d48db6ca635b31373f81ddfb09478786c0203cfa49b34a0f62ef72386250a",
+    "assets/render/wildlife-render.js": "f855492d19f8c811fc669152b50bddb740b036d874a3db54618ecf8d814ad7e5",
+    "assets/sprites/atlas-metadata.js": "eeed898fc5a3afaca3af6191199e110d3b47a6577a296d8fa52ee215a01ed5d7",
+    "assets/sprites/hires/manifest.json": "767726986f513ebf43de3e03fb017d76656d0c61a5fcc60174cc64482b8369ab",
+    "assets/sprites/hires/motion-provenance.json": "6bcc7bb5f1c8286e1398660953331acfecbde60f6d5fcc2883b97f4574dbf497",
+    "assets/sprites/hires/provenance.json": "b6306266d4f31cbd5aa99a1744e480d38ec37a1349e76131a685c793fdf3e607",
+    "assets/sprites/hires/swim-provenance.json": "a51d6c318d1eabcc7c2495a05ab7b393dd2f977e6dd64e3770dd59918424d999",
+    "assets/sprites/provenance.json": "37f6432f77b3564d8932451837d9c1f52685bf986847b77b8591566ad8681216",
+    "assets/survival/ammunition.js": "c73bb800243d4125aa6bc57561a6f33531c938f1f148654f26227e8aab711dfb",
+    "assets/survival/aviator-companion.js": "ab6a54f73981a78618e7e039a50043d046566806c7d009eec16875097bdf8f69",
+    "assets/survival/capture-transition.css": "f9d4766b0c884f22aca342536ad06cabd80655d3c3801030e3cf3bf9a7ae4138",
+    "assets/survival/capture-transition.js": "520c6e9dd754a245cec7ecb1bf11ec366d4441d9ef03505309025a2633896f42",
+    "assets/survival/descent-threats.js": "179a6539ec7ee32ca9c166d97b1bc7235538f4fd029399905be6ebbaa2cb92ba",
+    "assets/survival/equipment-view.js": "3bb3bd6fbec01d7d6a268c533491b682e2ace58d68411f09fab5bb4b70f1d49b",
+    "assets/survival/fishing-boats.js": "7cbaebd70d7cde58e145ba9c84fd90970e3693a8d9fce1f9bd9ebf02a4fd475b",
+    "assets/survival/ground-combat.js": "fd9a50db2f16669d2e01749b21cd6209ebddf54ee3b963e76d022367e598ea00",
+    "assets/survival/ground-controls.js": "b9c72c58f15eb73878083cfd6da92554f78eec6a4b6e1076ec84346768bc2fc0",
+    "assets/survival/ground-items.css": "dc24c4f5df94fe29600eef4d4e344076913fe6b49cddd29bd766799a2255c5bd",
+    "assets/survival/ground-items.js": "86765674a5284056972429b8bafe446b539f9aa6b01e35227b526e5d5e3db866",
+    "assets/survival/ground-view.js": "88c7fca3e91ccc87f1bff2259933425a5e70a4538048c45ad1cb8f82faa538a0",
+    "assets/survival/landing-water.js": "2e66c20d1d57e3b75ac27ea3dfd6dd54509a75d6b70b439417cc51950124dcd4",
+    "assets/survival/rip-current.css": "097936fd210a07e455c7e075e3a1b88332da562a52100c8f386622c4af67fb08",
+    "assets/survival/rip-current.js": "ea028772cb13a8173a1f00d6162424be73b25da23022dffff96748791e5ff941",
+    "assets/survival/river-threats.css": "ca9180fe77fef30119199ca8b5bfd33d09aa152d40fcf9478d940e32453eb2ad",
+    "assets/survival/river-threats.js": "7e3dc526ef1534f44fa53e1c040c2de2b584c5243fc4c588f5bb5a288bcc46c9",
+    "assets/survival/riverbank-wildlife.js": "e247ff02471d46dbbbffa670302409f5f18e9f4f4a99c68cca00b6a066affef6",
+    "assets/survival/wildlife-targeting.js": "d6938abf70372e8f037277a61139f104ae5a48fcf9e8a4b60797233b62e438d7",
+    "assets/survival/wildlife.js": "4b510b91ae6dead26ac777791a7ce93604bf03003530638d05654e0b9f7dd4ba",
+    "assets/ui/archival-footage.css": "553a3b59c9cb7177ab38246d83e0f33a4b1f22b44d3e0ac956cd0448152fd359",
+    "assets/ui/archival-footage.js": "9e990b6af179428d89d9ffb926669c1bc3ccbfd3e616cdd656db4d6bab2a48ae",
+    "assets/ui/camera-views.css": "f2bacff3addb44365cd59243113fc84513d2b8a136a2f179e92c217bc78ad201",
+    "assets/ui/camera-views.js": "d055c9bcb42163163060f44127d47d0b72164f0a9a9a0e96dd0a0e85ac314bd9",
+    "assets/ui/hud-layout.css": "d1cceafc01a55e25578629f36da6d3c9cbb6b13529e75d776ebac238c596c2fb",
+    "assets/ui/hud-layout.js": "6495e4fe686b36f47701f6f3fcf3d0742617008565d2037d3775351e56084e86",
+    "assets/ui/instruction-view.css": "b122a2a0e58d8f716cc1f9710f79ad3605361b9d14c5ac493a043667edc5aef7",
+    "assets/ui/instruction-view.js": "7be7715a68fabb4abc24ae16be11fde8e76f2dc10fd33b766d89976ab60fd2e4",
+    "assets/video/provenance.json": "ff36464e5d41635cbf120401d4488be17caf7e95ed5628fc0a43708a62819703",
+    "assets/wildlife/hires/encoding-provenance.json": "4540352e12459b369592cea9bbd6684b4c386099493b5e3fc5acec0bafdbd2c2",
+    "assets/wildlife/hires/manifest.json": "0d5a5968a839dc8615d92b12458665092e4f2d55a62d7744a47c79e515211955",
+    "assets/wildlife/hires/provenance.json": "e5fb9acc28512f33338b97e8c011bafe47c738b5e0f200b23e09226512b04417",
+    "assets/willard/flak.js": "fa7e371488953904251da7b41b93bb7a2060e4d654f49d91659b2d0b6c7a41e8",
+    "assets/willard/interceptor.js": "6980e53f5eb1e15089b3b1bd5707f6fc2706859624b23438f6b08546c6bb1395",
+    "assets/willard/media/MiG17PF_Willard_Egress_ATLAS.json": "0d87d3669ff2a85757e73f02ebdc947fe68439da08bf0f4497a3b83849606a49",
+    "assets/willard/mission.js": "7e2df552017674b8c99f20f2c2da31c61d7d2a0fa24960512d548912c9602a1a",
+    "assets/willard/presentation.css": "4309231f9379836f1034b5f90849640a58860728016665aab99de8ca1e29ecb2",
+    "assets/willard/presentation.js": "075daa060b0b8b27793c25d63b46e6d869dc633fb1579a07dbeb4a316429c54b",
+    "assets/willard/sprites.js": "b0a253e4650868f0c2ce636ff160f97e895a4839253f5ab759b5fe52d5f2f7a6",
+    "index.html": "150db9ea220c93358958f93ea11bfb3de2d5375f87e4c3b218b46b96837c8234",
+    "tests/living-river-browser.cjs": "a12951b46292a2c20c32af930aba1a597591cda08a4b9d5ebdaf8193713b027f"
+  },
+  "checks": [
+    {
+      "profile": "desktop",
+      "name": "Original river entry renders moving, textured civilian fishing boats and seated photographic crews",
+      "passed": true,
+      "actual": {
+        "boats": {
+          "active": true,
+          "boats": [
+            {
+              "id": "fisher-0",
+              "kind": "sampan",
+              "p": [
+                3122.60296236837,
+                5.625,
+                4973.861125385136
+              ],
+              "yaw": 0.0075,
+              "phase": 2.413333333333333,
+              "distance": 24.278277161593486,
+              "interest": 0,
+              "reportIn": null,
+              "held": false,
+              "civilian": true,
+              "armed": false
+            },
+            {
+              "id": "fisher-1",
+              "kind": "canopy",
+              "p": [
+                3136.204329035149,
+                5.625,
+                5025.871625385136
+              ],
+              "yaw": 3.1340926535897933,
+              "phase": 1.330148026153748,
+              "distance": 76.61880153288122,
+              "interest": 0,
+              "reportIn": null,
+              "held": false,
+              "civilian": true,
+              "armed": false
+            }
+          ],
+          "reports": 0,
+          "clock": 0.016666666666666666,
+          "cover": false,
+          "nearest": {
+            "id": "fisher-0",
+            "kind": "sampan",
+            "distance": 24.278277161593486,
+            "interest": 0
+          },
+          "solids": 10,
+          "crewReady": true,
+          "crewStatus": "ready",
+          "crewDrawn": 2,
+          "civilianActors": [
+            {
+              "id": "fisher-0-civilian",
+              "p": [
+                3122.5983124119634,
+                5.836720617305662,
+                4973.241142822554
+              ],
+              "kind": "farmer",
+              "armed": false,
+              "civilian": true
+            },
+            {
+              "id": "fisher-1-civilian",
+              "p": [
+                3136.1996790787425,
+                5.8425603147535,
+                5026.491607947718
+              ],
+              "kind": "farmer",
+              "armed": false,
+              "civilian": true
+            }
+          ],
+          "meshReady": true
+        },
+        "materials": {
+          "ready": true,
+          "error": null,
+          "draws": 2,
+          "width": 1536,
+          "height": 1024,
+          "bytes": 8388608
+        },
+        "banks": {
+          "surfaces": 2,
+          "triangles": 3808,
+          "roots": 28,
+          "reeds": 52,
+          "plants": 126,
+          "nipa": 68,
+          "ferns": 44,
+          "bamboo": 14,
+          "canopies": 68,
+          "canopyBelts": 2,
+          "quality": 2,
+          "accessGaps": 6,
+          "density": {
+            "spacing": 12,
+            "layers": 3,
+            "maxPlants": 144,
+            "maxRoots": 36,
+            "maxReeds": 70,
+            "canopySpacing": 16,
+            "maxCanopies": 72
+          },
+          "collisionSolids": 0,
+          "streamOffset": 0,
+          "waterY": 5.6,
+          "walkY": 5.949999999999999,
+          "bankMeshes": [
+            "powRiverBankLeft",
+            "powRiverBankRight"
+          ],
+          "referenceFiles": [
+            "river-and-swamp-references/2-Photo-2.jpg",
+            "river-and-swamp-references/4-Photo-4.jpg"
+          ],
+          "draws": 32,
+          "photographicDraws": 8,
+          "additionalTextureBytes": 0
+        },
+        "roster": [
+          {
+            "kind": "farmer",
+            "armed": false,
+            "id": "river-person-0"
+          },
+          {
+            "kind": "nva",
+            "armed": true,
+            "id": "river-person-1"
+          },
+          {
+            "kind": "nva",
+            "armed": true,
+            "id": "river-person-2"
+          },
+          {
+            "kind": "farmer",
+            "armed": false,
+            "id": "river-person-3"
+          }
+        ],
+        "position": [
+          3126.403819382641,
+          5.18,
+          4949.882213235244
+        ],
+        "mode": "float",
+        "mesh": [
+          {
+            "name": "fishingSampan",
+            "count": 1
+          },
+          {
+            "name": "fishingOar",
+            "count": 2
+          },
+          {
+            "name": "fishingWake",
+            "count": 2
+          },
+          {
+            "name": "fishingCanopyHull",
+            "count": 1
+          }
+        ],
+        "crew": [
+          [
+            {
+              "p": [
+                3122.5983124119634,
+                5.836720617305662,
+                4973.241142822554
+              ],
+              "h": 1.12,
+              "w": 1.12,
+              "cell": 3,
+              "cols": 4,
+              "rows": 2
+            },
+            {
+              "p": [
+                3136.1996790787425,
+                5.8425603147535,
+                5026.491607947718
+              ],
+              "h": 1.12,
+              "w": 1.12,
+              "cell": 1,
+              "cols": 4,
+              "rows": 2
+            }
+          ]
+        ],
+        "gl": 0,
+        "gating": {
+          "paused": false,
+          "frozen": false,
+          "held": 0,
+          "hidden": false,
+          "screen": "game"
+        }
+      }
+    },
+    {
+      "profile": "desktop",
+      "name": "Actual river updates move finite hulls and animate paddle poses without arming civilians",
+      "passed": true,
+      "actual": {
+        "before": [
+          {
+            "id": "fisher-0",
+            "logical": 2399.4,
+            "phase": 2.413333333333333
+          },
+          {
+            "id": "fisher-1",
+            "logical": 7600.45,
+            "phase": 1.330148026153748
+          }
+        ],
+        "after": [
+          {
+            "id": "fisher-0",
+            "kind": "sampan",
+            "lane": -6.74636464151631,
+            "homeLane": -6.8,
+            "logical": 2291.4000000000165,
+            "yaw": 0.048141299298461906,
+            "phase": 4.813333333333335,
+            "interest": 0,
+            "warned": false,
+            "reporter": false,
+            "reportAt": null,
+            "reported": false,
+            "speed": -0.36,
+            "held": false,
+            "age": 3.016666666666661,
+            "p": [
+              3122.656297726966,
+              5.625,
+              4972.781125385136
+            ],
+            "armed": false,
+            "civilian": true
+          },
+          {
+            "id": "fisher-1",
+            "kind": "canopy",
+            "lane": 6.991108840447832,
+            "homeLane": 6.8,
+            "logical": 7681.449999999967,
+            "yaw": 3.121890907366901,
+            "phase": 3.7301480261537345,
+            "interest": 0,
+            "warned": false,
+            "reporter": true,
+            "reportAt": null,
+            "reported": false,
+            "speed": 0.27,
+            "held": false,
+            "age": 3.016666666666661,
+            "p": [
+              3136.39377120893,
+              5.625,
+              5026.681625385136
+            ],
+            "armed": false,
+            "civilian": true
+          }
+        ],
+        "frames": [
+          3,
+          1,
+          6,
+          4
+        ]
+      }
+    },
+    {
+      "profile": "desktop",
+      "name": "Daylight material probe reveals curved hulls and weathered planks without altering gameplay",
+      "passed": true,
+      "actual": {
+        "unchanged": true,
+        "material": {
+          "ready": true,
+          "error": null,
+          "draws": 8,
+          "width": 1536,
+          "height": 1024,
+          "bytes": 8388608
+        },
+        "gl": 0
+      }
+    },
+    {
+      "profile": "desktop",
+      "name": "Native swimming collides with an actual moving hull rather than passing through it",
+      "passed": true,
+      "actual": {
+        "fixture": {
+          "id": "fisher-0",
+          "start": [
+            3122.656297726966,
+            5.18,
+            4968.681125385136
+          ],
+          "boat": {
+            "id": "fisher-0",
+            "kind": "sampan",
+            "lane": -6.74636464151631,
+            "homeLane": -6.8,
+            "logical": 2291.4000000000165,
+            "yaw": 0.048141299298461906,
+            "phase": 4.813333333333335,
+            "interest": 0,
+            "warned": false,
+            "reporter": false,
+            "reportAt": null,
+            "reported": false,
+            "speed": -0.36,
+            "held": false,
+            "age": 3.016666666666661,
+            "p": [
+              3122.656297726966,
+              5.625,
+              4972.781125385136
+            ],
+            "armed": false,
+            "civilian": true
+          }
+        },
+        "collision": {
+          "p": [
+            3122.756089252185,
+            5.18,
+            4969.505982572315
+          ],
+          "blocked": false,
+          "boats": [
+            {
+              "id": "fisher-0",
+              "kind": "sampan",
+              "p": [
+                3122.6620529441616,
+                5.625,
+                4972.661125385136
+              ],
+              "yaw": 0.04771947008574197,
+              "phase": 6.2533333333333685,
+              "distance": 3.1565438372570096,
+              "interest": 0,
+              "reportIn": null,
+              "held": true,
+              "civilian": true,
+              "armed": false
+            },
+            {
+              "id": "fisher-1",
+              "kind": "canopy",
+              "p": [
+                3136.400780299596,
+                5.625,
+                5027.167625385136
+              ],
+              "yaw": 3.1324190257216156,
+              "phase": 5.1701480261537585,
+              "distance": 59.25405172351202,
+              "interest": 0,
+              "reportIn": null,
+              "held": false,
+              "civilian": true,
+              "armed": false
+            }
+          ],
+          "stops": 87,
+          "gl": 0
+        }
+      }
+    },
+    {
+      "profile": "desktop",
+      "name": "Native diving removes fisher visibility while consuming real breath",
+      "passed": true,
+      "actual": {
+        "submerged": true,
+        "boat": {
+          "id": "fisher-0",
+          "kind": "sampan",
+          "lane": -6.707910367169045,
+          "homeLane": -6.8,
+          "logical": 2262.000000000021,
+          "yaw": 0.100219470085742,
+          "phase": 0.370148026153783,
+          "interest": 0,
+          "warned": false,
+          "reporter": false,
+          "reportAt": null,
+          "reported": false,
+          "speed": -0.36,
+          "held": false,
+          "age": 5.316666666666653,
+          "p": [
+            3122.694752001313,
+            5.625,
+            4972.487125385136
+          ],
+          "armed": false,
+          "civilian": true
+        },
+        "visibility": [
+          0,
+          0
+        ],
+        "breath": 97.00000000000017,
+        "gl": 0
+      }
+    },
+    {
+      "profile": "desktop",
+      "name": "Original bank encounter uses photographic boar actors and cannot injure a swimmer",
+      "passed": true,
+      "actual": {
+        "wildlife": {
+          "active": true,
+          "clock": 0.016666666666666666,
+          "spawned": 1,
+          "hits": 0,
+          "punches": 0,
+          "seen": [
+            3800
+          ],
+          "entries": [
+            {
+              "id": "riverbank-boar-3800",
+              "kind": "boar",
+              "born": 0.016666666666666666,
+              "actor": {
+                "id": "riverbank-boar-3800",
+                "kind": "boar",
+                "p": [
+                  3108.7026623684824,
+                  5.949999999999999,
+                  4951.867125385136
+                ],
+                "yaw": 1.5707963267948966,
+                "scale": 1,
+                "state": "rest",
+                "phase": 0,
+                "speed": 0,
+                "rest": 4.983333333333333,
+                "turn": 0,
+                "noticed": false,
+                "blocked": 0,
+                "strikes": 0,
+                "stateAge": 0.016666666666666666,
+                "warnedAt": -99,
+                "encounterAge": 0,
+                "spent": false,
+                "hit": false,
+                "chargeYaw": 1.5707963267948966,
+                "lastContact": -99
+              }
+            }
+          ],
+          "onBank": false,
+          "bankY": 5.949999999999999
+        },
+        "view": {
+          "active": true,
+          "animals": [
+            {
+              "id": "riverbank-boar-3800",
+              "kind": "boar",
+              "p": [
+                3108.7026623684824,
+                5.949999999999999,
+                4951.867125385136
+              ],
+              "yaw": 1.5707963267948966,
+              "scale": 1,
+              "state": "rest",
+              "phase": 0,
+              "speed": 0,
+              "rest": 4.983333333333333,
+              "turn": 0,
+              "noticed": false,
+              "blocked": 0,
+              "strikes": 0,
+              "stateAge": 0.016666666666666666,
+              "warnedAt": -99,
+              "encounterAge": 0,
+              "spent": false,
+              "hit": false,
+              "chargeYaw": 1.5707963267948966,
+              "lastContact": -99,
+              "length": 1.65,
+              "width": 0.7,
+              "height": 0.95,
+              "moving": false,
+              "clip": "idle",
+              "actionPhase": 0,
+              "warning": false,
+              "riverbankWildlife": true,
+              "floorKey": "riverbank:5.6"
+            }
+          ],
+          "colonies": [],
+          "clock": 0.016666666666666666,
+          "spawned": 1,
+          "hits": 0,
+          "punches": 0
+        },
+        "river": 3601.5087850108102,
+        "p": [
+          3126.403819382641,
+          5.18,
+          4949.882213235244
+        ],
+        "gl": 0
+      }
+    },
+    {
+      "profile": "desktop",
+      "name": "Pause freezes the new traffic and wildlife clocks",
+      "passed": true,
+      "actual": {}
+    },
+    {
+      "profile": "phone",
+      "name": "Original river entry renders moving, textured civilian fishing boats and seated photographic crews",
+      "passed": true,
+      "actual": {
+        "boats": {
+          "active": true,
+          "boats": [
+            {
+              "id": "fisher-0",
+              "kind": "sampan",
+              "p": [
+                2712.4250670079455,
+                5.625,
+                3125.1590872441757
+              ],
+              "yaw": 0.0075,
+              "phase": 2.413333333333333,
+              "distance": 24.278258096129786,
+              "interest": 0,
+              "reportIn": null,
+              "held": false,
+              "civilian": true,
+              "armed": false
+            },
+            {
+              "id": "fisher-1",
+              "kind": "canopy",
+              "p": [
+                2726.0264336747246,
+                5.625,
+                3177.1695872441755
+              ],
+              "yaw": 3.1340926535897933,
+              "phase": 1.330148026153748,
+              "distance": 76.61881711069422,
+              "interest": 0,
+              "reportIn": null,
+              "held": false,
+              "civilian": true,
+              "armed": false
+            }
+          ],
+          "reports": 0,
+          "clock": 0.016666666666666666,
+          "cover": false,
+          "nearest": {
+            "id": "fisher-0",
+            "kind": "sampan",
+            "distance": 24.278258096129786,
+            "interest": 0
+          },
+          "solids": 10,
+          "crewReady": true,
+          "crewStatus": "ready",
+          "crewDrawn": 2,
+          "civilianActors": [
+            {
+              "id": "fisher-0-civilian",
+              "p": [
+                2712.420417051539,
+                5.836720617305662,
+                3124.539104681594
+              ],
+              "kind": "farmer",
+              "armed": false,
+              "civilian": true
+            },
+            {
+              "id": "fisher-1-civilian",
+              "p": [
+                2726.021783718318,
+                5.8425603147535,
+                3177.7895698067573
+              ],
+              "kind": "farmer",
+              "armed": false,
+              "civilian": true
+            }
+          ],
+          "meshReady": true
+        },
+        "materials": {
+          "ready": true,
+          "error": null,
+          "draws": 2,
+          "width": 1536,
+          "height": 1024,
+          "bytes": 8388608
+        },
+        "banks": {
+          "surfaces": 2,
+          "triangles": 3808,
+          "roots": 26,
+          "reeds": 44,
+          "plants": 108,
+          "nipa": 58,
+          "ferns": 38,
+          "bamboo": 12,
+          "canopies": 54,
+          "canopyBelts": 2,
+          "quality": 1,
+          "accessGaps": 6,
+          "density": {
+            "spacing": 14,
+            "layers": 3,
+            "maxPlants": 120,
+            "maxRoots": 32,
+            "maxReeds": 60,
+            "canopySpacing": 20,
+            "maxCanopies": 56
+          },
+          "collisionSolids": 0,
+          "streamOffset": 0,
+          "waterY": 5.6,
+          "walkY": 5.949999999999999,
+          "bankMeshes": [
+            "powRiverBankLeft",
+            "powRiverBankRight"
+          ],
+          "referenceFiles": [
+            "river-and-swamp-references/2-Photo-2.jpg",
+            "river-and-swamp-references/4-Photo-4.jpg"
+          ],
+          "draws": 34,
+          "photographicDraws": 8,
+          "additionalTextureBytes": 0
+        },
+        "roster": [
+          {
+            "kind": "farmer",
+            "armed": false,
+            "id": "river-person-0"
+          },
+          {
+            "kind": "nva",
+            "armed": true,
+            "id": "river-person-1"
+          },
+          {
+            "kind": "nva",
+            "armed": true,
+            "id": "river-person-2"
+          },
+          {
+            "kind": "farmer",
+            "armed": false,
+            "id": "river-person-3"
+          }
+        ],
+        "position": [
+          2716.2258022381384,
+          5.18,
+          3101.180175094283
+        ],
+        "mode": "float",
+        "mesh": [
+          {
+            "name": "fishingSampan",
+            "count": 1
+          },
+          {
+            "name": "fishingOar",
+            "count": 2
+          },
+          {
+            "name": "fishingWake",
+            "count": 2
+          },
+          {
+            "name": "fishingCanopyHull",
+            "count": 1
+          }
+        ],
+        "crew": [
+          [
+            {
+              "p": [
+                2712.420417051539,
+                5.836720617305662,
+                3124.539104681594
+              ],
+              "h": 1.12,
+              "w": 1.12,
+              "cell": 3,
+              "cols": 4,
+              "rows": 2
+            },
+            {
+              "p": [
+                2726.021783718318,
+                5.8425603147535,
+                3177.7895698067573
+              ],
+              "h": 1.12,
+              "w": 1.12,
+              "cell": 1,
+              "cols": 4,
+              "rows": 2
+            }
+          ]
+        ],
+        "gl": 0,
+        "gating": {
+          "paused": false,
+          "frozen": false,
+          "held": 0,
+          "hidden": false,
+          "screen": "game"
+        }
+      }
+    },
+    {
+      "profile": "phone",
+      "name": "Actual river updates move finite hulls and animate paddle poses without arming civilians",
+      "passed": true,
+      "actual": {
+        "before": [
+          {
+            "id": "fisher-0",
+            "logical": 2399.4,
+            "phase": 2.413333333333333
+          },
+          {
+            "id": "fisher-1",
+            "logical": 7600.45,
+            "phase": 1.330148026153748
+          }
+        ],
+        "after": [
+          {
+            "id": "fisher-0",
+            "kind": "sampan",
+            "lane": -6.74636464151631,
+            "homeLane": -6.8,
+            "logical": 2291.4000000000165,
+            "yaw": 0.048141299298461906,
+            "phase": 4.813333333333335,
+            "interest": 0,
+            "warned": false,
+            "reporter": false,
+            "reportAt": null,
+            "reported": false,
+            "speed": -0.36,
+            "held": false,
+            "age": 3.016666666666661,
+            "p": [
+              2712.4784023665416,
+              5.625,
+              3124.0790872441758
+            ],
+            "armed": false,
+            "civilian": true
+          },
+          {
+            "id": "fisher-1",
+            "kind": "canopy",
+            "lane": 6.991108840447832,
+            "homeLane": 6.8,
+            "logical": 7681.449999999967,
+            "yaw": 3.121890907366901,
+            "phase": 3.7301480261537345,
+            "interest": 0,
+            "warned": false,
+            "reporter": true,
+            "reportAt": null,
+            "reported": false,
+            "speed": 0.27,
+            "held": false,
+            "age": 3.016666666666661,
+            "p": [
+              2726.2158758485057,
+              5.625,
+              3177.979587244175
+            ],
+            "armed": false,
+            "civilian": true
+          }
+        ],
+        "frames": [
+          3,
+          1,
+          6,
+          4
+        ]
+      }
+    },
+    {
+      "profile": "phone",
+      "name": "Daylight material probe reveals curved hulls and weathered planks without altering gameplay",
+      "passed": true,
+      "actual": {
+        "unchanged": true,
+        "material": {
+          "ready": true,
+          "error": null,
+          "draws": 8,
+          "width": 1536,
+          "height": 1024,
+          "bytes": 8388608
+        },
+        "gl": 0
+      }
+    },
+    {
+      "profile": "phone",
+      "name": "Native swimming collides with an actual moving hull rather than passing through it",
+      "passed": true,
+      "actual": {
+        "fixture": {
+          "id": "fisher-0",
+          "start": [
+            2712.4784023665416,
+            5.18,
+            3119.9790872441754
+          ],
+          "boat": {
+            "id": "fisher-0",
+            "kind": "sampan",
+            "lane": -6.74636464151631,
+            "homeLane": -6.8,
+            "logical": 2291.4000000000165,
+            "yaw": 0.048141299298461906,
+            "phase": 4.813333333333335,
+            "interest": 0,
+            "warned": false,
+            "reporter": false,
+            "reportAt": null,
+            "reported": false,
+            "speed": -0.36,
+            "held": false,
+            "age": 3.016666666666661,
+            "p": [
+              2712.4784023665416,
+              5.625,
+              3124.0790872441758
+            ],
+            "armed": false,
+            "civilian": true
+          }
+        },
+        "collision": {
+          "p": [
+            2712.5457108211713,
+            5.18,
+            3120.803944431353
+          ],
+          "blocked": false,
+          "boats": [
+            {
+              "id": "fisher-0",
+              "kind": "sampan",
+              "p": [
+                2712.484157583737,
+                5.625,
+                3123.959087244176
+              ],
+              "yaw": 0.04771947008574197,
+              "phase": 6.2533333333333685,
+              "distance": 3.155743172431136,
+              "interest": 0,
+              "reportIn": null,
+              "held": true,
+              "civilian": true,
+              "armed": false
+            },
+            {
+              "id": "fisher-1",
+              "kind": "canopy",
+              "p": [
+                2726.2228849391718,
+                5.625,
+                3178.465587244175
+              ],
+              "yaw": 3.1324190257216156,
+              "phase": 5.1701480261537585,
+              "distance": 59.261540173434135,
+              "interest": 0,
+              "reportIn": null,
+              "held": false,
+              "civilian": true,
+              "armed": false
+            }
+          ],
+          "stops": 87,
+          "gl": 0
+        }
+      }
+    },
+    {
+      "profile": "phone",
+      "name": "Native diving removes fisher visibility while consuming real breath",
+      "passed": true,
+      "actual": {
+        "submerged": true,
+        "boat": {
+          "id": "fisher-0",
+          "kind": "sampan",
+          "lane": -6.707910367169045,
+          "homeLane": -6.8,
+          "logical": 2262.000000000021,
+          "yaw": 0.100219470085742,
+          "phase": 0.370148026153783,
+          "interest": 0,
+          "warned": false,
+          "reporter": false,
+          "reportAt": null,
+          "reported": false,
+          "speed": -0.36,
+          "held": false,
+          "age": 5.316666666666653,
+          "p": [
+            2712.516856640889,
+            5.625,
+            3123.785087244176
+          ],
+          "armed": false,
+          "civilian": true
+        },
+        "visibility": [
+          0,
+          0
+        ],
+        "breath": 97.00000000000017,
+        "gl": 0
+      }
+    },
+    {
+      "profile": "phone",
+      "name": "Original bank encounter uses photographic boar actors and cannot injure a swimmer",
+      "passed": true,
+      "actual": {
+        "wildlife": {
+          "active": true,
+          "clock": 0.016666666666666666,
+          "spawned": 1,
+          "hits": 0,
+          "punches": 0,
+          "seen": [
+            3800
+          ],
+          "entries": [
+            {
+              "id": "riverbank-boar-3800",
+              "kind": "boar",
+              "born": 0.016666666666666666,
+              "actor": {
+                "id": "riverbank-boar-3800",
+                "kind": "boar",
+                "p": [
+                  2698.524767008058,
+                  5.949999999999999,
+                  3103.1650872441755
+                ],
+                "yaw": 1.5707963267948966,
+                "scale": 1,
+                "state": "rest",
+                "phase": 0,
+                "speed": 0,
+                "rest": 4.983333333333333,
+                "turn": 0,
+                "noticed": false,
+                "blocked": 0,
+                "strikes": 0,
+                "stateAge": 0.016666666666666666,
+                "warnedAt": -99,
+                "encounterAge": 0,
+                "spent": false,
+                "hit": false,
+                "chargeYaw": 1.5707963267948966,
+                "lastContact": -99
+              }
+            }
+          ],
+          "onBank": false,
+          "bankY": 5.949999999999999
+        },
+        "view": {
+          "active": true,
+          "animals": [
+            {
+              "id": "riverbank-boar-3800",
+              "kind": "boar",
+              "p": [
+                2698.524767008058,
+                5.949999999999999,
+                3103.1650872441755
+              ],
+              "yaw": 1.5707963267948966,
+              "scale": 1,
+              "state": "rest",
+              "phase": 0,
+              "speed": 0,
+              "rest": 4.983333333333333,
+              "turn": 0,
+              "noticed": false,
+              "blocked": 0,
+              "strikes": 0,
+              "stateAge": 0.016666666666666666,
+              "warnedAt": -99,
+              "encounterAge": 0,
+              "spent": false,
+              "hit": false,
+              "chargeYaw": 1.5707963267948966,
+              "lastContact": -99,
+              "length": 1.65,
+              "width": 0.7,
+              "height": 0.95,
+              "moving": false,
+              "clip": "idle",
+              "actionPhase": 0,
+              "warning": false,
+              "riverbankWildlife": true,
+              "floorKey": "riverbank:5.6"
+            }
+          ],
+          "colonies": [],
+          "clock": 0.016666666666666666,
+          "spawned": 1,
+          "hits": 0,
+          "punches": 0
+        },
+        "river": 3601.5087850107648,
+        "p": [
+          2716.2258022381384,
+          5.18,
+          3101.180175094283
+        ],
+        "gl": 0
+      }
+    },
+    {
+      "profile": "phone",
+      "name": "Pause freezes the new traffic and wildlife clocks",
+      "passed": true,
+      "actual": {}
+    }
+  ],
+  "screenshots": [
+    "desktop-sampans-night.png",
+    "desktop-sampans-daylight-material-probe.png",
+    "desktop-close-fishing-hull.png",
+    "desktop-dive-under-traffic.png",
+    "desktop-bank-wildlife-night.png",
+    "phone-sampans-night.png",
+    "phone-sampans-daylight-material-probe.png",
+    "phone-close-fishing-hull.png",
+    "phone-dive-under-traffic.png",
+    "phone-bank-wildlife-night.png"
+  ],
+  "errors": [],
+  "missing": [],
+  "scope": "Actual Chromium WebGL2 desktop/phone original river entry, real moving boats, texture/crew submission, native swim and dive, plus labelled close-hull and near-bank-event fixtures. Daylight material screenshot changes renderer lighting only. Wildlife/boat collision and detection also have production-engine CPU cases. No mission success, damage or capture is granted. Physical Safari and subjective speech are untested.",
+  "target": "http://127.0.0.1:44175/",
+  "recordedAt": "2026-10-26T10:51:56.181Z"
+}
