@@ -223,6 +223,10 @@
   const activate=event=>{
    if(closing)return;const t=event.target;if(!t?.closest)return;
    const name=t.closest('#missionDemo > button')?'demo':t.closest('#flightStrikeBoardToggle')?'strike':t.closest('#flightCoachToggle')?'coach':t.closest('#teachPeek')?'teach':t.closest('[data-companion-line]')?'companion':t.closest('#dixieApproach')?'route':null;
+   // In the cockpit this button changes only the saved guidance preference;
+   // Guide details owns the reading panel. Reserving it on pointerup could
+   // hide the menu before a phone's compatibility click reaches the button.
+   if(cockpit&&name==='coach')return;
    // A microtask can run between event listeners, before the original button
    // changes its state. Reserve its owner now and settle after native dispatch.
    if(name){pendingOwner=name;root.setTimeout(()=>{if(pendingOwner===name)pendingOwner=null;select(name);},0);}
