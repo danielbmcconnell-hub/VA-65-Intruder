@@ -1,0 +1,52 @@
+{
+  "passed": true,
+  "runtimeSourceCommit": "f30d389cf22d1fdfd40c43b9c41a29ca1ceb17b2",
+  "cpu": {
+    "runnerCases": 1166,
+    "programs": 97,
+    "report": "prison-water-cpu.json"
+  },
+  "native": [
+    {
+      "suite": "water",
+      "checks": 20,
+      "report": "prison-water-water.json"
+    },
+    {
+      "suite": "interactions",
+      "checks": 10,
+      "report": "prison-water-interactions.json"
+    },
+    {
+      "suite": "roster",
+      "checks": 12,
+      "report": "prison-water-roster.json"
+    },
+    {
+      "suite": "tutorial",
+      "checks": 16,
+      "report": "prison-water-tutorial.json"
+    },
+    {
+      "suite": "strikes",
+      "checks": 10,
+      "report": "prison-water-strikes.json"
+    },
+    {
+      "suite": "missions",
+      "checks": 44,
+      "report": "prison-water-missions.json"
+    },
+    {
+      "suite": "package",
+      "checks": 33,
+      "report": "prison-water-package.json"
+    }
+  ],
+  "runtimeFiles": 335,
+  "coverage": "prison-water-source-coverage.json",
+  "limitations": [
+    "Physical iPhone Safari, hardware frame rate and subjective voice listening untested.",
+    "Prior campaign outcome run and final rendering refinements distinguished in source coverage. Real combat can defeat the computer demonstration."
+  ]
+}

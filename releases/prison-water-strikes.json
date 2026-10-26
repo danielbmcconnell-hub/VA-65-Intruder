@@ -1,0 +1,649 @@
+{
+  "suite": "strike-sensory",
+  "passed": true,
+  "checks": [
+    {
+      "name": "desktop native practice exposes a briefed tower at its actual grounded mesh position",
+      "passed": true,
+      "actual": {
+        "tower": {
+          "id": "dixie-water-tower",
+          "label": "Banded water tower",
+          "kind": "tower",
+          "p": [
+            -8007.191597140289,
+            53.499795997683485,
+            -1106.6537556972567
+          ],
+          "signature": "A round tank with a pale band on four open, braced legs stands beside the three-way junction; use its offset to compare your chart candidate",
+          "briefed": true
+        },
+        "item": {
+          "mesh": "bnStrikeTower",
+          "p": [
+            -8007.191597140289,
+            53.499795997683485,
+            -1106.6537556972567
+          ],
+          "rot": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "tint": [
+            1,
+            1,
+            1,
+            0
+          ],
+          "hx": 5,
+          "hz": 5,
+          "rise": 0.405147777017028,
+          "range": 10500,
+          "detail": 0,
+          "grounded": true
+        },
+        "mission": "m2",
+        "rightSeat": true,
+        "killed": 0,
+        "gpu": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+      }
+    },
+    {
+      "name": "desktop actual World primary produces stronger same-camera WebGL aftermath without extra hits or RNG draws",
+      "passed": true,
+      "actual": {
+        "label": "primary",
+        "before": {
+          "initial": {
+            "alive": false,
+            "hp": -45,
+            "killed": 1,
+            "queue": 4
+          },
+          "score": {
+            "hits": 1,
+            "misses": 0,
+            "killed": 1,
+            "cep": [],
+            "dropped": 0
+          },
+          "queue": 4,
+          "smoke": 85,
+          "additive": 57,
+          "randomCalls": 950,
+          "flashes": [
+            {
+              "id": 1,
+              "p": [
+                -8603.597633435824,
+                83.30358150596118,
+                -1712.2824203674063
+              ],
+              "born": 0,
+              "source": "bomb",
+              "style": "impact",
+              "duration": 0.8
+            }
+          ]
+        },
+        "after": {
+          "initial": {
+            "alive": false,
+            "hp": -45,
+            "killed": 1,
+            "queue": 4
+          },
+          "score": {
+            "hits": 1,
+            "misses": 0,
+            "killed": 1,
+            "cep": [],
+            "dropped": 0
+          },
+          "queue": 4,
+          "smoke": 85,
+          "additive": 57,
+          "randomCalls": 950,
+          "flashes": [
+            {
+              "id": 1,
+              "p": [
+                -8603.597633435824,
+                83.30358150596118,
+                -1712.2824203674063
+              ],
+              "born": 0,
+              "source": "bomb",
+              "style": "impact",
+              "duration": 1.25
+            }
+          ]
+        },
+        "changedPixels": 8363
+      }
+    },
+    {
+      "name": "desktop actual World fuel produces stronger same-camera WebGL aftermath without extra hits or RNG draws",
+      "passed": true,
+      "actual": {
+        "label": "fuel",
+        "before": {
+          "initial": {
+            "alive": false,
+            "hp": -45,
+            "killed": 1,
+            "queue": 7
+          },
+          "score": {
+            "hits": 1,
+            "misses": 0,
+            "killed": 1,
+            "cep": [],
+            "dropped": 0
+          },
+          "queue": 6,
+          "smoke": 42,
+          "additive": 29,
+          "randomCalls": 1432,
+          "flashes": [
+            {
+              "id": 3,
+              "p": [
+                -8603.24899468625,
+                85.01154299913293,
+                -1709.702243658703
+              ],
+              "born": 1.0627950619028323,
+              "source": "secondary",
+              "style": "fuel",
+              "duration": 1.15
+            }
+          ]
+        },
+        "after": {
+          "initial": {
+            "alive": false,
+            "hp": -45,
+            "killed": 1,
+            "queue": 7
+          },
+          "score": {
+            "hits": 1,
+            "misses": 0,
+            "killed": 1,
+            "cep": [],
+            "dropped": 0
+          },
+          "queue": 6,
+          "smoke": 42,
+          "additive": 29,
+          "randomCalls": 1432,
+          "flashes": [
+            {
+              "id": 1,
+              "p": [
+                -8603.597633435824,
+                83.30358150596118,
+                -1712.2824203674063
+              ],
+              "born": 0,
+              "source": "bomb",
+              "style": "impact",
+              "duration": 1.25
+            },
+            {
+              "id": 3,
+              "p": [
+                -8603.24899468625,
+                85.01154299913293,
+                -1709.702243658703
+              ],
+              "born": 1.0627950619028323,
+              "source": "secondary",
+              "style": "fuel",
+              "duration": 1.15
+            }
+          ]
+        },
+        "changedPixels": 8010
+      }
+    },
+    {
+      "name": "desktop actual World ammunition produces stronger same-camera WebGL aftermath without extra hits or RNG draws",
+      "passed": true,
+      "actual": {
+        "label": "ammunition",
+        "before": {
+          "initial": {
+            "alive": false,
+            "hp": -45,
+            "killed": 1,
+            "queue": 4
+          },
+          "score": {
+            "hits": 1,
+            "misses": 0,
+            "killed": 1,
+            "cep": [],
+            "dropped": 0
+          },
+          "queue": 3,
+          "smoke": 41,
+          "additive": 30,
+          "randomCalls": 1416,
+          "flashes": [
+            {
+              "id": 3,
+              "p": [
+                -8603.24899468625,
+                85.01154299913293,
+                -1709.702243658703
+              ],
+              "born": 1.0627950619028323,
+              "source": "secondary",
+              "style": "ammunition",
+              "duration": 0.48
+            }
+          ]
+        },
+        "after": {
+          "initial": {
+            "alive": false,
+            "hp": -45,
+            "killed": 1,
+            "queue": 4
+          },
+          "score": {
+            "hits": 1,
+            "misses": 0,
+            "killed": 1,
+            "cep": [],
+            "dropped": 0
+          },
+          "queue": 3,
+          "smoke": 41,
+          "additive": 30,
+          "randomCalls": 1416,
+          "flashes": [
+            {
+              "id": 1,
+              "p": [
+                -8603.597633435824,
+                83.30358150596118,
+                -1712.2824203674063
+              ],
+              "born": 0,
+              "source": "bomb",
+              "style": "impact",
+              "duration": 1.25
+            },
+            {
+              "id": 3,
+              "p": [
+                -8603.24899468625,
+                85.01154299913293,
+                -1709.702243658703
+              ],
+              "born": 1.0627950619028323,
+              "source": "secondary",
+              "style": "ammunition",
+              "duration": 0.48
+            }
+          ]
+        },
+        "changedPixels": 6723
+      }
+    },
+    {
+      "name": "desktop isolated effects preserve live aircraft, target roster and score",
+      "passed": true,
+      "actual": {
+        "originalGameUnchanged": true,
+        "gl": 0
+      }
+    },
+    {
+      "name": "iphone-layout-chromium native practice exposes a briefed tower at its actual grounded mesh position",
+      "passed": true,
+      "actual": {
+        "tower": {
+          "id": "dixie-water-tower",
+          "label": "Banded water tower",
+          "kind": "tower",
+          "p": [
+            -8543.984945588707,
+            25.226532170560564,
+            -650.212385371657
+          ],
+          "signature": "A round tank with a pale band on four open, braced legs stands beside the three-way junction; use its offset to compare your chart candidate",
+          "briefed": true
+        },
+        "item": {
+          "mesh": "bnStrikeTower",
+          "p": [
+            -8543.984945588707,
+            25.226532170560564,
+            -650.212385371657
+          ],
+          "rot": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "tint": [
+            1,
+            1,
+            1,
+            0
+          ],
+          "hx": 5,
+          "hz": 5,
+          "rise": 0.5213171806424377,
+          "range": 10500,
+          "detail": 0,
+          "grounded": true
+        },
+        "mission": "m2",
+        "rightSeat": true,
+        "killed": 0,
+        "gpu": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+      }
+    },
+    {
+      "name": "iphone-layout-chromium actual World primary produces stronger same-camera WebGL aftermath without extra hits or RNG draws",
+      "passed": true,
+      "actual": {
+        "label": "primary",
+        "before": {
+          "initial": {
+            "alive": false,
+            "hp": -45,
+            "killed": 1,
+            "queue": 4
+          },
+          "score": {
+            "hits": 1,
+            "misses": 0,
+            "killed": 1,
+            "cep": [],
+            "dropped": 0
+          },
+          "queue": 4,
+          "smoke": 85,
+          "additive": 57,
+          "randomCalls": 950,
+          "flashes": [
+            {
+              "id": 1,
+              "p": [
+                -9157.780104483698,
+                65.74418736019584,
+                -1304.7470143593428
+              ],
+              "born": 0,
+              "source": "bomb",
+              "style": "impact",
+              "duration": 0.8
+            }
+          ]
+        },
+        "after": {
+          "initial": {
+            "alive": false,
+            "hp": -45,
+            "killed": 1,
+            "queue": 4
+          },
+          "score": {
+            "hits": 1,
+            "misses": 0,
+            "killed": 1,
+            "cep": [],
+            "dropped": 0
+          },
+          "queue": 4,
+          "smoke": 85,
+          "additive": 57,
+          "randomCalls": 950,
+          "flashes": [
+            {
+              "id": 1,
+              "p": [
+                -9157.780104483698,
+                65.74418736019584,
+                -1304.7470143593428
+              ],
+              "born": 0,
+              "source": "bomb",
+              "style": "impact",
+              "duration": 1.25
+            }
+          ]
+        },
+        "changedPixels": 8444
+      }
+    },
+    {
+      "name": "iphone-layout-chromium actual World fuel produces stronger same-camera WebGL aftermath without extra hits or RNG draws",
+      "passed": true,
+      "actual": {
+        "label": "fuel",
+        "before": {
+          "initial": {
+            "alive": false,
+            "hp": -45,
+            "killed": 1,
+            "queue": 7
+          },
+          "score": {
+            "hits": 1,
+            "misses": 0,
+            "killed": 1,
+            "cep": [],
+            "dropped": 0
+          },
+          "queue": 6,
+          "smoke": 42,
+          "additive": 29,
+          "randomCalls": 1432,
+          "flashes": [
+            {
+              "id": 3,
+              "p": [
+                -9157.431465734124,
+                67.45214885336759,
+                -1302.1668376506395
+              ],
+              "born": 1.0627950619028323,
+              "source": "secondary",
+              "style": "fuel",
+              "duration": 1.15
+            }
+          ]
+        },
+        "after": {
+          "initial": {
+            "alive": false,
+            "hp": -45,
+            "killed": 1,
+            "queue": 7
+          },
+          "score": {
+            "hits": 1,
+            "misses": 0,
+            "killed": 1,
+            "cep": [],
+            "dropped": 0
+          },
+          "queue": 6,
+          "smoke": 42,
+          "additive": 29,
+          "randomCalls": 1432,
+          "flashes": [
+            {
+              "id": 1,
+              "p": [
+                -9157.780104483698,
+                65.74418736019584,
+                -1304.7470143593428
+              ],
+              "born": 0,
+              "source": "bomb",
+              "style": "impact",
+              "duration": 1.25
+            },
+            {
+              "id": 3,
+              "p": [
+                -9157.431465734124,
+                67.45214885336759,
+                -1302.1668376506395
+              ],
+              "born": 1.0627950619028323,
+              "source": "secondary",
+              "style": "fuel",
+              "duration": 1.15
+            }
+          ]
+        },
+        "changedPixels": 8024
+      }
+    },
+    {
+      "name": "iphone-layout-chromium actual World ammunition produces stronger same-camera WebGL aftermath without extra hits or RNG draws",
+      "passed": true,
+      "actual": {
+        "label": "ammunition",
+        "before": {
+          "initial": {
+            "alive": false,
+            "hp": -45,
+            "killed": 1,
+            "queue": 4
+          },
+          "score": {
+            "hits": 1,
+            "misses": 0,
+            "killed": 1,
+            "cep": [],
+            "dropped": 0
+          },
+          "queue": 3,
+          "smoke": 41,
+          "additive": 30,
+          "randomCalls": 1416,
+          "flashes": [
+            {
+              "id": 3,
+              "p": [
+                -9157.431465734124,
+                67.45214885336759,
+                -1302.1668376506395
+              ],
+              "born": 1.0627950619028323,
+              "source": "secondary",
+              "style": "ammunition",
+              "duration": 0.48
+            }
+          ]
+        },
+        "after": {
+          "initial": {
+            "alive": false,
+            "hp": -45,
+            "killed": 1,
+            "queue": 4
+          },
+          "score": {
+            "hits": 1,
+            "misses": 0,
+            "killed": 1,
+            "cep": [],
+            "dropped": 0
+          },
+          "queue": 3,
+          "smoke": 41,
+          "additive": 30,
+          "randomCalls": 1416,
+          "flashes": [
+            {
+              "id": 1,
+              "p": [
+                -9157.780104483698,
+                65.74418736019584,
+                -1304.7470143593428
+              ],
+              "born": 0,
+              "source": "bomb",
+              "style": "impact",
+              "duration": 1.25
+            },
+            {
+              "id": 3,
+              "p": [
+                -9157.431465734124,
+                67.45214885336759,
+                -1302.1668376506395
+              ],
+              "born": 1.0627950619028323,
+              "source": "secondary",
+              "style": "ammunition",
+              "duration": 0.48
+            }
+          ]
+        },
+        "changedPixels": 6725
+      }
+    },
+    {
+      "name": "iphone-layout-chromium isolated effects preserve live aircraft, target roster and score",
+      "passed": true,
+      "actual": {
+        "originalGameUnchanged": true,
+        "gl": 0
+      }
+    }
+  ],
+  "screenshots": [
+    "strike-sensory/desktop-primary-before.png",
+    "strike-sensory/desktop-primary-after.png",
+    "strike-sensory/desktop-fuel-before.png",
+    "strike-sensory/desktop-fuel-after.png",
+    "strike-sensory/desktop-ammunition-before.png",
+    "strike-sensory/desktop-ammunition-after.png",
+    "strike-sensory/desktop-briefed-banded-tower.png",
+    "strike-sensory/iphone-layout-chromium-primary-before.png",
+    "strike-sensory/iphone-layout-chromium-primary-after.png",
+    "strike-sensory/iphone-layout-chromium-fuel-before.png",
+    "strike-sensory/iphone-layout-chromium-fuel-after.png",
+    "strike-sensory/iphone-layout-chromium-ammunition-before.png",
+    "strike-sensory/iphone-layout-chromium-ammunition-after.png",
+    "strike-sensory/iphone-layout-chromium-briefed-banded-tower.png"
+  ],
+  "sourceHashes": [
+    {
+      "profile": "desktop",
+      "index": "54594835550a2da5d1f8e8c5b3f087805895f22c1bcbdddb2aa19b7158568b12"
+    },
+    {
+      "profile": "iphone-layout-chromium",
+      "index": "54594835550a2da5d1f8e8c5b3f087805895f22c1bcbdddb2aa19b7158568b12"
+    }
+  ],
+  "browserErrors": [],
+  "missing": [],
+  "scope": "Actual Chromium/SwiftShader WebGL2 desktop and simulated iPhone. Native guided-practice launch; explicit isolated copies of the real World and FX use production detonate/stepSecondaries, then same-camera production particle rendering. Prior particles are cleared before each isolated cook-off to make the secondary comparison readable. Seeded visual RNG is restored afterward. Tower is an isolated actual-mesh view. No player-released bomb, natural sortie, physical Windows/iPhone Safari or hardware-FPS claim.",
+  "target": "http://127.0.0.1:40255/",
+  "recordedAt": "2026-10-26T04:25:03.162Z"
+}

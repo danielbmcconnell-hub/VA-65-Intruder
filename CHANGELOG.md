@@ -1,3 +1,14 @@
+# Clear controls, prison and water realism
+
+- Make ground controls translate and strafe; reserve mouse/drag and arrow keys for looking. Add explicit Pilot, B/N and long A-6 views without changing the player's mission role.
+- Add persistent Help on/off via H and cockpit, camp and pause menus. Move shared prison utilities into the camp menu and keep warnings and useful action buttons available.
+- Restrict prison guards to NVA soldiers, preserve civilian encounters outside prison, retain opened cell doors and reconstruct twisted hemp rope with alternating photographic grips and a continuous descent.
+- Add eight photographic swimming poses and water-stroke sound, localized rip currents with a playable escape lesson, sloping riverbanks, drifting log/foliage cover, armed-bank fire and occasional crocodile defence.
+- Prefer natural installed American male/Vietnamese voices, preserve normal pitch and complete phrases, and reserve interruptions for urgent calls.
+- Extend real ground impacts with bounded fireballs and debris; make actual fuel and ammunition cook-offs visually distinct without changing damage, scores or original particle randomness.
+- Verify 1,166 CPU cases across 97 programs, selected desktop/phone native gameplay and all 335 packaged files; record the mission replay and device limits explicitly.
+- [Controls, verification and private complete-game download](releases/prison-water-notes.md).
+
 # Clear cockpit, branched jungle and parachute threats
 
 - Use preserved user jungle photos as references for generated leaf clusters and palm fronds; add real forks, curved palm stems, bamboo culms and leaf-shaped fallbacks.

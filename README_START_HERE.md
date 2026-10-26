@@ -1,6 +1,8 @@
 # Intruder: Yankee Station — Codex handoff
 
-The latest complete private game is on `cockpit-focus`: [download](https://github.com/danielbmcconnell-hub/VA-65-Intruder/archive/refs/heads/cockpit-focus-site.zip) · [controls, verification and limits](releases/cockpit-focus-notes.md). It uses the supplied jungle references for branched, layered photographic foliage, compacts flight utilities into the COCKPIT menu, clarifies mission cues and adds visible small-arms threats during parachute descent. Actual iPhone Safari remains untested.
+The latest private game update is on `prison-water-realism`: [complete game download](https://github.com/danielbmcconnell-hub/VA-65-Intruder/archive/refs/heads/prison-water-site.zip) · [controls, verification and limits](releases/prison-water-notes.md). It adds clearer bomb bursts and fuel/ammunition secondaries, directional ground controls, selectable aircraft views, toggleable instructions, NVA prison rosters, visible rope work, photographic swimming and playable river hazards. Actual iPhone Safari remains untested.
+
+The preceding [Cockpit Focus release](releases/cockpit-focus-notes.md) remains available.
 
 The preceding [jungle training release](releases/jungle-training-notes.md) and [coastal scenery release](releases/coastline-scenery-notes.md) remain available.
 
