@@ -49,3 +49,6 @@ Runtime source is `f30d389cf22d1fdfd40c43b9c41a29ca1ceb17b2`. The complete local
 
 
 To repeat the complete CPU inventory, run `node releases/prison-water-verification/run-all-cpu.cjs local`. The native feature checks are available through `npm run test:prison-water`; `node releases/prison-water-verification/run-missions.cjs m1 m2 m3 m4 m5 m6 m7 m8 m9 m10 m11 willard` replays original mission controllers. The portable helpers use the same executed logic with repository-relative output paths.
+
+
+Runtime-only commit `6957647d7263285c803ebcca4a23942e10ba4abc` has the tested runtime source as its sole parent. The `prison-water-playable` tag marks the documented source release. [Local delivery integrity](prison-water-delivery.json) records ZIP CRC, exact runtime bytes, 810 protected media/archive blobs, 85 previous ref records and the unchanged Cockpit Focus ZIP.
