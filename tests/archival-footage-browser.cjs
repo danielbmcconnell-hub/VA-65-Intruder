@@ -62,7 +62,7 @@ module.exports=async function footage(browser,target,evidence){
           return {rows,progressUnchanged:JSON.stringify(app.prog)===campaign,screen:app.screen,game:!!app.game};
         });
         assert.ok(routing.progressUnchanged);assert.equal(routing.screen,'ready');assert.equal(routing.game,false);
-        for(const row of routing.rows){if(row.mode===2){assert.equal(row.events.filter(e=>e==='speech').length,1);assert.equal(row.events.includes('synthetic-noise'),false);assert.equal(row.events.includes('chirp'),row.providerAccepted);}else if(row.mode===1)assert.deepEqual(row.events,['synthetic-noise']);else assert.deepEqual(row.events,[]);}
+        for(const row of routing.rows){if(row.mode===2){assert.equal(row.events.filter(e=>e==='speech').length,1);assert.equal(row.events.includes('synthetic-noise'),false);assert.equal(row.events.includes('chirp'),false);}else if(row.mode===1)assert.deepEqual(row.events,['synthetic-noise']);else assert.deepEqual(row.events,[]);}
         record('Actual browser radio dispatch keeps Spoken mode free of synthetic fallback noise',routing);
       }
       await p.reload();await click(p.locator('#bootGo'));assert.equal(await p.locator('#archivalFootage').isVisible(),false);assert.equal(await p.evaluate(()=>ArchivalFootage.inspect().seen),true);record('Same-session restart does not repeat the automatic intro',{});

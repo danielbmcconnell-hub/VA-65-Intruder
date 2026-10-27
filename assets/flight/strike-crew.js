@@ -36,16 +36,19 @@
     if (!s) { s = { last: read(g), caption: null, until: -Infinity, quietUntil: -Infinity, priority: 0, next: Object.create(null), radio: Object.create(null), history: [], emitted: 0, suppressed: 0, stable: 0, stableAnnounced: false, inhibit: null, voiceEnabled: false, disposed: false, first: true }; records.set(g, s); }
     return s;
   }
+  function refreshVoice(){if(voice?.audio&&voice.audio._speechActive!==voice.record)voice=null;}
   function stopVoice(g) {
+    refreshVoice();
     if (!voice || g && voice.game !== g) return;
     const current = voice; voice = null;
+    if(current.audio){if(current.audio._speechActive===current.record){if(root.NeuralDialogue)root.NeuralDialogue.stop(current.audio);else if(current.record?.utterance)root.speechSynthesis?.cancel();}return;}
     // Native synthesis has a global queue. Cancel only our sole utterance:
     // never cancel a queued App.radio line or somebody else's active speech.
     const synth = root.speechSynthesis;
     if (synth && current.started && !synth.pending && synth.speaking) { try { synth.cancel(); } catch (_) {} }
     else if (synth && !current.started && synth.pending && !synth.speaking) { try { synth.cancel(); } catch (_) {} }
   }
-  function speechAvailable() { return !!(root.speechSynthesis && typeof root.SpeechSynthesisUtterance === 'function'); }
+  function speechAvailable() { return !!(context?.App?.audio?.speak || root.speechSynthesis && typeof root.SpeechSynthesisUtterance === 'function'); }
   function speechEnabled(g) {
     const settings = (context && context.App || g && g.app || {}).set || {};
     return settings.sound !== false && settings.sound !== 0 && (settings.voices === undefined ? 2 : settings.voices) >= 2;
@@ -70,8 +73,14 @@
     return Number.isFinite(stamp) && at >= stamp && at - stamp <= 1.25;
   }
   function speak(g, s, caption) {
-    const synth = root.speechSynthesis;
-    if (!s.voiceEnabled || !speechAvailable() || !speechEnabled(g) || !active(g) || !captionVisible(g, caption) || voice || synth.pending || synth.speaking) return false;
+    refreshVoice();const synth = root.speechSynthesis;
+    if (!s.voiceEnabled || !speechAvailable() || !speechEnabled(g) || !active(g) || !captionVisible(g, caption) || voice) return false;
+    const audio=context?.App?.audio;
+    if(audio&&typeof audio.speak==='function'){
+      audio.spoken=1;const accepted=audio.speak(caption.speaker,caption.text,'en-US',caption.priority>=3?'bad':caption.priority===2?'warn':undefined);
+      if(accepted&&audio._speechActive)voice={game:g,audio,record:audio._speechActive,started:true};return !!accepted;
+    }
+    if(!synth||synth.pending||synth.speaking)return false;
     try {
       const utterance = new root.SpeechSynthesisUtterance(caption.text.slice(0, 175));
       const voices=typeof synth.getVoices==='function'?synth.getVoices():[];
@@ -169,7 +178,7 @@
     const host = document.getElementById('game'); if (!host) return null;
     const panel = el('section'); panel.id = 'flightStrikeCrew'; panel.hidden = true; panel.setAttribute('aria-label', 'Dramatized strike crew guidance');
     const label = el('small', 'DRAMATIZED CREW · GAMEPLAY GUIDANCE'), line = el('p'); line.id = 'flightStrikeCrewLine'; line.setAttribute('role', 'status'); line.setAttribute('aria-live', 'polite'); line.setAttribute('aria-atomic', 'true');
-    const voiceButton = el('button', 'SYNTH VOICE: OFF'); voiceButton.id = 'flightStrikeCrewVoice'; voiceButton.type = 'button'; voiceButton.setAttribute('aria-label', 'Optional browser synthesized crew guidance; not an authentic voice'); voiceButton.setAttribute('aria-pressed', 'false'); voiceButton.disabled = !speechAvailable();
+    const voiceButton = el('button', 'SYNTH VOICE: OFF'); voiceButton.id = 'flightStrikeCrewVoice'; voiceButton.type = 'button'; voiceButton.setAttribute('aria-label', 'Optional generated crew guidance; not an authentic historical voice'); voiceButton.setAttribute('aria-pressed', 'false'); voiceButton.disabled = !speechAvailable();
     const stop = event => event.stopPropagation();
     for (const type of ['pointerdown', 'pointerup', 'keydown', 'keyup', 'wheel']) voiceButton.addEventListener(type, stop);
     // A native click is one activation for mouse, keyboard and touch. No
@@ -193,6 +202,7 @@
     if (!caption && !speechAvailable()) u.panel.hidden = true;
   }
   function inspect(g) {
+    refreshVoice();
     const s = g && records.get(g); if (!s) return { active: false, caption: null, history: [], emitted: 0, ownedVoices: voice ? 1 : 0 };
     return { active: active(g) && !s.disposed, caption: active(g) && finite(g.t) < s.until && !s.disposed ? { ...s.caption } : null, captionVisible: active(g) && finite(g.t) < s.until && !s.disposed && captionVisible(g, s.caption), history: s.history.map(x => ({ ...x })), emitted: s.emitted, suppressed: s.suppressed, stableSeconds: s.stable, voiceEnabled: s.voiceEnabled, ownedVoices: voice && voice.game === g ? 1 : 0, inhibit: s.inhibit };
   }

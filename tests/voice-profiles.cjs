@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs'),path=require('node:path');
 const window={};vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../assets/audio/voice-profiles.js'),'utf8'),{window});const V=window.VoiceProfiles;
-const voices=[{name:'Daniel',lang:'en-GB'},{name:'Samantha',lang:'en-US'},{name:'Microsoft David Desktop',lang:'en-US'},{name:'Vietnamese',lang:'vi-VN'}];
+const voices=[{name:'Daniel',lang:'en-GB'},{name:'Samantha',lang:'en-US'},{name:'Alex',lang:'en-US'},{name:'Vietnamese',lang:'vi-VN'}];
 test('English uses an explicit male United States voice even when British and female voices precede it',()=>{assert.equal(V.select(voices,'en-US','BN'),voices[2]);assert.equal(V.select(voices,'en-GB','PILOT'),voices[2]);});
 test('unavailable American male voices never fall back to British or unknown female defaults',()=>{assert.equal(V.select(voices.slice(0,2),'en-US','CREW'),null);const u={text:'Ready.'};assert.equal(V.apply(u,{speaker:'BN'},voices.slice(0,2)),false);assert.equal(u.voice,undefined);});
 test('Vietnamese stays in its own language and does not borrow an English voice',()=>{assert.equal(V.select(voices,'vi-VN','GUARD'),voices[3]);assert.equal(V.select(voices.slice(0,3),'vi-VN','GUARD'),null);});
@@ -16,5 +16,9 @@ test('actual audio speaker finishes ordinary lines and permits urgent interrupti
 test('Spoken mode never overlays synthetic syllable noise when speech is suppressed or unavailable',()=>{
  const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8'),start=html.indexOf('  radio(who, msg, cls, lang, say) {'),end=html.indexOf('  /* ---------------- mission start',start),body=html.slice(start,end).trim().replace(/,$/,'');
  function run(mode,said,ground=false){const rows=[],calls=[],radio={children:rows,appendChild(n){n.parentNode=this;rows.push(n);},removeChild(n){rows.splice(rows.indexOf(n),1);},get firstChild(){return rows[0];}},ctx={$:()=>radio,el:()=>({remove(){}}),setTimeout(){},CrewPersonality:{line:(g,w,m)=>m},Game:{prototype:{_ctl:m=>m}}};const fn=vm.runInNewContext('({'+body+'}).radio',ctx),a={set:{sound:1,voices:mode},game:ground?{evade:{}}:null,audio:{speak(){calls.push('speech');return said;},voice(){calls.push('synthetic');},burst(){calls.push('chirp');}}};fn.call(a,'GUARD','Đứng lại!','warn','vi-VN');assert.equal(rows.length,1,'caption remains');return calls;}
- assert.deepEqual(run(2,false),['speech']);assert.deepEqual(run(2,true),['speech','chirp']);assert.deepEqual(run(2,true,true),['speech']);assert.deepEqual(run(1,false),['synthetic']);assert.deepEqual(run(0,false),[]);
+ assert.deepEqual(run(2,false),['speech']);assert.deepEqual(run(2,true),['speech']);assert.deepEqual(run(2,true,true),['speech']);assert.deepEqual(run(1,false),['synthetic']);assert.deepEqual(run(0,false),[]);
+});
+
+test('legacy robotic male voices remain captions while premium voices and known male Vietnamese keep their language',()=>{
+ const legacy=[{name:'Fred',lang:'en-US'},{name:'Microsoft David Desktop',lang:'en-US'},{name:'eSpeak Male',lang:'en-US'},{name:'Alex Compact',lang:'en-US'}];assert.equal(V.select(legacy,'en-US','BN'),null);assert.equal(V.select([{name:'Microsoft HoaiMy Online Natural',lang:'vi-VN'},{name:'Microsoft NamMinh Online Natural',lang:'vi-VN'}],'vi-VN','GUARD').name,'Microsoft NamMinh Online Natural');
 });

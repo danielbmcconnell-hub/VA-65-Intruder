@@ -4,6 +4,8 @@
 (function(root){
   'use strict';
   const MALE_US=/\b(aaron|alex|fred|david|mark|tom|evan|nathan|guy|christopher|eric|roger|tony|andrew|davis|jason|brandon|jacob|joey|justin|matthew|william|ken|reed|steffan|brian|male)\b/i;
+  const ROBOTIC=/\b(fred|espeak|festival|diphone|robot|compact|desktop|microsoft sam)\b/i;
+  const MALE_VI=/\b(nam\s*minh|namminh|an\s*minh|anminh|male|man)\b/i;
   const FEMALE=/\b(samantha|susan|zira|jenny|aria|michelle|jane|sara|sarah|female)\b/i;
   const language=value=>String(value||'').replace(/_/g,'-').toLowerCase();
   const plain=value=>String(value||'').replace(/<[^>]*>/g,'').replace(/—/g,',');
@@ -17,11 +19,11 @@
   }
   function select(voices,lang,speaker){
     const vi=language(lang).startsWith('vi'),wanted=vi?'vi-vn':'en-us';
-    const candidates=(Array.isArray(voices)?voices:[]).filter(v=>v&&language(v.lang)===wanted&&(vi||MALE_US.test(v.name||'')&&!FEMALE.test(v.name||'')));
-    candidates.sort((a,b)=>quality(b)-quality(a)||String(a.name).localeCompare(String(b.name)));
+    const candidates=(Array.isArray(voices)?voices:[]).filter(v=>v&&language(v.lang)===wanted&&(vi||MALE_US.test(v.name||'')&&!FEMALE.test(v.name||''))&&(!ROBOTIC.test(v.name||'')||/natural|neural|premium|enhanced/i.test(v.name||''))&&(vi||quality(v)>=40));
+    candidates.sort((a,b)=>(vi?Number(MALE_VI.test(b.name||''))-Number(MALE_VI.test(a.name||'')):0)||quality(b)-quality(a)||String(a.name).localeCompare(String(b.name)));
     if(!candidates.length)return null;
     // Prefer quality over role variety, then keep each speaker consistent.
-    const best=quality(candidates[0]),pool=candidates.filter(v=>quality(v)===best);
+    const best=quality(candidates[0]),maleVI=vi&&MALE_VI.test(candidates[0].name||''),pool=candidates.filter(v=>quality(v)===best&&(!maleVI||MALE_VI.test(v.name||'')));
     let hash=0;for(const c of String(speaker||'CREW'))hash=(Math.imul(hash,31)+c.charCodeAt(0))>>>0;
     return pool[hash%pool.length];
   }

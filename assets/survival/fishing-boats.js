@@ -87,9 +87,20 @@
     for(const side of[0,5])m.tube(rings.map(r=>({p:r[side],r:.032})),blue?[.49,.34,.14]:[.43,.32,.19],6);
     for(let j=0;j<5;j++)m.tube(rings.map((r,i)=>({p:[r[j][0]+(r[j+1][0]-r[j][0])*.93,r[j][1]+(r[j+1][1]-r[j][1])*.93+.004,r[j][2]],r:.005})),[.13,.095,.06],4);
     for(const end of[0,n]){const r=rings[end];for(let j=1;j<4;j++)m.tri(r[0],r[j],r[j+1],[.25,.18,.105]);m.tri(r[0],r[4],r[5],[.25,.18,.105]);}
-    for(let j=-2;j<2;j++)m.box((j+.5)*beam*.15,-.10,0,beam*.073,.025,length*.36,[.34+(j+2)*.014,.25,.15]);
+    // The inner shell sits below the river surface. A sealed raised sole
+    // keeps that opaque water plane outside the visible boat interior, even
+    // at the extremes of the small pitch/roll/bob used by props(). Each
+    // station meets the inner side planking and follows the lifted ends.
+    const floor=rings.map(r=>{const rise=r[2][1]+.22,y=rise+.11,edge=r[5][0]*.93*(.43+.07*(.11-.028)/.34)/.5;return {edge,y,z:r[0][2]};});
+    for(let i=1;i<floor.length;i++){const a=floor[i-1],b=floor[i],thickness=.035;
+      for(let j=0;j<5;j++){const u=j/5*2-1,v=(j+1)/5*2-1,col=[.34+j*.012,.25+j*.006,.15+j*.004];m.quad([a.edge*u,a.y,a.z],[b.edge*u,b.y,b.z],[b.edge*v,b.y,b.z],[a.edge*v,a.y,a.z],col);}
+      m.quad([-a.edge,a.y-thickness,a.z],[a.edge,a.y-thickness,a.z],[b.edge,b.y-thickness,b.z],[-b.edge,b.y-thickness,b.z],inner);
+      for(const side of[-1,1]){const p=[side*a.edge,a.y,a.z],q=[side*b.edge,b.y,b.z],r=[side*b.edge,b.y-thickness,b.z],t=[side*a.edge,a.y-thickness,a.z];if(side<0)m.quad(p,t,r,q,inner);else m.quad(p,q,r,t,inner);}
+      if(i===1)m.quad([-a.edge,a.y,a.z],[a.edge,a.y,a.z],[a.edge,a.y-thickness,a.z],[-a.edge,a.y-thickness,a.z],inner);
+      if(i===floor.length-1)m.quad([-b.edge,b.y,b.z],[-b.edge,b.y-thickness,b.z],[b.edge,b.y-thickness,b.z],[b.edge,b.y,b.z],inner);
+    }
     for(const z of[-length*.25,length*.26])m.box(0,.19,z,beam*.39,.045,.14,[.40,.30,.18]);
-    m.fishingHull={length,beam,openInterior:true,longitudinalStations:n+1,ribs:13,curvedBow:true};return m;
+    m.fishingHull={length,beam,openInterior:true,longitudinalStations:n+1,ribs:13,curvedBow:true,solidFloor:true};return m;
   }
   function torus(m,x,y,z,R,r){const point=(u,v)=>[x+Math.cos(v)*r,y+Math.cos(u)*(R+Math.sin(v)*r),z+Math.sin(u)*(R+Math.sin(v)*r)];for(let i=0;i<16;i++)for(let j=0;j<6;j++){const a=i/16*Math.PI*2,b=(i+1)/16*Math.PI*2,c=j/6*Math.PI*2,d=(j+1)/6*Math.PI*2;m.quad(point(a,c),point(b,c),point(b,d),point(a,d),[.055,.057,.054]);}}
   function canopy(MB){const m=hull(MB,6.2,1.42),col=[.52,.40,.23];for(let i=0;i<=10;i++){const z=-1.18+i*.27,points=[];for(let j=0;j<=16;j++){const a=j/16*Math.PI;points.push({p:[Math.cos(a)*.67,.36+Math.sin(a)*.91,z],r:.014});}m.tube(points,col,5);}for(let j=0;j<=16;j++){const a=j/16*Math.PI;m.tube([{p:[Math.cos(a)*.67,.36+Math.sin(a)*.91,-1.18],r:.009},{p:[Math.cos(a)*.67,.36+Math.sin(a)*.91,1.52],r:.009}],j%2?[.39,.30,.18]:[.60,.48,.29],4);}for(let j=0;j<16;j++){const a=j/16*Math.PI,b=(j+1)/16*Math.PI;m.quad([Math.cos(a)*.672,.36+Math.sin(a)*.915,-1.18],[Math.cos(a)*.672,.36+Math.sin(a)*.915,1.52],[Math.cos(b)*.672,.36+Math.sin(b)*.915,1.52],[Math.cos(b)*.672,.36+Math.sin(b)*.915,-1.18],j%2?[.49,.39,.23]:[.56,.44,.27]);m.quad([Math.cos(a)*.672,.36+Math.sin(a)*.915,-1.18],[Math.cos(b)*.672,.36+Math.sin(b)*.915,-1.18],[Math.cos(b)*.672,.36+Math.sin(b)*.915,1.52],[Math.cos(a)*.672,.36+Math.sin(a)*.915,1.52],j%2?[.49,.39,.23]:[.56,.44,.27]);}return m;}

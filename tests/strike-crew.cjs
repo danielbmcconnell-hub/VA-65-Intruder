@@ -18,7 +18,7 @@ function fixture(options = {}) {
   }
   const host = new Node('section'); host.id = 'game';
   const document = { hidden: false, getElementById: id => ids.get(id), createElement: tag => new Node(tag), addEventListener(k, fn) { (documentEvents[k] ||= []).push(fn); } };
-  const synth = { pending: false, speaking: false, said: [], cancels: 0, getVoices() { return options.voices || [{name:'Microsoft David Desktop',lang:'en-US'}]; }, speak(u) { this.said.push(u);if(this.speaking){this.pending=true;return;}this.speaking = true;u.onstart?.(); }, cancel() { this.cancels++; this.speaking = false; this.pending = false; const u = this.said.at(-1); if (u) u.onend?.(); } };
+  const synth = { pending: false, speaking: false, said: [], cancels: 0, getVoices() { return options.voices || [{name:'Alex',lang:'en-US'}]; }, speak(u) { this.said.push(u);if(this.speaking){this.pending=true;return;}this.speaking = true;u.onstart?.(); }, cancel() { this.cancels++; this.speaking = false; this.pending = false; const u = this.said.at(-1); if (u) u.onend?.(); } };
   const window = { addEventListener(k, fn) { (events[k] ||= []).push(fn); } };
   if (options.speech !== false) { window.speechSynthesis = synth; window.SpeechSynthesisUtterance = function (text) { this.text = text; }; }
   const effects = { targets: [], flashes: [] };
@@ -30,12 +30,18 @@ function fixture(options = {}) {
   const game = { t: 0, phase: 'ingress', mis: { id: 'm2' }, strikeExperience: { phase: 'navigation' }, rightSeat: true, ac: { p: [0, 1000, 0], roll: 0, alive: true, bombs: 12, dmg: {} }, world: { nav: { fixes: 0 }, score: { dropped: 0, hits: 0, misses: 0 }, designated: null }, sol: null, steer: null, masterArm: false, _lastCommit: 0, rend: { eye: [0, 1000, 0], matV: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1] } };
   const radioCalls=[];
   const App = { game, screen: 'game', set: { sound: true }, graphicsContextLost: false, radio(who,text){radioCalls.push({who,text:window.CrewPersonality?window.CrewPersonality.line(game,who,text):text,args:Array.from(arguments)});if(options.radioSpeech)synth.speak({text});return 77;} }, api = window.FlightStrikeCrew;
+  const centralCalls=[];
+  if(options.centralSpeech){App.audio={spoken:0,_speechActive:null,speak(who,text,lang,tone){centralCalls.push({who,text,lang,tone});this._speechActive={kind:'neural',priority:1};return true;}};window.NeuralDialogue={stop(audio){centralCalls.push({stop:true});audio._speechActive=null;}};}
   const context = { App, canSeeAftermath: () => true }; api.install(context);
   const tick = delta => { game.t += delta; api.tick(game, delta); return api.inspect(game); };
   const baseline = () => { tick(0); tick(10); };
   const click = () => ids.get('flightStrikeCrewVoice').onclick({ stopPropagation() {} });
-  return { api, window, game, App, document, context, ids, host, synth, effects, tick, baseline, click, events, documentEvents,radioCalls };
+  return { api, window, game, App, document, context, ids, host, synth, effects, tick, baseline, click, events, documentEvents,radioCalls,centralCalls };
 }
+test('real guidance shares the central audio owner and never overlaps it with separate browser speech',()=>{
+ const f=fixture({centralSpeech:true});f.baseline();f.click();f.game.world.nav.fixes++;f.tick(.1);assert.equal(f.centralCalls.length,1);assert.equal(f.centralCalls[0].who,'B/N');assert.equal(f.synth.said.length,0);assert.equal(f.api.inspect(f.game).ownedVoices,1);f.App.radio('BN','Fix on river bend.');assert.equal(f.centralCalls.filter(c=>c.stop).length,1);assert.equal(f.App.audio._speechActive,null);
+ f.tick(10);f.game.world.nav.fixes++;f.tick(.1);const other={kind:'neural',priority:2};f.App.audio._speechActive=other;const stops=f.centralCalls.filter(c=>c.stop).length;f.api.dispose(f.game);assert.equal(f.centralCalls.filter(c=>c.stop).length,stops);assert.equal(f.App.audio._speechActive,other);
+});
 test('opt-in scope leaves every old mission, Willard and absent experience untouched', () => {
   for (const change of [g => g.mis.id = 'm1', g => delete g.strikeExperience, g => g.willard = {}]) {
     const f = fixture(); change(f.game); const before = JSON.stringify(f.game); f.api.tick(f.game, 1);

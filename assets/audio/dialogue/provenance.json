@@ -1,0 +1,28 @@
+{
+  "generatedLocally": true,
+  "noGameTextUploaded": true,
+  "identity": "Generic American male synthesis only; no private family voice, authentic historical recording, impersonation or voice clone.",
+  "model": {
+    "name": "Kokoro-82M v1.0 quantized ONNX",
+    "source": "https://github.com/thewh1teagle/kokoro-onnx/releases/tag/model-files-v1.1",
+    "modelURL": "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/kokoro-v1.0.int8.onnx",
+    "modelSHA256": "ae315a79b623f244700e4afb9246c46a26066782e049ba174bf3ba433970ee9c",
+    "voicesSHA256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+    "license": "Apache-2.0",
+    "licenseURL": "https://raw.githubusercontent.com/hexgrad/kokoro/main/LICENSE"
+  },
+  "engine": {
+    "name": "kokoro-onnx",
+    "version": "0.6.1",
+    "license": "MIT",
+    "source": "https://github.com/thewh1teagle/kokoro-onnx"
+  },
+  "generation": "CPU ONNX Runtime1.31.1;2workerswith2threads each; whole phrases, normal pitch; speed1.0or1.04forurgentcalls. WeightsremainoutsideGit/runtime.",
+  "derivatives": "Source24kHzmonoPCM16WAVs preserved. RuntimeMP3 is64kbpsmono24kHz with loudnormI=-19,TP=-2,LRA=8, metadata removed. No radio distortion or formant/pitch shifting.",
+  "clipCount": 116,
+  "runtimeBytes": 3385648,
+  "runtimeSeconds": 419.784,
+  "manifest": "manifest.json",
+  "scope": "Common fixed English calls and selected actual companion/shore lines. Safe family-expression prefixes can voice their opening interjection when the rest of the caption is dynamic; other dynamic speech uses suitable installed voices or captions. Vietnamese remains Vietnamese and is not rendered by an English model.",
+  "coverage": "Fixed pilot, navigator, carrier/LSO, Sandy/Jolly, US Navy rescue, companion, shorefire, optional guided-phase and three jellyfish warning calls, plus family-supplied expressions."
+}

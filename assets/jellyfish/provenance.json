@@ -1,0 +1,201 @@
+{
+  "version": 1,
+  "originalArtwork": true,
+  "generated": true,
+  "description": "Original photographic-style jellyfish artwork for fictional ocean gameplay hazards. Pale rounded cuboid bells and tentacle bundles represent box jellyfish; amber domed/frilled animals represent the game label fire jellyfish. These are generated illustrations, not sourced wildlife photography, a precise biological plate or evidence of historical species prevalence.",
+  "generationPolicy": "Created with transparent-background image generation; no external photographic pixels, watermark removal, or private source imagery. Original generated atlas retained byte-for-byte.",
+  "source": {
+    "file": "jellyfish-atlas.png",
+    "sha256": "fa8584daa6616a92e2d044c93d294c8ada5ac4aa9a447e4bab291f776b0b1a7e",
+    "bytes": 2247944,
+    "width": 1536,
+    "height": 1024,
+    "cols": 2,
+    "rows": 2,
+    "cells": 4
+  },
+  "derivativePolicy": "Each runtime WebP is an exact full-cell extraction from the source RGBA atlas, with no masking, rescaling, color adjustment, interpolation or pixel alteration. Lossless exact mode preserves all RGBA bytes, including RGB beneath transparency; equality was asserted after decoding.",
+  "records": [
+    {
+      "id": "box-side",
+      "file": "box-side.webp",
+      "species": "box",
+      "view": "side",
+      "sourceCell": 0,
+      "sourceRegion": [
+        0,
+        0,
+        768,
+        512
+      ],
+      "width": 768,
+      "height": 512,
+      "bytes": 335028,
+      "sha256": "20367d51e2090bbd6ac0c4f8e86deba103371a52d7cb4eff88ba3e720169ebdc",
+      "decodedRGBAIdenticalToSourceCell": true,
+      "alphaRange": [
+        0,
+        253
+      ],
+      "opaqueBoundsAlpha32": [
+        91,
+        16,
+        686,
+        509
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "edgeMaximumAlpha": {
+        "top": 1,
+        "bottom": 4,
+        "left": 1,
+        "right": 1
+      },
+      "bellAnchorTopLeftNormalized": [
+        0.6,
+        0.22
+      ],
+      "anchorMethod": "Approximate visual registration of bell centre within the complete unaltered frame, normalized from top-left. For side views the long tentacles make the complete-frame centre differ from bell centre."
+    },
+    {
+      "id": "fire-side",
+      "file": "fire-side.webp",
+      "species": "fire",
+      "view": "side",
+      "sourceCell": 1,
+      "sourceRegion": [
+        768,
+        0,
+        1536,
+        512
+      ],
+      "width": 768,
+      "height": 512,
+      "bytes": 358834,
+      "sha256": "6bccbbf857a78648940c57df1c9fe0d4354d65e2bb5b777bee38841901935e91",
+      "decodedRGBAIdenticalToSourceCell": true,
+      "alphaRange": [
+        0,
+        253
+      ],
+      "opaqueBoundsAlpha32": [
+        60,
+        19,
+        685,
+        510
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "edgeMaximumAlpha": {
+        "top": 0,
+        "bottom": 9,
+        "left": 0,
+        "right": 0
+      },
+      "bellAnchorTopLeftNormalized": [
+        0.255,
+        0.21
+      ],
+      "anchorMethod": "Approximate visual registration of bell centre within the complete unaltered frame, normalized from top-left. For side views the long tentacles make the complete-frame centre differ from bell centre."
+    },
+    {
+      "id": "box-surface",
+      "file": "box-surface.webp",
+      "species": "box",
+      "view": "top-down",
+      "sourceCell": 2,
+      "sourceRegion": [
+        0,
+        512,
+        768,
+        1024
+      ],
+      "width": 768,
+      "height": 512,
+      "bytes": 361672,
+      "sha256": "1e5a1c86c490b26f76ec20fface4922a82a79055ee59949104b24959807e32b2",
+      "decodedRGBAIdenticalToSourceCell": true,
+      "alphaRange": [
+        0,
+        253
+      ],
+      "opaqueBoundsAlpha32": [
+        70,
+        40,
+        726,
+        478
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "edgeMaximumAlpha": {
+        "top": 2,
+        "bottom": 1,
+        "left": 1,
+        "right": 1
+      },
+      "bellAnchorTopLeftNormalized": [
+        0.54,
+        0.51
+      ],
+      "anchorMethod": "Approximate visual registration of bell centre within the complete unaltered frame, normalized from top-left. For side views the long tentacles make the complete-frame centre differ from bell centre."
+    },
+    {
+      "id": "fire-surface",
+      "file": "fire-surface.webp",
+      "species": "fire",
+      "view": "top-down",
+      "sourceCell": 3,
+      "sourceRegion": [
+        768,
+        512,
+        1536,
+        1024
+      ],
+      "width": 768,
+      "height": 512,
+      "bytes": 398002,
+      "sha256": "6a88a908be8fb4cad2a39fb6afceafde3ddc53b658ab7d078a50e0d0500c4dc2",
+      "decodedRGBAIdenticalToSourceCell": true,
+      "alphaRange": [
+        0,
+        253
+      ],
+      "opaqueBoundsAlpha32": [
+        40,
+        23,
+        727,
+        477
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "edgeMaximumAlpha": {
+        "top": 3,
+        "bottom": 1,
+        "left": 1,
+        "right": 0
+      },
+      "bellAnchorTopLeftNormalized": [
+        0.45,
+        0.49
+      ],
+      "anchorMethod": "Approximate visual registration of bell centre within the complete unaltered frame, normalized from top-left. For side views the long tentacles make the complete-frame centre differ from bell centre."
+    }
+  ],
+  "limits": "All full-cell edge alpha values are at most9/255, with alpha32 subject bounds inside each cell. No pixel cleanup or masking was applied. The generated image preview retains coloured RGB beneath alpha0; those invisible RGB values are deliberately preserved by exact lossless derivatives."
+}

@@ -9,7 +9,7 @@
   'use strict';
   const P = root.POW = root.POW || {};
   const SCALE = 100, DELTA = 72000, GULF = 96000, BENCHMARK = 24140;
-  const HALF_WIDTH = 14.5, SEGMENT = 112;
+  const HALF_WIDTH = 14.5, SEGMENT = 112, WAVE_RANGE = 100;
   // Original river movement remains continuous. These are invented, readable
   // route sections, not a surveyed 1967 map. Landmarks have persistent global
   // positions, so a tile recentre cannot move a landing ahead of the swimmer.
@@ -33,9 +33,9 @@
       current: .80, bankCurrent: .42, eddy: .08, exposure: 1, reedCover: .10, side: 1,
       hint: 'Reach the unoccupied skiff physically. Mooring posts and logs remain solid.' }
   ].map(section => Object.freeze(section)));
-  const OFFSHORE = Object.freeze({ id: 'gulf', name: 'Gulf offshore contact', current: .1,
+  const OFFSHORE = Object.freeze({ id: 'gulf', name: 'US Navy rescue opportunity', current: .1,
     bankCurrent: .1, eddy: .02, exposure: 1, reedCover: 0,
-    hint: 'Fictional continuation: approach and signal the visible naval contact. No rescue was arranged.' });
+    hint: 'Fictional continuation: approach the US Navy boat. Hold F / Interact to wave when its watch can see you; an acknowledgement is still required.' });
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
   const finite = (n, fallback) => Number.isFinite(n) ? n : fallback;
   const distance = (a, b) => Math.hypot(a[0] - b[0], a[2] - b[2]);
@@ -177,11 +177,24 @@
     const rend = game.rend || game.app && game.app.rend;
     const MB = P.ctx && P.ctx.MB;
     if (!rend || !MB || typeof rend.meshFromBuilder !== 'function') return;
+    if (!rend.meshes || !rend.meshes.powRiverSignalCloth) {
+      const m = new MB();
+      for (let i = 0; i < 5; i++) {
+        const x0 = -.22 + i * .088, x1 = x0 + .088, z0 = Math.sin(i * 1.7) * .025,
+          z1 = Math.sin((i + 1) * 1.7) * .025, col = i % 2 ? [.82, .79, .67] : [.94, .91, .80];
+        m.quad([x0, -.13, z0], [x1, -.13, z1], [x1, .13, z1], [x0, .13, z0], col);
+        m.quad([x0, .13, z0], [x1, .13, z1], [x1, -.13, z1], [x0, -.13, z0], col);
+      }
+      rend.meshFromBuilder('powRiverSignalCloth', m);
+    }
     if (!rend.meshes || !rend.meshes.powRiverSkiff) {
       const m = new MB();
       // A small working skiff, not the existing 24-metre armed patrol boat.
       if (m.frustum) m.frustum(0, .03, 0, .55, 1.6, .88, 2.15, .24, [.24, .15, .08]);
       else m.box(0, 0, 0, .88, .24, 2.15, [.24, .15, .08]);
+      // The legacy frustum cap faces downward. This explicit upward wooden
+      // floor seals the working skiff above the river surface from every view.
+      m.quad([-.88, .27, -2.15], [-.88, .27, 2.15], [.88, .27, 2.15], [.88, .27, -2.15], [.34, .23, .13]);
       m.box(-.8, .35, 0, .07, .3, 1.95, [.34, .23, .13]);
       m.box(.8, .35, 0, .07, .3, 1.95, [.34, .23, .13]);
       m.box(0, .3, -1.3, .8, .08, .23, [.34, .23, .13]);
@@ -191,8 +204,8 @@
     }
     if (!rend.meshes || !rend.meshes.powRiverNaval) {
       const m = new MB();
-      // An unnamed representative silhouette for the explicitly fictional
-      // rescue branch. No historical vessel or rescue is asserted here.
+      // A representative US Navy craft for the explicitly fictional rescue
+      // branch. No named historical vessel or arranged rescue is asserted.
       if (m.frustum) m.frustum(0, .45, 0, 3, 20, 4.6, 26, 1.5, [.28, .31, .34]);
       else m.box(0, .45, 0, 4.6, 1.5, 26, [.28, .31, .34]);
       m.box(0, 2.1, 0, 4.4, .32, 23, [.39, .42, .44]);
@@ -202,6 +215,30 @@
       m.box(0, 9, 1, .12, 3.2, .12, [.45, .47, .49]);
       m.box(0, 10.8, 1, 2.6, .07, .1, [.45, .47, .49]);
       m.box(0, 3.1, -15, .95, .5, 1.5, [.32, .35, .38]);
+      // Recognisable US ensign, made from opaque geometry on both faces.
+      // Thirteen stripes and fifty small stars retain the period's design.
+      const red = [.58, .055, .045], white = [.88, .88, .80], blue = [.035, .07, .19];
+      for (let stripe = 0; stripe < 13; stripe++) m.box(.95, 11.85 - stripe * .075, 1,
+        .9, .0375, .012, stripe % 2 ? white : red);
+      m.box(.41, 11.625, .983, .36, .2625, .014, blue);
+      m.box(.41, 11.625, 1.017, .36, .2625, .014, blue);
+      for (let row = 0; row < 9; row++) for (let col = 0; col < (row % 2 ? 5 : 6); col++) {
+        const sx = .11 + col * .116 + (row % 2 ? .058 : 0), sy = 11.82 - row * .057;
+        m.box(sx, sy, .961, .012, .012, .005, white);
+        m.box(sx, sy, 1.039, .012, .012, .005, white);
+      }
+      const letters = {U:['101','101','101','101','111'],S:['111','100','111','001','111'],
+        N:['1001','1101','1011','1001','1001'],A:['010','101','111','101','101'],
+        V:['101','101','101','101','010'],Y:['101','101','010','010','010']};
+      let offset = -5.3;
+      for (const ch of 'US NAVY') {
+        if (ch === ' ') { offset += .42; continue; }
+        const rows = letters[ch];
+        for (let row = 0; row < rows.length; row++) for (let col = 0; col < rows[row].length; col++)
+          if (rows[row][col] === '1') for (const side of [-1, 1])
+            m.box(side * 4.412, 2.31 - row * .10, offset + col * .17, .012, .042, .069, white);
+        offset += (rows[0].length + 1) * .17;
+      }
       rend.meshFromBuilder('powRiverNaval', m);
     }
   }
@@ -267,9 +304,13 @@
       box(game, 'naval-hull', 'powMetal', r.ship.p[0], y + .2, r.ship.p[2], 4.4, 1.2, 24,
         { solid: true, tint: [.36, .39, .42, 0] });
       r.recoveryPoint = [r.ship.p[0] + 7.6, y, r.ship.p[2] - 16];
-      box(game, 'recovery-buoy', 'powPale', r.recoveryPoint[0], y + .14, r.recoveryPoint[2], .23, .32, .23,
-        { tint: [1.3, 1.2, .8, .15] });
-      object(game, 'river-signal', 'Signal the unnamed offshore naval contact', r.recoveryPoint.slice(), 'signal', 13, { hold: 1.5, view: false });
+      box(game, 'recovery-buoy', 'powPale', r.recoveryPoint[0], y + .14, r.recoveryPoint[2], .30, .38, .30,
+        { tint: [1.8, .58, .12, .15] });
+      object(game, 'river-signal', r.ship.acknowledged ? 'Take the US Navy rescue line at the orange buoy'
+        : 'Wave clothing to the US Navy watch', r.recoveryPoint.slice(), 'signal', 13, { hold: 1.5, view: false });
+      if (!r.ship.acknowledged) object(game, 'river-wave', 'Wave clothing to the US Navy boat',
+        [r.ship.p[0], y + .7, r.ship.p[2]], 'wave', WAVE_RANGE,
+        { hold: 1.2, view: false, enabled: g => rescueView(g).canWave });
       r.control = object(game, 'river-float', 'Float / swim · hold Space or DIVE to submerge', e.p.slice(), 'float', 1.6, { view: false });
       if (r.boatOwned) prop(game, 'river-skiff', 'powRiverSkiff', e.p.slice(), [1, 1, 1], e.hdg);
       return;
@@ -402,16 +443,22 @@
     if (r.phase !== 'gulf') { seedPeople(game); seedEncounter(game); }
     else { e.searchers = []; s.actors = e.searchers; }
     objective(game); checkpoint(game);
-    notify(game, 'The water carries you downstream. Steer toward reeds to reach a bank; F switches float/swim. Hold Space or DIVE briefly to submerge. No survival radio is available.', 'warn');
+    notify(game, r.phase === 'gulf'
+      ? 'A US Navy boat is offshore. Approach until its watch can see you, then hold F / Interact to wave. Dive when necessary; waving only works at the surface.'
+      : 'The water carries you downstream. Steer toward reeds to reach a bank; F switches float/swim. Hold Space or DIVE briefly to submerge. No survival radio is available.', 'warn');
     return true;
   }
 
   function objective(game) {
     const s = state(game), r = s.river;
     if (r.resting) s.objective = 'Concealed in a mud shelter. Rest advances the clock; movement leaves shelter. Observers can still discover you.';
-    else if (r.phase === 'gulf') s.objective = r.ship && r.ship.acknowledged
-      ? 'The contact has noticed your signal. Carefully approach the recovery point alongside its stern.'
-      : 'FICTIONAL continuation: approach the visible offshore contact and signal with clothing or a mirror. There is no arranged rescue.';
+    else if (r.phase === 'gulf') {
+      const v = rescueView(game);
+      s.objective = r.ship && r.ship.acknowledged
+        ? 'US Navy watch: WE SEE YOU. Reach the orange buoy off the stern; hold F / Interact to take the rescue line. Pickup ' + v.pickupPercent + '%.'
+        : r.signaling ? 'Waving to US Navy · watch recognition ' + v.signalPercent + '%. Stay on the surface and keep still; dive to interrupt if you need cover.'
+        : 'US Navy boat offshore · ' + Math.round(v.distance) + 'm. Approach within ' + WAVE_RANGE + 'm, face the boat and hold F / Interact to wave. Rescue is earned by acknowledgement and close pickup.';
+    }
     else if (r.phase === 'delta') s.objective = r.boatOwned
       ? 'Steer the skiff downstream toward the Gulf. Forward/back controls paddle and brake; banks and logs remain solid.'
       : 'The delta widens ahead. Physically reach the unoccupied skiff near the bank and hold F to board, or continue swimming.';
@@ -433,7 +480,7 @@
     e.searchers = []; s.actors = e.searchers;
     r.ship = { p: [centre(game) + 22, r.waterY, s.base[2] + 140], acknowledged: false };
     rebuild(game); checkpoint(game);
-    notify(game, 'FICTIONAL ALTERNATE HISTORY: you have reached the Gulf. The distant unnamed naval contact is an opportunity to approach and signal, not a prearranged rescue.', 'warn');
+    notify(game, 'FICTIONAL ALTERNATE HISTORY: you have reached the ocean. A US Navy boat is offshore. Swim or paddle toward it; when the wave prompt appears, hold F / Interact. Stay visible long enough for its watch to acknowledge you, then reach the orange pickup buoy.', 'warn');
   }
 
   function interact(game, obj, requested) {
@@ -469,11 +516,18 @@
       r.boat.speed = 0; s.flags.deltaBoat = true;
       r.checkpoints.push({ mode: 'boat', distance: Math.round(r.logicalDistance), day: s.day });
       rebuild(game); notify(game, 'A small unoccupied working skiff. Forward paddles; backward brakes. Turn with A/D, arrows, touch stick or mouse look. The Gulf still requires travel.', 'warn');
+    } else if (action === 'wave' || action === 'river-wave') {
+      if (!rescueView(game).canWave) return false;
+      r.signaling = true; r.signalMethod = 'wave';
+      notify(game, 'You wave a strip of clothing toward the US Navy watch. Stay on the surface and keep still until they acknowledge you. Diving or swimming away interrupts the signal.', 'warn');
     } else if (action === 'signal' || action === 'river-signal') {
       if (r.phase !== 'gulf' || !r.recoveryPoint || distance(e.p, r.recoveryPoint) > 13.4) return false;
       if (!r.signalFabric && !hasItem(s, /mirror|cloth|fabric|shirt|scarf/i)) return false;
-      r.signaling = true;
-      notify(game, 'You raise a strip of clothing and signal. Hold position alongside the contact while its watch identifies you.', 'warn');
+      if (r.submerged || !watchVisible(game)) return false;
+      r.signaling = true; r.signalMethod = 'close';
+      notify(game, r.ship.acknowledged
+        ? 'You reach for the rescue line. Stay close to the orange buoy and slow the skiff so the Navy crew can bring you aboard.'
+        : 'You raise a strip of clothing and signal the US Navy watch. Hold position while they identify you.', 'warn');
     } else return false;
     if (r.checkpoints.length > 24) r.checkpoints.splice(0, r.checkpoints.length - 24);
     objective(game); checkpoint(game); return true;
@@ -634,31 +688,77 @@
     else recenter(game);
     if (r.control) {
       const targetNear = r.phase === 'delta' && !r.boatOwned && r.boat && distance(e.p, r.boat.p) < 8
-        || r.phase === 'gulf' && r.recoveryPoint && distance(e.p, r.recoveryPoint) < 20;
+        || r.phase === 'gulf' && r.recoveryPoint && (distance(e.p, r.recoveryPoint) < 20
+          || !r.ship.acknowledged && rescueView(game).canWave);
       r.control.p = !onBank && !r.boatOwned && !targetNear ? e.p.slice() : [x + 1000, r.waterY, s.base[2]];
     }
     const skiff = game.campGeo.find(g => g.id === 'river-skiff');
     if (skiff && r.boatOwned) { skiff.p = [e.p[0], r.waterY + .03, e.p[2]]; skiff.y = e.hdg; }
     rescueStep(game, dt, steer);
+    signalCloth(game);
     objective(game);
   }
 
+  function signalCloth(game) {
+    const r = state(game).river, e = game.evade, id = 'naval-signal-cloth';
+    const old = game.campGeo.find(g => g.id === id);
+    if (r.phase !== 'gulf' || !r.signaling || r.submerged || r.ship.acknowledged || r.finished) {
+      if (old) game.campGeo.splice(game.campGeo.indexOf(old), 1);
+      return;
+    }
+    const wave = Math.sin(r.elapsed * 4.4), side = .50 + wave * .06,
+      y = e.p[1] + (r.boatOwned ? 1.08 : .76) + Math.cos(r.elapsed * 4.4) * .07,
+      p = [e.p[0] + Math.sin(e.hdg) + Math.cos(e.hdg) * side, y,
+        e.p[2] - Math.cos(e.hdg) + Math.sin(e.hdg) * side];
+    const cloth = old || prop(game, id, 'powRiverSignalCloth', p, [.4, .42, .6]);
+    cloth.p = p; cloth.scale = [.4, .42, .6]; cloth.y = e.hdg + wave * .55;
+  }
+
+  function watchVisible(game) {
+    const r = state(game)?.river, e = game?.evade;
+    if (!r?.ship || !e || r.submerged) return false;
+    if (typeof P.los !== 'function') return true;
+    return P.los(game, [e.p[0], e.p[1] + (r.boatOwned ? 1.65 : 1.45), e.p[2]],
+      [r.ship.p[0], r.waterY + 6, r.ship.p[2]]);
+  }
+  function rescueView(game) {
+    const r = state(game)?.river, e = game?.evade;
+    if (!r || r.phase !== 'gulf' || !r.ship || !e) return { active: false, canWave: false };
+    const gap = distance(e.p, r.ship.p), material = r.signalFabric || hasItem(state(game), /mirror|cloth|fabric|shirt|scarf/i),
+      bearing = Math.atan2(r.ship.p[0] - e.p[0], -(r.ship.p[2] - e.p[2])),
+      angle = Math.atan2(Math.sin(bearing - finite(e.hdg, 0)), Math.cos(bearing - finite(e.hdg, 0))),
+      facing = Math.abs(angle) <= 1.10;
+    return { active: !r.finished, navy: true, distance: gap, waveRange: WAVE_RANGE,
+      canWave: !r.finished && !r.ship.acknowledged && gap <= WAVE_RANGE && !!material && facing && !r.submerged && watchVisible(game),
+      facing,
+      signaling: !!r.signaling, acknowledged: !!r.ship.acknowledged,
+      signalPercent: Math.round(clamp(finite(r.signalProgress, 0) / 7, 0, 1) * 100),
+      pickupPercent: Math.round(clamp(finite(r.recoveryTime, 0) / 4.5, 0, 1) * 100) };
+  }
   function rescueStep(game, dt, moving) {
     const s = state(game), r = s.river, e = game.evade;
     if (r.phase !== 'gulf' || !r.signaling || !r.recoveryPoint || r.finished) return;
     const gap = distance(e.p, r.recoveryPoint);
-    if (gap > 17 || r.submerged || moving && gap > 8 && !r.ship.acknowledged) {
+    const waving = r.signalMethod === 'wave';
+    if ((waving ? distance(e.p, r.ship.p) > WAVE_RANGE : gap > 17) || r.submerged
+        || !watchVisible(game) || waving && !r.ship.acknowledged && !rescueView(game).facing
+        || moving && gap > 8 && !r.ship.acknowledged) {
       r.signaling = false; return;
     }
     const stats = s.stats || {}, mirror = hasItem(s, /mirror/i);
     const condition = clamp(.25 + finite(stats.physical, 60) * .005
       + finite(stats.hope, 50) * .002 - finite(stats.fatigue, 40) * .0015, .22, 1);
     const weather = 1 - r.rain * .55;
-    const signal = mirror && r.daylight > .4 ? 1.4 : gap < 10 ? 1 : .6;
+    const signal = mirror && r.daylight > .4 ? 1.4 : waving ? .65 : gap < 10 ? 1 : .6;
     r.signalProgress += dt * condition * weather * signal;
     if (r.signalProgress >= 7 && !r.ship.acknowledged) {
       r.ship.acknowledged = true; s.flags.navalSignalAcknowledged = true;
-      notify(game, 'The watch has noticed you. Approach the stern-side recovery point slowly; stay within five metres so the crew can bring you aboard.', 'warn');
+      const target = s.objects.find(o => o.id === 'river-signal');
+      if (target) target.name = 'Take the US Navy rescue line at the orange buoy';
+      s.objects = s.objects.filter(o => o.id !== 'river-wave');
+      notify(game, 'The US Navy watch calls: WE SEE YOU! Approach the orange buoy off the stern. Hold F / Interact to take the rescue line; stay within five metres so the crew can bring you aboard.', 'warn');
+      game.app?.radio?.('US NAVY', 'We see you! Come toward the orange buoy off our stern. Stay close and we will bring you aboard.', 'warn', 'en-US');
+      if (waving) r.signaling = false;
       checkpoint(game);
     }
     if (r.ship.acknowledged && gap <= 5.2 && (!r.boatOwned || Math.abs(r.boat.speed) < .6)) {
@@ -667,7 +767,7 @@
         r.finished = true; s.flags.fictionalRescue = true; s.flags.fictionalContinuation = true;
         checkpoint(game);
         const result = { id: 'pow-fictional-river-rescue', title: 'Fictional alternate-history rescue', rescued: true, escaped: true, historical: false,
-          text: 'FICTIONAL ALTERNATE HISTORY: after reaching the delta, approaching an unnamed offshore naval contact and signaling at close range, you are brought aboard. Coker and McKnight were recaptured during their actual 1967 escape; this playable successful continuation is hypothetical.' };
+          text: 'FICTIONAL ALTERNATE HISTORY: after reaching the ocean, waving down a US Navy boat and reaching its stern-side rescue line, you are brought aboard. Coker and McKnight were recaptured during their actual 1967 escape; this playable successful continuation is hypothetical.' };
         if (P.finish) P.finish(game, result); else s.result = result;
       }
     } else r.recoveryTime = Math.max(0, r.recoveryTime - dt * .3);
@@ -685,7 +785,7 @@
     }
     return true;
   }
-  const River = P.River = { enter, step, interact, rebuild, objective, ensureMeshes: meshes,
+  const River = P.River = { enter, step, interact, rebuild, objective, rescueView, ensureMeshes: meshes,
     sections: SECTIONS,
     constants: Object.freeze({ distanceScale: SCALE, deltaDistance: DELTA, gulfDistance: GULF,
       historicalBenchmark: BENCHMARK, channelHalfWidth: HALF_WIDTH, segmentLength: SEGMENT }) };

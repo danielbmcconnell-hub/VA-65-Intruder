@@ -906,6 +906,8 @@ body.pow-active.pow-field-equipment:not(.desktop) #btnFire{display:flex!importan
 <script src="assets/survival/wildlife.js"></script>
 <script src="assets/survival/wildlife-targeting.js"></script>
 <script src="assets/audio/voice-profiles.js"></script>
+<script src="assets/audio/dialogue/catalog.js"></script>
+<script src="assets/audio/neural-dialogue.js"></script>
 <script src="assets/audio/crew-personality.js"></script>
 <script src="assets/survival/landing-water.js"></script>
 <script src="assets/survival/rip-current.js"></script>
@@ -913,6 +915,7 @@ body.pow-active.pow-field-equipment:not(.desktop) #btnFire{display:flex!importan
 <script src="assets/survival/fishing-boats.js"></script>
 <script src="assets/render/fishing-material.js"></script>
 <script src="assets/survival/riverbank-wildlife.js"></script>
+<script src="assets/survival/ocean-jellyfish.js"></script>
 <script src="assets/ui/archival-footage.js"></script>
 <script src="assets/ui/camera-views.js"></script>
 <script src="assets/ui/instruction-view.js"></script>
@@ -11090,23 +11093,13 @@ class Audio2 {
      on an intercom with the words left to the caption. Each station gets
      its own voice: the pilot a foot away and close-miked, the ship thin and
      far off through the radio. */
-  /* ================= SPEECH =================
-     Up to now a "voice" here was squelch and bandpassed noise chopped
-     at a speaking rate: the texture of a man talking on an intercom,
-     with the words left to the caption. That is the right instinct for
-     a radio and it is not the same thing as hearing somebody.
-
-     Every browser has a speech synthesiser in it. No audio to ship, no
-     licensing, works offline, and the crew can say the words. Each
-     station gets its own pitch and rate so you can tell who is talking
-     without reading, and the squelch still breaks first, because that
-     is what a radio does.
-
-     Vietnamese needs a Vietnamese voice to be anything other than an
-     insult; where the browser has not got one, the line stays as a
-     caption and the shout stays a shout.                              */
+  /* Common English dialogue uses bundled generic neural male performances.
+     Dynamic calls use a matching high-quality installed voice. Whole phrases
+     keep normal pitch; unavailable voices leave the caption in place. */
   speak(who, text, lang, tone) {
-    if (!this.spoken || typeof speechSynthesis === 'undefined' || !text) return false;
+    if (!this.spoken || !text) return false;
+    if(typeof NeuralDialogue!=='undefined'){const accepted=NeuralDialogue.speak(this,who,text,lang,tone);if(accepted!==null)return accepted;}
+    if(typeof speechSynthesis==='undefined')return false;
     try {
       /* Do not let it queue. A pile-up of six unfinished sentences is
          worse than silence, and in a bad moment six things happen. */
@@ -11114,6 +11107,7 @@ class Audio2 {
       const list = this._voices&&this._voices.length ? this._voices : (this._voices=speechSynthesis.getVoices()||[]);
       if (!VoiceProfiles.apply(u,{speaker:who,text,lang,tone},list)) return false;
       const priority=VoiceProfiles.mood(text,tone)==='urgent'?2:VoiceProfiles.mood(text,tone)==='alert'?1:0;
+      if(this._speechActive?.kind==='neural'){if(priority<=this._speechActive.priority)return false;NeuralDialogue.stop(this);}
       if(speechSynthesis.speaking||speechSynthesis.pending){
         if(!this._speechActive||priority<=this._speechActive.priority)return false;
         speechSynthesis.cancel();
@@ -11128,6 +11122,7 @@ class Audio2 {
   /* The list arrives asynchronously in most browsers and is empty on
      the first call, so it is refreshed when the browser says so. */
   initSpeech() {
+    if(typeof NeuralDialogue!=='undefined')NeuralDialogue.install(this);
     if (typeof speechSynthesis === 'undefined') return;
     const grab = () => { this._voices = speechSynthesis.getVoices() || []; };
     grab();
@@ -11313,8 +11308,8 @@ const App = {
     // Keep the title, ready room, and mission briefing usable even if WebGL
     // cannot start. Build expensive 3D resources only when the user flies.
     this.hud = new Cockpit($('#hud'));
-    // Browser speech should use understandable words, not the old radio-noise effect.
-    if (this.set.voices === 1) this.set.voices = 2;
+    // Upgrade old radio-noise preferences once, preserving deliberate later choices.
+    if(typeof NeuralDialogue!=='undefined')NeuralDialogue.migrate(this.set,Store);
     this.hud.desktop = IS_DESKTOP;
     this.hud.touchInset = IS_DESKTOP ? 26 : 78;
     for (const [id, src] of [['bootTiger', IMG_TIGER], ['barTiger', IMG_TIGER], ['loadTiger', IMG_TIGER], ['heroPhoto', IMG_HERO]]) {
@@ -12982,11 +12977,11 @@ const App = {
       QualityPolicy.userChanged(this);
     }));
     s.appendChild(mk('Flying', 'Full removes the stability help and makes the guns meaner.', ['Assisted', 'Standard', 'Full'], this.set.assist, v => this.set.assist = v));
-    s.appendChild(mk('Sound', '', ['Off', 'On'], this.set.sound, v => { this.set.sound = v; if (this.audio.master) this.audio.master.gain.value = v ? 0.62 : 0; }));
+    s.appendChild(mk('Sound', '', ['Off', 'On'], this.set.sound, v => { this.set.sound = v; if (this.audio.master) this.audio.master.gain.value = v ? 0.62 : 0; if(!v&&typeof NeuralDialogue!=='undefined')NeuralDialogue.stop(this.audio); }));
     s.appendChild(mk('Crew voices',
-      'Spoken uses an installed American male voice for English and a Vietnamese voice for Vietnamese. If a suitable voice is unavailable, the line remains a caption. Calm calls and urgent warnings use different delivery. Tones is a separate synthetic radio-effects option.',
+      'Spoken plays bundled natural male performances for common English dialogue, with consistent pilot, navigator and radio voices. Other lines use a suitable installed voice; unavailable lines remain captions. Tones is a separate synthetic radio-effects option.',
       ['Off', 'Tones', 'Spoken'], this.set.voices === undefined ? 2 : this.set.voices,
-      v => { this.set.voices = v; this.audio.spoken = v >= 2 ? 1 : 0; }));
+      v => { this.set.voices = v; this.audio.spoken = v >= 2 ? 1 : 0; if(!this.audio.spoken&&typeof NeuralDialogue!=='undefined')NeuralDialogue.stop(this.audio); }));
     s.appendChild(mk('Pitch axis', '', ['Normal', 'Inverted'], this.set.invert, v => this.set.invert = v));
     if (IS_DESKTOP) s.appendChild(mk('Mouse flying', 'Locks the pointer and puts the mouse on the stick. Y in flight, Escape to release.', ['Off', 'On'], this.set.mouse, v => this.set.mouse = v));
     b.appendChild(s);
@@ -13354,8 +13349,8 @@ const App = {
          out — two men talking over each other is not atmosphere. */
       this.audio.spoken = (this.set.voices === undefined ? 2 : this.set.voices) >= 2 ? 1 : 0;
       if(this.audio.spoken){
-        const said = this.audio.speak(who, say || msg, lang, cls);
-        if (said && (!this.game || (!this.game.evade && !this.game.ejected))) this.audio.burst('beep', 0.12);
+        this.audio.speak(who, say || msg, lang, cls);
+        // Spoken dialogue keeps its natural attack; per-line beeps belong to Tones.
       }else this.audio.voice(who, msg);
     }
   },
@@ -17907,6 +17902,7 @@ class Game {
     RipCurrent.instances(this,push);
     RiverThreats.props(this,push);
     FishingBoats.props(this,push);
+    OceanJellyfish.props(this,push);
     const photoActors=(holdingView?PrisonDetail.fieldActors(this).map(actor=>({actor,cow:false})):(this.evade?this.evade.searchers.concat(this.evade.locals||[]).map(actor=>({actor,cow:false}))
       .concat((this.evade.cattle||[]).map(actor=>({actor,cow:true}))):[])
       .concat(AviatorCompanion.actors(this).map(actor=>({actor,cow:false})))
@@ -18153,6 +18149,7 @@ class Game {
     RiverThreats.draw(this,R);
     FishingBoats.draw(this,R);
     RiverbankWildlife.draw(this,R);
+    OceanJellyfish.draw(this,R);
     R.drawGroundShadows(CarrierLaunch.shadows(this,carrierCrew));
     CarrierLaunch.draw(this,R,carrierCrew);
     if(this.willard && !this.evade && !this.chute && this.willard.enemy)WillardSprites.draw(R,this.willard.enemy,{dt,light:.78});
@@ -18527,6 +18524,7 @@ JungleScenery.configure({terrainH,jungle:dryJungleAt,program,glsl:GLSL_NOISE+GLS
 RiverBanks.configure({MB,program,glsl:GLSL_NOISE+GLSL_ATMOS+GLSL_SHADOW});
 FishingMaterials.configure({program,glsl:GLSL_NOISE+GLSL_ATMOS+GLSL_SHADOW});
 FishingBoats.configure({MB,PhotoSprites,crewFile:'assets/fishing/fisher-paddle.webp'});
+OceanJellyfish.configure({MB,terrainH,coastAt,LandingWater,WildlifeRender,RipCurrent,POW,touch:IS_TOUCH});
 VillageDetail.configure({MB});
 WildlifeRender.configure({terrainH,program,glsl:GLSL_NOISE+GLSL_ATMOS+GLSL_SHADOW});
 // New local trunks share the existing swept collision solver. Placement checks
@@ -18839,6 +18837,7 @@ RipCurrent.install({Game,App,terrainH,coastAt,LandingWater,MISSIONS});
 RiverThreats.install({Game,App,POW});
 FishingBoats.install({Game,App,POW});
 RiverbankWildlife.install({Game,App,POW,touch:IS_TOUCH});
+OceanJellyfish.install({Game,App,MB,terrainH,coastAt,LandingWater,WildlifeRender,RipCurrent,POW,touch:IS_TOUCH});
 AviatorCompanion.install({Game,App,terrainH,LandingWater});
 DescentThreats.install({Game,App,terrainH,AviatorCompanion});
 CarrierLaunch.install({Game,bodyAxes});

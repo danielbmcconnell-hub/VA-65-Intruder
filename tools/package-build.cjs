@@ -4,6 +4,11 @@ const root=path.resolve(__dirname,'..'),site=path.join(root,'dist/site');
 // Explicit runtime allowlist. Never deploy the checkout, archive, reference_media,
 // test screenshots, Git history, node_modules or development tooling.
 const allow=['index.html','assets/atlas-metadata.js','assets/figures-original.png'];
+allow.push('assets/survival/ocean-jellyfish.js','assets/jellyfish/box-side.webp','assets/jellyfish/fire-side.webp','assets/jellyfish/box-surface.webp','assets/jellyfish/fire-surface.webp','assets/jellyfish/provenance.json');
+allow.push('assets/audio/neural-dialogue.js','assets/audio/dialogue/catalog.js','assets/audio/dialogue/manifest.json','assets/audio/dialogue/provenance.json','assets/audio/dialogue/LICENSE-Kokoro.txt','assets/audio/dialogue/LICENSE-kokoro-onnx.txt','assets/audio/dialogue/NOTICE.md');
+const dialogue=JSON.parse(fs.readFileSync(path.join(root,'assets/audio/dialogue/manifest.json')));
+if(dialogue.version!==1||!Array.isArray(dialogue.clips)||!dialogue.clips.length)throw new Error('Invalid neural dialogue catalog');
+for(const clip of dialogue.clips){if(typeof clip.file!=='string'||!/^\w[\w-]*\.mp3$/.test(clip.file))throw new Error('Invalid neural dialogue file');const f='assets/audio/dialogue/'+clip.file;if(!allow.includes(f))allow.push(f);}
 allow.push('assets/survival/fishing-boats.js','assets/render/fishing-material.js','assets/survival/riverbank-wildlife.js','assets/ui/archival-footage.js','assets/ui/archival-footage.css','assets/local-server.cjs','assets/fishing/fisher-paddle.webp','assets/fishing/wood.webp','assets/video/carrier-launch.mp4','assets/video/carrier-approach.mp4','assets/video/carrier-night.mp4','assets/video/provenance.json');
 allow.push('assets/ui/instruction-view.js','assets/ui/instruction-view.css','assets/survival/ground-controls.js','assets/ui/camera-views.js','assets/ui/camera-views.css','assets/render/river-bank.js','assets/survival/rip-current.js','assets/survival/rip-current.css','assets/survival/river-threats.js','assets/survival/river-threats.css','assets/firstperson/swim-stroke-a.webp','assets/firstperson/swim-stroke-b.webp','assets/firstperson/rope-grip-open.webp','assets/firstperson/rope-grip-closed.webp','assets/crocodile/manifest.json','assets/crocodile/swim.webp');
 allow.push('assets/render/photographic-sprites.js','assets/survival/capture-transition.js','assets/survival/capture-transition.css');
@@ -142,7 +147,8 @@ for(const item of allow){const dst=path.join(site,item);fs.mkdirSync(path.dirnam
 fs.writeFileSync(path.join(site,'_headers'),'/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: same-origin\n  Cache-Control: no-cache\n');
 const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
 const files=[...allow,'_headers'].map(file=>({file,sha256:sha(fs.readFileSync(path.join(site,file)))}));
-const archiveFile='Intruder_Yankee_Station_Living_River.zip';
+const archiveFile=process.env.INTRUDER_ARCHIVE_NAME||'Intruder_Yankee_Station_Ocean_Survival.zip';
+if(!/^Intruder_Yankee_Station_[A-Za-z0-9_]+\.zip$/.test(archiveFile))throw new Error('Invalid complete-game archive filename');
 const metadata={commit:cp.execFileSync('git',['rev-parse','HEAD'],{cwd:root}).toString().trim(),entrySHA256:sha(fs.readFileSync(path.join(site,'index.html'))),archiveFile,files};
 fs.writeFileSync(path.join(root,'dist/build-manifest.json'),JSON.stringify(metadata,null,2)+'\n');
 // Python's standard-library zipper makes packaging portable in this cloud image.
