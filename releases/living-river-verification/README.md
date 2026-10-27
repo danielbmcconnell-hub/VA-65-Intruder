@@ -1,3 +1,0 @@
-# Repeat the scoped checks
-
-Run `npm run test:living-river` for production CPU domains and the three native feature suites. `node releases/living-river-verification/run-all-cpu.cjs local` discovers every CPU-only test program. `node releases/living-river-verification/run-river-demo.cjs m11` starts the original river practice chapter and fast-forwards the original computer controller; it does not establish a complete flight or capture outcome. Browser runs require installed Playwright Chromium/WebGL2 and local HTTP access. These portable helpers retain the executed logic and use repository-relative output paths.
