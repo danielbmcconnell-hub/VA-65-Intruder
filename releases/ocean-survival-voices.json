@@ -1,0 +1,257 @@
+{
+  "passed": true,
+  "suite": "neural-dialogue",
+  "sourceStable": true,
+  "sourceSHA256": {
+    "index.html": "db871508b5aa60bfad3851503b4d10f892f8b90ed4335af35da620e5f08270ee",
+    "assets/audio/neural-dialogue.js": "167dc470dbee7003292bb9519252f9e25ed53170bdba73cd9f524b2c3644a2d5",
+    "assets/audio/voice-profiles.js": "ea5c7673dbd3718074614d7ba309630008acec7a3c9c5a5a662ea593eecdb0b5",
+    "assets/audio/dialogue/catalog.js": "5dd8ca3d9720f194a1fe622adcbddd27963ae88317c33d9a1f0c51da03813bf7",
+    "assets/audio/dialogue/manifest.json": "9ada6d271a6b78a062486610c69ed2587d14dca2bd1a10a4034582a56f2818f1",
+    "assets/flight/strike-crew.js": "1e1137cb60d2e3a3d74e04ed87d5b96cb317b65865e78138f7e7da430a5775a7",
+    "tests/neural-dialogue-browser.cjs": "e2dbb3064ab850807302bd1138e20a139ae0e998900023715aaa82ecf6322f0a"
+  },
+  "checks": [
+    {
+      "profile": "desktop",
+      "name": "Actual navigator MP3 plays through the shared Audio2 owner and finishes",
+      "passed": true,
+      "actual": {
+        "inspect": {
+          "available": 116,
+          "active": true,
+          "clip": "3d742d5e1f4a967ff635",
+          "accepted": 1,
+          "started": 1,
+          "completed": 0,
+          "failed": 0,
+          "suppressed": 0,
+          "cacheClips": 1,
+          "cacheBytes": 200976,
+          "lastClip": "3d742d5e1f4a967ff635",
+          "lastError": null
+        },
+        "kind": "neural",
+        "priority": 2,
+        "context": "running",
+        "buffer": {
+          "channels": 1,
+          "rate": 44100,
+          "duration": 1.1393197278911564
+        },
+        "playbackRate": 1,
+        "systemBusy": false
+      }
+    },
+    {
+      "profile": "desktop",
+      "name": "Actual pilot MP3 plays through the shared Audio2 owner and finishes",
+      "passed": true,
+      "actual": {
+        "inspect": {
+          "available": 116,
+          "active": true,
+          "clip": "b7a784657514b5395196",
+          "accepted": 2,
+          "started": 2,
+          "completed": 1,
+          "failed": 0,
+          "suppressed": 0,
+          "cacheClips": 2,
+          "cacheBytes": 377720,
+          "lastClip": "b7a784657514b5395196",
+          "lastError": null
+        },
+        "kind": "neural",
+        "priority": 0,
+        "context": "running",
+        "buffer": {
+          "channels": 1,
+          "rate": 44100,
+          "duration": 1.0019501133786848
+        },
+        "playbackRate": 1,
+        "systemBusy": false
+      }
+    },
+    {
+      "profile": "desktop",
+      "name": "Actual radio MP3 plays through the shared Audio2 owner and finishes",
+      "passed": true,
+      "actual": {
+        "inspect": {
+          "available": 116,
+          "active": true,
+          "clip": "8d77769a14faf4b07118",
+          "accepted": 3,
+          "started": 3,
+          "completed": 2,
+          "failed": 0,
+          "suppressed": 0,
+          "cacheClips": 3,
+          "cacheBytes": 852228,
+          "lastClip": "8d77769a14faf4b07118",
+          "lastError": null
+        },
+        "kind": "neural",
+        "priority": 0,
+        "context": "running",
+        "buffer": {
+          "channels": 1,
+          "rate": 44100,
+          "duration": 2.689954648526077
+        },
+        "playbackRate": 1,
+        "systemBusy": false
+      }
+    },
+    {
+      "profile": "desktop",
+      "name": "Voice preview changes no campaign state or mission outcome",
+      "passed": true,
+      "actual": {}
+    },
+    {
+      "profile": "phone",
+      "name": "Actual navigator MP3 plays through the shared Audio2 owner and finishes",
+      "passed": true,
+      "actual": {
+        "inspect": {
+          "available": 116,
+          "active": true,
+          "clip": "3d742d5e1f4a967ff635",
+          "accepted": 1,
+          "started": 1,
+          "completed": 0,
+          "failed": 0,
+          "suppressed": 0,
+          "cacheClips": 1,
+          "cacheBytes": 200976,
+          "lastClip": "3d742d5e1f4a967ff635",
+          "lastError": null
+        },
+        "kind": "neural",
+        "priority": 2,
+        "context": "running",
+        "buffer": {
+          "channels": 1,
+          "rate": 44100,
+          "duration": 1.1393197278911564
+        },
+        "playbackRate": 1,
+        "systemBusy": false
+      }
+    },
+    {
+      "profile": "phone",
+      "name": "Actual pilot MP3 plays through the shared Audio2 owner and finishes",
+      "passed": true,
+      "actual": {
+        "inspect": {
+          "available": 116,
+          "active": true,
+          "clip": "b7a784657514b5395196",
+          "accepted": 2,
+          "started": 2,
+          "completed": 1,
+          "failed": 0,
+          "suppressed": 0,
+          "cacheClips": 2,
+          "cacheBytes": 377720,
+          "lastClip": "b7a784657514b5395196",
+          "lastError": null
+        },
+        "kind": "neural",
+        "priority": 0,
+        "context": "running",
+        "buffer": {
+          "channels": 1,
+          "rate": 44100,
+          "duration": 1.0019501133786848
+        },
+        "playbackRate": 1,
+        "systemBusy": false
+      }
+    },
+    {
+      "profile": "phone",
+      "name": "Actual radio MP3 plays through the shared Audio2 owner and finishes",
+      "passed": true,
+      "actual": {
+        "inspect": {
+          "available": 116,
+          "active": true,
+          "clip": "8d77769a14faf4b07118",
+          "accepted": 3,
+          "started": 3,
+          "completed": 2,
+          "failed": 0,
+          "suppressed": 0,
+          "cacheClips": 3,
+          "cacheBytes": 852228,
+          "lastClip": "8d77769a14faf4b07118",
+          "lastError": null
+        },
+        "kind": "neural",
+        "priority": 0,
+        "context": "running",
+        "buffer": {
+          "channels": 1,
+          "rate": 44100,
+          "duration": 2.689954648526077
+        },
+        "playbackRate": 1,
+        "systemBusy": false
+      }
+    },
+    {
+      "profile": "phone",
+      "name": "Voice preview changes no campaign state or mission outcome",
+      "passed": true,
+      "actual": {}
+    }
+  ],
+  "errors": [],
+  "missing": [],
+  "audioResponses": [
+    {
+      "profile": "desktop",
+      "url": "http://127.0.0.1:39881/assets/audio/dialogue/3d742d5e1f4a967ff635.mp3",
+      "status": 200,
+      "type": "audio/mpeg"
+    },
+    {
+      "profile": "desktop",
+      "url": "http://127.0.0.1:39881/assets/audio/dialogue/b7a784657514b5395196.mp3",
+      "status": 200,
+      "type": "audio/mpeg"
+    },
+    {
+      "profile": "desktop",
+      "url": "http://127.0.0.1:39881/assets/audio/dialogue/8d77769a14faf4b07118.mp3",
+      "status": 200,
+      "type": "audio/mpeg"
+    },
+    {
+      "profile": "phone",
+      "url": "http://127.0.0.1:39881/assets/audio/dialogue/3d742d5e1f4a967ff635.mp3",
+      "status": 200,
+      "type": "audio/mpeg"
+    },
+    {
+      "profile": "phone",
+      "url": "http://127.0.0.1:39881/assets/audio/dialogue/b7a784657514b5395196.mp3",
+      "status": 200,
+      "type": "audio/mpeg"
+    },
+    {
+      "profile": "phone",
+      "url": "http://127.0.0.1:39881/assets/audio/dialogue/8d77769a14faf4b07118.mp3",
+      "status": 200,
+      "type": "audio/mpeg"
+    }
+  ],
+  "scope": "Actual Chromium desktop and touch-layout native gesture, real bundled MP3 fetching/decoding, unmodified-rate AudioBufferSource playback and completion through original App.radio/Audio2. Three generic male roles play with no simultaneous system speech; preview fixture only, no game outcome. No claim of recorded actors, subjective listening evaluation or physical Safari.",
+  "target": "http://127.0.0.1:39881/",
+  "recordedAt": "2026-10-27T01:05:35.237Z"
+}

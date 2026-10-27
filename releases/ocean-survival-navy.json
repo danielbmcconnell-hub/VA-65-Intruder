@@ -1,0 +1,3132 @@
+{
+  "passed": true,
+  "suite": "navy-rescue",
+  "sourceStable": true,
+  "sourceSHA256": {
+    "assets/atlas-metadata.js": "042cc37786069adb0b58de7b17ba499ee8c0c2b93da0864288c4d184917e62d0",
+    "assets/atlas_manifest.json": "498deb24da5e88b5dd0bb34810898902bf655011ff8a93da1abe9af6db311c4e",
+    "assets/audio/crew-personality.js": "3cc3b1f6e2d74cc0d5a01af4b7ced45a88bb6b2a80d90ba10c593047ab91e820",
+    "assets/audio/dialogue/catalog.js": "5dd8ca3d9720f194a1fe622adcbddd27963ae88317c33d9a1f0c51da03813bf7",
+    "assets/audio/dialogue/manifest.json": "9ada6d271a6b78a062486610c69ed2587d14dca2bd1a10a4034582a56f2818f1",
+    "assets/audio/dialogue/provenance.json": "4ecd12d7373f58e410dd3f23dd8105a184d04727336057136c617bed815b71e1",
+    "assets/audio/neural-dialogue.js": "167dc470dbee7003292bb9519252f9e25ed53170bdba73cd9f524b2c3644a2d5",
+    "assets/audio/voice-profiles.js": "ea5c7673dbd3718074614d7ba309630008acec7a3c9c5a5a662ea593eecdb0b5",
+    "assets/carrier/hires/manifest.json": "8bcdf04bdb266bfa169af08f7773644aac883a7eaa381c97ac7fe70d58690c80",
+    "assets/carrier/hires/provenance.json": "6860d19cf6a1face963afce20951022387aa1e7cb4319ed4d0bbc9dd9e28db53",
+    "assets/crocodile/manifest.json": "939e73b1cebd05031239dc21ff72a5ed0eb69b0c0cc90bd39c3d64002f0c995c",
+    "assets/firstperson/held-provenance-v1.json": "fe08f1f5a8891f9ab79a0ba71b24e5798e36bc45f95dcb8bf54282f5fc5636cc",
+    "assets/firstperson/held-provenance.json": "023f3124cb7197315f0e2c75fc0f312b75dc4e6a105e1a3fe7fedad0a1807220",
+    "assets/firstperson/punch-provenance-v1.json": "8c9c7d855b0dc2093e2ea21695092bd5fbea1eb31338d0fa4d87251f5735170b",
+    "assets/firstperson/punch-provenance.json": "5f8ef95d972dc91b4d07159f157fff8b376a7218d76271e25122b6aa587cfe3d",
+    "assets/firstperson/water-rope-provenance.json": "21f163cf4cec87a04efbb940b175ed786df5d49c96bdda0d73bf4b28b85337ff",
+    "assets/fishing/provenance.json": "96469ed4c0723fdfaf593cecb64e7f1c455ad4ed5271cef73f31b6e71eee1e58",
+    "assets/flight/aircraft-detail.js": "5d3f7d2ff0b06ec1892d2af34049c7d22d46f78d08fd41f10e1284a85d5a719f",
+    "assets/flight/airframe-feedback.css": "3dc93c21f51a00943e5ea8e57d8787305cd5befdabb5b8f008309ad81179319f",
+    "assets/flight/airframe-feedback.js": "12ea94aee34381aef92f76dcdce86277cafd0a6dcad41763fd69bc7d608f7ff4",
+    "assets/flight/carrier-launch.js": "22edde86d396a6cfdb51082f0de430b4e5e3e2abb1204cc99b58f88274e161db",
+    "assets/flight/coach.js": "1b15658e48a2c01834585e8affc7aa6231f9af163832e77eee9d348befb5ab3b",
+    "assets/flight/immersion.css": "3c679a107cff030e627d60b10fce7af0e1de2064d72e0a9d4cab63b6f9757da6",
+    "assets/flight/immersion.js": "d0cd11bae2f9566aebcf08d7041ce7c335521d4149239c0fdb2327a7a08714f2",
+    "assets/flight/mission-demo.js": "18e15e78435902af375b3fbaba1cfdd65f1411f854da1a89ceed10dae31d0050",
+    "assets/flight/route-scene.js": "0582c35231b6d490f6f3d6983ab4e710a7bb215ada0b3f03db1c18aac72b9169",
+    "assets/flight/sortie-checkpoint.js": "ed4af46b23268672454a1a99ae3d6b42281f6a4196f046e271fff0da85c32646",
+    "assets/flight/strike-board.css": "7c88726077eacb5468cd326f8c38d5ca4dcd351965fb93c623b0243c1a5f524a",
+    "assets/flight/strike-board.js": "102742e67d5e86271ee3a04db2d4cea7ab026c7c4282a7aac140d94ff8c91f68",
+    "assets/flight/strike-checkpoint.js": "9ac145ed9f1fcbc271013db170a1aa30b8f844c343b70fd61a29b846e2b183d7",
+    "assets/flight/strike-crew.css": "69d6d5ed33cf61c8692e5e4fe6e7f24ab62cac3c64c779345a3a78ae18edf931",
+    "assets/flight/strike-crew.js": "1e1137cb60d2e3a3d74e04ed87d5b96cb317b65865e78138f7e7da430a5775a7",
+    "assets/flight/strike-effects.js": "3210e7015ad9364ed34e3e1b00d9cef08c93acab48f7e2bf9d9344aa28fadf16",
+    "assets/flight/strike-experience.css": "e59a8a9ec472d255d9cc740fdfb3d78af4d6fa090a724453414cfeaf290e481c",
+    "assets/flight/strike-experience.js": "f37815904bfa3ef66f22841c5ae8d3b14f212b32a433183b28a87ccf38291c6d",
+    "assets/flight/strike-scene.js": "6149c09d810b13219fe85aa0a10eaff8a80184e50e603de093f22ede9554e262",
+    "assets/flight/tactical-approach.css": "76652f890447df9f0021ef6e0f94fd8620f51b83cf151ac34e14cc31a3c732fc",
+    "assets/flight/tactical-approach.js": "7f2191f88352bdbafc6c8a0b2e94e5c756d922bab55606da439ad15969e3c0ad",
+    "assets/flight/threat-feedback.js": "f30012e2c5e986e6450ca2805a751bd76fc1db0dfc2a0960a17e27d0010fae55",
+    "assets/flight/visual-materials.js": "f876633635ffb855d98cc74bd712d6cf559cc1178bb14fcca979d7702566cdc2",
+    "assets/history/manifest.json": "93218bd49d70261c6093621d985328128111fb9c7075b69810622d9c3fb6e436",
+    "assets/items/manifest.json": "031b636e391f894af72ab3f23764dd914a5e788878943e35353e03e491e27a47",
+    "assets/items/provenance.json": "78f0a961339f29afdeca5984ce91041d4e41645a1e696b6ea2c1413a3e03ba82",
+    "assets/jellyfish/provenance.json": "8d2a93c521104f526707ed8ec65cff82b2b1dd6cbf861aac2fbb25aa5dfdd559",
+    "assets/jungle/components-provenance.json": "81ee507dc3db742c5993719fa6ac420ab5897bc92352d05860100e7727ee978e",
+    "assets/jungle/crown-provenance.json": "21aa897ed9662436e641e4b6c44b00058d38b81eef07b973c5669874169aefb6",
+    "assets/jungle/floor-provenance.json": "0afe10c83d8d779c770971ab1e9c3d002373a1b869840632e818082b01d331fe",
+    "assets/jungle/manifest.json": "8b0ff7e0ac5d976b6b6bb3cfcc3ec78d3f92aafde497ae72292a296f29bf4f19",
+    "assets/local-server.cjs": "f2e53970b4c33e73cc37a496826aeae5910b5881fd60925bc68d5712e4e95556",
+    "assets/photos/manifest.json": "750c4a0d6224c60e6f57babd3c4c3d21de55c67f36bd5f0cb1f47afcfebbb1a8",
+    "assets/pow/ai.js": "f214f3071c594d18d219a4590af14d85df0c0b9fe4fb6d1a7108ef14566f85ae",
+    "assets/pow/captivity.js": "12b8d2bd43663366c2a49c98b822a47e360740f71d754477bd9516ef7a644f8e",
+    "assets/pow/confinement-goals.css": "0cb8b2126935a37cd6c7d343c6a3ed164ba14f2ceab0b332060cc49e299dc2b3",
+    "assets/pow/confinement-goals.js": "a9956ec825a35a427b1bee91329eaa66a2b6d2636d91117f6a515c8f7fd8e48a",
+    "assets/pow/core.css": "4a54f9f9e0d50abc3757da98f05b3c742a31dcff148f07d8dba5d81176f85200",
+    "assets/pow/core.js": "e3283e524df4c22e5adfb56e6f32cfd0a9797d610096d7d8357b7e0048578017",
+    "assets/pow/denton-flashback.js": "3a434ee002427440ed01e6ea537f0b47c61ae7147bd3ab8c0222777a20eb0a04",
+    "assets/pow/episode-actions.css": "6d3ce6760ac16076539e70854c897731bca90291a4a78df13df230bb11567192",
+    "assets/pow/episode-actions.js": "8fe6818cc384e823ce44a36fd56b391c10861ceefa3d72151e1ff1fa6880d5fa",
+    "assets/pow/episode-audio.js": "8f68268e3090c66188aba86e8f62f291114cfb05db38e8b0ba083fc8cee8b1c7",
+    "assets/pow/episode-scene.js": "21faac9770746f220f26f4beb250f998c571baf3b8f8b655829fee0247521ccc",
+    "assets/pow/episode-shaders.js": "9a45dd52b620f9d4fe1572403f154e5033fde2d68466738be025e97a19bacb9f",
+    "assets/pow/episode-stealth.js": "8235ee978bb06afbfdc9fd1ce30eae18cbbff51a274ee8ad02c065a9d7804ce8",
+    "assets/pow/feedback.js": "0a0cf3b7cdb8814b4cc7f3509c658191d5dad4342cd085f3505a120bfc17cf01",
+    "assets/pow/figure-motion.js": "57023d4d7ba67db3c800fa04d338d005bff593940400bdc4634caff5e1ec1efb",
+    "assets/pow/history.js": "47a10f0365dedc2e1e28647e53ae1f9f339f22bf5fbf000c14872f6ff04a7543",
+    "assets/pow/memory-detail.js": "7041ec840df46c7f815dae5ef5415b224deaf6025a2fd4825b508bf758c68c09",
+    "assets/pow/mindscape.js": "6244998f4ebb3c5eb7ce8258f854159ed9a9cb8c0cf0986c75058a9b8d41b151",
+    "assets/pow/onboarding.js": "f569883eaaa3e1afe794db3528025f55757d30d82af21b977bbc4da830bbca1a",
+    "assets/pow/prison-detail.js": "d2b2da04aed43c95d84720f2ecd2b25b7dcd1b37e3cc015a984a974f8b454e38",
+    "assets/pow/prison-food.css": "feda44c174780a1ec0465e36816ec03464f3ce82504ba379f561abec2c8f9f60",
+    "assets/pow/prison-food.js": "05533c8529a90debfb440c0feb68be2fdc5765cb177d654632ac60092752fae0",
+    "assets/pow/ration-photo.js": "382169c8d5efdd76df34b10b2efc664bb66447d36f705dfbe566bfba68b1724e",
+    "assets/pow/regular-confinement.js": "961a989bfd8799b794e1678e651094a3cb543cb6f85eb03bc7e4ced594ab0177",
+    "assets/pow/river.js": "76805887e983a2f9b1638f41c64b3368a6f285b3f52469bc386ba3f0dd92bc8c",
+    "assets/pow/solidarity.js": "52aac5e8e3e96e552a585cce9b2aacf24709ab72e41d72e8b11b06e2d4d08fae",
+    "assets/prison/manifest.json": "8781daeacd47899474aabed7042eff9c25513a18106b64633dab086af36db0d4",
+    "assets/prison/provenance.json": "ac820f2e079c91e2cf99ea0de93058ee72278dcddca07ba644daeb4400f13b23",
+    "assets/processed/manifest.json": "c4cb27f5b5a855718e6455e6cd50f37753864e1fc9eaeb3ea6d9b47eb4c49c50",
+    "assets/render/coastal-scenery.js": "c786db647ba3d463b7fb350157a96c5b51bee7acd37347ad42c8f0ff2e89b4fb",
+    "assets/render/contact-shadows.js": "d6c1aa01dd809e6c240673e270a8731a26dc287bb36408adf549a7e5549f2364",
+    "assets/render/fishing-material.js": "4feb34de2333c18620a2ffecf69d58d64ba1e6800e090f237a391b798b07e040",
+    "assets/render/ground-items-render.js": "cc3f8044e93eca7acdf2d74c5704d74c5d0d934d0b044e97210fc3b1b470c08f",
+    "assets/render/jungle-scenery.js": "63f70fa62447fcaa1379f6da7940eca0f6b882ca4bdc6b57a5d3f321a2bb0a2d",
+    "assets/render/near-ground.js": "4027ebe7fbff9abc5149cdcbc53230c13d79365f46873035a3be072a0bab049d",
+    "assets/render/photo-cutouts.js": "2e56a9923c45f1f15356603d1356576de5b303e70ba22bc85217615b60e68778",
+    "assets/render/photo-motion.js": "2d1aa85f076ac19fdf07cc17812312e1bc2a3ea22f7bf6e3ffb3a1c8b87531b1",
+    "assets/render/photographic-sprites.js": "ffd2a250bea9c022f5c5ef6526e3503cb67755049cde8b71627cbcd981af1697",
+    "assets/render/quality-policy.js": "0082327576dfad84fbb872adafc77bc40bb0d6a21dc97fe02f0f984ed0110316",
+    "assets/render/river-bank.js": "c86e7b0313335d915bc3e23a894786ab413b31f6ca8b2d3400a171ec9218ebd8",
+    "assets/render/sprite-layers.js": "27492afd7aa06f6ddac03f2f058a7c03097e11cdb64f6abec52c88a0b00ce8aa",
+    "assets/render/terrain-shadows.js": "930e1bff5aee655c042259f78362902b1d53dc6e60adc0b31c9d18d48917e8a2",
+    "assets/render/village-detail.js": "83bff38d06bccd99e3ea13d5e4f35571414c8fcf7523940db3eefe906a802220",
+    "assets/render/visual-clarity.js": "4d0d48db6ca635b31373f81ddfb09478786c0203cfa49b34a0f62ef72386250a",
+    "assets/render/wildlife-render.js": "f855492d19f8c811fc669152b50bddb740b036d874a3db54618ecf8d814ad7e5",
+    "assets/sprites/atlas-metadata.js": "eeed898fc5a3afaca3af6191199e110d3b47a6577a296d8fa52ee215a01ed5d7",
+    "assets/sprites/hires/manifest.json": "767726986f513ebf43de3e03fb017d76656d0c61a5fcc60174cc64482b8369ab",
+    "assets/sprites/hires/motion-provenance.json": "6bcc7bb5f1c8286e1398660953331acfecbde60f6d5fcc2883b97f4574dbf497",
+    "assets/sprites/hires/provenance.json": "b6306266d4f31cbd5aa99a1744e480d38ec37a1349e76131a685c793fdf3e607",
+    "assets/sprites/hires/swim-provenance.json": "a51d6c318d1eabcc7c2495a05ab7b393dd2f977e6dd64e3770dd59918424d999",
+    "assets/sprites/provenance.json": "37f6432f77b3564d8932451837d9c1f52685bf986847b77b8591566ad8681216",
+    "assets/survival/ammunition.js": "c73bb800243d4125aa6bc57561a6f33531c938f1f148654f26227e8aab711dfb",
+    "assets/survival/aviator-companion.js": "ab6a54f73981a78618e7e039a50043d046566806c7d009eec16875097bdf8f69",
+    "assets/survival/capture-transition.css": "f9d4766b0c884f22aca342536ad06cabd80655d3c3801030e3cf3bf9a7ae4138",
+    "assets/survival/capture-transition.js": "520c6e9dd754a245cec7ecb1bf11ec366d4441d9ef03505309025a2633896f42",
+    "assets/survival/descent-threats.js": "179a6539ec7ee32ca9c166d97b1bc7235538f4fd029399905be6ebbaa2cb92ba",
+    "assets/survival/equipment-view.js": "3bb3bd6fbec01d7d6a268c533491b682e2ace58d68411f09fab5bb4b70f1d49b",
+    "assets/survival/fishing-boats.js": "bfe0485e6f75a18dd8b86ed9d938d2d963227520ab1c36740483819f064193ae",
+    "assets/survival/ground-combat.js": "fd9a50db2f16669d2e01749b21cd6209ebddf54ee3b963e76d022367e598ea00",
+    "assets/survival/ground-controls.js": "b9c72c58f15eb73878083cfd6da92554f78eec6a4b6e1076ec84346768bc2fc0",
+    "assets/survival/ground-items.css": "dc24c4f5df94fe29600eef4d4e344076913fe6b49cddd29bd766799a2255c5bd",
+    "assets/survival/ground-items.js": "86765674a5284056972429b8bafe446b539f9aa6b01e35227b526e5d5e3db866",
+    "assets/survival/ground-view.js": "88c7fca3e91ccc87f1bff2259933425a5e70a4538048c45ad1cb8f82faa538a0",
+    "assets/survival/landing-water.js": "2e66c20d1d57e3b75ac27ea3dfd6dd54509a75d6b70b439417cc51950124dcd4",
+    "assets/survival/ocean-jellyfish.js": "f2f32d523f4d613b5cd64f87adebc64e1a99fd2439eef5cbc203612a9aacfd26",
+    "assets/survival/rip-current.css": "097936fd210a07e455c7e075e3a1b88332da562a52100c8f386622c4af67fb08",
+    "assets/survival/rip-current.js": "ea028772cb13a8173a1f00d6162424be73b25da23022dffff96748791e5ff941",
+    "assets/survival/river-threats.css": "ca9180fe77fef30119199ca8b5bfd33d09aa152d40fcf9478d940e32453eb2ad",
+    "assets/survival/river-threats.js": "fa26423642e2b9106f124ed17b9c742f0427a6c0d693520e72bcd3a824d8a853",
+    "assets/survival/riverbank-wildlife.js": "e247ff02471d46dbbbffa670302409f5f18e9f4f4a99c68cca00b6a066affef6",
+    "assets/survival/wildlife-targeting.js": "d6938abf70372e8f037277a61139f104ae5a48fcf9e8a4b60797233b62e438d7",
+    "assets/survival/wildlife.js": "4b510b91ae6dead26ac777791a7ce93604bf03003530638d05654e0b9f7dd4ba",
+    "assets/ui/archival-footage.css": "553a3b59c9cb7177ab38246d83e0f33a4b1f22b44d3e0ac956cd0448152fd359",
+    "assets/ui/archival-footage.js": "9e990b6af179428d89d9ffb926669c1bc3ccbfd3e616cdd656db4d6bab2a48ae",
+    "assets/ui/camera-views.css": "f2bacff3addb44365cd59243113fc84513d2b8a136a2f179e92c217bc78ad201",
+    "assets/ui/camera-views.js": "d055c9bcb42163163060f44127d47d0b72164f0a9a9a0e96dd0a0e85ac314bd9",
+    "assets/ui/hud-layout.css": "d1cceafc01a55e25578629f36da6d3c9cbb6b13529e75d776ebac238c596c2fb",
+    "assets/ui/hud-layout.js": "6495e4fe686b36f47701f6f3fcf3d0742617008565d2037d3775351e56084e86",
+    "assets/ui/instruction-view.css": "9cc454d92815ef25a7893caf2e88ff14945f51ec9939be1f7885eba5a69e3159",
+    "assets/ui/instruction-view.js": "48154d551a811d9a76c0b4eabbebbc3a479147b227c1c531e7780e5cd24c6fb5",
+    "assets/video/provenance.json": "ff36464e5d41635cbf120401d4488be17caf7e95ed5628fc0a43708a62819703",
+    "assets/wildlife/hires/encoding-provenance.json": "4540352e12459b369592cea9bbd6684b4c386099493b5e3fc5acec0bafdbd2c2",
+    "assets/wildlife/hires/manifest.json": "0d5a5968a839dc8615d92b12458665092e4f2d55a62d7744a47c79e515211955",
+    "assets/wildlife/hires/provenance.json": "e5fb9acc28512f33338b97e8c011bafe47c738b5e0f200b23e09226512b04417",
+    "assets/willard/flak.js": "fa7e371488953904251da7b41b93bb7a2060e4d654f49d91659b2d0b6c7a41e8",
+    "assets/willard/interceptor.js": "6980e53f5eb1e15089b3b1bd5707f6fc2706859624b23438f6b08546c6bb1395",
+    "assets/willard/media/MiG17PF_Willard_Egress_ATLAS.json": "0d87d3669ff2a85757e73f02ebdc947fe68439da08bf0f4497a3b83849606a49",
+    "assets/willard/mission.js": "7e2df552017674b8c99f20f2c2da31c61d7d2a0fa24960512d548912c9602a1a",
+    "assets/willard/presentation.css": "4309231f9379836f1034b5f90849640a58860728016665aab99de8ca1e29ecb2",
+    "assets/willard/presentation.js": "075daa060b0b8b27793c25d63b46e6d869dc633fb1579a07dbeb4a316429c54b",
+    "assets/willard/sprites.js": "b0a253e4650868f0c2ce636ff160f97e895a4839253f5ab759b5fe52d5f2f7a6",
+    "index.html": "db871508b5aa60bfad3851503b4d10f892f8b90ed4335af35da620e5f08270ee",
+    "tests/navy-rescue-browser.cjs": "d15c80878e463205edd0b8b69a24ee2f1fecff6d464d8abc49dc20bfcf03ffe2"
+  },
+  "testSHA256": "d15c80878e463205edd0b8b69a24ee2f1fecff6d464d8abc49dc20bfcf03ffe2",
+  "checks": [
+    {
+      "profile": "desktop",
+      "name": "Original checkpoint crossing presents a visible Navy boat and active NVA/VC shore fire without an automatic rescue",
+      "passed": true,
+      "actual": {
+        "entry": {
+          "phase": "gulf",
+          "gulfAt": 96000,
+          "distance": 96000.33333333333,
+          "p": [
+            2239.5236821936282,
+            5.18,
+            1330.256217103803
+          ],
+          "rescue": {
+            "active": true,
+            "navy": true,
+            "distance": 142.21485530289613,
+            "waveRange": 100,
+            "canWave": false,
+            "facing": true,
+            "signaling": false,
+            "acknowledged": false,
+            "signalPercent": 0,
+            "pickupPercent": 0
+          },
+          "threats": {
+            "active": true,
+            "shots": 0,
+            "lastShooter": null,
+            "coastal": true,
+            "shorePosts": [
+              {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2224.524983536232,
+                  5.949999999999999,
+                  1266.256217103803
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 0.006836787892912854
+              },
+              {
+                "id": "gulf-shore-vc",
+                "kind": "vc",
+                "p": [
+                  2260.524983536232,
+                  5.949999999999999,
+                  1262.256217103803
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 0.0065959105699213445
+              }
+            ],
+            "concealment": 0,
+            "cover": null,
+            "nearCover": null,
+            "croc": null,
+            "defending": false,
+            "defenceAge": 99.01666666666667,
+            "defences": 0,
+            "bites": 0,
+            "underFire": false,
+            "breath": 100,
+            "submerged": false,
+            "clock": 0.016666666666666666
+          },
+          "objects": [
+            {
+              "id": "river-signal",
+              "name": "Wave clothing to the US Navy watch"
+            },
+            {
+              "id": "river-wave",
+              "name": "Wave clothing to the US Navy boat"
+            },
+            {
+              "id": "river-float",
+              "name": "Float / swim · hold Space or DIVE to submerge"
+            }
+          ],
+          "contactDraws": 1,
+          "complete": false,
+          "gl": 0
+        },
+        "waiting": {
+          "p": [
+            2239.8036821936853,
+            5.18,
+            1331.6562171038972
+          ],
+          "rescue": {
+            "active": true,
+            "navy": true,
+            "distance": 140.7874381471688,
+            "waveRange": 100,
+            "canWave": false,
+            "facing": true,
+            "signaling": false,
+            "acknowledged": false,
+            "signalPercent": 0,
+            "pickupPercent": 0
+          },
+          "threats": {
+            "active": true,
+            "shots": 2,
+            "lastShooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2224.524983536232,
+                5.949999999999999,
+                1266.256217103803
+              ],
+              "distance": 66.68532895481842
+            },
+            "coastal": true,
+            "shorePosts": [
+              {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2224.524983536232,
+                  5.949999999999999,
+                  1266.256217103803
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              },
+              {
+                "id": "gulf-shore-vc",
+                "kind": "vc",
+                "p": [
+                  2260.524983536232,
+                  5.949999999999999,
+                  1262.256217103803
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              }
+            ],
+            "concealment": 0,
+            "cover": null,
+            "nearCover": null,
+            "croc": null,
+            "defending": false,
+            "defenceAge": 113.01666666666694,
+            "defences": 0,
+            "bites": 0,
+            "underFire": true,
+            "breath": 100,
+            "submerged": false,
+            "clock": 14.016666666666943
+          },
+          "complete": false,
+          "gl": 0
+        },
+        "fire": {
+          "tracers": [
+            {
+              "from": [
+                2224.524983536232,
+                7.499999999999999,
+                1266.256217103803
+              ],
+              "velocity": [
+                49.35784494517199,
+                -4.360491285332902,
+                152.13411602306334
+              ],
+              "shooter": {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2224.524983536232,
+                  5.949999999999999,
+                  1266.256217103803
+                ],
+                "distance": 66.1417202165511
+              },
+              "at": 8.366666666666662
+            },
+            {
+              "from": [
+                2224.524983536232,
+                7.499999999999999,
+                1266.256217103803
+              ],
+              "velocity": [
+                49.23666258631262,
+                -4.32392277344852,
+                152.17442212543753
+              ],
+              "shooter": {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2224.524983536232,
+                  5.949999999999999,
+                  1266.256217103803
+                ],
+                "distance": 66.68532895481842
+              },
+              "at": 13.70000000000026
+            }
+          ],
+          "posts": [
+            {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2224.524983536232,
+                5.949999999999999,
+                1266.256217103803
+              ],
+              "alive": true,
+              "visible": true,
+              "exposure": 1.2
+            },
+            {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2260.524983536232,
+                5.949999999999999,
+                1262.256217103803
+              ],
+              "alive": true,
+              "visible": true,
+              "exposure": 1.2
+            }
+          ],
+          "range": 220,
+          "objective": "US Navy boat offshore · 141m. Approach within 100m, face the boat and hold F / Interact to wave. Rescue is earned by acknowledgement and close pickup."
+        }
+      }
+    },
+    {
+      "profile": "desktop",
+      "name": "Native DIVE blocks coastal shots while consuming actual air",
+      "passed": true,
+      "actual": {
+        "dived": {
+          "p": [
+            2239.807682193686,
+            3.4999999999999996,
+            1331.6762171038986
+          ],
+          "rescue": {
+            "active": true,
+            "navy": true,
+            "distance": 140.76704651882037,
+            "waveRange": 100,
+            "canWave": false,
+            "facing": true,
+            "signaling": false,
+            "acknowledged": false,
+            "signalPercent": 0,
+            "pickupPercent": 0
+          },
+          "threats": {
+            "active": true,
+            "shots": 2,
+            "lastShooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2224.524983536232,
+                5.949999999999999,
+                1266.256217103803
+              ],
+              "distance": 66.68532895481842
+            },
+            "coastal": true,
+            "shorePosts": [
+              {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2224.524983536232,
+                  5.949999999999999,
+                  1266.256217103803
+                ],
+                "alive": true,
+                "visible": false,
+                "exposure": 1.039999999999999
+              },
+              {
+                "id": "gulf-shore-vc",
+                "kind": "vc",
+                "p": [
+                  2260.524983536232,
+                  5.949999999999999,
+                  1262.256217103803
+                ],
+                "alive": true,
+                "visible": false,
+                "exposure": 1.039999999999999
+              }
+            ],
+            "concealment": 0,
+            "cover": null,
+            "nearCover": null,
+            "croc": null,
+            "defending": false,
+            "defenceAge": 113.21666666666695,
+            "defences": 0,
+            "bites": 0,
+            "underFire": true,
+            "breath": 99,
+            "submerged": true,
+            "clock": 14.216666666666953
+          },
+          "complete": false,
+          "gl": 0
+        },
+        "below": {
+          "p": [
+            2239.8476821936943,
+            3.4999999999999996,
+            1331.876217103912
+          ],
+          "rescue": {
+            "active": true,
+            "navy": true,
+            "distance": 140.56313030635107,
+            "waveRange": 100,
+            "canWave": false,
+            "facing": true,
+            "signaling": false,
+            "acknowledged": false,
+            "signalPercent": 0,
+            "pickupPercent": 0
+          },
+          "threats": {
+            "active": true,
+            "shots": 2,
+            "lastShooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2224.524983536232,
+                5.949999999999999,
+                1266.256217103803
+              ],
+              "distance": 66.68532895481842
+            },
+            "coastal": true,
+            "shorePosts": [
+              {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2224.524983536232,
+                  5.949999999999999,
+                  1266.256217103803
+                ],
+                "alive": true,
+                "visible": false,
+                "exposure": 0
+              },
+              {
+                "id": "gulf-shore-vc",
+                "kind": "vc",
+                "p": [
+                  2260.524983536232,
+                  5.949999999999999,
+                  1262.256217103803
+                ],
+                "alive": true,
+                "visible": false,
+                "exposure": 0
+              }
+            ],
+            "concealment": 0,
+            "cover": null,
+            "nearCover": null,
+            "croc": null,
+            "defending": false,
+            "defenceAge": 115.21666666666702,
+            "defences": 0,
+            "bites": 0,
+            "underFire": true,
+            "breath": 87,
+            "submerged": true,
+            "clock": 16.216666666667027
+          },
+          "complete": false,
+          "gl": 0
+        }
+      }
+    },
+    {
+      "profile": "desktop",
+      "name": "Native held wave draws an actual raised cloth and diving interrupts recognition",
+      "passed": true,
+      "actual": {
+        "swimming": {
+          "steps": 5932,
+          "p": [
+            2259.608747809653,
+            5.18,
+            1391.3963691337349
+          ],
+          "rescue": {
+            "active": true,
+            "navy": true,
+            "distance": 79.01294194992077,
+            "waveRange": 100,
+            "canWave": true,
+            "facing": true,
+            "signaling": false,
+            "acknowledged": false,
+            "signalPercent": 0,
+            "pickupPercent": 0
+          },
+          "threats": {
+            "active": true,
+            "shots": 18,
+            "lastShooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2260.524983536232,
+                5.949999999999999,
+                1262.256217103803
+              ],
+              "distance": 125.87333164029496
+            },
+            "coastal": true,
+            "shorePosts": [
+              {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2224.524983536232,
+                  5.949999999999999,
+                  1266.256217103803
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              },
+              {
+                "id": "gulf-shore-vc",
+                "kind": "vc",
+                "p": [
+                  2260.524983536232,
+                  5.949999999999999,
+                  1262.256217103803
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              }
+            ],
+            "concealment": 0,
+            "cover": null,
+            "nearCover": null,
+            "croc": null,
+            "defending": false,
+            "defenceAge": 214.38333333332807,
+            "defences": 0,
+            "bites": 0,
+            "underFire": true,
+            "breath": 100,
+            "submerged": false,
+            "clock": 115.38333333332807
+          },
+          "complete": false,
+          "gl": 0
+        },
+        "wave": {
+          "p": [
+            2259.639747809659,
+            5.18,
+            1391.5513691337453
+          ],
+          "rescue": {
+            "active": true,
+            "navy": true,
+            "distance": 78.85631631070576,
+            "waveRange": 100,
+            "canWave": true,
+            "facing": true,
+            "signaling": true,
+            "acknowledged": false,
+            "signalPercent": 2,
+            "pickupPercent": 0
+          },
+          "threats": {
+            "active": true,
+            "shots": 19,
+            "lastShooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2260.524983536232,
+                5.949999999999999,
+                1262.256217103803
+              ],
+              "distance": 129.29152505956375
+            },
+            "coastal": true,
+            "shorePosts": [
+              {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2224.524983536232,
+                  5.949999999999999,
+                  1266.256217103803
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              },
+              {
+                "id": "gulf-shore-vc",
+                "kind": "vc",
+                "p": [
+                  2260.524983536232,
+                  5.949999999999999,
+                  1262.256217103803
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              }
+            ],
+            "concealment": 0,
+            "cover": null,
+            "nearCover": null,
+            "croc": null,
+            "defending": false,
+            "defenceAge": 215.933333333328,
+            "defences": 0,
+            "bites": 0,
+            "underFire": true,
+            "breath": 100,
+            "submerged": false,
+            "clock": 116.93333333332798
+          },
+          "complete": false,
+          "gl": 0
+        },
+        "cloth": {
+          "p": [
+            2259.5514852077695,
+            5.99287815864861,
+            1392.6488388398245
+          ],
+          "draws": 1,
+          "focus": "river-wave",
+          "objective": "Waving to US Navy · watch recognition 2%. Stay on the surface and keep still; dive to interrupt if you need cover."
+        },
+        "interrupted": {
+          "p": [
+            2259.6457478096604,
+            3.4999999999999996,
+            1391.5813691337473
+          ],
+          "rescue": {
+            "active": true,
+            "navy": true,
+            "distance": 78.82600233670884,
+            "waveRange": 100,
+            "canWave": false,
+            "facing": true,
+            "signaling": false,
+            "acknowledged": false,
+            "signalPercent": 2,
+            "pickupPercent": 0
+          },
+          "threats": {
+            "active": true,
+            "shots": 19,
+            "lastShooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2260.524983536232,
+                5.949999999999999,
+                1262.256217103803
+              ],
+              "distance": 129.29152505956375
+            },
+            "coastal": true,
+            "shorePosts": [
+              {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2224.524983536232,
+                  5.949999999999999,
+                  1266.256217103803
+                ],
+                "alive": true,
+                "visible": false,
+                "exposure": 0.9599999999999989
+              },
+              {
+                "id": "gulf-shore-vc",
+                "kind": "vc",
+                "p": [
+                  2260.524983536232,
+                  5.949999999999999,
+                  1262.256217103803
+                ],
+                "alive": true,
+                "visible": false,
+                "exposure": 0.9599999999999989
+              }
+            ],
+            "concealment": 0,
+            "cover": null,
+            "nearCover": null,
+            "croc": null,
+            "defending": false,
+            "defenceAge": 216.23333333332795,
+            "defences": 0,
+            "bites": 0,
+            "underFire": true,
+            "breath": 98,
+            "submerged": true,
+            "clock": 117.23333333332796
+          },
+          "complete": false,
+          "gl": 0
+        }
+      }
+    },
+    {
+      "profile": "desktop",
+      "name": "Sustained visible signaling earns Navy acknowledgement while rescue still requires physical pickup",
+      "passed": true,
+      "actual": {
+        "steps": 953,
+        "rescue": {
+          "active": true,
+          "navy": true,
+          "distance": 77.0193528908627,
+          "waveRange": 100,
+          "canWave": false,
+          "facing": true,
+          "signaling": false,
+          "acknowledged": true,
+          "signalPercent": 100,
+          "pickupPercent": 0
+        },
+        "complete": false,
+        "objective": "US Navy watch: WE SEE YOU. Reach the orange buoy off the stern; hold F / Interact to take the rescue line. Pickup 0%.",
+        "radio": "CREW: Rifle fire from the bank! Hold Space / DIVE briefly, or drift behind a log and foliage. Surface again before your breath runs out.CREW: Both riverbanks are reachable. Steer toward the bank to climb out and use cover.US NAVY: We see you! Come toward the orange buoy off our stern. Stay close and we will bring you aboard.",
+        "threats": {
+          "active": true,
+          "shots": 21,
+          "lastShooter": {
+            "id": "gulf-shore-vc",
+            "kind": "vc",
+            "p": [
+              2260.524983536232,
+              5.949999999999999,
+              1262.256217103803
+            ],
+            "distance": 130.5600177848883
+          },
+          "coastal": true,
+          "shorePosts": [
+            {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2224.524983536232,
+                5.949999999999999,
+                1266.256217103803
+              ],
+              "alive": true,
+              "visible": true,
+              "exposure": 1.2
+            },
+            {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2260.524983536232,
+                5.949999999999999,
+                1262.256217103803
+              ],
+              "alive": true,
+              "visible": true,
+              "exposure": 1.2
+            }
+          ],
+          "concealment": 0,
+          "cover": null,
+          "nearCover": null,
+          "croc": null,
+          "defending": false,
+          "defenceAge": 234.11666666666633,
+          "defences": 0,
+          "bites": 0,
+          "underFire": true,
+          "breath": 100,
+          "submerged": false,
+          "clock": 135.11666666666633
+        },
+        "tracers": [
+          {
+            "from": [
+              2224.524983536232,
+              7.499999999999999,
+              1266.256217103803
+            ],
+            "velocity": [
+              49.35784494517199,
+              -4.360491285332902,
+              152.13411602306334
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2224.524983536232,
+                5.949999999999999,
+                1266.256217103803
+              ],
+              "distance": 66.1417202165511
+            },
+            "at": 8.366666666666662
+          },
+          {
+            "from": [
+              2224.524983536232,
+              7.499999999999999,
+              1266.256217103803
+            ],
+            "velocity": [
+              49.23666258631262,
+              -4.32392277344852,
+              152.17442212543753
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2224.524983536232,
+                5.949999999999999,
+                1266.256217103803
+              ],
+              "distance": 66.68532895481842
+            },
+            "at": 13.70000000000026
+          },
+          {
+            "from": [
+              2224.524983536232,
+              7.499999999999999,
+              1266.256217103803
+            ],
+            "velocity": [
+              49.12468743437529,
+              -4.226509004599198,
+              152.21334273350993
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2224.524983536232,
+                5.949999999999999,
+                1266.256217103803
+              ],
+              "distance": 68.17166828474952
+            },
+            "at": 22.05000000000003
+          },
+          {
+            "from": [
+              2224.524983536232,
+              7.499999999999999,
+              1266.256217103803
+            ],
+            "velocity": [
+              49.36293984483733,
+              -3.98362265175328,
+              152.14279779353149
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2224.524983536232,
+                5.949999999999999,
+                1266.256217103803
+              ],
+              "distance": 72.17537554769768
+            },
+            "at": 28.31666666666634
+          },
+          {
+            "from": [
+              2224.524983536232,
+              7.499999999999999,
+              1266.256217103803
+            ],
+            "velocity": [
+              38.219604337733266,
+              -3.64278470400897,
+              155.32543888194027
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2224.524983536232,
+                5.949999999999999,
+                1266.256217103803
+              ],
+              "distance": 75.63705073077918
+            },
+            "at": 33.7333333333327
+          },
+          {
+            "from": [
+              2224.524983536232,
+              7.499999999999999,
+              1266.256217103803
+            ],
+            "velocity": [
+              49.737605483138296,
+              -3.610759984744549,
+              152.03003983797498
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2224.524983536232,
+                5.949999999999999,
+                1266.256217103803
+              ],
+              "distance": 79.3722686669078
+            },
+            "at": 39.63333333333237
+          },
+          {
+            "from": [
+              2224.524983536232,
+              7.499999999999999,
+              1266.256217103803
+            ],
+            "velocity": [
+              49.92473739057242,
+              -3.4298539226605733,
+              151.97288145768508
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2224.524983536232,
+                5.949999999999999,
+                1266.256217103803
+              ],
+              "distance": 83.42898667946676
+            },
+            "at": 46.033333333332
+          },
+          {
+            "from": [
+              2224.524983536232,
+              7.499999999999999,
+              1266.256217103803
+            ],
+            "velocity": [
+              50.07626600155615,
+              -3.286901603992691,
+              151.92617898567403
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2224.524983536232,
+                5.949999999999999,
+                1266.256217103803
+              ],
+              "distance": 86.95098943693996
+            },
+            "at": 51.58333333333169
+          },
+          {
+            "from": [
+              2224.524983536232,
+              7.499999999999999,
+              1266.256217103803
+            ],
+            "velocity": [
+              50.2316610315987,
+              -3.1439228150409457,
+              151.87789825823782
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2224.524983536232,
+                5.949999999999999,
+                1266.256217103803
+              ],
+              "distance": 90.79449679378422
+            },
+            "at": 57.63333333333134
+          },
+          {
+            "from": [
+              2224.524983536232,
+              7.499999999999999,
+              1266.256217103803
+            ],
+            "velocity": [
+              40.65915293520972,
+              -2.900843262927699,
+              154.72045240030536
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2224.524983536232,
+                5.949999999999999,
+                1266.256217103803
+              ],
+              "distance": 94.96049914328819
+            },
+            "at": 64.18333333333098
+          },
+          {
+            "from": [
+              2224.524983536232,
+              7.499999999999999,
+              1266.256217103803
+            ],
+            "velocity": [
+              50.51784382381969,
+              -2.890180022233279,
+              151.78799133933896
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2224.524983536232,
+                5.949999999999999,
+                1266.256217103803
+              ],
+              "distance": 98.55310714625794
+            },
+            "at": 69.88333333333065
+          },
+          {
+            "from": [
+              2224.524983536232,
+              7.499999999999999,
+              1266.256217103803
+            ],
+            "velocity": [
+              50.65023586789087,
+              -2.7774733167148873,
+              151.74596946377838
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2224.524983536232,
+                5.949999999999999,
+                1266.256217103803
+              ],
+              "distance": 102.45451507155006
+            },
+            "at": 76.06666666666364
+          },
+          {
+            "from": [
+              2224.524983536232,
+              7.499999999999999,
+              1266.256217103803
+            ],
+            "velocity": [
+              50.786937575956095,
+              -2.6650231117347047,
+              151.70228944702797
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2224.524983536232,
+                5.949999999999999,
+                1266.256217103803
+              ],
+              "distance": 106.67620821254845
+            },
+            "at": 82.74999999999659
+          },
+          {
+            "from": [
+              2224.524983536232,
+              7.499999999999999,
+              1266.256217103803
+            ],
+            "velocity": [
+              50.90189293742024,
+              -2.5737201762324267,
+              151.66533308519075
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2224.524983536232,
+                5.949999999999999,
+                1266.256217103803
+              ],
+              "distance": 110.37555507068136
+            },
+            "at": 88.59999999999626
+          },
+          {
+            "from": [
+              2224.524983536232,
+              7.499999999999999,
+              1266.256217103803
+            ],
+            "velocity": [
+              42.35411592913076,
+              -2.407854539621507,
+              154.2735593041717
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2224.524983536232,
+                5.949999999999999,
+                1266.256217103803
+              ],
+              "distance": 114.38476035620116
+            },
+            "at": 94.93333333332923
+          },
+          {
+            "from": [
+              2260.524983536232,
+              7.499999999999999,
+              1262.256217103803
+            ],
+            "velocity": [
+              1.135374630849789,
+              -2.433129779981584,
+              159.9774696759559
+            ],
+            "shooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2260.524983536232,
+                5.949999999999999,
+                1262.256217103803
+              ],
+              "distance": 118.50922346601078
+            },
+            "at": 101.76666666666218
+          },
+          {
+            "from": [
+              2260.524983536232,
+              7.499999999999999,
+              1262.256217103803
+            ],
+            "velocity": [
+              2.8335898191438407,
+              -2.3597248391664554,
+              159.957502066706
+            ],
+            "shooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2260.524983536232,
+                5.949999999999999,
+                1262.256217103803
+              ],
+              "distance": 122.03489380105879
+            },
+            "at": 107.74999999999517
+          },
+          {
+            "from": [
+              2260.524983536232,
+              7.499999999999999,
+              1262.256217103803
+            ],
+            "velocity": [
+              4.567925380210446,
+              -2.284714682749667,
+              159.91846089973245
+            ],
+            "shooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2260.524983536232,
+                5.949999999999999,
+                1262.256217103803
+              ],
+              "distance": 125.87333164029496
+            },
+            "at": 114.23333333332813
+          },
+          {
+            "from": [
+              2260.524983536232,
+              7.499999999999999,
+              1262.256217103803
+            ],
+            "velocity": [
+              5.994732810660935,
+              -2.22186059132333,
+              159.87221933169474
+            ],
+            "shooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2260.524983536232,
+                5.949999999999999,
+                1262.256217103803
+              ],
+              "distance": 129.29152505956375
+            },
+            "at": 121.21666666666107
+          },
+          {
+            "from": [
+              2260.524983536232,
+              7.499999999999999,
+              1262.256217103803
+            ],
+            "velocity": [
+              -0.7573631309596652,
+              -2.1207893467407413,
+              159.98415125766243
+            ],
+            "shooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2260.524983536232,
+                5.949999999999999,
+                1262.256217103803
+              ],
+              "distance": 129.9024001073823
+            },
+            "at": 127.33333333332739
+          },
+          {
+            "from": [
+              2260.524983536232,
+              7.499999999999999,
+              1262.256217103803
+            ],
+            "velocity": [
+              6.288532777611615,
+              -2.1995427778421908,
+              159.8612409781475
+            ],
+            "shooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2260.524983536232,
+                5.949999999999999,
+                1262.256217103803
+              ],
+              "distance": 130.5600177848883
+            },
+            "at": 133.91666666666538
+          }
+        ],
+        "gl": 0
+      }
+    },
+    {
+      "profile": "desktop",
+      "name": "Original swimming and native rescue-line interaction earn the separate fictional rescue and stop further coastal fire",
+      "passed": true,
+      "actual": {
+        "close": {
+          "steps": 5601,
+          "p": [
+            2271.4636764591223,
+            5.18,
+            1450.9252738567072
+          ],
+          "rescue": {
+            "active": true,
+            "navy": true,
+            "distance": 20.538520547999717,
+            "waveRange": 100,
+            "canWave": false,
+            "facing": true,
+            "signaling": false,
+            "acknowledged": true,
+            "signalPercent": 100,
+            "pickupPercent": 0
+          },
+          "threats": {
+            "active": true,
+            "shots": 35,
+            "lastShooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2260.524983536232,
+                5.949999999999999,
+                1262.256217103803
+              ],
+              "distance": 187.51525269603312
+            },
+            "coastal": true,
+            "shorePosts": [
+              {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2224.524983536232,
+                  5.949999999999999,
+                  1266.256217103803
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              },
+              {
+                "id": "gulf-shore-vc",
+                "kind": "vc",
+                "p": [
+                  2260.524983536232,
+                  5.949999999999999,
+                  1262.256217103803
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              }
+            ],
+            "concealment": 0,
+            "cover": null,
+            "nearCover": null,
+            "croc": null,
+            "defending": false,
+            "defenceAge": 327.4666666667406,
+            "defences": 0,
+            "bites": 0,
+            "underFire": true,
+            "breath": 100,
+            "submerged": false,
+            "clock": 228.46666666674062
+          },
+          "complete": false,
+          "gl": 0
+        },
+        "arrival": {
+          "p": [
+            2271.476676459125,
+            5.18,
+            1450.9902738567116
+          ],
+          "rescue": {
+            "active": true,
+            "navy": true,
+            "distance": 20.48176270964849,
+            "waveRange": 100,
+            "canWave": false,
+            "facing": true,
+            "signaling": false,
+            "acknowledged": true,
+            "signalPercent": 100,
+            "pickupPercent": 0
+          },
+          "threats": {
+            "active": true,
+            "shots": 35,
+            "lastShooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2260.524983536232,
+                5.949999999999999,
+                1262.256217103803
+              ],
+              "distance": 187.51525269603312
+            },
+            "coastal": true,
+            "shorePosts": [
+              {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2224.524983536232,
+                  5.949999999999999,
+                  1266.256217103803
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              },
+              {
+                "id": "gulf-shore-vc",
+                "kind": "vc",
+                "p": [
+                  2260.524983536232,
+                  5.949999999999999,
+                  1262.256217103803
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              }
+            ],
+            "concealment": 0,
+            "cover": null,
+            "nearCover": null,
+            "croc": null,
+            "defending": false,
+            "defenceAge": 328.11666666674114,
+            "defences": 0,
+            "bites": 0,
+            "underFire": true,
+            "breath": 100,
+            "submerged": false,
+            "clock": 229.11666666674114
+          },
+          "complete": false,
+          "gl": 0
+        },
+        "startPickup": {
+          "p": [
+            2271.5126764591323,
+            5.18,
+            1451.1702738567237
+          ],
+          "rescue": {
+            "active": true,
+            "navy": true,
+            "distance": 20.32488824115604,
+            "waveRange": 100,
+            "canWave": false,
+            "facing": true,
+            "signaling": true,
+            "acknowledged": true,
+            "signalPercent": 100,
+            "pickupPercent": 5
+          },
+          "threats": {
+            "active": true,
+            "shots": 35,
+            "lastShooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2260.524983536232,
+                5.949999999999999,
+                1262.256217103803
+              ],
+              "distance": 187.51525269603312
+            },
+            "coastal": true,
+            "shorePosts": [
+              {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2224.524983536232,
+                  5.949999999999999,
+                  1266.256217103803
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              },
+              {
+                "id": "gulf-shore-vc",
+                "kind": "vc",
+                "p": [
+                  2260.524983536232,
+                  5.949999999999999,
+                  1262.256217103803
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              }
+            ],
+            "concealment": 0,
+            "cover": null,
+            "nearCover": null,
+            "croc": null,
+            "defending": false,
+            "defenceAge": 329.9166666667426,
+            "defences": 0,
+            "bites": 0,
+            "underFire": true,
+            "breath": 100,
+            "submerged": false,
+            "clock": 230.91666666674257
+          },
+          "complete": false,
+          "gl": 0
+        },
+        "rescued": {
+          "steps": 321,
+          "complete": true,
+          "outcome": {
+            "id": "pow-fictional-river-rescue",
+            "title": "Fictional alternate-history rescue",
+            "rescued": true,
+            "escaped": true,
+            "historical": false,
+            "text": "FICTIONAL ALTERNATE HISTORY: after reaching the ocean, waving down a US Navy boat and reaching its stern-side rescue line, you are brought aboard. Coker and McKnight were recaptured during their actual 1967 escape; this playable successful continuation is hypothetical."
+          },
+          "flags": {
+            "riverEntered": true,
+            "fictionalContinuation": true,
+            "navalSignalAcknowledged": true,
+            "fictionalRescue": true
+          },
+          "rescue": {
+            "active": false,
+            "navy": true,
+            "distance": 19.861323294926304,
+            "waveRange": 100,
+            "canWave": false,
+            "facing": true,
+            "signaling": true,
+            "acknowledged": true,
+            "signalPercent": 100,
+            "pickupPercent": 100
+          },
+          "threats": {
+            "active": false
+          },
+          "shotsBefore": 36,
+          "shotsAfter": 36,
+          "campaignUnchanged": true,
+          "gl": 0
+        }
+      }
+    },
+    {
+      "profile": "phone",
+      "name": "Original checkpoint crossing presents a visible Navy boat and active NVA/VC shore fire without an automatic rescue",
+      "passed": true,
+      "actual": {
+        "entry": {
+          "phase": "gulf",
+          "gulfAt": 96000,
+          "distance": 96000.33333333333,
+          "p": [
+            2966.228862858588,
+            5.18,
+            2847.7352551397394
+          ],
+          "rescue": {
+            "active": true,
+            "navy": true,
+            "distance": 142.2143930642656,
+            "waveRange": 100,
+            "canWave": false,
+            "facing": true,
+            "signaling": false,
+            "acknowledged": false,
+            "signalPercent": 0,
+            "pickupPercent": 0
+          },
+          "threats": {
+            "active": true,
+            "shots": 0,
+            "lastShooter": null,
+            "coastal": true,
+            "shorePosts": [
+              {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2951.2275347160576,
+                  5.949999999999999,
+                  2783.7352551397394
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 0.006836761300842672
+              },
+              {
+                "id": "gulf-shore-vc",
+                "kind": "vc",
+                "p": [
+                  2987.2275347160576,
+                  5.949999999999999,
+                  2779.7352551397394
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 0.006595944955946104
+              }
+            ],
+            "concealment": 0,
+            "cover": null,
+            "nearCover": null,
+            "croc": null,
+            "defending": false,
+            "defenceAge": 99.01666666666667,
+            "defences": 0,
+            "bites": 0,
+            "underFire": false,
+            "breath": 100,
+            "submerged": false,
+            "clock": 0.016666666666666666
+          },
+          "objects": [
+            {
+              "id": "river-signal",
+              "name": "Wave clothing to the US Navy watch"
+            },
+            {
+              "id": "river-wave",
+              "name": "Wave clothing to the US Navy boat"
+            },
+            {
+              "id": "river-float",
+              "name": "Float / swim · hold Space or DIVE to submerge"
+            }
+          ],
+          "contactDraws": 1,
+          "complete": false,
+          "gl": 0
+        },
+        "waiting": {
+          "p": [
+            2966.508862858645,
+            5.18,
+            2849.1352551396426
+          ],
+          "rescue": {
+            "active": true,
+            "navy": true,
+            "distance": 140.78697645173457,
+            "waveRange": 100,
+            "canWave": false,
+            "facing": true,
+            "signaling": false,
+            "acknowledged": false,
+            "signalPercent": 0,
+            "pickupPercent": 0
+          },
+          "threats": {
+            "active": true,
+            "shots": 2,
+            "lastShooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2951.2275347160576,
+                5.949999999999999,
+                2783.7352551397394
+              ],
+              "distance": 66.68592778161485
+            },
+            "coastal": true,
+            "shorePosts": [
+              {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2951.2275347160576,
+                  5.949999999999999,
+                  2783.7352551397394
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              },
+              {
+                "id": "gulf-shore-vc",
+                "kind": "vc",
+                "p": [
+                  2987.2275347160576,
+                  5.949999999999999,
+                  2779.7352551397394
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              }
+            ],
+            "concealment": 0,
+            "cover": null,
+            "nearCover": null,
+            "croc": null,
+            "defending": false,
+            "defenceAge": 113.01666666666694,
+            "defences": 0,
+            "bites": 0,
+            "underFire": true,
+            "breath": 100,
+            "submerged": false,
+            "clock": 14.016666666666943
+          },
+          "complete": false,
+          "gl": 0
+        },
+        "fire": {
+          "tracers": [
+            {
+              "from": [
+                2951.2275347160576,
+                7.499999999999999,
+                2783.7352551397394
+              ],
+              "velocity": [
+                49.36390941637967,
+                -4.360435717474477,
+                152.13214994696298
+              ],
+              "shooter": {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2951.2275347160576,
+                  5.949999999999999,
+                  2783.7352551397394
+                ],
+                "distance": 66.14231972451229
+              },
+              "at": 8.04999999999998
+            },
+            {
+              "from": [
+                2951.2275347160576,
+                7.499999999999999,
+                2783.7352551397394
+              ],
+              "velocity": [
+                49.24267924354541,
+                -4.323868269228864,
+                152.17247682845826
+              ],
+              "shooter": {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2951.2275347160576,
+                  5.949999999999999,
+                  2783.7352551397394
+                ],
+                "distance": 66.68592778161485
+              },
+              "at": 13.383333333333578
+            }
+          ],
+          "posts": [
+            {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2951.2275347160576,
+                5.949999999999999,
+                2783.7352551397394
+              ],
+              "alive": true,
+              "visible": true,
+              "exposure": 1.2
+            },
+            {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2987.2275347160576,
+                5.949999999999999,
+                2779.7352551397394
+              ],
+              "alive": true,
+              "visible": true,
+              "exposure": 1.2
+            }
+          ],
+          "range": 220,
+          "objective": "US Navy boat offshore · 141m. Approach within 100m, face the boat and hold F / Interact to wave. Rescue is earned by acknowledgement and close pickup."
+        }
+      }
+    },
+    {
+      "profile": "phone",
+      "name": "Native DIVE blocks coastal shots while consuming actual air",
+      "passed": true,
+      "actual": {
+        "dived": {
+          "p": [
+            2966.512862858646,
+            3.4999999999999996,
+            2849.155255139641
+          ],
+          "rescue": {
+            "active": true,
+            "navy": true,
+            "distance": 140.766584831226,
+            "waveRange": 100,
+            "canWave": false,
+            "facing": true,
+            "signaling": false,
+            "acknowledged": false,
+            "signalPercent": 0,
+            "pickupPercent": 0
+          },
+          "threats": {
+            "active": true,
+            "shots": 2,
+            "lastShooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2951.2275347160576,
+                5.949999999999999,
+                2783.7352551397394
+              ],
+              "distance": 66.68592778161485
+            },
+            "coastal": true,
+            "shorePosts": [
+              {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2951.2275347160576,
+                  5.949999999999999,
+                  2783.7352551397394
+                ],
+                "alive": true,
+                "visible": false,
+                "exposure": 1.039999999999999
+              },
+              {
+                "id": "gulf-shore-vc",
+                "kind": "vc",
+                "p": [
+                  2987.2275347160576,
+                  5.949999999999999,
+                  2779.7352551397394
+                ],
+                "alive": true,
+                "visible": false,
+                "exposure": 1.039999999999999
+              }
+            ],
+            "concealment": 0,
+            "cover": null,
+            "nearCover": null,
+            "croc": null,
+            "defending": false,
+            "defenceAge": 113.21666666666695,
+            "defences": 0,
+            "bites": 0,
+            "underFire": true,
+            "breath": 99,
+            "submerged": true,
+            "clock": 14.216666666666953
+          },
+          "complete": false,
+          "gl": 0
+        },
+        "below": {
+          "p": [
+            2966.552862858654,
+            3.4999999999999996,
+            2849.3552551396274
+          ],
+          "rescue": {
+            "active": true,
+            "navy": true,
+            "distance": 140.56266869728086,
+            "waveRange": 100,
+            "canWave": false,
+            "facing": true,
+            "signaling": false,
+            "acknowledged": false,
+            "signalPercent": 0,
+            "pickupPercent": 0
+          },
+          "threats": {
+            "active": true,
+            "shots": 2,
+            "lastShooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2951.2275347160576,
+                5.949999999999999,
+                2783.7352551397394
+              ],
+              "distance": 66.68592778161485
+            },
+            "coastal": true,
+            "shorePosts": [
+              {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2951.2275347160576,
+                  5.949999999999999,
+                  2783.7352551397394
+                ],
+                "alive": true,
+                "visible": false,
+                "exposure": 0
+              },
+              {
+                "id": "gulf-shore-vc",
+                "kind": "vc",
+                "p": [
+                  2987.2275347160576,
+                  5.949999999999999,
+                  2779.7352551397394
+                ],
+                "alive": true,
+                "visible": false,
+                "exposure": 0
+              }
+            ],
+            "concealment": 0,
+            "cover": null,
+            "nearCover": null,
+            "croc": null,
+            "defending": false,
+            "defenceAge": 115.21666666666702,
+            "defences": 0,
+            "bites": 0,
+            "underFire": true,
+            "breath": 87,
+            "submerged": true,
+            "clock": 16.216666666667027
+          },
+          "complete": false,
+          "gl": 0
+        }
+      }
+    },
+    {
+      "profile": "phone",
+      "name": "Native held wave draws an actual raised cloth and diving interrupts recognition",
+      "passed": true,
+      "actual": {
+        "swimming": {
+          "steps": 5932,
+          "p": [
+            2986.3130570855255,
+            5.18,
+            2908.875719552018
+          ],
+          "rescue": {
+            "active": true,
+            "navy": true,
+            "distance": 79.01252080203557,
+            "waveRange": 100,
+            "canWave": true,
+            "facing": true,
+            "signaling": false,
+            "acknowledged": false,
+            "signalPercent": 0,
+            "pickupPercent": 0
+          },
+          "threats": {
+            "active": true,
+            "shots": 18,
+            "lastShooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2987.2275347160576,
+                5.949999999999999,
+                2779.7352551397394
+              ],
+              "distance": 125.87359655413904
+            },
+            "coastal": true,
+            "shorePosts": [
+              {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2951.2275347160576,
+                  5.949999999999999,
+                  2783.7352551397394
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              },
+              {
+                "id": "gulf-shore-vc",
+                "kind": "vc",
+                "p": [
+                  2987.2275347160576,
+                  5.949999999999999,
+                  2779.7352551397394
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              }
+            ],
+            "concealment": 0,
+            "cover": null,
+            "nearCover": null,
+            "croc": null,
+            "defending": false,
+            "defenceAge": 214.38333333332807,
+            "defences": 0,
+            "bites": 0,
+            "underFire": true,
+            "breath": 100,
+            "submerged": false,
+            "clock": 115.38333333332807
+          },
+          "complete": false,
+          "gl": 0
+        },
+        "wave": {
+          "p": [
+            2986.344057085532,
+            5.18,
+            2909.030719552007
+          ],
+          "rescue": {
+            "active": true,
+            "navy": true,
+            "distance": 78.85589563151535,
+            "waveRange": 100,
+            "canWave": true,
+            "facing": true,
+            "signaling": true,
+            "acknowledged": false,
+            "signalPercent": 2,
+            "pickupPercent": 0
+          },
+          "threats": {
+            "active": true,
+            "shots": 19,
+            "lastShooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2987.2275347160576,
+                5.949999999999999,
+                2779.7352551397394
+              ],
+              "distance": 129.29182539103104
+            },
+            "coastal": true,
+            "shorePosts": [
+              {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2951.2275347160576,
+                  5.949999999999999,
+                  2783.7352551397394
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              },
+              {
+                "id": "gulf-shore-vc",
+                "kind": "vc",
+                "p": [
+                  2987.2275347160576,
+                  5.949999999999999,
+                  2779.7352551397394
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              }
+            ],
+            "concealment": 0,
+            "cover": null,
+            "nearCover": null,
+            "croc": null,
+            "defending": false,
+            "defenceAge": 215.933333333328,
+            "defences": 0,
+            "bites": 0,
+            "underFire": true,
+            "breath": 100,
+            "submerged": false,
+            "clock": 116.93333333332798
+          },
+          "complete": false,
+          "gl": 0
+        },
+        "cloth": {
+          "p": [
+            2986.2557743218167,
+            5.99287815864861,
+            2910.128187636411
+          ],
+          "draws": 1,
+          "focus": "river-wave",
+          "objective": "Waving to US Navy · watch recognition 2%. Stay on the surface and keep still; dive to interrupt if you need cover."
+        },
+        "interrupted": {
+          "p": [
+            2986.350057085533,
+            3.4999999999999996,
+            2909.060719552005
+          ],
+          "rescue": {
+            "active": true,
+            "navy": true,
+            "distance": 78.82558174845224,
+            "waveRange": 100,
+            "canWave": false,
+            "facing": true,
+            "signaling": false,
+            "acknowledged": false,
+            "signalPercent": 2,
+            "pickupPercent": 0
+          },
+          "threats": {
+            "active": true,
+            "shots": 19,
+            "lastShooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2987.2275347160576,
+                5.949999999999999,
+                2779.7352551397394
+              ],
+              "distance": 129.29182539103104
+            },
+            "coastal": true,
+            "shorePosts": [
+              {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2951.2275347160576,
+                  5.949999999999999,
+                  2783.7352551397394
+                ],
+                "alive": true,
+                "visible": false,
+                "exposure": 0.9599999999999989
+              },
+              {
+                "id": "gulf-shore-vc",
+                "kind": "vc",
+                "p": [
+                  2987.2275347160576,
+                  5.949999999999999,
+                  2779.7352551397394
+                ],
+                "alive": true,
+                "visible": false,
+                "exposure": 0.9599999999999989
+              }
+            ],
+            "concealment": 0,
+            "cover": null,
+            "nearCover": null,
+            "croc": null,
+            "defending": false,
+            "defenceAge": 216.23333333332795,
+            "defences": 0,
+            "bites": 0,
+            "underFire": true,
+            "breath": 98,
+            "submerged": true,
+            "clock": 117.23333333332796
+          },
+          "complete": false,
+          "gl": 0
+        }
+      }
+    },
+    {
+      "profile": "phone",
+      "name": "Sustained visible signaling earns Navy acknowledgement while rescue still requires physical pickup",
+      "passed": true,
+      "actual": {
+        "steps": 953,
+        "rescue": {
+          "active": true,
+          "navy": true,
+          "distance": 77.01893785473804,
+          "waveRange": 100,
+          "canWave": false,
+          "facing": true,
+          "signaling": false,
+          "acknowledged": true,
+          "signalPercent": 100,
+          "pickupPercent": 0
+        },
+        "complete": false,
+        "objective": "US Navy watch: WE SEE YOU. Reach the orange buoy off the stern; hold F / Interact to take the rescue line. Pickup 0%.",
+        "radio": "CREW: Rifle fire from the bank! Hold COMMIT / DIVE briefly, or drift behind a log and foliage. Surface again before your breath runs out.CREW: Both riverbanks are reachable. Steer toward the bank to climb out and use cover.US NAVY: We see you! Come toward the orange buoy off our stern. Stay close and we will bring you aboard.",
+        "threats": {
+          "active": true,
+          "shots": 21,
+          "lastShooter": {
+            "id": "gulf-shore-vc",
+            "kind": "vc",
+            "p": [
+              2987.2275347160576,
+              5.949999999999999,
+              2779.7352551397394
+            ],
+            "distance": 130.56032165717903
+          },
+          "coastal": true,
+          "shorePosts": [
+            {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2951.2275347160576,
+                5.949999999999999,
+                2783.7352551397394
+              ],
+              "alive": true,
+              "visible": true,
+              "exposure": 1.2
+            },
+            {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2987.2275347160576,
+                5.949999999999999,
+                2779.7352551397394
+              ],
+              "alive": true,
+              "visible": true,
+              "exposure": 1.2
+            }
+          ],
+          "concealment": 0,
+          "cover": null,
+          "nearCover": null,
+          "croc": null,
+          "defending": false,
+          "defenceAge": 234.11666666666633,
+          "defences": 0,
+          "bites": 0,
+          "underFire": true,
+          "breath": 100,
+          "submerged": false,
+          "clock": 135.11666666666633
+        },
+        "tracers": [
+          {
+            "from": [
+              2951.2275347160576,
+              7.499999999999999,
+              2783.7352551397394
+            ],
+            "velocity": [
+              49.36390941637967,
+              -4.360435717474477,
+              152.13214994696298
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2951.2275347160576,
+                5.949999999999999,
+                2783.7352551397394
+              ],
+              "distance": 66.14231972451229
+            },
+            "at": 8.04999999999998
+          },
+          {
+            "from": [
+              2951.2275347160576,
+              7.499999999999999,
+              2783.7352551397394
+            ],
+            "velocity": [
+              49.24267924354541,
+              -4.323868269228864,
+              152.17247682845826
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2951.2275347160576,
+                5.949999999999999,
+                2783.7352551397394
+              ],
+              "distance": 66.68592778161485
+            },
+            "at": 13.383333333333578
+          },
+          {
+            "from": [
+              2951.2275347160576,
+              7.499999999999999,
+              2783.7352551397394
+            ],
+            "velocity": [
+              49.13054619193161,
+              -4.226457032484934,
+              152.21145322161217
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2951.2275347160576,
+                5.949999999999999,
+                2783.7352551397394
+              ],
+              "distance": 68.17226984226282
+            },
+            "at": 21.73333333333338
+          },
+          {
+            "from": [
+              2951.2275347160576,
+              7.499999999999999,
+              2783.7352551397394
+            ],
+            "velocity": [
+              49.36833086028902,
+              -3.9835761851333866,
+              152.14104978225396
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2951.2275347160576,
+                5.949999999999999,
+                2783.7352551397394
+              ],
+              "distance": 72.17599521018396
+            },
+            "at": 27.99999999999969
+          },
+          {
+            "from": [
+              2951.2275347160576,
+              7.499999999999999,
+              2783.7352551397394
+            ],
+            "velocity": [
+              38.2246139441859,
+              -3.6427538608280905,
+              155.32420684853784
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2951.2275347160576,
+                5.949999999999999,
+                2783.7352551397394
+              ],
+              "distance": 75.63768470249379
+            },
+            "at": 33.41666666666605
+          },
+          {
+            "from": [
+              2951.2275347160576,
+              7.499999999999999,
+              2783.7352551397394
+            ],
+            "velocity": [
+              49.742278572259195,
+              -3.610721425013179,
+              152.02851184311027
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2951.2275347160576,
+                5.949999999999999,
+                2783.7352551397394
+              ],
+              "distance": 79.37291684985814
+            },
+            "at": 39.31666666666572
+          },
+          {
+            "from": [
+              2951.2275347160576,
+              7.499999999999999,
+              2783.7352551397394
+            ],
+            "velocity": [
+              49.92906204204343,
+              -3.429818955778108,
+              151.97146148383376
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2951.2275347160576,
+                5.949999999999999,
+                2783.7352551397394
+              ],
+              "distance": 83.42964909769887
+            },
+            "at": 45.716666666665354
+          },
+          {
+            "from": [
+              2951.2275347160576,
+              7.499999999999999,
+              2783.7352551397394
+            ],
+            "velocity": [
+              50.08031512193695,
+              -3.286869361162779,
+              151.92484499610373
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2951.2275347160576,
+                5.949999999999999,
+                2783.7352551397394
+              ],
+              "distance": 86.95166333906393
+            },
+            "at": 51.26666666666504
+          },
+          {
+            "from": [
+              2951.2275347160576,
+              7.499999999999999,
+              2783.7352551397394
+            ],
+            "velocity": [
+              50.23543433113588,
+              -3.1438931939345665,
+              151.87665084912578
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2951.2275347160576,
+                5.949999999999999,
+                2783.7352551397394
+              ],
+              "distance": 90.7951824228864
+            },
+            "at": 57.316666666664695
+          },
+          {
+            "from": [
+              2951.2275347160576,
+              7.499999999999999,
+              2783.7352551397394
+            ],
+            "velocity": [
+              40.66265257896994,
+              -2.9008218118883815,
+              154.71953308505576
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2951.2275347160576,
+                5.949999999999999,
+                2783.7352551397394
+              ],
+              "distance": 94.96119665667663
+            },
+            "at": 63.86666666666432
+          },
+          {
+            "from": [
+              2951.2275347160576,
+              7.499999999999999,
+              2783.7352551397394
+            ],
+            "velocity": [
+              50.52112697003673,
+              -2.8901547976337745,
+              151.78689908856805
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2951.2275347160576,
+                5.949999999999999,
+                2783.7352551397394
+              ],
+              "distance": 98.55381427841675
+            },
+            "at": 69.566666666664
+          },
+          {
+            "from": [
+              2951.2275347160576,
+              7.499999999999999,
+              2783.7352551397394
+            ],
+            "velocity": [
+              50.65330092262316,
+              -2.7774499383279636,
+              151.7449467938958
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2951.2275347160576,
+                5.949999999999999,
+                2783.7352551397394
+              ],
+              "distance": 102.4552320990466
+            },
+            "at": 75.74999999999699
+          },
+          {
+            "from": [
+              2951.2275347160576,
+              7.499999999999999,
+              2783.7352551397394
+            ],
+            "velocity": [
+              50.789784642088776,
+              -2.665001508903978,
+              151.70133665517844
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2951.2275347160576,
+                5.949999999999999,
+                2783.7352551397394
+              ],
+              "distance": 106.67693538108342
+            },
+            "at": 82.43333333332994
+          },
+          {
+            "from": [
+              2951.2275347160576,
+              7.499999999999999,
+              2783.7352551397394
+            ],
+            "velocity": [
+              50.90456265862621,
+              -2.573699965806991,
+              151.66443739064212
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2951.2275347160576,
+                5.949999999999999,
+                2783.7352551397394
+              ],
+              "distance": 110.37629070014921
+            },
+            "at": 88.28333333332961
+          },
+          {
+            "from": [
+              2951.2275347160576,
+              7.499999999999999,
+              2783.7352551397394
+            ],
+            "velocity": [
+              42.35661268313575,
+              -2.4078387959712426,
+              154.27287407170266
+            ],
+            "shooter": {
+              "id": "gulf-shore-nva",
+              "kind": "nva",
+              "p": [
+                2951.2275347160576,
+                5.949999999999999,
+                2783.7352551397394
+              ],
+              "distance": 114.38550476111169
+            },
+            "at": 94.61666666666258
+          },
+          {
+            "from": [
+              2987.2275347160576,
+              7.499999999999999,
+              2779.7352551397394
+            ],
+            "velocity": [
+              1.138093239327768,
+              -2.433124110610959,
+              159.97745044487039
+            ],
+            "shooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2987.2275347160576,
+                5.949999999999999,
+                2779.7352551397394
+              ],
+              "distance": 118.50940302326377
+            },
+            "at": 101.44999999999553
+          },
+          {
+            "from": [
+              2987.2275347160576,
+              7.499999999999999,
+              2779.7352551397394
+            ],
+            "velocity": [
+              2.836149018904405,
+              -2.3597187335189074,
+              159.95745680099208
+            ],
+            "shooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2987.2275347160576,
+                5.949999999999999,
+                2779.7352551397394
+              ],
+              "distance": 122.03511542912304
+            },
+            "at": 107.43333333332852
+          },
+          {
+            "from": [
+              2987.2275347160576,
+              7.499999999999999,
+              2779.7352551397394
+            ],
+            "velocity": [
+              4.570320597638259,
+              -2.284708216470362,
+              159.91839255695513
+            ],
+            "shooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2987.2275347160576,
+                5.949999999999999,
+                2779.7352551397394
+              ],
+              "distance": 125.87359655413904
+            },
+            "at": 113.91666666666148
+          },
+          {
+            "from": [
+              2987.2275347160576,
+              7.499999999999999,
+              2779.7352551397394
+            ],
+            "velocity": [
+              5.996992815417203,
+              -2.221853903583009,
+              159.87213466518472
+            ],
+            "shooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2987.2275347160576,
+                5.949999999999999,
+                2779.7352551397394
+              ],
+              "distance": 129.29182539103104
+            },
+            "at": 120.89999999999442
+          },
+          {
+            "from": [
+              2987.2275347160576,
+              7.499999999999999,
+              2779.7352551397394
+            ],
+            "velocity": [
+              -0.7551935990803116,
+              -2.1207843776362965,
+              159.98416157936222
+            ],
+            "shooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2987.2275347160576,
+                5.949999999999999,
+                2779.7352551397394
+              ],
+              "distance": 129.90270215299225
+            },
+            "at": 127.01666666666074
+          },
+          {
+            "from": [
+              2987.2275347160576,
+              7.499999999999999,
+              2779.7352551397394
+            ],
+            "velocity": [
+              6.29076912886923,
+              -2.199536168302621,
+              159.8611530810772
+            ],
+            "shooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2987.2275347160576,
+                5.949999999999999,
+                2779.7352551397394
+              ],
+              "distance": 130.56032165717903
+            },
+            "at": 133.59999999999846
+          }
+        ],
+        "gl": 0
+      }
+    },
+    {
+      "profile": "phone",
+      "name": "Original swimming and native rescue-line interaction earn the separate fictional rescue and stop further coastal fire",
+      "passed": true,
+      "actual": {
+        "close": {
+          "steps": 5601,
+          "p": [
+            2998.166497090326,
+            5.18,
+            2968.404920387255
+          ],
+          "rescue": {
+            "active": true,
+            "navy": true,
+            "distance": 20.53803886632358,
+            "waveRange": 100,
+            "canWave": false,
+            "facing": true,
+            "signaling": false,
+            "acknowledged": true,
+            "signalPercent": 100,
+            "pickupPercent": 0
+          },
+          "threats": {
+            "active": true,
+            "shots": 35,
+            "lastShooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2987.2275347160576,
+                5.949999999999999,
+                2779.7352551397394
+              ],
+              "distance": 187.51586832102103
+            },
+            "coastal": true,
+            "shorePosts": [
+              {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2951.2275347160576,
+                  5.949999999999999,
+                  2783.7352551397394
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              },
+              {
+                "id": "gulf-shore-vc",
+                "kind": "vc",
+                "p": [
+                  2987.2275347160576,
+                  5.949999999999999,
+                  2779.7352551397394
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              }
+            ],
+            "concealment": 0,
+            "cover": null,
+            "nearCover": null,
+            "croc": null,
+            "defending": false,
+            "defenceAge": 327.4666666667406,
+            "defences": 0,
+            "bites": 0,
+            "underFire": true,
+            "breath": 100,
+            "submerged": false,
+            "clock": 228.46666666674062
+          },
+          "complete": false,
+          "gl": 0
+        },
+        "arrival": {
+          "p": [
+            2998.179497090329,
+            5.18,
+            2968.4699203872506
+          ],
+          "rescue": {
+            "active": true,
+            "navy": true,
+            "distance": 20.48128179530607,
+            "waveRange": 100,
+            "canWave": false,
+            "facing": true,
+            "signaling": false,
+            "acknowledged": true,
+            "signalPercent": 100,
+            "pickupPercent": 0
+          },
+          "threats": {
+            "active": true,
+            "shots": 35,
+            "lastShooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2987.2275347160576,
+                5.949999999999999,
+                2779.7352551397394
+              ],
+              "distance": 187.51586832102103
+            },
+            "coastal": true,
+            "shorePosts": [
+              {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2951.2275347160576,
+                  5.949999999999999,
+                  2783.7352551397394
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              },
+              {
+                "id": "gulf-shore-vc",
+                "kind": "vc",
+                "p": [
+                  2987.2275347160576,
+                  5.949999999999999,
+                  2779.7352551397394
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              }
+            ],
+            "concealment": 0,
+            "cover": null,
+            "nearCover": null,
+            "croc": null,
+            "defending": false,
+            "defenceAge": 328.11666666674114,
+            "defences": 0,
+            "bites": 0,
+            "underFire": true,
+            "breath": 100,
+            "submerged": false,
+            "clock": 229.11666666674114
+          },
+          "complete": false,
+          "gl": 0
+        },
+        "startPickup": {
+          "p": [
+            2998.215497090336,
+            5.18,
+            2968.649920387238
+          ],
+          "rescue": {
+            "active": true,
+            "navy": true,
+            "distance": 20.324409481196863,
+            "waveRange": 100,
+            "canWave": false,
+            "facing": true,
+            "signaling": true,
+            "acknowledged": true,
+            "signalPercent": 100,
+            "pickupPercent": 5
+          },
+          "threats": {
+            "active": true,
+            "shots": 35,
+            "lastShooter": {
+              "id": "gulf-shore-vc",
+              "kind": "vc",
+              "p": [
+                2987.2275347160576,
+                5.949999999999999,
+                2779.7352551397394
+              ],
+              "distance": 187.51586832102103
+            },
+            "coastal": true,
+            "shorePosts": [
+              {
+                "id": "gulf-shore-nva",
+                "kind": "nva",
+                "p": [
+                  2951.2275347160576,
+                  5.949999999999999,
+                  2783.7352551397394
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              },
+              {
+                "id": "gulf-shore-vc",
+                "kind": "vc",
+                "p": [
+                  2987.2275347160576,
+                  5.949999999999999,
+                  2779.7352551397394
+                ],
+                "alive": true,
+                "visible": true,
+                "exposure": 1.2
+              }
+            ],
+            "concealment": 0,
+            "cover": null,
+            "nearCover": null,
+            "croc": null,
+            "defending": false,
+            "defenceAge": 329.9166666667426,
+            "defences": 0,
+            "bites": 0,
+            "underFire": true,
+            "breath": 100,
+            "submerged": false,
+            "clock": 230.91666666674257
+          },
+          "complete": false,
+          "gl": 0
+        },
+        "rescued": {
+          "steps": 321,
+          "complete": true,
+          "outcome": {
+            "id": "pow-fictional-river-rescue",
+            "title": "Fictional alternate-history rescue",
+            "rescued": true,
+            "escaped": true,
+            "historical": false,
+            "text": "FICTIONAL ALTERNATE HISTORY: after reaching the ocean, waving down a US Navy boat and reaching its stern-side rescue line, you are brought aboard. Coker and McKnight were recaptured during their actual 1967 escape; this playable successful continuation is hypothetical."
+          },
+          "flags": {
+            "riverEntered": true,
+            "fictionalContinuation": true,
+            "navalSignalAcknowledged": true,
+            "fictionalRescue": true
+          },
+          "rescue": {
+            "active": false,
+            "navy": true,
+            "distance": 19.86085120340932,
+            "waveRange": 100,
+            "canWave": false,
+            "facing": true,
+            "signaling": true,
+            "acknowledged": true,
+            "signalPercent": 100,
+            "pickupPercent": 100
+          },
+          "threats": {
+            "active": false
+          },
+          "shotsBefore": 36,
+          "shotsAfter": 36,
+          "campaignUnchanged": true,
+          "gl": 0
+        }
+      }
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "desktop-ocean-navy-opportunity.png",
+      "profile": "desktop",
+      "sha256": "40ec54c18fbe0d9aa72ee82349ee4141701f7362dbf0ad6cbb1cad023cb6a8cd"
+    },
+    {
+      "file": "desktop-wave-to-navy-under-fire.png",
+      "profile": "desktop",
+      "sha256": "3bee64a36656b95d676f75d4cbcf269ee5f1a33ac9623b96e3b881af601f0aa9"
+    },
+    {
+      "file": "desktop-navy-watch-acknowledges.png",
+      "profile": "desktop",
+      "sha256": "74ec874fffc2ee384911341fea3ee3f504847521a544cc10082391edf37b5862"
+    },
+    {
+      "file": "desktop-earned-navy-rescue.png",
+      "profile": "desktop",
+      "sha256": "e6078202818ab3accd4235a510f2fe2c32463801ee80f74cf4ce1149843ccc1a"
+    },
+    {
+      "file": "phone-ocean-navy-opportunity.png",
+      "profile": "phone",
+      "sha256": "07138f7a76791d6168f7abe833d976ddcabe9d903025839fc4043a27243a439b"
+    },
+    {
+      "file": "phone-wave-to-navy-under-fire.png",
+      "profile": "phone",
+      "sha256": "19ef08d364f19b70d5edf68c75700d0152c0aaa907b94372729dd626581ec9a4"
+    },
+    {
+      "file": "phone-navy-watch-acknowledges.png",
+      "profile": "phone",
+      "sha256": "3035d63e9e1e691264277b86c66594e76692c8c3ea04c1d9309c32dae23a34b1"
+    },
+    {
+      "file": "phone-earned-navy-rescue.png",
+      "profile": "phone",
+      "sha256": "c91119315530cd3f202d9d218ba9adfa30699f2c17b5b19933d13e852a773856"
+    }
+  ],
+  "errors": [],
+  "missing": [],
+  "scope": "Actual Chromium WebGL2 desktop and phone layouts after a declared restored morning checkpoint one logical metre before the gulf. Original updates physically cross into the ocean. Native W movement, F/context-button holds and Space/DIVE drive signaling, interruption, approach and pickup; no rescue/acknowledgement/damage is injected. Shore riflemen remain the real module-owned actors with actual LOS/tracers. Checkpoint setup bypasses earlier flight/prison/river travel and is not an earned full-campaign outcome. Physical iPhone Safari, hardware FPS and subjective listening quality are untested.",
+  "target": "http://127.0.0.1:40785/",
+  "recordedAt": "2026-10-27T01:12:14.136Z"
+}

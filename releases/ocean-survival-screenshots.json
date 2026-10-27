@@ -1,0 +1,461 @@
+{
+  "images": [
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/desktop-fishingCanopyHull-above-after.png",
+      "suite": "floors",
+      "sha256": "3f184ed6b6984223941dd2058928eeb6e829f38667539667bd5e8ea2a2beed41",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/desktop-fishingCanopyHull-above-before.png",
+      "suite": "floors",
+      "sha256": "1f55c745244f2d6a121918157eb3c5d47bbc5d14b8234563f8d82d595ce74292",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/desktop-fishingCanopyHull-water-level-after.png",
+      "suite": "floors",
+      "sha256": "eb218eb1e5f0c782444dc114b5985cd3179443ad67f20255bad17e9e87eb1bf4",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/desktop-fishingCanopyHull-water-level-before.png",
+      "suite": "floors",
+      "sha256": "4a5b5b898c732e336e5418ea35fcfa1b5bc6df9c3c1d5665f71f6853c45f1538",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/desktop-fishingSampan-above-after.png",
+      "suite": "floors",
+      "sha256": "d2e24690d89169cd51ce054a0296c53d85b37f8ed55720a1e765806de5e87da7",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/desktop-fishingSampan-above-before.png",
+      "suite": "floors",
+      "sha256": "b588898b0a7061023524889800a111d6d0fc51bc3f23daba25cf1bd233be0574",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/desktop-fishingSampan-water-level-after.png",
+      "suite": "floors",
+      "sha256": "aa8671108cae9e56c4aeee6f65e99baf835486d7f6e4a5fc31270c920319f9e4",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/desktop-fishingSampan-water-level-before.png",
+      "suite": "floors",
+      "sha256": "29c714033913e4d6a21dff6bbcfc1559f1c4b9dd30fd339b60f4ad467dd0c046",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/desktop-fishingWorkboat-above-after.png",
+      "suite": "floors",
+      "sha256": "20d1f027201dacead6f958225e9b49c73a5bfee69dfe6666b05203fc7977f968",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/desktop-fishingWorkboat-above-before.png",
+      "suite": "floors",
+      "sha256": "5b566a8d2d66da950b72f5c5167e2d386dd4ff6c698c96ef20efef1ffe7acbee",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/desktop-fishingWorkboat-water-level-after.png",
+      "suite": "floors",
+      "sha256": "251967caae39356b64f910cc7aba6cf8e63dd2bc09694caab568da999744da01",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/desktop-fishingWorkboat-water-level-before.png",
+      "suite": "floors",
+      "sha256": "22d6449bc7891208069d4d5db02896132310d9fbba28d70b36786eb286d831fa",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/desktop-powRiverSkiff-above-after.png",
+      "suite": "floors",
+      "sha256": "155d8a96df784cf4217b72269caa58233e6c040318e794796a5b6e4ff0e31bce",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/desktop-powRiverSkiff-above-before.png",
+      "suite": "floors",
+      "sha256": "17df0695a26f67351fab6faa1f2a19731e62d3e759e996c871a1704db8b8652d",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/desktop-powRiverSkiff-water-level-after.png",
+      "suite": "floors",
+      "sha256": "98a23370dbb3ddc46135e3c8d9c59d8c9c9ad72576f3ddf5e2a42e4ae938f048",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/desktop-powRiverSkiff-water-level-before.png",
+      "suite": "floors",
+      "sha256": "c25f12502a21403a6fc601350522e7c8b93a4943300489eda9883e4bc2931398",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/phone-fishingCanopyHull-above-after.png",
+      "suite": "floors",
+      "sha256": "3f184ed6b6984223941dd2058928eeb6e829f38667539667bd5e8ea2a2beed41",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/phone-fishingCanopyHull-above-before.png",
+      "suite": "floors",
+      "sha256": "1f55c745244f2d6a121918157eb3c5d47bbc5d14b8234563f8d82d595ce74292",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/phone-fishingCanopyHull-water-level-after.png",
+      "suite": "floors",
+      "sha256": "eb218eb1e5f0c782444dc114b5985cd3179443ad67f20255bad17e9e87eb1bf4",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/phone-fishingCanopyHull-water-level-before.png",
+      "suite": "floors",
+      "sha256": "4a5b5b898c732e336e5418ea35fcfa1b5bc6df9c3c1d5665f71f6853c45f1538",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/phone-fishingSampan-above-after.png",
+      "suite": "floors",
+      "sha256": "d2e24690d89169cd51ce054a0296c53d85b37f8ed55720a1e765806de5e87da7",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/phone-fishingSampan-above-before.png",
+      "suite": "floors",
+      "sha256": "b588898b0a7061023524889800a111d6d0fc51bc3f23daba25cf1bd233be0574",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/phone-fishingSampan-water-level-after.png",
+      "suite": "floors",
+      "sha256": "aa8671108cae9e56c4aeee6f65e99baf835486d7f6e4a5fc31270c920319f9e4",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/phone-fishingSampan-water-level-before.png",
+      "suite": "floors",
+      "sha256": "29c714033913e4d6a21dff6bbcfc1559f1c4b9dd30fd339b60f4ad467dd0c046",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/phone-fishingWorkboat-above-after.png",
+      "suite": "floors",
+      "sha256": "20d1f027201dacead6f958225e9b49c73a5bfee69dfe6666b05203fc7977f968",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/phone-fishingWorkboat-above-before.png",
+      "suite": "floors",
+      "sha256": "5b566a8d2d66da950b72f5c5167e2d386dd4ff6c698c96ef20efef1ffe7acbee",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/phone-fishingWorkboat-water-level-after.png",
+      "suite": "floors",
+      "sha256": "251967caae39356b64f910cc7aba6cf8e63dd2bc09694caab568da999744da01",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/phone-fishingWorkboat-water-level-before.png",
+      "suite": "floors",
+      "sha256": "22d6449bc7891208069d4d5db02896132310d9fbba28d70b36786eb286d831fa",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/phone-powRiverSkiff-above-after.png",
+      "suite": "floors",
+      "sha256": "155d8a96df784cf4217b72269caa58233e6c040318e794796a5b6e4ff0e31bce",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/phone-powRiverSkiff-above-before.png",
+      "suite": "floors",
+      "sha256": "17df0695a26f67351fab6faa1f2a19731e62d3e759e996c871a1704db8b8652d",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/phone-powRiverSkiff-water-level-after.png",
+      "suite": "floors",
+      "sha256": "98a23370dbb3ddc46135e3c8d9c59d8c9c9ad72576f3ddf5e2a42e4ae938f048",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/boat-floor/phone-powRiverSkiff-water-level-before.png",
+      "suite": "floors",
+      "sha256": "c25f12502a21403a6fc601350522e7c8b93a4943300489eda9883e4bc2931398",
+      "fixture": "Isolated above/low-gunwale comparison of actual old/current indexed hull geometry, production materials/water and native river entry; not an uninterrupted playthrough."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/navy-rescue/desktop-earned-navy-rescue.png",
+      "suite": "navy",
+      "sha256": "e6078202818ab3accd4235a510f2fe2c32463801ee80f74cf4ce1149843ccc1a",
+      "fixture": "Restored pre-gulf morning checkpoint; original physics crosses into ocean, native movement/waving/diving/pickup under shore fire."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/navy-rescue/desktop-navy-watch-acknowledges.png",
+      "suite": "navy",
+      "sha256": "74ec874fffc2ee384911341fea3ee3f504847521a544cc10082391edf37b5862",
+      "fixture": "Restored pre-gulf morning checkpoint; original physics crosses into ocean, native movement/waving/diving/pickup under shore fire."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/navy-rescue/desktop-ocean-navy-opportunity.png",
+      "suite": "navy",
+      "sha256": "40ec54c18fbe0d9aa72ee82349ee4141701f7362dbf0ad6cbb1cad023cb6a8cd",
+      "fixture": "Restored pre-gulf morning checkpoint; original physics crosses into ocean, native movement/waving/diving/pickup under shore fire."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/navy-rescue/desktop-wave-to-navy-under-fire.png",
+      "suite": "navy",
+      "sha256": "3bee64a36656b95d676f75d4cbcf269ee5f1a33ac9623b96e3b881af601f0aa9",
+      "fixture": "Restored pre-gulf morning checkpoint; original physics crosses into ocean, native movement/waving/diving/pickup under shore fire."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/navy-rescue/phone-earned-navy-rescue.png",
+      "suite": "navy",
+      "sha256": "c91119315530cd3f202d9d218ba9adfa30699f2c17b5b19933d13e852a773856",
+      "fixture": "Restored pre-gulf morning checkpoint; original physics crosses into ocean, native movement/waving/diving/pickup under shore fire."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/navy-rescue/phone-navy-watch-acknowledges.png",
+      "suite": "navy",
+      "sha256": "3035d63e9e1e691264277b86c66594e76692c8c3ea04c1d9309c32dae23a34b1",
+      "fixture": "Restored pre-gulf morning checkpoint; original physics crosses into ocean, native movement/waving/diving/pickup under shore fire."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/navy-rescue/phone-ocean-navy-opportunity.png",
+      "suite": "navy",
+      "sha256": "07138f7a76791d6168f7abe833d976ddcabe9d903025839fc4043a27243a439b",
+      "fixture": "Restored pre-gulf morning checkpoint; original physics crosses into ocean, native movement/waving/diving/pickup under shore fire."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/navy-rescue/phone-wave-to-navy-under-fire.png",
+      "suite": "navy",
+      "sha256": "19ef08d364f19b70d5edf68c75700d0152c0aaa907b94372729dd626581ec9a4",
+      "fixture": "Restored pre-gulf morning checkpoint; original physics crosses into ocean, native movement/waving/diving/pickup under shore fire."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/desktop-gulf-box-surface-without-jelly.png",
+      "suite": "jellyfish",
+      "sha256": "38601e994511ff57cd5f0508b1afcdf371b310f5b48df045257ef77127d820df",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/desktop-gulf-box-surface.png",
+      "suite": "jellyfish",
+      "sha256": "2ada66ce51bac0e85529f2c3adece9ff1c03255397c2e931643ad0b19ace2ec2",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/desktop-gulf-box-underwater-without-jelly.png",
+      "suite": "jellyfish",
+      "sha256": "f5826f415e54a6619cfe54365e35020315c58b890142e7e544d89eb4adb2ace7",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/desktop-gulf-box-underwater.png",
+      "suite": "jellyfish",
+      "sha256": "4908c4457aeb327732fd50a5a14293aed8e57ab8a88d5097c0e3866e3c4c1d01",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/desktop-gulf-fire-sting.png",
+      "suite": "jellyfish",
+      "sha256": "f2446187fe32561034e63fb72be08ac33aa475d2729dc951a291718067ed00bf",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/desktop-ocean-box-sting.png",
+      "suite": "jellyfish",
+      "sha256": "87b9572e9f5385694da86e29153e4ed8746dbcea09155f87fbf061f3c116f3df",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/desktop-ocean-box-surface-without-jelly.png",
+      "suite": "jellyfish",
+      "sha256": "edbcbabcd387239534edf5fbb2cbaf4f13c21d79bd7642050d95c26f085d8671",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/desktop-ocean-box-surface.png",
+      "suite": "jellyfish",
+      "sha256": "efcb081a2641072315e45b5601a9a904346170230e68791aa3cb8468f3cf3b85",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/desktop-ocean-box-underwater-without-jelly.png",
+      "suite": "jellyfish",
+      "sha256": "b0a2e6ff7c9c031aa2bcc90f0b8e7a8abbdaf2ff000e2d606b1d38fca1418963",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/desktop-ocean-box-underwater.png",
+      "suite": "jellyfish",
+      "sha256": "e5636bfb278ba69fe0a776b5b51b87f1736eee724281796758cd2d7e56f66450",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/desktop-ocean-fire-sting.png",
+      "suite": "jellyfish",
+      "sha256": "df4eecdfaa3dad7cbd3420442faa9a9e906c57b2e83a83e00037129183a4aa30",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/desktop-ocean-fire-surface-without-jelly.png",
+      "suite": "jellyfish",
+      "sha256": "386134992c1ec40d2d6ef85c63b6e3ca03d6d03a9ed0569638f73fc9a6f3950a",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/desktop-ocean-fire-surface.png",
+      "suite": "jellyfish",
+      "sha256": "37ce223dbbe23e056b8b15b5dc9905d0fcffa7eddae905705892b4e1e5fc4596",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/desktop-ocean-fire-underwater-without-jelly.png",
+      "suite": "jellyfish",
+      "sha256": "b02cf8ed091e0fe0ac7c10dc7008564251517239135cf3501d9b578944f692d2",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/desktop-ocean-fire-underwater.png",
+      "suite": "jellyfish",
+      "sha256": "c895c81672931aa8a48f45ffc133f93a6e8ed79762081596553ed043469f37cb",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/phone-gulf-box-surface-without-jelly.png",
+      "suite": "jellyfish",
+      "sha256": "3bca32d0ab28448c4096c3414c01e87013d13f8eebf999e2bda0711cab2a1b52",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/phone-gulf-box-surface.png",
+      "suite": "jellyfish",
+      "sha256": "019dd8444c8c941ba5ab67e3a340567063ac5dfd2aeae6944f9cc7ad0c405d77",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/phone-gulf-box-underwater-without-jelly.png",
+      "suite": "jellyfish",
+      "sha256": "752d6544e8ea570f993487f2d99e20a1f89d22ff954f5371d05faea98ddcc262",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/phone-gulf-box-underwater.png",
+      "suite": "jellyfish",
+      "sha256": "99d9a4b3e2058a5e162ecccab51ab03023857d238b21be2bfce87698da58502d",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/phone-gulf-fire-sting.png",
+      "suite": "jellyfish",
+      "sha256": "7de561bbb681f9067b32ed487c6697c5efc1a1020c637a11a10bf401c4f1bce3",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/phone-ocean-box-sting.png",
+      "suite": "jellyfish",
+      "sha256": "26c8e906dab4662cb7385f77bd4e26b06722e34574b5503d4a41eb50504f471d",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/phone-ocean-box-surface-without-jelly.png",
+      "suite": "jellyfish",
+      "sha256": "45164107970f134bda1f5ab23e2c11c6ff095b8fce47e29368281e690711fac2",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/phone-ocean-box-surface.png",
+      "suite": "jellyfish",
+      "sha256": "52c49cfd6140487984d00e7d6580e423d81b3e48f9f3dcda82bd38a4859dde60",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/phone-ocean-box-underwater-without-jelly.png",
+      "suite": "jellyfish",
+      "sha256": "8f59be147012ec1c61c3d3406e058008c278a419b4a084c6c9384d62a06aded6",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/phone-ocean-box-underwater.png",
+      "suite": "jellyfish",
+      "sha256": "f98618a23c0e9e8700155b99cc502d41251f782b90556c56ab4bf3a1a4930a9c",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/phone-ocean-fire-sting.png",
+      "suite": "jellyfish",
+      "sha256": "a565e85e5ca2e92439fe34aed2b53d84c2e8b9344e8df377a0f629a2f19d4b88",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/phone-ocean-fire-surface-without-jelly.png",
+      "suite": "jellyfish",
+      "sha256": "7b7017f4e7b9f163a276cc25c6e6630d6722d88bad575647609b734dcd118dfb",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/phone-ocean-fire-surface.png",
+      "suite": "jellyfish",
+      "sha256": "78ebf1e89af72857bb9816696775a20daa4372dccf12ce8c8d13a9fd79d10e85",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/phone-ocean-fire-underwater-without-jelly.png",
+      "suite": "jellyfish",
+      "sha256": "2e43b9eb3577ed168a3064ee11b5fc0afbc9eea37c34f7d6536d91af13665745",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/ocean-jellyfish/phone-ocean-fire-underwater.png",
+      "suite": "jellyfish",
+      "sha256": "fde647afb7f5c70ead474e273f993351251c14c5ef407454f480d2c95c457eaf",
+      "fixture": "Actual ejection/near-gulf checkpoint with declared close-organism/camera fixtures. Initial underwater camera is renderer-only, not an initial-ocean dive mechanic."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/popup-view/desktop-flight-popups-on-edge.png",
+      "suite": "popups",
+      "sha256": "64881a0696c045b4f5ce79261dea3e506d99da06be90300ad13cbf096dad8a8e",
+      "fixture": "Native stream/flight controls with presentation-only notification fixtures; exact popup code, final jellyfish rendering difference recorded separately."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/popup-view/desktop-river-popups-off.png",
+      "suite": "popups",
+      "sha256": "40d5e551c5baa9508ef0edbe106940a0e3a0b3a7144b761f8f60ede9d0372225",
+      "fixture": "Native stream/flight controls with presentation-only notification fixtures; exact popup code, final jellyfish rendering difference recorded separately."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/popup-view/desktop-river-popups-on-edge.png",
+      "suite": "popups",
+      "sha256": "0682d7eb84a5d9d4fe064535363c2f506014a8a66b276dd86096d982064cb1f0",
+      "fixture": "Native stream/flight controls with presentation-only notification fixtures; exact popup code, final jellyfish rendering difference recorded separately."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/popup-view/phone-flight-popups-on-edge.png",
+      "suite": "popups",
+      "sha256": "d4c4390ae4433be5cda82bc3dcc6986ef60199c6e09911b03260d0bdeb7681f5",
+      "fixture": "Native stream/flight controls with presentation-only notification fixtures; exact popup code, final jellyfish rendering difference recorded separately."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/popup-view/phone-river-popups-off.png",
+      "suite": "popups",
+      "sha256": "88340dc479a43c59e44f82844b52cb9d5e0822fed4c6c341aebd576f5dbb4cc5",
+      "fixture": "Native stream/flight controls with presentation-only notification fixtures; exact popup code, final jellyfish rendering difference recorded separately."
+    },
+    {
+      "file": "releases/ocean-survival-screenshots/popup-view/phone-river-popups-on-edge.png",
+      "suite": "popups",
+      "sha256": "6aab7b9d094c18f110c1b4e22032b285c87a4433b2c0edb9c7f9bb9cdd93da3e",
+      "fixture": "Native stream/flight controls with presentation-only notification fixtures; exact popup code, final jellyfish rendering difference recorded separately."
+    }
+  ],
+  "scope": "Actual captured Chromium WebGL2 desktop and phone layouts; fixture labels apply to every image."
+}

@@ -1,6 +1,10 @@
+# Intruder: Yankee Station — Ocean Survival update
+
+The latest tested update is on `ocean-survival`: [complete private game download](https://github.com/danielbmcconnell-hub/VA-65-Intruder/archive/refs/heads/ocean-survival-site.zip) · [controls, verification and limits](releases/ocean-survival-notes.md). It adds solid fishing-boat floors, visible ocean jellyfish, contested Navy rescue, edge popups with an on/off toggle, and 116 neural male dialogue clips. The exact tested local ZIP is `dist/Intruder_Yankee_Station_Ocean_Survival.zip`. After extracting, run `node assets/local-server.cjs` and open `http://127.0.0.1:8000`. Actual iPhone Safari remains untested.
+
 # Intruder: Yankee Station — Living River update
 
-The latest tested update is on `living-river`: [complete private game download](https://github.com/danielbmcconnell-hub/VA-65-Intruder/archive/refs/heads/living-river-site.zip) · [features, controls and verification](releases/living-river-notes.md). The exact tested local ZIP remains `dist/Intruder_Yankee_Station_Living_River.zip`. It adds a short skippable carrier montage, moving Vietnamese fishing boats, bank wildlife and denser layered jungle. After extracting the download, run `node assets/local-server.cjs` and open `http://127.0.0.1:8000`. Actual iPhone Safari remains untested.
+The preceding tested update is on `living-river`: [complete private game download](https://github.com/danielbmcconnell-hub/VA-65-Intruder/archive/refs/heads/living-river-site.zip) · [features, controls and verification](releases/living-river-notes.md). The exact tested local ZIP remains `dist/Intruder_Yankee_Station_Living_River.zip`. It adds a short skippable carrier montage, moving Vietnamese fishing boats, bank wildlife and denser layered jungle. After extracting the download, run `node assets/local-server.cjs` and open `http://127.0.0.1:8000`. Actual iPhone Safari remains untested.
 
 # Intruder: Yankee Station — Codex handoff
 

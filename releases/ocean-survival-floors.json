@@ -1,0 +1,6368 @@
+{
+  "suite": "boat-floor",
+  "passed": true,
+  "sourceStable": true,
+  "sourceSHA256": {
+    "assets/atlas-metadata.js": "042cc37786069adb0b58de7b17ba499ee8c0c2b93da0864288c4d184917e62d0",
+    "assets/atlas_manifest.json": "498deb24da5e88b5dd0bb34810898902bf655011ff8a93da1abe9af6db311c4e",
+    "assets/audio/crew-personality.js": "3cc3b1f6e2d74cc0d5a01af4b7ced45a88bb6b2a80d90ba10c593047ab91e820",
+    "assets/audio/dialogue/catalog.js": "5dd8ca3d9720f194a1fe622adcbddd27963ae88317c33d9a1f0c51da03813bf7",
+    "assets/audio/dialogue/manifest.json": "9ada6d271a6b78a062486610c69ed2587d14dca2bd1a10a4034582a56f2818f1",
+    "assets/audio/dialogue/provenance.json": "4ecd12d7373f58e410dd3f23dd8105a184d04727336057136c617bed815b71e1",
+    "assets/audio/neural-dialogue.js": "167dc470dbee7003292bb9519252f9e25ed53170bdba73cd9f524b2c3644a2d5",
+    "assets/audio/voice-profiles.js": "ea5c7673dbd3718074614d7ba309630008acec7a3c9c5a5a662ea593eecdb0b5",
+    "assets/carrier/hires/manifest.json": "8bcdf04bdb266bfa169af08f7773644aac883a7eaa381c97ac7fe70d58690c80",
+    "assets/carrier/hires/provenance.json": "6860d19cf6a1face963afce20951022387aa1e7cb4319ed4d0bbc9dd9e28db53",
+    "assets/crocodile/manifest.json": "939e73b1cebd05031239dc21ff72a5ed0eb69b0c0cc90bd39c3d64002f0c995c",
+    "assets/firstperson/held-provenance-v1.json": "fe08f1f5a8891f9ab79a0ba71b24e5798e36bc45f95dcb8bf54282f5fc5636cc",
+    "assets/firstperson/held-provenance.json": "023f3124cb7197315f0e2c75fc0f312b75dc4e6a105e1a3fe7fedad0a1807220",
+    "assets/firstperson/punch-provenance-v1.json": "8c9c7d855b0dc2093e2ea21695092bd5fbea1eb31338d0fa4d87251f5735170b",
+    "assets/firstperson/punch-provenance.json": "5f8ef95d972dc91b4d07159f157fff8b376a7218d76271e25122b6aa587cfe3d",
+    "assets/firstperson/water-rope-provenance.json": "21f163cf4cec87a04efbb940b175ed786df5d49c96bdda0d73bf4b28b85337ff",
+    "assets/fishing/fisher-paddle.webp": "db300fb44041591a7ac16d28c9276eed4b4ac33d04e638dd7d938f4f00edaead",
+    "assets/fishing/provenance.json": "96469ed4c0723fdfaf593cecb64e7f1c455ad4ed5271cef73f31b6e71eee1e58",
+    "assets/fishing/wood.webp": "15cbf7c97e6df122a86718503ce6063c0312d29a1851e04e2571867946da1a88",
+    "assets/flight/aircraft-detail.js": "5d3f7d2ff0b06ec1892d2af34049c7d22d46f78d08fd41f10e1284a85d5a719f",
+    "assets/flight/airframe-feedback.css": "3dc93c21f51a00943e5ea8e57d8787305cd5befdabb5b8f008309ad81179319f",
+    "assets/flight/airframe-feedback.js": "12ea94aee34381aef92f76dcdce86277cafd0a6dcad41763fd69bc7d608f7ff4",
+    "assets/flight/carrier-launch.js": "22edde86d396a6cfdb51082f0de430b4e5e3e2abb1204cc99b58f88274e161db",
+    "assets/flight/coach.js": "1b15658e48a2c01834585e8affc7aa6231f9af163832e77eee9d348befb5ab3b",
+    "assets/flight/immersion.css": "3c679a107cff030e627d60b10fce7af0e1de2064d72e0a9d4cab63b6f9757da6",
+    "assets/flight/immersion.js": "d0cd11bae2f9566aebcf08d7041ce7c335521d4149239c0fdb2327a7a08714f2",
+    "assets/flight/mission-demo.js": "18e15e78435902af375b3fbaba1cfdd65f1411f854da1a89ceed10dae31d0050",
+    "assets/flight/route-scene.js": "0582c35231b6d490f6f3d6983ab4e710a7bb215ada0b3f03db1c18aac72b9169",
+    "assets/flight/sortie-checkpoint.js": "ed4af46b23268672454a1a99ae3d6b42281f6a4196f046e271fff0da85c32646",
+    "assets/flight/strike-board.css": "7c88726077eacb5468cd326f8c38d5ca4dcd351965fb93c623b0243c1a5f524a",
+    "assets/flight/strike-board.js": "102742e67d5e86271ee3a04db2d4cea7ab026c7c4282a7aac140d94ff8c91f68",
+    "assets/flight/strike-checkpoint.js": "9ac145ed9f1fcbc271013db170a1aa30b8f844c343b70fd61a29b846e2b183d7",
+    "assets/flight/strike-crew.css": "69d6d5ed33cf61c8692e5e4fe6e7f24ab62cac3c64c779345a3a78ae18edf931",
+    "assets/flight/strike-crew.js": "1e1137cb60d2e3a3d74e04ed87d5b96cb317b65865e78138f7e7da430a5775a7",
+    "assets/flight/strike-effects.js": "3210e7015ad9364ed34e3e1b00d9cef08c93acab48f7e2bf9d9344aa28fadf16",
+    "assets/flight/strike-experience.css": "e59a8a9ec472d255d9cc740fdfb3d78af4d6fa090a724453414cfeaf290e481c",
+    "assets/flight/strike-experience.js": "f37815904bfa3ef66f22841c5ae8d3b14f212b32a433183b28a87ccf38291c6d",
+    "assets/flight/strike-scene.js": "6149c09d810b13219fe85aa0a10eaff8a80184e50e603de093f22ede9554e262",
+    "assets/flight/tactical-approach.css": "76652f890447df9f0021ef6e0f94fd8620f51b83cf151ac34e14cc31a3c732fc",
+    "assets/flight/tactical-approach.js": "7f2191f88352bdbafc6c8a0b2e94e5c756d922bab55606da439ad15969e3c0ad",
+    "assets/flight/threat-feedback.js": "f30012e2c5e986e6450ca2805a751bd76fc1db0dfc2a0960a17e27d0010fae55",
+    "assets/flight/visual-materials.js": "f876633635ffb855d98cc74bd712d6cf559cc1178bb14fcca979d7702566cdc2",
+    "assets/history/manifest.json": "93218bd49d70261c6093621d985328128111fb9c7075b69810622d9c3fb6e436",
+    "assets/items/manifest.json": "031b636e391f894af72ab3f23764dd914a5e788878943e35353e03e491e27a47",
+    "assets/items/provenance.json": "78f0a961339f29afdeca5984ce91041d4e41645a1e696b6ea2c1413a3e03ba82",
+    "assets/jellyfish/provenance.json": "8d2a93c521104f526707ed8ec65cff82b2b1dd6cbf861aac2fbb25aa5dfdd559",
+    "assets/jungle/components-provenance.json": "81ee507dc3db742c5993719fa6ac420ab5897bc92352d05860100e7727ee978e",
+    "assets/jungle/crown-provenance.json": "21aa897ed9662436e641e4b6c44b00058d38b81eef07b973c5669874169aefb6",
+    "assets/jungle/floor-provenance.json": "0afe10c83d8d779c770971ab1e9c3d002373a1b869840632e818082b01d331fe",
+    "assets/jungle/manifest.json": "8b0ff7e0ac5d976b6b6bb3cfcc3ec78d3f92aafde497ae72292a296f29bf4f19",
+    "assets/local-server.cjs": "f2e53970b4c33e73cc37a496826aeae5910b5881fd60925bc68d5712e4e95556",
+    "assets/photos/manifest.json": "750c4a0d6224c60e6f57babd3c4c3d21de55c67f36bd5f0cb1f47afcfebbb1a8",
+    "assets/pow/ai.js": "f214f3071c594d18d219a4590af14d85df0c0b9fe4fb6d1a7108ef14566f85ae",
+    "assets/pow/captivity.js": "12b8d2bd43663366c2a49c98b822a47e360740f71d754477bd9516ef7a644f8e",
+    "assets/pow/confinement-goals.css": "0cb8b2126935a37cd6c7d343c6a3ed164ba14f2ceab0b332060cc49e299dc2b3",
+    "assets/pow/confinement-goals.js": "a9956ec825a35a427b1bee91329eaa66a2b6d2636d91117f6a515c8f7fd8e48a",
+    "assets/pow/core.css": "4a54f9f9e0d50abc3757da98f05b3c742a31dcff148f07d8dba5d81176f85200",
+    "assets/pow/core.js": "e3283e524df4c22e5adfb56e6f32cfd0a9797d610096d7d8357b7e0048578017",
+    "assets/pow/denton-flashback.js": "3a434ee002427440ed01e6ea537f0b47c61ae7147bd3ab8c0222777a20eb0a04",
+    "assets/pow/episode-actions.css": "6d3ce6760ac16076539e70854c897731bca90291a4a78df13df230bb11567192",
+    "assets/pow/episode-actions.js": "8fe6818cc384e823ce44a36fd56b391c10861ceefa3d72151e1ff1fa6880d5fa",
+    "assets/pow/episode-audio.js": "8f68268e3090c66188aba86e8f62f291114cfb05db38e8b0ba083fc8cee8b1c7",
+    "assets/pow/episode-scene.js": "21faac9770746f220f26f4beb250f998c571baf3b8f8b655829fee0247521ccc",
+    "assets/pow/episode-shaders.js": "9a45dd52b620f9d4fe1572403f154e5033fde2d68466738be025e97a19bacb9f",
+    "assets/pow/episode-stealth.js": "8235ee978bb06afbfdc9fd1ce30eae18cbbff51a274ee8ad02c065a9d7804ce8",
+    "assets/pow/feedback.js": "0a0cf3b7cdb8814b4cc7f3509c658191d5dad4342cd085f3505a120bfc17cf01",
+    "assets/pow/figure-motion.js": "57023d4d7ba67db3c800fa04d338d005bff593940400bdc4634caff5e1ec1efb",
+    "assets/pow/history.js": "47a10f0365dedc2e1e28647e53ae1f9f339f22bf5fbf000c14872f6ff04a7543",
+    "assets/pow/memory-detail.js": "7041ec840df46c7f815dae5ef5415b224deaf6025a2fd4825b508bf758c68c09",
+    "assets/pow/mindscape.js": "6244998f4ebb3c5eb7ce8258f854159ed9a9cb8c0cf0986c75058a9b8d41b151",
+    "assets/pow/onboarding.js": "f569883eaaa3e1afe794db3528025f55757d30d82af21b977bbc4da830bbca1a",
+    "assets/pow/prison-detail.js": "d2b2da04aed43c95d84720f2ecd2b25b7dcd1b37e3cc015a984a974f8b454e38",
+    "assets/pow/prison-food.css": "feda44c174780a1ec0465e36816ec03464f3ce82504ba379f561abec2c8f9f60",
+    "assets/pow/prison-food.js": "05533c8529a90debfb440c0feb68be2fdc5765cb177d654632ac60092752fae0",
+    "assets/pow/ration-photo.js": "382169c8d5efdd76df34b10b2efc664bb66447d36f705dfbe566bfba68b1724e",
+    "assets/pow/regular-confinement.js": "961a989bfd8799b794e1678e651094a3cb543cb6f85eb03bc7e4ced594ab0177",
+    "assets/pow/river.js": "76805887e983a2f9b1638f41c64b3368a6f285b3f52469bc386ba3f0dd92bc8c",
+    "assets/pow/solidarity.js": "52aac5e8e3e96e552a585cce9b2aacf24709ab72e41d72e8b11b06e2d4d08fae",
+    "assets/prison/manifest.json": "8781daeacd47899474aabed7042eff9c25513a18106b64633dab086af36db0d4",
+    "assets/prison/provenance.json": "ac820f2e079c91e2cf99ea0de93058ee72278dcddca07ba644daeb4400f13b23",
+    "assets/processed/manifest.json": "c4cb27f5b5a855718e6455e6cd50f37753864e1fc9eaeb3ea6d9b47eb4c49c50",
+    "assets/render/coastal-scenery.js": "c786db647ba3d463b7fb350157a96c5b51bee7acd37347ad42c8f0ff2e89b4fb",
+    "assets/render/contact-shadows.js": "d6c1aa01dd809e6c240673e270a8731a26dc287bb36408adf549a7e5549f2364",
+    "assets/render/fishing-material.js": "4feb34de2333c18620a2ffecf69d58d64ba1e6800e090f237a391b798b07e040",
+    "assets/render/ground-items-render.js": "cc3f8044e93eca7acdf2d74c5704d74c5d0d934d0b044e97210fc3b1b470c08f",
+    "assets/render/jungle-scenery.js": "63f70fa62447fcaa1379f6da7940eca0f6b882ca4bdc6b57a5d3f321a2bb0a2d",
+    "assets/render/near-ground.js": "4027ebe7fbff9abc5149cdcbc53230c13d79365f46873035a3be072a0bab049d",
+    "assets/render/photo-cutouts.js": "2e56a9923c45f1f15356603d1356576de5b303e70ba22bc85217615b60e68778",
+    "assets/render/photo-motion.js": "2d1aa85f076ac19fdf07cc17812312e1bc2a3ea22f7bf6e3ffb3a1c8b87531b1",
+    "assets/render/photographic-sprites.js": "ffd2a250bea9c022f5c5ef6526e3503cb67755049cde8b71627cbcd981af1697",
+    "assets/render/quality-policy.js": "0082327576dfad84fbb872adafc77bc40bb0d6a21dc97fe02f0f984ed0110316",
+    "assets/render/river-bank.js": "c86e7b0313335d915bc3e23a894786ab413b31f6ca8b2d3400a171ec9218ebd8",
+    "assets/render/sprite-layers.js": "27492afd7aa06f6ddac03f2f058a7c03097e11cdb64f6abec52c88a0b00ce8aa",
+    "assets/render/terrain-shadows.js": "930e1bff5aee655c042259f78362902b1d53dc6e60adc0b31c9d18d48917e8a2",
+    "assets/render/village-detail.js": "83bff38d06bccd99e3ea13d5e4f35571414c8fcf7523940db3eefe906a802220",
+    "assets/render/visual-clarity.js": "4d0d48db6ca635b31373f81ddfb09478786c0203cfa49b34a0f62ef72386250a",
+    "assets/render/wildlife-render.js": "f855492d19f8c811fc669152b50bddb740b036d874a3db54618ecf8d814ad7e5",
+    "assets/sprites/atlas-metadata.js": "eeed898fc5a3afaca3af6191199e110d3b47a6577a296d8fa52ee215a01ed5d7",
+    "assets/sprites/hires/manifest.json": "767726986f513ebf43de3e03fb017d76656d0c61a5fcc60174cc64482b8369ab",
+    "assets/sprites/hires/motion-provenance.json": "6bcc7bb5f1c8286e1398660953331acfecbde60f6d5fcc2883b97f4574dbf497",
+    "assets/sprites/hires/provenance.json": "b6306266d4f31cbd5aa99a1744e480d38ec37a1349e76131a685c793fdf3e607",
+    "assets/sprites/hires/swim-provenance.json": "a51d6c318d1eabcc7c2495a05ab7b393dd2f977e6dd64e3770dd59918424d999",
+    "assets/sprites/provenance.json": "37f6432f77b3564d8932451837d9c1f52685bf986847b77b8591566ad8681216",
+    "assets/survival/ammunition.js": "c73bb800243d4125aa6bc57561a6f33531c938f1f148654f26227e8aab711dfb",
+    "assets/survival/aviator-companion.js": "ab6a54f73981a78618e7e039a50043d046566806c7d009eec16875097bdf8f69",
+    "assets/survival/capture-transition.css": "f9d4766b0c884f22aca342536ad06cabd80655d3c3801030e3cf3bf9a7ae4138",
+    "assets/survival/capture-transition.js": "520c6e9dd754a245cec7ecb1bf11ec366d4441d9ef03505309025a2633896f42",
+    "assets/survival/descent-threats.js": "179a6539ec7ee32ca9c166d97b1bc7235538f4fd029399905be6ebbaa2cb92ba",
+    "assets/survival/equipment-view.js": "3bb3bd6fbec01d7d6a268c533491b682e2ace58d68411f09fab5bb4b70f1d49b",
+    "assets/survival/fishing-boats.js": "bfe0485e6f75a18dd8b86ed9d938d2d963227520ab1c36740483819f064193ae",
+    "assets/survival/ground-combat.js": "fd9a50db2f16669d2e01749b21cd6209ebddf54ee3b963e76d022367e598ea00",
+    "assets/survival/ground-controls.js": "b9c72c58f15eb73878083cfd6da92554f78eec6a4b6e1076ec84346768bc2fc0",
+    "assets/survival/ground-items.css": "dc24c4f5df94fe29600eef4d4e344076913fe6b49cddd29bd766799a2255c5bd",
+    "assets/survival/ground-items.js": "86765674a5284056972429b8bafe446b539f9aa6b01e35227b526e5d5e3db866",
+    "assets/survival/ground-view.js": "88c7fca3e91ccc87f1bff2259933425a5e70a4538048c45ad1cb8f82faa538a0",
+    "assets/survival/landing-water.js": "2e66c20d1d57e3b75ac27ea3dfd6dd54509a75d6b70b439417cc51950124dcd4",
+    "assets/survival/ocean-jellyfish.js": "f2f32d523f4d613b5cd64f87adebc64e1a99fd2439eef5cbc203612a9aacfd26",
+    "assets/survival/rip-current.css": "097936fd210a07e455c7e075e3a1b88332da562a52100c8f386622c4af67fb08",
+    "assets/survival/rip-current.js": "ea028772cb13a8173a1f00d6162424be73b25da23022dffff96748791e5ff941",
+    "assets/survival/river-threats.css": "ca9180fe77fef30119199ca8b5bfd33d09aa152d40fcf9478d940e32453eb2ad",
+    "assets/survival/river-threats.js": "fa26423642e2b9106f124ed17b9c742f0427a6c0d693520e72bcd3a824d8a853",
+    "assets/survival/riverbank-wildlife.js": "e247ff02471d46dbbbffa670302409f5f18e9f4f4a99c68cca00b6a066affef6",
+    "assets/survival/wildlife-targeting.js": "d6938abf70372e8f037277a61139f104ae5a48fcf9e8a4b60797233b62e438d7",
+    "assets/survival/wildlife.js": "4b510b91ae6dead26ac777791a7ce93604bf03003530638d05654e0b9f7dd4ba",
+    "assets/ui/archival-footage.css": "553a3b59c9cb7177ab38246d83e0f33a4b1f22b44d3e0ac956cd0448152fd359",
+    "assets/ui/archival-footage.js": "9e990b6af179428d89d9ffb926669c1bc3ccbfd3e616cdd656db4d6bab2a48ae",
+    "assets/ui/camera-views.css": "f2bacff3addb44365cd59243113fc84513d2b8a136a2f179e92c217bc78ad201",
+    "assets/ui/camera-views.js": "d055c9bcb42163163060f44127d47d0b72164f0a9a9a0e96dd0a0e85ac314bd9",
+    "assets/ui/hud-layout.css": "d1cceafc01a55e25578629f36da6d3c9cbb6b13529e75d776ebac238c596c2fb",
+    "assets/ui/hud-layout.js": "6495e4fe686b36f47701f6f3fcf3d0742617008565d2037d3775351e56084e86",
+    "assets/ui/instruction-view.css": "9cc454d92815ef25a7893caf2e88ff14945f51ec9939be1f7885eba5a69e3159",
+    "assets/ui/instruction-view.js": "48154d551a811d9a76c0b4eabbebbc3a479147b227c1c531e7780e5cd24c6fb5",
+    "assets/video/provenance.json": "ff36464e5d41635cbf120401d4488be17caf7e95ed5628fc0a43708a62819703",
+    "assets/wildlife/hires/encoding-provenance.json": "4540352e12459b369592cea9bbd6684b4c386099493b5e3fc5acec0bafdbd2c2",
+    "assets/wildlife/hires/manifest.json": "0d5a5968a839dc8615d92b12458665092e4f2d55a62d7744a47c79e515211955",
+    "assets/wildlife/hires/provenance.json": "e5fb9acc28512f33338b97e8c011bafe47c738b5e0f200b23e09226512b04417",
+    "assets/willard/flak.js": "fa7e371488953904251da7b41b93bb7a2060e4d654f49d91659b2d0b6c7a41e8",
+    "assets/willard/interceptor.js": "6980e53f5eb1e15089b3b1bd5707f6fc2706859624b23438f6b08546c6bb1395",
+    "assets/willard/media/MiG17PF_Willard_Egress_ATLAS.json": "0d87d3669ff2a85757e73f02ebdc947fe68439da08bf0f4497a3b83849606a49",
+    "assets/willard/mission.js": "7e2df552017674b8c99f20f2c2da31c61d7d2a0fa24960512d548912c9602a1a",
+    "assets/willard/presentation.css": "4309231f9379836f1034b5f90849640a58860728016665aab99de8ca1e29ecb2",
+    "assets/willard/presentation.js": "075daa060b0b8b27793c25d63b46e6d869dc633fb1579a07dbeb4a316429c54b",
+    "assets/willard/sprites.js": "b0a253e4650868f0c2ce636ff160f97e895a4839253f5ab759b5fe52d5f2f7a6",
+    "index.html": "db871508b5aa60bfad3851503b4d10f892f8b90ed4335af35da620e5f08270ee",
+    "tests/boat-floor-browser.cjs": "ebaee30cf81e19f8c4bf7817278348229717eedc6a34a0a916ffa72a28ba0dd0"
+  },
+  "baseline": {
+    "commit": "46ae827",
+    "files": {
+      "assets/survival/fishing-boats.js": "7cbaebd70d7cde58e145ba9c84fd90970e3693a8d9fce1f9bd9ebf02a4fd475b",
+      "assets/pow/river.js": "c062527afd62fc76c72cebb796916f4a52d4a1ebd86bfb7ec36381e10f6094a2"
+    }
+  },
+  "checks": [
+    {
+      "name": "desktop original river chapter initializes actual WebGL2",
+      "passed": true,
+      "actual": {
+        "stage": "river",
+        "practice": "river",
+        "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "gl": 0
+      }
+    },
+    {
+      "name": "desktop fishingSampan-above has opaque interior over production river water",
+      "passed": true,
+      "actual": {
+        "id": "fishingSampan-above",
+        "mesh": "fishingSampan",
+        "view": "above",
+        "eye": [
+          0.6160000000000001,
+          10,
+          -4.199999999999999
+        ],
+        "pose": [
+          0,
+          0,
+          0
+        ],
+        "origin": [
+          0,
+          5.625,
+          0
+        ],
+        "probes": [
+          {
+            "local": [
+              -0.1670634885143652,
+              0.16853359999999998,
+              -1.6239999999999999
+            ],
+            "world": [
+              -0.1670634885143652,
+              5.7935336,
+              -1.6239999999999999
+            ],
+            "screen": {
+              "x": 238,
+              "y": 141,
+              "w": 4.989535577010097
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 93.22222222222223,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 104.66666666666666,
+            "beforeWet": [
+              57.333333333333336,
+              121.33333333333333,
+              134.33333333333334
+            ],
+            "afterWet": [
+              162,
+              119,
+              57.666666666666664
+            ],
+            "water": [
+              57.333333333333336,
+              121.33333333333333,
+              134.33333333333334
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.16853359999999998,
+              -1.6239999999999999
+            ],
+            "world": [
+              0,
+              5.7935336,
+              -1.6239999999999999
+            ],
+            "screen": {
+              "x": 228,
+              "y": 139,
+              "w": 4.9685229461021425
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 94.77777777777777,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 106.33333333333334,
+            "beforeWet": [
+              56.111111111111114,
+              120.33333333333333,
+              133.33333333333334
+            ],
+            "afterWet": [
+              162.44444444444446,
+              118,
+              56
+            ],
+            "water": [
+              56.111111111111114,
+              120.33333333333333,
+              133.33333333333334
+            ]
+          },
+          {
+            "local": [
+              0.1670634885143652,
+              0.16853359999999998,
+              -1.6239999999999999
+            ],
+            "world": [
+              0.1670634885143652,
+              5.7935336,
+              -1.6239999999999999
+            ],
+            "screen": {
+              "x": 218,
+              "y": 137,
+              "w": 4.947510315194187
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 99.88888888888889,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 107.55555555555554,
+            "beforeWet": [
+              63.333333333333336,
+              128,
+              140.55555555555554
+            ],
+            "afterWet": [
+              170.88888888888889,
+              121.66666666666667,
+              57.666666666666664
+            ],
+            "water": [
+              63.333333333333336,
+              128,
+              140.55555555555554
+            ]
+          },
+          {
+            "local": [
+              -0.15430924843891672,
+              0.1886432,
+              -1.7919999999999998
+            ],
+            "world": [
+              -0.15430924843891672,
+              5.8136432,
+              -1.7919999999999998
+            ],
+            "screen": {
+              "x": 240,
+              "y": 133,
+              "w": 4.888003226228504
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 63.00000000000001,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 94.22222222222223,
+            "beforeWet": [
+              83.22222222222223,
+              112.55555555555556,
+              104.22222222222223
+            ],
+            "afterWet": [
+              153.44444444444446,
+              112.33333333333333,
+              53.77777777777778
+            ],
+            "water": [
+              59.22222222222222,
+              123.77777777777777,
+              136.66666666666666
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.1886432,
+              -1.7919999999999998
+            ],
+            "world": [
+              0,
+              5.8136432,
+              -1.7919999999999998
+            ],
+            "screen": {
+              "x": 230,
+              "y": 131,
+              "w": 4.868594776710511
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 99.44444444444444,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 97.22222222222221,
+            "beforeWet": [
+              58.44444444444444,
+              122,
+              134.55555555555554
+            ],
+            "afterWet": [
+              155.66666666666666,
+              112.77777777777777,
+              54.888888888888886
+            ],
+            "water": [
+              58.44444444444444,
+              122,
+              134.55555555555554
+            ]
+          },
+          {
+            "local": [
+              0.15430924843891672,
+              0.1886432,
+              -1.7919999999999998
+            ],
+            "world": [
+              0.15430924843891672,
+              5.8136432,
+              -1.7919999999999998
+            ],
+            "screen": {
+              "x": 221,
+              "y": 128,
+              "w": 4.849186327192518
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 98,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 104.66666666666666,
+            "beforeWet": [
+              61.111111111111114,
+              125.22222222222223,
+              138.11111111111111
+            ],
+            "afterWet": [
+              165.77777777777777,
+              118,
+              55.77777777777778
+            ],
+            "water": [
+              61.111111111111114,
+              125.22222222222223,
+              138.11111111111111
+            ]
+          },
+          {
+            "local": [
+              -0.14001966452593587,
+              0.21289999999999998,
+              -1.9599999999999997
+            ],
+            "world": [
+              -0.14001966452593587,
+              5.8379,
+              -1.9599999999999997
+            ],
+            "screen": {
+              "x": 242,
+              "y": 124,
+              "w": 4.782704332686693
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 30.888888888888886,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 114,
+            "beforeWet": [
+              97.22222222222223,
+              94.77777777777777,
+              69.33333333333333
+            ],
+            "afterWet": [
+              168.33333333333334,
+              120.77777777777777,
+              55.44444444444444
+            ],
+            "water": [
+              54.333333333333336,
+              118,
+              130.88888888888889
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.21289999999999998,
+              -1.9599999999999997
+            ],
+            "world": [
+              0,
+              5.8379,
+              -1.9599999999999997
+            ],
+            "screen": {
+              "x": 233,
+              "y": 122,
+              "w": 4.765093174457549
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 93.77777777777777,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 94.55555555555554,
+            "beforeWet": [
+              63,
+              127.77777777777777,
+              140.22222222222223
+            ],
+            "afterWet": [
+              157.55555555555554,
+              113.55555555555556,
+              54.333333333333336
+            ],
+            "water": [
+              63,
+              127.77777777777777,
+              140.22222222222223
+            ]
+          },
+          {
+            "local": [
+              0.14001966452593587,
+              0.21289999999999998,
+              -1.9599999999999997
+            ],
+            "world": [
+              0.14001966452593587,
+              5.8379,
+              -1.9599999999999997
+            ],
+            "screen": {
+              "x": 224,
+              "y": 120,
+              "w": 4.747482016228407
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 109.2222222222222,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 105.77777777777777,
+            "beforeWet": [
+              53.333333333333336,
+              116.88888888888889,
+              130.11111111111111
+            ],
+            "afterWet": [
+              159.11111111111111,
+              111.88888888888889,
+              53.111111111111114
+            ],
+            "water": [
+              53.333333333333336,
+              116.88888888888889,
+              130.11111111111111
+            ]
+          }
+        ],
+        "changedPixels": 6382,
+        "frame": [
+          461,
+          259
+        ]
+      }
+    },
+    {
+      "name": "desktop fishingSampan-water-level has opaque interior over production river water",
+      "passed": true,
+      "actual": {
+        "id": "fishingSampan-water-level",
+        "mesh": "fishingSampan",
+        "view": "water-level",
+        "eye": [
+          1.344,
+          6.449999999999999,
+          -2.856
+        ],
+        "pose": [
+          0,
+          0.012,
+          0.025
+        ],
+        "origin": [
+          0,
+          5.607,
+          0
+        ],
+        "probes": [
+          {
+            "local": [
+              -0.1670634885143652,
+              0.16853359999999998,
+              -1.6239999999999999
+            ],
+            "world": [
+              -0.16279837877426256,
+              5.799132065530644,
+              -1.6218112328208725
+            ],
+            "screen": {
+              "x": 227,
+              "y": 140,
+              "w": 2.050777523515408
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 129.88888888888889,
+            "beforeWet": [
+              83.22222222222223,
+              45.22222222222222,
+              12.222222222222221
+            ],
+            "afterWet": [
+              83.22222222222223,
+              45.22222222222222,
+              12.222222222222221
+            ],
+            "water": [
+              68.33333333333333,
+              129.77777777777777,
+              142.11111111111111
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.16853359999999998,
+              -1.6239999999999999
+            ],
+            "world": [
+              0.004212901205010711,
+              5.794956214196241,
+              -1.6218613454419955
+            ],
+            "screen": {
+              "x": 215,
+              "y": 135,
+              "w": 1.9303090596867367
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 124.55555555555556,
+            "beforeWet": [
+              103.33333333333333,
+              59.888888888888886,
+              19.333333333333332
+            ],
+            "afterWet": [
+              103.33333333333333,
+              59.888888888888886,
+              19.333333333333332
+            ],
+            "water": [
+              75.44444444444444,
+              131.88888888888889,
+              143.88888888888889
+            ]
+          },
+          {
+            "local": [
+              0.1670634885143652,
+              0.16853359999999998,
+              -1.6239999999999999
+            ],
+            "world": [
+              0.171224181184284,
+              5.790780362861837,
+              -1.6219114580631184
+            ],
+            "screen": {
+              "x": 202,
+              "y": 129,
+              "w": 1.8098405958580663
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 140,
+            "beforeWet": [
+              89.33333333333333,
+              45.333333333333336,
+              11.222222222222221
+            ],
+            "afterWet": [
+              89.33333333333333,
+              45.333333333333336,
+              11.222222222222221
+            ],
+            "water": [
+              83.55555555555556,
+              139.33333333333334,
+              151.22222222222223
+            ]
+          },
+          {
+            "local": [
+              -0.15430924843891672,
+              0.1886432,
+              -1.7919999999999998
+            ],
+            "world": [
+              -0.14954543684752603,
+              5.820931086244236,
+              -1.789561728202109
+            ],
+            "screen": {
+              "x": 241,
+              "y": 139,
+              "w": 1.9361851859224375
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 138.44444444444446,
+            "beforeWet": [
+              91.88888888888889,
+              48,
+              11.666666666666666
+            ],
+            "afterWet": [
+              91.88888888888889,
+              48,
+              11.666666666666666
+            ],
+            "water": [
+              83.44444444444444,
+              138.22222222222223,
+              150.11111111111111
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.1886432,
+              -1.7919999999999998
+            ],
+            "world": [
+              0.0047155888475477695,
+              5.817074034732055,
+              -1.7896080150417504
+            ],
+            "screen": {
+              "x": 230,
+              "y": 133,
+              "w": 1.8249137269142368
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 127.77777777777777,
+            "beforeWet": [
+              91.11111111111111,
+              49.22222222222222,
+              12.777777777777779
+            ],
+            "afterWet": [
+              91.11111111111111,
+              49.22222222222222,
+              12.777777777777779
+            ],
+            "water": [
+              66.55555555555556,
+              127.88888888888889,
+              140.55555555555554
+            ]
+          },
+          {
+            "local": [
+              0.15430924843891672,
+              0.1886432,
+              -1.7919999999999998
+            ],
+            "world": [
+              0.15897661454262157,
+              5.813216983219875,
+              -1.7896543018813917
+            ],
+            "screen": {
+              "x": 218,
+              "y": 128,
+              "w": 1.7136422679060375
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 132.11111111111111,
+            "beforeWet": [
+              92.66666666666667,
+              46.888888888888886,
+              11.777777777777779
+            ],
+            "afterWet": [
+              92.66666666666667,
+              46.888888888888886,
+              11.777777777777779
+            ],
+            "water": [
+              71.66666666666667,
+              131.66666666666666,
+              143.88888888888889
+            ]
+          },
+          {
+            "local": [
+              -0.14001966452593587,
+              0.21289999999999998,
+              -1.9599999999999997
+            ],
+            "world": [
+              -0.13465396168686025,
+              5.846837335733877,
+              -1.9572629344742976
+            ],
+            "screen": {
+              "x": 256,
+              "y": 137,
+              "w": 1.8189296227148675
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 129.44444444444443,
+            "beforeWet": [
+              98,
+              58.111111111111114,
+              18.11111111111111
+            ],
+            "afterWet": [
+              98,
+              58.111111111111114,
+              18.11111111111111
+            ],
+            "water": [
+              82.22222222222223,
+              135.77777777777777,
+              147.55555555555554
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.21289999999999998,
+              -1.9599999999999997
+            ],
+            "world": [
+              0.005321945692412555,
+              5.8433374608770015,
+              -1.957304934988357
+            ],
+            "screen": {
+              "x": 246,
+              "y": 132,
+              "w": 1.7179622956151763
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 142.11111111111111,
+            "beforeWet": [
+              80.55555555555556,
+              43,
+              11.333333333333334
+            ],
+            "afterWet": [
+              80.55555555555556,
+              43,
+              11.333333333333334
+            ],
+            "water": [
+              89.66666666666667,
+              142,
+              153.44444444444446
+            ]
+          },
+          {
+            "local": [
+              0.14001966452593587,
+              0.21289999999999998,
+              -1.9599999999999997
+            ],
+            "world": [
+              0.14529785307168538,
+              5.839837586020126,
+              -1.9573469355024162
+            ],
+            "screen": {
+              "x": 236,
+              "y": 126,
+              "w": 1.6169949685154856
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 129.33333333333331,
+            "beforeWet": [
+              95,
+              50.888888888888886,
+              14.222222222222221
+            ],
+            "afterWet": [
+              95,
+              50.888888888888886,
+              14.222222222222221
+            ],
+            "water": [
+              71.33333333333333,
+              131.11111111111111,
+              143.55555555555554
+            ]
+          }
+        ],
+        "changedPixels": 1208,
+        "frame": [
+          461,
+          259
+        ]
+      }
+    },
+    {
+      "name": "desktop fishingCanopyHull-above has opaque interior over production river water",
+      "passed": true,
+      "actual": {
+        "id": "fishingCanopyHull-above",
+        "mesh": "fishingCanopyHull",
+        "view": "above",
+        "eye": [
+          0.781,
+          10,
+          -4.65
+        ],
+        "pose": [
+          0,
+          0,
+          0
+        ],
+        "origin": [
+          0,
+          5.625,
+          0
+        ],
+        "probes": [
+          {
+            "local": [
+              -0.2118126372235701,
+              0.16853359999999998,
+              -1.7979999999999998
+            ],
+            "world": [
+              -0.2118126372235701,
+              5.7935336,
+              -1.7979999999999998
+            ],
+            "screen": {
+              "x": 240,
+              "y": 142,
+              "w": 5.171904916770073
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 92.66666666666666,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 103.77777777777777,
+            "beforeWet": [
+              62.77777777777778,
+              128.22222222222223,
+              140.77777777777777
+            ],
+            "afterWet": [
+              166.55555555555554,
+              114.33333333333333,
+              49.666666666666664
+            ],
+            "water": [
+              62.77777777777778,
+              128.22222222222223,
+              140.77777777777777
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.16853359999999998,
+              -1.7979999999999998
+            ],
+            "world": [
+              0,
+              5.7935336,
+              -1.7979999999999998
+            ],
+            "screen": {
+              "x": 227,
+              "y": 139,
+              "w": 5.139162386523246
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 97.66666666666666,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 101.11111111111111,
+            "beforeWet": [
+              57.888888888888886,
+              121.77777777777777,
+              134.44444444444446
+            ],
+            "afterWet": [
+              159,
+              113.11111111111111,
+              53
+            ],
+            "water": [
+              57.888888888888886,
+              121.77777777777777,
+              134.44444444444446
+            ]
+          },
+          {
+            "local": [
+              0.2118126372235701,
+              0.16853359999999998,
+              -1.7979999999999998
+            ],
+            "world": [
+              0.2118126372235701,
+              5.7935336,
+              -1.7979999999999998
+            ],
+            "screen": {
+              "x": 215,
+              "y": 136,
+              "w": 5.106419856276419
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 91.88888888888889,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 104,
+            "beforeWet": [
+              57.666666666666664,
+              122.33333333333333,
+              135.11111111111111
+            ],
+            "afterWet": [
+              161.66666666666666,
+              118,
+              57.55555555555556
+            ],
+            "water": [
+              57.666666666666664,
+              122.33333333333333,
+              135.11111111111111
+            ]
+          },
+          {
+            "local": [
+              -0.19564208284219795,
+              0.1886432,
+              -1.9840000000000002
+            ],
+            "world": [
+              -0.19564208284219795,
+              5.8136432,
+              -1.9840000000000002
+            ],
+            "screen": {
+              "x": 242,
+              "y": 133,
+              "w": 5.054460262975621
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 59.88888888888889,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 99.55555555555554,
+            "beforeWet": [
+              84,
+              114.55555555555556,
+              105.66666666666667
+            ],
+            "afterWet": [
+              156.88888888888889,
+              114,
+              53.44444444444444
+            ],
+            "water": [
+              57.333333333333336,
+              121.88888888888889,
+              134.77777777777777
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.1886432,
+              -1.9840000000000002
+            ],
+            "world": [
+              0,
+              5.8136432,
+              -1.9840000000000002
+            ],
+            "screen": {
+              "x": 230,
+              "y": 131,
+              "w": 5.0242174176998144
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 94.11111111111111,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 100.88888888888889,
+            "beforeWet": [
+              62,
+              126.88888888888889,
+              139.44444444444446
+            ],
+            "afterWet": [
+              162.88888888888889,
+              117.88888888888889,
+              56.666666666666664
+            ],
+            "water": [
+              62,
+              126.88888888888889,
+              139.44444444444446
+            ]
+          },
+          {
+            "local": [
+              0.19564208284219795,
+              0.1886432,
+              -1.9840000000000002
+            ],
+            "world": [
+              0.19564208284219795,
+              5.8136432,
+              -1.9840000000000002
+            ],
+            "screen": {
+              "x": 219,
+              "y": 128,
+              "w": 4.993974572424008
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 104.55555555555557,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 112.33333333333334,
+            "beforeWet": [
+              55.77777777777778,
+              120.55555555555556,
+              133.55555555555554
+            ],
+            "afterWet": [
+              168.11111111111111,
+              126.44444444444444,
+              64.77777777777777
+            ],
+            "water": [
+              55.77777777777778,
+              120.55555555555556,
+              133.55555555555554
+            ]
+          },
+          {
+            "local": [
+              -0.17752493180966866,
+              0.21289999999999998,
+              -2.17
+            ],
+            "world": [
+              -0.17752493180966866,
+              5.8379,
+              -2.17
+            ],
+            "screen": {
+              "x": 245,
+              "y": 125,
+              "w": 4.9332507084686785
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 107.11111111111111,
+            "beforeWet": [
+              130,
+              89.11111111111111,
+              39.333333333333336
+            ],
+            "afterWet": [
+              166.88888888888889,
+              120.66666666666667,
+              56.55555555555556
+            ],
+            "water": [
+              59.77777777777778,
+              123.55555555555556,
+              136.33333333333334
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.21289999999999998,
+              -2.17
+            ],
+            "world": [
+              0,
+              5.8379,
+              -2.17
+            ],
+            "screen": {
+              "x": 234,
+              "y": 122,
+              "w": 4.905808457970618
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 98.66666666666666,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 106.88888888888889,
+            "beforeWet": [
+              56.333333333333336,
+              120.77777777777777,
+              133.77777777777777
+            ],
+            "afterWet": [
+              163.22222222222223,
+              118.22222222222223,
+              57.111111111111114
+            ],
+            "water": [
+              56.333333333333336,
+              120.77777777777777,
+              133.77777777777777
+            ]
+          },
+          {
+            "local": [
+              0.17752493180966866,
+              0.21289999999999998,
+              -2.17
+            ],
+            "world": [
+              0.17752493180966866,
+              5.8379,
+              -2.17
+            ],
+            "screen": {
+              "x": 223,
+              "y": 119,
+              "w": 4.878366207472558
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 95,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 96,
+            "beforeWet": [
+              56.77777777777778,
+              121.44444444444444,
+              134.66666666666666
+            ],
+            "afterWet": [
+              152.77777777777777,
+              108.11111111111111,
+              51.666666666666664
+            ],
+            "water": [
+              56.77777777777778,
+              121.44444444444444,
+              134.66666666666666
+            ]
+          }
+        ],
+        "changedPixels": 5297,
+        "frame": [
+          461,
+          259
+        ]
+      }
+    },
+    {
+      "name": "desktop fishingCanopyHull-water-level has opaque interior over production river water",
+      "passed": true,
+      "actual": {
+        "id": "fishingCanopyHull-water-level",
+        "mesh": "fishingCanopyHull",
+        "view": "water-level",
+        "eye": [
+          1.704,
+          6.449999999999999,
+          -3.1620000000000004
+        ],
+        "pose": [
+          0,
+          0.012,
+          0.025
+        ],
+        "origin": [
+          0,
+          5.607,
+          0
+        ],
+        "probes": [
+          {
+            "local": [
+              -0.2118126372235701,
+              0.16853359999999998,
+              -1.7979999999999998
+            ],
+            "world": [
+              -0.20753354305442498,
+              5.8023385470827336,
+              -1.7957852813778625
+            ],
+            "screen": {
+              "x": 227,
+              "y": 139,
+              "w": 2.4345892870472015
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 144,
+            "beforeWet": [
+              77.66666666666667,
+              41.22222222222222,
+              10.222222222222221
+            ],
+            "afterWet": [
+              77.66666666666667,
+              41.22222222222222,
+              10.222222222222221
+            ],
+            "water": [
+              91.55555555555556,
+              142.66666666666666,
+              154.22222222222223
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.16853359999999998,
+              -1.7979999999999998
+            ],
+            "world": [
+              0.004212901205010711,
+              5.7970441641409005,
+              -1.7958488170225007
+            ],
+            "screen": {
+              "x": 216,
+              "y": 134,
+              "w": 2.2704594214217884
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 129,
+            "beforeWet": [
+              88.44444444444444,
+              49.55555555555556,
+              14.555555555555555
+            ],
+            "afterWet": [
+              88.44444444444444,
+              49.55555555555556,
+              14.555555555555555
+            ],
+            "water": [
+              72.22222222222223,
+              131.11111111111111,
+              143.55555555555554
+            ]
+          },
+          {
+            "local": [
+              0.2118126372235701,
+              0.16853359999999998,
+              -1.7979999999999998
+            ],
+            "world": [
+              0.21595934546444642,
+              5.791749781199068,
+              -1.7959123526671388
+            ],
+            "screen": {
+              "x": 202,
+              "y": 128,
+              "w": 2.106329555796375
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 135.88888888888889,
+            "beforeWet": [
+              91.22222222222223,
+              45.666666666666664,
+              11.444444444444445
+            ],
+            "afterWet": [
+              91.22222222222223,
+              45.666666666666664,
+              11.444444444444445
+            ],
+            "water": [
+              79.22222222222223,
+              135.44444444444446,
+              147.33333333333334
+            ]
+          },
+          {
+            "local": [
+              -0.19564208284219795,
+              0.1886432,
+              -1.9840000000000002
+            ],
+            "world": [
+              -0.19086535444442077,
+              5.824268169808663,
+              -1.9815355054786008
+            ],
+            "screen": {
+              "x": 240,
+              "y": 138,
+              "w": 2.3142929480977585
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 133.77777777777777,
+            "beforeWet": [
+              95.77777777777777,
+              51.55555555555556,
+              13.444444444444445
+            ],
+            "afterWet": [
+              95.77777777777777,
+              51.55555555555556,
+              13.444444444444445
+            ],
+            "water": [
+              80.44444444444444,
+              135.11111111111111,
+              147.22222222222223
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.1886432,
+              -1.9840000000000002
+            ],
+            "world": [
+              0.0047155888475477695,
+              5.819377979498577,
+              -1.9815941905788603
+            ],
+            "screen": {
+              "x": 230,
+              "y": 133,
+              "w": 2.1626933590058544
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 147.66666666666669,
+            "beforeWet": [
+              78.22222222222223,
+              42.77777777777778,
+              11.555555555555555
+            ],
+            "afterWet": [
+              78.22222222222223,
+              42.77777777777778,
+              11.555555555555555
+            ],
+            "water": [
+              102.11111111111111,
+              148.22222222222223,
+              159.22222222222223
+            ]
+          },
+          {
+            "local": [
+              0.19564208284219795,
+              0.1886432,
+              -1.9840000000000002
+            ],
+            "world": [
+              0.20029653213951631,
+              5.814487789188491,
+              -1.98165287567912
+            ],
+            "screen": {
+              "x": 218,
+              "y": 128,
+              "w": 2.0110937699139493
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 135.11111111111111,
+            "beforeWet": [
+              86.22222222222223,
+              45.888888888888886,
+              12.222222222222221
+            ],
+            "afterWet": [
+              86.22222222222223,
+              45.888888888888886,
+              12.222222222222221
+            ],
+            "water": [
+              78.11111111111111,
+              135.33333333333334,
+              147.33333333333334
+            ]
+          },
+          {
+            "local": [
+              -0.17752493180966866,
+              0.21289999999999998,
+              -2.17
+            ],
+            "world": [
+              -0.17214750830630832,
+              5.85029474180178,
+              -2.1672365638303166
+            ],
+            "screen": {
+              "x": 255,
+              "y": 137,
+              "w": 2.191158259402497
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 110.99999999999999,
+            "beforeWet": [
+              119.55555555555556,
+              73.22222222222223,
+              25.666666666666668
+            ],
+            "afterWet": [
+              119.55555555555556,
+              73.22222222222223,
+              25.666666666666668
+            ],
+            "water": [
+              63.888888888888886,
+              123.88888888888889,
+              136.66666666666666
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.21289999999999998,
+              -2.17
+            ],
+            "world": [
+              0.005321945692412555,
+              5.845857400465384,
+              -2.1672898144820705
+            ],
+            "screen": {
+              "x": 246,
+              "y": 133,
+              "w": 2.0535973301538464
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 133.55555555555554,
+            "beforeWet": [
+              98.44444444444444,
+              55.55555555555556,
+              16.22222222222222
+            ],
+            "afterWet": [
+              98.44444444444444,
+              55.55555555555556,
+              16.22222222222222
+            ],
+            "water": [
+              81.22222222222223,
+              137.66666666666666,
+              149.77777777777777
+            ]
+          },
+          {
+            "local": [
+              0.17752493180966866,
+              0.21289999999999998,
+              -2.17
+            ],
+            "world": [
+              0.18279139969113345,
+              5.841420059128988,
+              -2.1673430651338244
+            ],
+            "screen": {
+              "x": 236,
+              "y": 127,
+              "w": 1.9160364009051962
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 136.88888888888889,
+            "beforeWet": [
+              79.55555555555556,
+              40,
+              9.777777777777779
+            ],
+            "afterWet": [
+              79.55555555555556,
+              40,
+              9.777777777777779
+            ],
+            "water": [
+              78.11111111111111,
+              134.55555555555554,
+              146.66666666666666
+            ]
+          }
+        ],
+        "changedPixels": 499,
+        "frame": [
+          461,
+          259
+        ]
+      }
+    },
+    {
+      "name": "desktop fishingWorkboat-above has opaque interior over production river water",
+      "passed": true,
+      "actual": {
+        "id": "fishingWorkboat-above",
+        "mesh": "fishingWorkboat",
+        "view": "above",
+        "eye": [
+          1.364,
+          10,
+          -6.1499999999999995
+        ],
+        "pose": [
+          0,
+          0,
+          0
+        ],
+        "origin": [
+          0,
+          5.625,
+          0
+        ],
+        "probes": [
+          {
+            "local": [
+              -0.36992629599609433,
+              0.16853359999999998,
+              -2.3779999999999997
+            ],
+            "world": [
+              -0.36992629599609433,
+              5.7935336,
+              -2.3779999999999997
+            ],
+            "screen": {
+              "x": 244,
+              "y": 144,
+              "w": 5.897893897804909
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 85.22222222222223,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 99.44444444444443,
+            "beforeWet": [
+              57.22222222222222,
+              121,
+              134.44444444444446
+            ],
+            "afterWet": [
+              156.66666666666666,
+              106.77777777777777,
+              46.333333333333336
+            ],
+            "water": [
+              57.22222222222222,
+              121,
+              134.44444444444446
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.16853359999999998,
+              -2.3779999999999997
+            ],
+            "world": [
+              0,
+              5.7935336,
+              -2.3779999999999997
+            ],
+            "screen": {
+              "x": 226,
+              "y": 139,
+              "w": 5.8088372345058445
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 92.66666666666666,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 106.88888888888889,
+            "beforeWet": [
+              56.333333333333336,
+              120.77777777777777,
+              133.88888888888889
+            ],
+            "afterWet": [
+              163.22222222222223,
+              116.88888888888889,
+              54.22222222222222
+            ],
+            "water": [
+              56.333333333333336,
+              120.77777777777777,
+              133.88888888888889
+            ]
+          },
+          {
+            "local": [
+              0.36992629599609433,
+              0.16853359999999998,
+              -2.3779999999999997
+            ],
+            "world": [
+              0.36992629599609433,
+              5.7935336,
+              -2.3779999999999997
+            ],
+            "screen": {
+              "x": 207,
+              "y": 134,
+              "w": 5.71978057120678
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 92.66666666666666,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 96.55555555555556,
+            "beforeWet": [
+              58.44444444444444,
+              122.66666666666667,
+              135.66666666666666
+            ],
+            "afterWet": [
+              155,
+              111.22222222222223,
+              53.22222222222222
+            ],
+            "water": [
+              58.44444444444444,
+              122.66666666666667,
+              135.66666666666666
+            ]
+          },
+          {
+            "local": [
+              -0.3416847644004584,
+              0.1886432,
+              -2.6239999999999997
+            ],
+            "world": [
+              -0.3416847644004584,
+              5.8136432,
+              -2.6239999999999997
+            ],
+            "screen": {
+              "x": 248,
+              "y": 136,
+              "w": 5.723024397176407
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 82.66666666666666,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 118.88888888888889,
+            "beforeWet": [
+              66,
+              118.44444444444444,
+              123.88888888888889
+            ],
+            "afterWet": [
+              173.88888888888889,
+              120.33333333333333,
+              53.77777777777778
+            ],
+            "water": [
+              55,
+              118.88888888888889,
+              131.88888888888889
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.1886432,
+              -2.6239999999999997
+            ],
+            "world": [
+              0,
+              5.8136432,
+              -2.6239999999999997
+            ],
+            "screen": {
+              "x": 231,
+              "y": 131,
+              "w": 5.640766646519089
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 102.66666666666666,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 108.55555555555554,
+            "beforeWet": [
+              54,
+              117.44444444444444,
+              130.44444444444446
+            ],
+            "afterWet": [
+              162.55555555555554,
+              116.55555555555556,
+              54.333333333333336
+            ],
+            "water": [
+              54,
+              117.44444444444444,
+              130.44444444444446
+            ]
+          },
+          {
+            "local": [
+              0.3416847644004584,
+              0.1886432,
+              -2.6239999999999997
+            ],
+            "world": [
+              0.3416847644004584,
+              5.8136432,
+              -2.6239999999999997
+            ],
+            "screen": {
+              "x": 213,
+              "y": 126,
+              "w": 5.558508895861771
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 97.99999999999999,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 104.66666666666667,
+            "beforeWet": [
+              59.55555555555556,
+              124.33333333333333,
+              137.33333333333334
+            ],
+            "afterWet": [
+              164.22222222222223,
+              122.77777777777777,
+              63.22222222222222
+            ],
+            "water": [
+              59.55555555555556,
+              124.33333333333333,
+              137.33333333333334
+            ]
+          },
+          {
+            "local": [
+              -0.310043542878858,
+              0.21289999999999998,
+              -2.8699999999999997
+            ],
+            "world": [
+              -0.310043542878858,
+              5.8379,
+              -2.8699999999999997
+            ],
+            "screen": {
+              "x": 252,
+              "y": 127,
+              "w": 5.544247546456895
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 90.55555555555557,
+            "beforeWet": [
+              137,
+              101.55555555555556,
+              50.111111111111114
+            ],
+            "afterWet": [
+              151.44444444444446,
+              105.88888888888889,
+              48.44444444444444
+            ],
+            "water": [
+              60.888888888888886,
+              124.88888888888889,
+              137.33333333333334
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.21289999999999998,
+              -2.8699999999999997
+            ],
+            "world": [
+              0,
+              5.8379,
+              -2.8699999999999997
+            ],
+            "screen": {
+              "x": 236,
+              "y": 122,
+              "w": 5.469607155370713
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 97.88888888888889,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 97.88888888888889,
+            "beforeWet": [
+              58.22222222222222,
+              122.88888888888889,
+              136
+            ],
+            "afterWet": [
+              156.11111111111111,
+              109.66666666666667,
+              51.22222222222222
+            ],
+            "water": [
+              58.22222222222222,
+              122.88888888888889,
+              136
+            ]
+          },
+          {
+            "local": [
+              0.310043542878858,
+              0.21289999999999998,
+              -2.8699999999999997
+            ],
+            "world": [
+              0.310043542878858,
+              5.8379,
+              -2.8699999999999997
+            ],
+            "screen": {
+              "x": 219,
+              "y": 117,
+              "w": 5.39496676428453
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 101.11111111111111,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 107.33333333333334,
+            "beforeWet": [
+              58.666666666666664,
+              123.44444444444444,
+              136.22222222222223
+            ],
+            "afterWet": [
+              166,
+              122.88888888888889,
+              60.77777777777778
+            ],
+            "water": [
+              58.666666666666664,
+              123.44444444444444,
+              136.22222222222223
+            ]
+          }
+        ],
+        "changedPixels": 5159,
+        "frame": [
+          461,
+          259
+        ]
+      }
+    },
+    {
+      "name": "desktop fishingWorkboat-water-level has opaque interior over production river water",
+      "passed": true,
+      "actual": {
+        "id": "fishingWorkboat-water-level",
+        "mesh": "fishingWorkboat",
+        "view": "water-level",
+        "eye": [
+          2.976,
+          6.449999999999999,
+          -4.1819999999999995
+        ],
+        "pose": [
+          0,
+          0.012,
+          0.025
+        ],
+        "origin": [
+          0,
+          5.607,
+          0
+        ],
+        "probes": [
+          {
+            "local": [
+              -0.36992629599609433,
+              0.16853359999999998,
+              -2.3779999999999997
+            ],
+            "world": [
+              -0.3655977901776658,
+              5.813250525244518,
+              -2.3756960919631274
+            ],
+            "screen": {
+              "x": 228,
+              "y": 136,
+              "w": 3.8493995005191626
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 105.44444444444444,
+            "beforeWet": [
+              0.5555555555555556,
+              60.111111111111114,
+              72
+            ],
+            "afterWet": [
+              0.5555555555555556,
+              60.111111111111114,
+              72
+            ],
+            "water": [
+              106,
+              153.44444444444446,
+              164.11111111111111
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.16853359999999998,
+              -2.3779999999999997
+            ],
+            "world": [
+              0.004212901205010711,
+              5.804003997289768,
+              -2.3758070556241853
+            ],
+            "screen": {
+              "x": 217,
+              "y": 132,
+              "w": 3.529857592660976
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 77,
+            "beforeWet": [
+              3.3333333333333335,
+              71.44444444444444,
+              79.77777777777777
+            ],
+            "afterWet": [
+              3.3333333333333335,
+              71.44444444444444,
+              79.77777777777777
+            ],
+            "water": [
+              80.33333333333333,
+              135.22222222222223,
+              147.11111111111111
+            ]
+          },
+          {
+            "local": [
+              0.36992629599609433,
+              0.16853359999999998,
+              -2.3779999999999997
+            ],
+            "world": [
+              0.37402359258768725,
+              5.794757469335018,
+              -2.3759180192852436
+            ],
+            "screen": {
+              "x": 204,
+              "y": 128,
+              "w": 3.210315684802789
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 95.44444444444444,
+            "beforeWet": [
+              0.8888888888888888,
+              64.33333333333333,
+              75
+            ],
+            "afterWet": [
+              0.8888888888888888,
+              64.33333333333333,
+              75
+            ],
+            "water": [
+              96.33333333333333,
+              145.33333333333334,
+              156.66666666666666
+            ]
+          },
+          {
+            "local": [
+              -0.3416847644004584,
+              0.1886432,
+              -2.6239999999999997
+            ],
+            "world": [
+              -0.33686239662011563,
+              5.835598409449667,
+              -2.6214456167481135
+            ],
+            "screen": {
+              "x": 239,
+              "y": 136,
+              "w": 3.7082836610985193
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 97.44444444444446,
+            "beforeWet": [
+              2.7777777777777777,
+              66.77777777777777,
+              75.22222222222223
+            ],
+            "afterWet": [
+              2.7777777777777777,
+              66.77777777777777,
+              75.22222222222223
+            ],
+            "water": [
+              100.22222222222223,
+              148.44444444444446,
+              159.33333333333334
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.1886432,
+              -2.6239999999999997
+            ],
+            "world": [
+              0.0047155888475477695,
+              5.827057795386982,
+              -2.6215481090358908
+            ],
+            "screen": {
+              "x": 230,
+              "y": 132,
+              "w": 3.4131367556626584
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 74.77777777777777,
+            "beforeWet": [
+              2.111111111111111,
+              72.77777777777777,
+              83
+            ],
+            "afterWet": [
+              2.111111111111111,
+              72.77777777777777,
+              83
+            ],
+            "water": [
+              76.88888888888889,
+              134.88888888888889,
+              147.11111111111111
+            ]
+          },
+          {
+            "local": [
+              0.3416847644004584,
+              0.1886432,
+              -2.6239999999999997
+            ],
+            "world": [
+              0.34629357431521113,
+              5.818517181324297,
+              -2.621650601323668
+            ],
+            "screen": {
+              "x": 219,
+              "y": 128,
+              "w": 3.117989850226798
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 103.77777777777777,
+            "beforeWet": [
+              2,
+              69.11111111111111,
+              79
+            ],
+            "afterWet": [
+              2,
+              69.11111111111111,
+              79
+            ],
+            "water": [
+              105.77777777777777,
+              152.55555555555554,
+              163.33333333333334
+            ]
+          },
+          {
+            "local": [
+              -0.310043542878858,
+              0.21289999999999998,
+              -2.8699999999999997
+            ],
+            "world": [
+              -0.30462470636169153,
+              5.8620069219906945,
+              -2.8671464116561736
+            ],
+            "screen": {
+              "x": 252,
+              "y": 136,
+              "w": 3.5633528431269266
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 86.55555555555556,
+            "beforeWet": [
+              1.6666666666666667,
+              70.22222222222223,
+              83.77777777777777
+            ],
+            "afterWet": [
+              1.6666666666666667,
+              70.22222222222223,
+              83.77777777777777
+            ],
+            "water": [
+              88.22222222222223,
+              141.11111111111111,
+              153
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.21289999999999998,
+              -2.8699999999999997
+            ],
+            "world": [
+              0.005321945692412555,
+              5.854257199093327,
+              -2.867239412794448
+            ],
+            "screen": {
+              "x": 244,
+              "y": 133,
+              "w": 3.2955375883506948
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 113.55555555555556,
+            "beforeWet": [
+              3.5555555555555554,
+              73.77777777777777,
+              80.55555555555556
+            ],
+            "afterWet": [
+              3.5555555555555554,
+              73.77777777777777,
+              80.55555555555556
+            ],
+            "water": [
+              117.11111111111111,
+              158.55555555555554,
+              169
+            ]
+          },
+          {
+            "local": [
+              0.310043542878858,
+              0.21289999999999998,
+              -2.8699999999999997
+            ],
+            "world": [
+              0.31526859774651667,
+              5.84650747619596,
+              -2.8673324139327225
+            ],
+            "screen": {
+              "x": 235,
+              "y": 129,
+              "w": 3.027722333574463
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 82.88888888888889,
+            "beforeWet": [
+              4.555555555555555,
+              75.55555555555556,
+              80.77777777777777
+            ],
+            "afterWet": [
+              4.555555555555555,
+              75.55555555555556,
+              80.77777777777777
+            ],
+            "water": [
+              87.44444444444444,
+              139.55555555555554,
+              151.33333333333334
+            ]
+          }
+        ],
+        "changedPixels": 380,
+        "frame": [
+          461,
+          259
+        ]
+      }
+    },
+    {
+      "name": "desktop powRiverSkiff-above has opaque interior over production river water",
+      "passed": true,
+      "actual": {
+        "id": "powRiverSkiff-above",
+        "mesh": "powRiverSkiff",
+        "view": "above",
+        "eye": [
+          0.9680000000000001,
+          10,
+          -3.2249999999999996
+        ],
+        "pose": [
+          0,
+          0,
+          0
+        ],
+        "origin": [
+          0,
+          5.63,
+          0
+        ],
+        "probes": [
+          {
+            "local": [
+              -0.45,
+              0.27,
+              -0.75
+            ],
+            "world": [
+              -0.45,
+              5.9000001144409175,
+              -0.75
+            ],
+            "screen": {
+              "x": 268,
+              "y": 111,
+              "w": 4.950534974218397
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 104.22222222222223,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 122,
+            "beforeWet": [
+              56,
+              120.22222222222223,
+              133.44444444444446
+            ],
+            "afterWet": [
+              178,
+              146.44444444444446,
+              89.33333333333333
+            ],
+            "water": [
+              56,
+              120.22222222222223,
+              133.44444444444446
+            ]
+          },
+          {
+            "local": [
+              -0.2,
+              0.27,
+              -0.75
+            ],
+            "world": [
+              -0.2,
+              5.9000001144409175,
+              -0.75
+            ],
+            "screen": {
+              "x": 253,
+              "y": 107,
+              "w": 4.904086221934347
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 101.44444444444446,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 125.88888888888889,
+            "beforeWet": [
+              54.666666666666664,
+              118.88888888888889,
+              132
+            ],
+            "afterWet": [
+              180.55555555555554,
+              148.77777777777777,
+              90.88888888888889
+            ],
+            "water": [
+              54.666666666666664,
+              118.88888888888889,
+              132
+            ]
+          },
+          {
+            "local": [
+              0.2,
+              0.27,
+              -0.75
+            ],
+            "world": [
+              0.2,
+              5.9000001144409175,
+              -0.75
+            ],
+            "screen": {
+              "x": 229,
+              "y": 101,
+              "w": 4.829768218279868
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 103.11111111111111,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 131.11111111111111,
+            "beforeWet": [
+              56.666666666666664,
+              120.88888888888889,
+              133.77777777777777
+            ],
+            "afterWet": [
+              187.77777777777777,
+              157.44444444444446,
+              99.88888888888889
+            ],
+            "water": [
+              56.666666666666664,
+              120.88888888888889,
+              133.77777777777777
+            ]
+          },
+          {
+            "local": [
+              0.45,
+              0.27,
+              -0.75
+            ],
+            "world": [
+              0.45,
+              5.9000001144409175,
+              -0.75
+            ],
+            "screen": {
+              "x": 213,
+              "y": 96,
+              "w": 4.783319465995818
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 97.22222222222223,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 132.66666666666666,
+            "beforeWet": [
+              57.888888888888886,
+              121.33333333333333,
+              134.22222222222223
+            ],
+            "afterWet": [
+              190.55555555555554,
+              160.77777777777777,
+              103.55555555555556
+            ],
+            "water": [
+              57.888888888888886,
+              121.33333333333333,
+              134.22222222222223
+            ]
+          },
+          {
+            "local": [
+              -0.45,
+              0.27,
+              -0.2
+            ],
+            "world": [
+              -0.45,
+              5.9000001144409175,
+              -0.2
+            ],
+            "screen": {
+              "x": 256,
+              "y": 137,
+              "w": 5.269870133877783
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 97.33333333333334,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 137.55555555555554,
+            "beforeWet": [
+              52.333333333333336,
+              115.77777777777777,
+              129.11111111111111
+            ],
+            "afterWet": [
+              189.88888888888889,
+              161.22222222222223,
+              107.22222222222223
+            ],
+            "water": [
+              52.333333333333336,
+              115.77777777777777,
+              129.11111111111111
+            ]
+          },
+          {
+            "local": [
+              -0.2,
+              0.27,
+              -0.2
+            ],
+            "world": [
+              -0.2,
+              5.9000001144409175,
+              -0.2
+            ],
+            "screen": {
+              "x": 242,
+              "y": 133,
+              "w": 5.223421381593733
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 98.88888888888889,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 135.2222222222222,
+            "beforeWet": [
+              52.333333333333336,
+              115.66666666666667,
+              129
+            ],
+            "afterWet": [
+              187.55555555555554,
+              157.44444444444446,
+              99.88888888888889
+            ],
+            "water": [
+              52.333333333333336,
+              115.66666666666667,
+              129
+            ]
+          },
+          {
+            "local": [
+              0.2,
+              0.27,
+              -0.2
+            ],
+            "world": [
+              0.2,
+              5.9000001144409175,
+              -0.2
+            ],
+            "screen": {
+              "x": 219,
+              "y": 128,
+              "w": 5.149103377939253
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 104.77777777777777,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 133.11111111111111,
+            "beforeWet": [
+              51,
+              113.33333333333333,
+              126.44444444444444
+            ],
+            "afterWet": [
+              184.11111111111111,
+              153.11111111111111,
+              95.77777777777777
+            ],
+            "water": [
+              51,
+              113.33333333333333,
+              126.44444444444444
+            ]
+          },
+          {
+            "local": [
+              0.45,
+              0.27,
+              -0.2
+            ],
+            "world": [
+              0.45,
+              5.9000001144409175,
+              -0.2
+            ],
+            "screen": {
+              "x": 204,
+              "y": 124,
+              "w": 5.1026546256552034
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 99,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 139.22222222222223,
+            "beforeWet": [
+              50.888888888888886,
+              113.77777777777777,
+              127.22222222222223
+            ],
+            "afterWet": [
+              190.11111111111111,
+              160.66666666666666,
+              103.88888888888889
+            ],
+            "water": [
+              50.888888888888886,
+              113.77777777777777,
+              127.22222222222223
+            ]
+          },
+          {
+            "local": [
+              -0.45,
+              0.27,
+              0.4
+            ],
+            "world": [
+              -0.45,
+              5.9000001144409175,
+              0.4
+            ],
+            "screen": {
+              "x": 244,
+              "y": 162,
+              "w": 5.618235762597112
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 94.8888888888889,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 127.22222222222221,
+            "beforeWet": [
+              54.55555555555556,
+              118.33333333333333,
+              131.33333333333334
+            ],
+            "afterWet": [
+              181.77777777777777,
+              150.77777777777777,
+              93.88888888888889
+            ],
+            "water": [
+              54.55555555555556,
+              118.33333333333333,
+              131.33333333333334
+            ]
+          },
+          {
+            "local": [
+              -0.2,
+              0.27,
+              0.4
+            ],
+            "world": [
+              -0.2,
+              5.9000001144409175,
+              0.4
+            ],
+            "screen": {
+              "x": 231,
+              "y": 159,
+              "w": 5.571787010313062
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 97.11111111111111,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 130,
+            "beforeWet": [
+              58.333333333333336,
+              122.44444444444444,
+              135.22222222222223
+            ],
+            "afterWet": [
+              188.33333333333334,
+              158.22222222222223,
+              100.77777777777777
+            ],
+            "water": [
+              58.333333333333336,
+              122.44444444444444,
+              135.22222222222223
+            ]
+          },
+          {
+            "local": [
+              0.2,
+              0.27,
+              0.4
+            ],
+            "world": [
+              0.2,
+              5.9000001144409175,
+              0.4
+            ],
+            "screen": {
+              "x": 209,
+              "y": 154,
+              "w": 5.497469006658583
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 107.1111111111111,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 133.22222222222223,
+            "beforeWet": [
+              56.55555555555556,
+              120.66666666666667,
+              133.88888888888889
+            ],
+            "afterWet": [
+              189.77777777777777,
+              159.77777777777777,
+              102.33333333333333
+            ],
+            "water": [
+              56.55555555555556,
+              120.66666666666667,
+              133.88888888888889
+            ]
+          },
+          {
+            "local": [
+              0.45,
+              0.27,
+              0.4
+            ],
+            "world": [
+              0.45,
+              5.9000001144409175,
+              0.4
+            ],
+            "screen": {
+              "x": 195,
+              "y": 150,
+              "w": 5.451020254374533
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 94.55555555555557,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 124.55555555555557,
+            "beforeWet": [
+              60.888888888888886,
+              125.77777777777777,
+              138.66666666666666
+            ],
+            "afterWet": [
+              185.44444444444446,
+              154.66666666666666,
+              97.22222222222223
+            ],
+            "water": [
+              60.888888888888886,
+              125.77777777777777,
+              138.66666666666666
+            ]
+          }
+        ],
+        "changedPixels": 13758,
+        "frame": [
+          461,
+          259
+        ]
+      }
+    },
+    {
+      "name": "desktop powRiverSkiff-water-level has opaque interior over production river water",
+      "passed": true,
+      "actual": {
+        "id": "powRiverSkiff-water-level",
+        "mesh": "powRiverSkiff",
+        "view": "water-level",
+        "eye": [
+          2.64,
+          6.699999999999999,
+          -0.2
+        ],
+        "pose": [
+          0,
+          0,
+          0
+        ],
+        "origin": [
+          0,
+          5.63,
+          0
+        ],
+        "probes": [
+          {
+            "local": [
+              -0.45,
+              0.27,
+              -0.75
+            ],
+            "world": [
+              -0.45,
+              5.9000001144409175,
+              -0.75
+            ],
+            "screen": {
+              "x": 268,
+              "y": 141,
+              "w": 3.1876856669278464
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 123.11111111111111,
+            "beforeWet": [
+              110.55555555555556,
+              77.77777777777777,
+              33
+            ],
+            "afterWet": [
+              110.55555555555556,
+              77.77777777777777,
+              33
+            ],
+            "water": [
+              93.11111111111111,
+              144.66666666666666,
+              156.11111111111111
+            ]
+          },
+          {
+            "local": [
+              -0.2,
+              0.27,
+              -0.75
+            ],
+            "world": [
+              -0.2,
+              5.9000001144409175,
+              -0.75
+            ],
+            "screen": {
+              "x": 271,
+              "y": 136,
+              "w": 2.949194623479398
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 119.66666666666669,
+            "beforeWet": [
+              109.66666666666667,
+              76.77777777777777,
+              32.77777777777778
+            ],
+            "afterWet": [
+              109.66666666666667,
+              76.77777777777777,
+              32.77777777777778
+            ],
+            "water": [
+              87.22222222222223,
+              140.77777777777777,
+              152.44444444444446
+            ]
+          },
+          {
+            "local": [
+              0.2,
+              0.27,
+              -0.75
+            ],
+            "world": [
+              0.2,
+              5.9000001144409175,
+              -0.75
+            ],
+            "screen": {
+              "x": 277,
+              "y": 127,
+              "w": 2.567608953961881
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 114.22222222222223,
+            "beforeWet": [
+              108.44444444444444,
+              75.55555555555556,
+              31.88888888888889
+            ],
+            "afterWet": [
+              108.44444444444444,
+              75.55555555555556,
+              31.88888888888889
+            ],
+            "water": [
+              80.11111111111111,
+              135.44444444444446,
+              146.11111111111111
+            ]
+          },
+          {
+            "local": [
+              0.45,
+              0.27,
+              -0.75
+            ],
+            "world": [
+              0.45,
+              5.9000001144409175,
+              -0.75
+            ],
+            "screen": {
+              "x": 281,
+              "y": 120,
+              "w": 2.3291179105134328
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 120.77777777777777,
+            "beforeWet": [
+              108.88888888888889,
+              76.44444444444444,
+              32.22222222222222
+            ],
+            "afterWet": [
+              108.88888888888889,
+              76.44444444444444,
+              32.22222222222222
+            ],
+            "water": [
+              89.33333333333333,
+              141.77777777777777,
+              153
+            ]
+          },
+          {
+            "local": [
+              -0.45,
+              0.27,
+              -0.2
+            ],
+            "world": [
+              -0.45,
+              5.9000001144409175,
+              -0.2
+            ],
+            "screen": {
+              "x": 231,
+              "y": 141,
+              "w": 3.1876856669278464
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 120.44444444444444,
+            "beforeWet": [
+              104.33333333333333,
+              71.88888888888889,
+              29.444444444444443
+            ],
+            "afterWet": [
+              104.33333333333333,
+              71.88888888888889,
+              29.444444444444443
+            ],
+            "water": [
+              85.77777777777777,
+              138.22222222222223,
+              149.88888888888889
+            ]
+          },
+          {
+            "local": [
+              -0.2,
+              0.27,
+              -0.2
+            ],
+            "world": [
+              -0.2,
+              5.9000001144409175,
+              -0.2
+            ],
+            "screen": {
+              "x": 231,
+              "y": 136,
+              "w": 2.949194623479398
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 116.77777777777779,
+            "beforeWet": [
+              104.55555555555556,
+              72.22222222222223,
+              29.555555555555557
+            ],
+            "afterWet": [
+              104.55555555555556,
+              72.22222222222223,
+              29.555555555555557
+            ],
+            "water": [
+              78.77777777777777,
+              134.33333333333334,
+              146.33333333333334
+            ]
+          },
+          {
+            "local": [
+              0.2,
+              0.27,
+              -0.2
+            ],
+            "world": [
+              0.2,
+              5.9000001144409175,
+              -0.2
+            ],
+            "screen": {
+              "x": 231,
+              "y": 127,
+              "w": 2.567608953961881
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 112.11111111111111,
+            "beforeWet": [
+              112.11111111111111,
+              79.11111111111111,
+              34.111111111111114
+            ],
+            "afterWet": [
+              112.11111111111111,
+              79.11111111111111,
+              34.111111111111114
+            ],
+            "water": [
+              77.33333333333333,
+              134.22222222222223,
+              146.22222222222223
+            ]
+          },
+          {
+            "local": [
+              0.45,
+              0.27,
+              -0.2
+            ],
+            "world": [
+              0.45,
+              5.9000001144409175,
+              -0.2
+            ],
+            "screen": {
+              "x": 231,
+              "y": 120,
+              "w": 2.3291179105134328
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 108.44444444444443,
+            "beforeWet": [
+              119,
+              85.33333333333333,
+              38.22222222222222
+            ],
+            "afterWet": [
+              119,
+              85.33333333333333,
+              38.22222222222222
+            ],
+            "water": [
+              78.33333333333333,
+              134.66666666666666,
+              146.66666666666666
+            ]
+          },
+          {
+            "local": [
+              -0.45,
+              0.27,
+              0.4
+            ],
+            "world": [
+              -0.45,
+              5.9000001144409175,
+              0.4
+            ],
+            "screen": {
+              "x": 190,
+              "y": 141,
+              "w": 3.1876856669278464
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 126.11111111111111,
+            "beforeWet": [
+              99.44444444444444,
+              67.33333333333333,
+              26.88888888888889
+            ],
+            "afterWet": [
+              99.44444444444444,
+              67.33333333333333,
+              26.88888888888889
+            ],
+            "water": [
+              90.44444444444444,
+              141.55555555555554,
+              153
+            ]
+          },
+          {
+            "local": [
+              -0.2,
+              0.27,
+              0.4
+            ],
+            "world": [
+              -0.2,
+              5.9000001144409175,
+              0.4
+            ],
+            "screen": {
+              "x": 187,
+              "y": 136,
+              "w": 2.949194623479398
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 118,
+            "beforeWet": [
+              105.44444444444444,
+              72.88888888888889,
+              30.11111111111111
+            ],
+            "afterWet": [
+              105.44444444444444,
+              72.88888888888889,
+              30.11111111111111
+            ],
+            "water": [
+              82.66666666666667,
+              136.55555555555554,
+              148.11111111111111
+            ]
+          },
+          {
+            "local": [
+              0.2,
+              0.27,
+              0.4
+            ],
+            "world": [
+              0.2,
+              5.9000001144409175,
+              0.4
+            ],
+            "screen": {
+              "x": 180,
+              "y": 127,
+              "w": 2.567608953961881
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 111.22222222222223,
+            "beforeWet": [
+              109.88888888888889,
+              77.11111111111111,
+              32.888888888888886
+            ],
+            "afterWet": [
+              109.88888888888889,
+              77.11111111111111,
+              32.888888888888886
+            ],
+            "water": [
+              75.88888888888889,
+              131.88888888888889,
+              144.11111111111111
+            ]
+          },
+          {
+            "local": [
+              0.45,
+              0.27,
+              0.4
+            ],
+            "world": [
+              0.45,
+              5.9000001144409175,
+              0.4
+            ],
+            "screen": {
+              "x": 175,
+              "y": 120,
+              "w": 2.3291179105134328
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 113.33333333333333,
+            "beforeWet": [
+              107.33333333333333,
+              74.77777777777777,
+              31.444444444444443
+            ],
+            "afterWet": [
+              107.33333333333333,
+              74.77777777777777,
+              31.444444444444443
+            ],
+            "water": [
+              73.22222222222223,
+              132.77777777777777,
+              144.77777777777777
+            ]
+          }
+        ],
+        "changedPixels": 534,
+        "frame": [
+          461,
+          259
+        ]
+      }
+    },
+    {
+      "name": "desktop isolated floor views preserve player, guards, route, health and score",
+      "passed": true,
+      "actual": {
+        "gameUnchanged": true,
+        "gl": 0,
+        "materials": {
+          "ready": true,
+          "error": null,
+          "draws": 24,
+          "width": 1536,
+          "height": 1024,
+          "bytes": 8388608
+        }
+      }
+    },
+    {
+      "name": "phone original river chapter initializes actual WebGL2",
+      "passed": true,
+      "actual": {
+        "stage": "river",
+        "practice": "river",
+        "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "gl": 0
+      }
+    },
+    {
+      "name": "phone fishingSampan-above has opaque interior over production river water",
+      "passed": true,
+      "actual": {
+        "id": "fishingSampan-above",
+        "mesh": "fishingSampan",
+        "view": "above",
+        "eye": [
+          0.6160000000000001,
+          10,
+          -4.199999999999999
+        ],
+        "pose": [
+          0,
+          0,
+          0
+        ],
+        "origin": [
+          0,
+          5.625,
+          0
+        ],
+        "probes": [
+          {
+            "local": [
+              -0.1670634885143652,
+              0.16853359999999998,
+              -1.6239999999999999
+            ],
+            "world": [
+              -0.1670634885143652,
+              5.7935336,
+              -1.6239999999999999
+            ],
+            "screen": {
+              "x": 238,
+              "y": 141,
+              "w": 4.989535577010097
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 93.22222222222223,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 104.66666666666666,
+            "beforeWet": [
+              57.333333333333336,
+              121.33333333333333,
+              134.33333333333334
+            ],
+            "afterWet": [
+              162,
+              119,
+              57.666666666666664
+            ],
+            "water": [
+              57.333333333333336,
+              121.33333333333333,
+              134.33333333333334
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.16853359999999998,
+              -1.6239999999999999
+            ],
+            "world": [
+              0,
+              5.7935336,
+              -1.6239999999999999
+            ],
+            "screen": {
+              "x": 228,
+              "y": 139,
+              "w": 4.9685229461021425
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 94.77777777777777,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 106.33333333333334,
+            "beforeWet": [
+              56.111111111111114,
+              120.33333333333333,
+              133.33333333333334
+            ],
+            "afterWet": [
+              162.44444444444446,
+              118,
+              56
+            ],
+            "water": [
+              56.111111111111114,
+              120.33333333333333,
+              133.33333333333334
+            ]
+          },
+          {
+            "local": [
+              0.1670634885143652,
+              0.16853359999999998,
+              -1.6239999999999999
+            ],
+            "world": [
+              0.1670634885143652,
+              5.7935336,
+              -1.6239999999999999
+            ],
+            "screen": {
+              "x": 218,
+              "y": 137,
+              "w": 4.947510315194187
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 99.88888888888889,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 107.55555555555554,
+            "beforeWet": [
+              63.333333333333336,
+              128,
+              140.55555555555554
+            ],
+            "afterWet": [
+              170.88888888888889,
+              121.66666666666667,
+              57.666666666666664
+            ],
+            "water": [
+              63.333333333333336,
+              128,
+              140.55555555555554
+            ]
+          },
+          {
+            "local": [
+              -0.15430924843891672,
+              0.1886432,
+              -1.7919999999999998
+            ],
+            "world": [
+              -0.15430924843891672,
+              5.8136432,
+              -1.7919999999999998
+            ],
+            "screen": {
+              "x": 240,
+              "y": 133,
+              "w": 4.888003226228504
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 63.00000000000001,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 94.22222222222223,
+            "beforeWet": [
+              83.22222222222223,
+              112.55555555555556,
+              104.22222222222223
+            ],
+            "afterWet": [
+              153.44444444444446,
+              112.33333333333333,
+              53.77777777777778
+            ],
+            "water": [
+              59.22222222222222,
+              123.77777777777777,
+              136.66666666666666
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.1886432,
+              -1.7919999999999998
+            ],
+            "world": [
+              0,
+              5.8136432,
+              -1.7919999999999998
+            ],
+            "screen": {
+              "x": 230,
+              "y": 131,
+              "w": 4.868594776710511
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 99.44444444444444,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 97.22222222222221,
+            "beforeWet": [
+              58.44444444444444,
+              122,
+              134.55555555555554
+            ],
+            "afterWet": [
+              155.66666666666666,
+              112.77777777777777,
+              54.888888888888886
+            ],
+            "water": [
+              58.44444444444444,
+              122,
+              134.55555555555554
+            ]
+          },
+          {
+            "local": [
+              0.15430924843891672,
+              0.1886432,
+              -1.7919999999999998
+            ],
+            "world": [
+              0.15430924843891672,
+              5.8136432,
+              -1.7919999999999998
+            ],
+            "screen": {
+              "x": 221,
+              "y": 128,
+              "w": 4.849186327192518
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 98,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 104.66666666666666,
+            "beforeWet": [
+              61.111111111111114,
+              125.22222222222223,
+              138.11111111111111
+            ],
+            "afterWet": [
+              165.77777777777777,
+              118,
+              55.77777777777778
+            ],
+            "water": [
+              61.111111111111114,
+              125.22222222222223,
+              138.11111111111111
+            ]
+          },
+          {
+            "local": [
+              -0.14001966452593587,
+              0.21289999999999998,
+              -1.9599999999999997
+            ],
+            "world": [
+              -0.14001966452593587,
+              5.8379,
+              -1.9599999999999997
+            ],
+            "screen": {
+              "x": 242,
+              "y": 124,
+              "w": 4.782704332686693
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 30.888888888888886,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 114,
+            "beforeWet": [
+              97.22222222222223,
+              94.77777777777777,
+              69.33333333333333
+            ],
+            "afterWet": [
+              168.33333333333334,
+              120.77777777777777,
+              55.44444444444444
+            ],
+            "water": [
+              54.333333333333336,
+              118,
+              130.88888888888889
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.21289999999999998,
+              -1.9599999999999997
+            ],
+            "world": [
+              0,
+              5.8379,
+              -1.9599999999999997
+            ],
+            "screen": {
+              "x": 233,
+              "y": 122,
+              "w": 4.765093174457549
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 93.77777777777777,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 94.55555555555554,
+            "beforeWet": [
+              63,
+              127.77777777777777,
+              140.22222222222223
+            ],
+            "afterWet": [
+              157.55555555555554,
+              113.55555555555556,
+              54.333333333333336
+            ],
+            "water": [
+              63,
+              127.77777777777777,
+              140.22222222222223
+            ]
+          },
+          {
+            "local": [
+              0.14001966452593587,
+              0.21289999999999998,
+              -1.9599999999999997
+            ],
+            "world": [
+              0.14001966452593587,
+              5.8379,
+              -1.9599999999999997
+            ],
+            "screen": {
+              "x": 224,
+              "y": 120,
+              "w": 4.747482016228407
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 109.2222222222222,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 105.77777777777777,
+            "beforeWet": [
+              53.333333333333336,
+              116.88888888888889,
+              130.11111111111111
+            ],
+            "afterWet": [
+              159.11111111111111,
+              111.88888888888889,
+              53.111111111111114
+            ],
+            "water": [
+              53.333333333333336,
+              116.88888888888889,
+              130.11111111111111
+            ]
+          }
+        ],
+        "changedPixels": 6382,
+        "frame": [
+          461,
+          259
+        ]
+      }
+    },
+    {
+      "name": "phone fishingSampan-water-level has opaque interior over production river water",
+      "passed": true,
+      "actual": {
+        "id": "fishingSampan-water-level",
+        "mesh": "fishingSampan",
+        "view": "water-level",
+        "eye": [
+          1.344,
+          6.449999999999999,
+          -2.856
+        ],
+        "pose": [
+          0,
+          0.012,
+          0.025
+        ],
+        "origin": [
+          0,
+          5.607,
+          0
+        ],
+        "probes": [
+          {
+            "local": [
+              -0.1670634885143652,
+              0.16853359999999998,
+              -1.6239999999999999
+            ],
+            "world": [
+              -0.16279837877426256,
+              5.799132065530644,
+              -1.6218112328208725
+            ],
+            "screen": {
+              "x": 227,
+              "y": 140,
+              "w": 2.050777523515408
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 129.88888888888889,
+            "beforeWet": [
+              83.22222222222223,
+              45.22222222222222,
+              12.222222222222221
+            ],
+            "afterWet": [
+              83.22222222222223,
+              45.22222222222222,
+              12.222222222222221
+            ],
+            "water": [
+              68.33333333333333,
+              129.77777777777777,
+              142.11111111111111
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.16853359999999998,
+              -1.6239999999999999
+            ],
+            "world": [
+              0.004212901205010711,
+              5.794956214196241,
+              -1.6218613454419955
+            ],
+            "screen": {
+              "x": 215,
+              "y": 135,
+              "w": 1.9303090596867367
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 124.55555555555556,
+            "beforeWet": [
+              103.33333333333333,
+              59.888888888888886,
+              19.333333333333332
+            ],
+            "afterWet": [
+              103.33333333333333,
+              59.888888888888886,
+              19.333333333333332
+            ],
+            "water": [
+              75.44444444444444,
+              131.88888888888889,
+              143.88888888888889
+            ]
+          },
+          {
+            "local": [
+              0.1670634885143652,
+              0.16853359999999998,
+              -1.6239999999999999
+            ],
+            "world": [
+              0.171224181184284,
+              5.790780362861837,
+              -1.6219114580631184
+            ],
+            "screen": {
+              "x": 202,
+              "y": 129,
+              "w": 1.8098405958580663
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 140,
+            "beforeWet": [
+              89.33333333333333,
+              45.333333333333336,
+              11.222222222222221
+            ],
+            "afterWet": [
+              89.33333333333333,
+              45.333333333333336,
+              11.222222222222221
+            ],
+            "water": [
+              83.55555555555556,
+              139.33333333333334,
+              151.22222222222223
+            ]
+          },
+          {
+            "local": [
+              -0.15430924843891672,
+              0.1886432,
+              -1.7919999999999998
+            ],
+            "world": [
+              -0.14954543684752603,
+              5.820931086244236,
+              -1.789561728202109
+            ],
+            "screen": {
+              "x": 241,
+              "y": 139,
+              "w": 1.9361851859224375
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 138.44444444444446,
+            "beforeWet": [
+              91.88888888888889,
+              48,
+              11.666666666666666
+            ],
+            "afterWet": [
+              91.88888888888889,
+              48,
+              11.666666666666666
+            ],
+            "water": [
+              83.44444444444444,
+              138.22222222222223,
+              150.11111111111111
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.1886432,
+              -1.7919999999999998
+            ],
+            "world": [
+              0.0047155888475477695,
+              5.817074034732055,
+              -1.7896080150417504
+            ],
+            "screen": {
+              "x": 230,
+              "y": 133,
+              "w": 1.8249137269142368
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 127.77777777777777,
+            "beforeWet": [
+              91.11111111111111,
+              49.22222222222222,
+              12.777777777777779
+            ],
+            "afterWet": [
+              91.11111111111111,
+              49.22222222222222,
+              12.777777777777779
+            ],
+            "water": [
+              66.55555555555556,
+              127.88888888888889,
+              140.55555555555554
+            ]
+          },
+          {
+            "local": [
+              0.15430924843891672,
+              0.1886432,
+              -1.7919999999999998
+            ],
+            "world": [
+              0.15897661454262157,
+              5.813216983219875,
+              -1.7896543018813917
+            ],
+            "screen": {
+              "x": 218,
+              "y": 128,
+              "w": 1.7136422679060375
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 132.11111111111111,
+            "beforeWet": [
+              92.66666666666667,
+              46.888888888888886,
+              11.777777777777779
+            ],
+            "afterWet": [
+              92.66666666666667,
+              46.888888888888886,
+              11.777777777777779
+            ],
+            "water": [
+              71.66666666666667,
+              131.66666666666666,
+              143.88888888888889
+            ]
+          },
+          {
+            "local": [
+              -0.14001966452593587,
+              0.21289999999999998,
+              -1.9599999999999997
+            ],
+            "world": [
+              -0.13465396168686025,
+              5.846837335733877,
+              -1.9572629344742976
+            ],
+            "screen": {
+              "x": 256,
+              "y": 137,
+              "w": 1.8189296227148675
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 129.44444444444443,
+            "beforeWet": [
+              98,
+              58.111111111111114,
+              18.11111111111111
+            ],
+            "afterWet": [
+              98,
+              58.111111111111114,
+              18.11111111111111
+            ],
+            "water": [
+              82.22222222222223,
+              135.77777777777777,
+              147.55555555555554
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.21289999999999998,
+              -1.9599999999999997
+            ],
+            "world": [
+              0.005321945692412555,
+              5.8433374608770015,
+              -1.957304934988357
+            ],
+            "screen": {
+              "x": 246,
+              "y": 132,
+              "w": 1.7179622956151763
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 142.11111111111111,
+            "beforeWet": [
+              80.55555555555556,
+              43,
+              11.333333333333334
+            ],
+            "afterWet": [
+              80.55555555555556,
+              43,
+              11.333333333333334
+            ],
+            "water": [
+              89.66666666666667,
+              142,
+              153.44444444444446
+            ]
+          },
+          {
+            "local": [
+              0.14001966452593587,
+              0.21289999999999998,
+              -1.9599999999999997
+            ],
+            "world": [
+              0.14529785307168538,
+              5.839837586020126,
+              -1.9573469355024162
+            ],
+            "screen": {
+              "x": 236,
+              "y": 126,
+              "w": 1.6169949685154856
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 129.33333333333331,
+            "beforeWet": [
+              95,
+              50.888888888888886,
+              14.222222222222221
+            ],
+            "afterWet": [
+              95,
+              50.888888888888886,
+              14.222222222222221
+            ],
+            "water": [
+              71.33333333333333,
+              131.11111111111111,
+              143.55555555555554
+            ]
+          }
+        ],
+        "changedPixels": 1208,
+        "frame": [
+          461,
+          259
+        ]
+      }
+    },
+    {
+      "name": "phone fishingCanopyHull-above has opaque interior over production river water",
+      "passed": true,
+      "actual": {
+        "id": "fishingCanopyHull-above",
+        "mesh": "fishingCanopyHull",
+        "view": "above",
+        "eye": [
+          0.781,
+          10,
+          -4.65
+        ],
+        "pose": [
+          0,
+          0,
+          0
+        ],
+        "origin": [
+          0,
+          5.625,
+          0
+        ],
+        "probes": [
+          {
+            "local": [
+              -0.2118126372235701,
+              0.16853359999999998,
+              -1.7979999999999998
+            ],
+            "world": [
+              -0.2118126372235701,
+              5.7935336,
+              -1.7979999999999998
+            ],
+            "screen": {
+              "x": 240,
+              "y": 142,
+              "w": 5.171904916770073
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 92.66666666666666,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 103.77777777777777,
+            "beforeWet": [
+              62.77777777777778,
+              128.22222222222223,
+              140.77777777777777
+            ],
+            "afterWet": [
+              166.55555555555554,
+              114.33333333333333,
+              49.666666666666664
+            ],
+            "water": [
+              62.77777777777778,
+              128.22222222222223,
+              140.77777777777777
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.16853359999999998,
+              -1.7979999999999998
+            ],
+            "world": [
+              0,
+              5.7935336,
+              -1.7979999999999998
+            ],
+            "screen": {
+              "x": 227,
+              "y": 139,
+              "w": 5.139162386523246
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 97.66666666666666,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 101.11111111111111,
+            "beforeWet": [
+              57.888888888888886,
+              121.77777777777777,
+              134.44444444444446
+            ],
+            "afterWet": [
+              159,
+              113.11111111111111,
+              53
+            ],
+            "water": [
+              57.888888888888886,
+              121.77777777777777,
+              134.44444444444446
+            ]
+          },
+          {
+            "local": [
+              0.2118126372235701,
+              0.16853359999999998,
+              -1.7979999999999998
+            ],
+            "world": [
+              0.2118126372235701,
+              5.7935336,
+              -1.7979999999999998
+            ],
+            "screen": {
+              "x": 215,
+              "y": 136,
+              "w": 5.106419856276419
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 91.88888888888889,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 104,
+            "beforeWet": [
+              57.666666666666664,
+              122.33333333333333,
+              135.11111111111111
+            ],
+            "afterWet": [
+              161.66666666666666,
+              118,
+              57.55555555555556
+            ],
+            "water": [
+              57.666666666666664,
+              122.33333333333333,
+              135.11111111111111
+            ]
+          },
+          {
+            "local": [
+              -0.19564208284219795,
+              0.1886432,
+              -1.9840000000000002
+            ],
+            "world": [
+              -0.19564208284219795,
+              5.8136432,
+              -1.9840000000000002
+            ],
+            "screen": {
+              "x": 242,
+              "y": 133,
+              "w": 5.054460262975621
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 59.88888888888889,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 99.55555555555554,
+            "beforeWet": [
+              84,
+              114.55555555555556,
+              105.66666666666667
+            ],
+            "afterWet": [
+              156.88888888888889,
+              114,
+              53.44444444444444
+            ],
+            "water": [
+              57.333333333333336,
+              121.88888888888889,
+              134.77777777777777
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.1886432,
+              -1.9840000000000002
+            ],
+            "world": [
+              0,
+              5.8136432,
+              -1.9840000000000002
+            ],
+            "screen": {
+              "x": 230,
+              "y": 131,
+              "w": 5.0242174176998144
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 94.11111111111111,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 100.88888888888889,
+            "beforeWet": [
+              62,
+              126.88888888888889,
+              139.44444444444446
+            ],
+            "afterWet": [
+              162.88888888888889,
+              117.88888888888889,
+              56.666666666666664
+            ],
+            "water": [
+              62,
+              126.88888888888889,
+              139.44444444444446
+            ]
+          },
+          {
+            "local": [
+              0.19564208284219795,
+              0.1886432,
+              -1.9840000000000002
+            ],
+            "world": [
+              0.19564208284219795,
+              5.8136432,
+              -1.9840000000000002
+            ],
+            "screen": {
+              "x": 219,
+              "y": 128,
+              "w": 4.993974572424008
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 104.55555555555557,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 112.33333333333334,
+            "beforeWet": [
+              55.77777777777778,
+              120.55555555555556,
+              133.55555555555554
+            ],
+            "afterWet": [
+              168.11111111111111,
+              126.44444444444444,
+              64.77777777777777
+            ],
+            "water": [
+              55.77777777777778,
+              120.55555555555556,
+              133.55555555555554
+            ]
+          },
+          {
+            "local": [
+              -0.17752493180966866,
+              0.21289999999999998,
+              -2.17
+            ],
+            "world": [
+              -0.17752493180966866,
+              5.8379,
+              -2.17
+            ],
+            "screen": {
+              "x": 245,
+              "y": 125,
+              "w": 4.9332507084686785
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 107.11111111111111,
+            "beforeWet": [
+              130,
+              89.11111111111111,
+              39.333333333333336
+            ],
+            "afterWet": [
+              166.88888888888889,
+              120.66666666666667,
+              56.55555555555556
+            ],
+            "water": [
+              59.77777777777778,
+              123.55555555555556,
+              136.33333333333334
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.21289999999999998,
+              -2.17
+            ],
+            "world": [
+              0,
+              5.8379,
+              -2.17
+            ],
+            "screen": {
+              "x": 234,
+              "y": 122,
+              "w": 4.905808457970618
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 98.66666666666666,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 106.88888888888889,
+            "beforeWet": [
+              56.333333333333336,
+              120.77777777777777,
+              133.77777777777777
+            ],
+            "afterWet": [
+              163.22222222222223,
+              118.22222222222223,
+              57.111111111111114
+            ],
+            "water": [
+              56.333333333333336,
+              120.77777777777777,
+              133.77777777777777
+            ]
+          },
+          {
+            "local": [
+              0.17752493180966866,
+              0.21289999999999998,
+              -2.17
+            ],
+            "world": [
+              0.17752493180966866,
+              5.8379,
+              -2.17
+            ],
+            "screen": {
+              "x": 223,
+              "y": 119,
+              "w": 4.878366207472558
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 95,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 96,
+            "beforeWet": [
+              56.77777777777778,
+              121.44444444444444,
+              134.66666666666666
+            ],
+            "afterWet": [
+              152.77777777777777,
+              108.11111111111111,
+              51.666666666666664
+            ],
+            "water": [
+              56.77777777777778,
+              121.44444444444444,
+              134.66666666666666
+            ]
+          }
+        ],
+        "changedPixels": 5297,
+        "frame": [
+          461,
+          259
+        ]
+      }
+    },
+    {
+      "name": "phone fishingCanopyHull-water-level has opaque interior over production river water",
+      "passed": true,
+      "actual": {
+        "id": "fishingCanopyHull-water-level",
+        "mesh": "fishingCanopyHull",
+        "view": "water-level",
+        "eye": [
+          1.704,
+          6.449999999999999,
+          -3.1620000000000004
+        ],
+        "pose": [
+          0,
+          0.012,
+          0.025
+        ],
+        "origin": [
+          0,
+          5.607,
+          0
+        ],
+        "probes": [
+          {
+            "local": [
+              -0.2118126372235701,
+              0.16853359999999998,
+              -1.7979999999999998
+            ],
+            "world": [
+              -0.20753354305442498,
+              5.8023385470827336,
+              -1.7957852813778625
+            ],
+            "screen": {
+              "x": 227,
+              "y": 139,
+              "w": 2.4345892870472015
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 144,
+            "beforeWet": [
+              77.66666666666667,
+              41.22222222222222,
+              10.222222222222221
+            ],
+            "afterWet": [
+              77.66666666666667,
+              41.22222222222222,
+              10.222222222222221
+            ],
+            "water": [
+              91.55555555555556,
+              142.66666666666666,
+              154.22222222222223
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.16853359999999998,
+              -1.7979999999999998
+            ],
+            "world": [
+              0.004212901205010711,
+              5.7970441641409005,
+              -1.7958488170225007
+            ],
+            "screen": {
+              "x": 216,
+              "y": 134,
+              "w": 2.2704594214217884
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 129,
+            "beforeWet": [
+              88.44444444444444,
+              49.55555555555556,
+              14.555555555555555
+            ],
+            "afterWet": [
+              88.44444444444444,
+              49.55555555555556,
+              14.555555555555555
+            ],
+            "water": [
+              72.22222222222223,
+              131.11111111111111,
+              143.55555555555554
+            ]
+          },
+          {
+            "local": [
+              0.2118126372235701,
+              0.16853359999999998,
+              -1.7979999999999998
+            ],
+            "world": [
+              0.21595934546444642,
+              5.791749781199068,
+              -1.7959123526671388
+            ],
+            "screen": {
+              "x": 202,
+              "y": 128,
+              "w": 2.106329555796375
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 135.88888888888889,
+            "beforeWet": [
+              91.22222222222223,
+              45.666666666666664,
+              11.444444444444445
+            ],
+            "afterWet": [
+              91.22222222222223,
+              45.666666666666664,
+              11.444444444444445
+            ],
+            "water": [
+              79.22222222222223,
+              135.44444444444446,
+              147.33333333333334
+            ]
+          },
+          {
+            "local": [
+              -0.19564208284219795,
+              0.1886432,
+              -1.9840000000000002
+            ],
+            "world": [
+              -0.19086535444442077,
+              5.824268169808663,
+              -1.9815355054786008
+            ],
+            "screen": {
+              "x": 240,
+              "y": 138,
+              "w": 2.3142929480977585
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 133.77777777777777,
+            "beforeWet": [
+              95.77777777777777,
+              51.55555555555556,
+              13.444444444444445
+            ],
+            "afterWet": [
+              95.77777777777777,
+              51.55555555555556,
+              13.444444444444445
+            ],
+            "water": [
+              80.44444444444444,
+              135.11111111111111,
+              147.22222222222223
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.1886432,
+              -1.9840000000000002
+            ],
+            "world": [
+              0.0047155888475477695,
+              5.819377979498577,
+              -1.9815941905788603
+            ],
+            "screen": {
+              "x": 230,
+              "y": 133,
+              "w": 2.1626933590058544
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 147.66666666666669,
+            "beforeWet": [
+              78.22222222222223,
+              42.77777777777778,
+              11.555555555555555
+            ],
+            "afterWet": [
+              78.22222222222223,
+              42.77777777777778,
+              11.555555555555555
+            ],
+            "water": [
+              102.11111111111111,
+              148.22222222222223,
+              159.22222222222223
+            ]
+          },
+          {
+            "local": [
+              0.19564208284219795,
+              0.1886432,
+              -1.9840000000000002
+            ],
+            "world": [
+              0.20029653213951631,
+              5.814487789188491,
+              -1.98165287567912
+            ],
+            "screen": {
+              "x": 218,
+              "y": 128,
+              "w": 2.0110937699139493
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 135.11111111111111,
+            "beforeWet": [
+              86.22222222222223,
+              45.888888888888886,
+              12.222222222222221
+            ],
+            "afterWet": [
+              86.22222222222223,
+              45.888888888888886,
+              12.222222222222221
+            ],
+            "water": [
+              78.11111111111111,
+              135.33333333333334,
+              147.33333333333334
+            ]
+          },
+          {
+            "local": [
+              -0.17752493180966866,
+              0.21289999999999998,
+              -2.17
+            ],
+            "world": [
+              -0.17214750830630832,
+              5.85029474180178,
+              -2.1672365638303166
+            ],
+            "screen": {
+              "x": 255,
+              "y": 137,
+              "w": 2.191158259402497
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 110.99999999999999,
+            "beforeWet": [
+              119.55555555555556,
+              73.22222222222223,
+              25.666666666666668
+            ],
+            "afterWet": [
+              119.55555555555556,
+              73.22222222222223,
+              25.666666666666668
+            ],
+            "water": [
+              63.888888888888886,
+              123.88888888888889,
+              136.66666666666666
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.21289999999999998,
+              -2.17
+            ],
+            "world": [
+              0.005321945692412555,
+              5.845857400465384,
+              -2.1672898144820705
+            ],
+            "screen": {
+              "x": 246,
+              "y": 133,
+              "w": 2.0535973301538464
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 133.55555555555554,
+            "beforeWet": [
+              98.44444444444444,
+              55.55555555555556,
+              16.22222222222222
+            ],
+            "afterWet": [
+              98.44444444444444,
+              55.55555555555556,
+              16.22222222222222
+            ],
+            "water": [
+              81.22222222222223,
+              137.66666666666666,
+              149.77777777777777
+            ]
+          },
+          {
+            "local": [
+              0.17752493180966866,
+              0.21289999999999998,
+              -2.17
+            ],
+            "world": [
+              0.18279139969113345,
+              5.841420059128988,
+              -2.1673430651338244
+            ],
+            "screen": {
+              "x": 236,
+              "y": 127,
+              "w": 1.9160364009051962
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 136.88888888888889,
+            "beforeWet": [
+              79.55555555555556,
+              40,
+              9.777777777777779
+            ],
+            "afterWet": [
+              79.55555555555556,
+              40,
+              9.777777777777779
+            ],
+            "water": [
+              78.11111111111111,
+              134.55555555555554,
+              146.66666666666666
+            ]
+          }
+        ],
+        "changedPixels": 499,
+        "frame": [
+          461,
+          259
+        ]
+      }
+    },
+    {
+      "name": "phone fishingWorkboat-above has opaque interior over production river water",
+      "passed": true,
+      "actual": {
+        "id": "fishingWorkboat-above",
+        "mesh": "fishingWorkboat",
+        "view": "above",
+        "eye": [
+          1.364,
+          10,
+          -6.1499999999999995
+        ],
+        "pose": [
+          0,
+          0,
+          0
+        ],
+        "origin": [
+          0,
+          5.625,
+          0
+        ],
+        "probes": [
+          {
+            "local": [
+              -0.36992629599609433,
+              0.16853359999999998,
+              -2.3779999999999997
+            ],
+            "world": [
+              -0.36992629599609433,
+              5.7935336,
+              -2.3779999999999997
+            ],
+            "screen": {
+              "x": 244,
+              "y": 144,
+              "w": 5.897893897804909
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 85.22222222222223,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 99.44444444444443,
+            "beforeWet": [
+              57.22222222222222,
+              121,
+              134.44444444444446
+            ],
+            "afterWet": [
+              156.66666666666666,
+              106.77777777777777,
+              46.333333333333336
+            ],
+            "water": [
+              57.22222222222222,
+              121,
+              134.44444444444446
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.16853359999999998,
+              -2.3779999999999997
+            ],
+            "world": [
+              0,
+              5.7935336,
+              -2.3779999999999997
+            ],
+            "screen": {
+              "x": 226,
+              "y": 139,
+              "w": 5.8088372345058445
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 92.66666666666666,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 106.88888888888889,
+            "beforeWet": [
+              56.333333333333336,
+              120.77777777777777,
+              133.88888888888889
+            ],
+            "afterWet": [
+              163.22222222222223,
+              116.88888888888889,
+              54.22222222222222
+            ],
+            "water": [
+              56.333333333333336,
+              120.77777777777777,
+              133.88888888888889
+            ]
+          },
+          {
+            "local": [
+              0.36992629599609433,
+              0.16853359999999998,
+              -2.3779999999999997
+            ],
+            "world": [
+              0.36992629599609433,
+              5.7935336,
+              -2.3779999999999997
+            ],
+            "screen": {
+              "x": 207,
+              "y": 134,
+              "w": 5.71978057120678
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 92.66666666666666,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 96.55555555555556,
+            "beforeWet": [
+              58.44444444444444,
+              122.66666666666667,
+              135.66666666666666
+            ],
+            "afterWet": [
+              155,
+              111.22222222222223,
+              53.22222222222222
+            ],
+            "water": [
+              58.44444444444444,
+              122.66666666666667,
+              135.66666666666666
+            ]
+          },
+          {
+            "local": [
+              -0.3416847644004584,
+              0.1886432,
+              -2.6239999999999997
+            ],
+            "world": [
+              -0.3416847644004584,
+              5.8136432,
+              -2.6239999999999997
+            ],
+            "screen": {
+              "x": 248,
+              "y": 136,
+              "w": 5.723024397176407
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 82.66666666666666,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 118.88888888888889,
+            "beforeWet": [
+              66,
+              118.44444444444444,
+              123.88888888888889
+            ],
+            "afterWet": [
+              173.88888888888889,
+              120.33333333333333,
+              53.77777777777778
+            ],
+            "water": [
+              55,
+              118.88888888888889,
+              131.88888888888889
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.1886432,
+              -2.6239999999999997
+            ],
+            "world": [
+              0,
+              5.8136432,
+              -2.6239999999999997
+            ],
+            "screen": {
+              "x": 231,
+              "y": 131,
+              "w": 5.640766646519089
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 102.66666666666666,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 108.55555555555554,
+            "beforeWet": [
+              54,
+              117.44444444444444,
+              130.44444444444446
+            ],
+            "afterWet": [
+              162.55555555555554,
+              116.55555555555556,
+              54.333333333333336
+            ],
+            "water": [
+              54,
+              117.44444444444444,
+              130.44444444444446
+            ]
+          },
+          {
+            "local": [
+              0.3416847644004584,
+              0.1886432,
+              -2.6239999999999997
+            ],
+            "world": [
+              0.3416847644004584,
+              5.8136432,
+              -2.6239999999999997
+            ],
+            "screen": {
+              "x": 213,
+              "y": 126,
+              "w": 5.558508895861771
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 97.99999999999999,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 104.66666666666667,
+            "beforeWet": [
+              59.55555555555556,
+              124.33333333333333,
+              137.33333333333334
+            ],
+            "afterWet": [
+              164.22222222222223,
+              122.77777777777777,
+              63.22222222222222
+            ],
+            "water": [
+              59.55555555555556,
+              124.33333333333333,
+              137.33333333333334
+            ]
+          },
+          {
+            "local": [
+              -0.310043542878858,
+              0.21289999999999998,
+              -2.8699999999999997
+            ],
+            "world": [
+              -0.310043542878858,
+              5.8379,
+              -2.8699999999999997
+            ],
+            "screen": {
+              "x": 252,
+              "y": 127,
+              "w": 5.544247546456895
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 90.55555555555557,
+            "beforeWet": [
+              137,
+              101.55555555555556,
+              50.111111111111114
+            ],
+            "afterWet": [
+              151.44444444444446,
+              105.88888888888889,
+              48.44444444444444
+            ],
+            "water": [
+              60.888888888888886,
+              124.88888888888889,
+              137.33333333333334
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.21289999999999998,
+              -2.8699999999999997
+            ],
+            "world": [
+              0,
+              5.8379,
+              -2.8699999999999997
+            ],
+            "screen": {
+              "x": 236,
+              "y": 122,
+              "w": 5.469607155370713
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 97.88888888888889,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 97.88888888888889,
+            "beforeWet": [
+              58.22222222222222,
+              122.88888888888889,
+              136
+            ],
+            "afterWet": [
+              156.11111111111111,
+              109.66666666666667,
+              51.22222222222222
+            ],
+            "water": [
+              58.22222222222222,
+              122.88888888888889,
+              136
+            ]
+          },
+          {
+            "local": [
+              0.310043542878858,
+              0.21289999999999998,
+              -2.8699999999999997
+            ],
+            "world": [
+              0.310043542878858,
+              5.8379,
+              -2.8699999999999997
+            ],
+            "screen": {
+              "x": 219,
+              "y": 117,
+              "w": 5.39496676428453
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 101.11111111111111,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 107.33333333333334,
+            "beforeWet": [
+              58.666666666666664,
+              123.44444444444444,
+              136.22222222222223
+            ],
+            "afterWet": [
+              166,
+              122.88888888888889,
+              60.77777777777778
+            ],
+            "water": [
+              58.666666666666664,
+              123.44444444444444,
+              136.22222222222223
+            ]
+          }
+        ],
+        "changedPixels": 5159,
+        "frame": [
+          461,
+          259
+        ]
+      }
+    },
+    {
+      "name": "phone fishingWorkboat-water-level has opaque interior over production river water",
+      "passed": true,
+      "actual": {
+        "id": "fishingWorkboat-water-level",
+        "mesh": "fishingWorkboat",
+        "view": "water-level",
+        "eye": [
+          2.976,
+          6.449999999999999,
+          -4.1819999999999995
+        ],
+        "pose": [
+          0,
+          0.012,
+          0.025
+        ],
+        "origin": [
+          0,
+          5.607,
+          0
+        ],
+        "probes": [
+          {
+            "local": [
+              -0.36992629599609433,
+              0.16853359999999998,
+              -2.3779999999999997
+            ],
+            "world": [
+              -0.3655977901776658,
+              5.813250525244518,
+              -2.3756960919631274
+            ],
+            "screen": {
+              "x": 228,
+              "y": 136,
+              "w": 3.8493995005191626
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 105.44444444444444,
+            "beforeWet": [
+              0.5555555555555556,
+              60.111111111111114,
+              72
+            ],
+            "afterWet": [
+              0.5555555555555556,
+              60.111111111111114,
+              72
+            ],
+            "water": [
+              106,
+              153.44444444444446,
+              164.11111111111111
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.16853359999999998,
+              -2.3779999999999997
+            ],
+            "world": [
+              0.004212901205010711,
+              5.804003997289768,
+              -2.3758070556241853
+            ],
+            "screen": {
+              "x": 217,
+              "y": 132,
+              "w": 3.529857592660976
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 77,
+            "beforeWet": [
+              3.3333333333333335,
+              71.44444444444444,
+              79.77777777777777
+            ],
+            "afterWet": [
+              3.3333333333333335,
+              71.44444444444444,
+              79.77777777777777
+            ],
+            "water": [
+              80.33333333333333,
+              135.22222222222223,
+              147.11111111111111
+            ]
+          },
+          {
+            "local": [
+              0.36992629599609433,
+              0.16853359999999998,
+              -2.3779999999999997
+            ],
+            "world": [
+              0.37402359258768725,
+              5.794757469335018,
+              -2.3759180192852436
+            ],
+            "screen": {
+              "x": 204,
+              "y": 128,
+              "w": 3.210315684802789
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 95.44444444444444,
+            "beforeWet": [
+              0.8888888888888888,
+              64.33333333333333,
+              75
+            ],
+            "afterWet": [
+              0.8888888888888888,
+              64.33333333333333,
+              75
+            ],
+            "water": [
+              96.33333333333333,
+              145.33333333333334,
+              156.66666666666666
+            ]
+          },
+          {
+            "local": [
+              -0.3416847644004584,
+              0.1886432,
+              -2.6239999999999997
+            ],
+            "world": [
+              -0.33686239662011563,
+              5.835598409449667,
+              -2.6214456167481135
+            ],
+            "screen": {
+              "x": 239,
+              "y": 136,
+              "w": 3.7082836610985193
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 97.44444444444446,
+            "beforeWet": [
+              2.7777777777777777,
+              66.77777777777777,
+              75.22222222222223
+            ],
+            "afterWet": [
+              2.7777777777777777,
+              66.77777777777777,
+              75.22222222222223
+            ],
+            "water": [
+              100.22222222222223,
+              148.44444444444446,
+              159.33333333333334
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.1886432,
+              -2.6239999999999997
+            ],
+            "world": [
+              0.0047155888475477695,
+              5.827057795386982,
+              -2.6215481090358908
+            ],
+            "screen": {
+              "x": 230,
+              "y": 132,
+              "w": 3.4131367556626584
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 74.77777777777777,
+            "beforeWet": [
+              2.111111111111111,
+              72.77777777777777,
+              83
+            ],
+            "afterWet": [
+              2.111111111111111,
+              72.77777777777777,
+              83
+            ],
+            "water": [
+              76.88888888888889,
+              134.88888888888889,
+              147.11111111111111
+            ]
+          },
+          {
+            "local": [
+              0.3416847644004584,
+              0.1886432,
+              -2.6239999999999997
+            ],
+            "world": [
+              0.34629357431521113,
+              5.818517181324297,
+              -2.621650601323668
+            ],
+            "screen": {
+              "x": 219,
+              "y": 128,
+              "w": 3.117989850226798
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 103.77777777777777,
+            "beforeWet": [
+              2,
+              69.11111111111111,
+              79
+            ],
+            "afterWet": [
+              2,
+              69.11111111111111,
+              79
+            ],
+            "water": [
+              105.77777777777777,
+              152.55555555555554,
+              163.33333333333334
+            ]
+          },
+          {
+            "local": [
+              -0.310043542878858,
+              0.21289999999999998,
+              -2.8699999999999997
+            ],
+            "world": [
+              -0.30462470636169153,
+              5.8620069219906945,
+              -2.8671464116561736
+            ],
+            "screen": {
+              "x": 252,
+              "y": 136,
+              "w": 3.5633528431269266
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 86.55555555555556,
+            "beforeWet": [
+              1.6666666666666667,
+              70.22222222222223,
+              83.77777777777777
+            ],
+            "afterWet": [
+              1.6666666666666667,
+              70.22222222222223,
+              83.77777777777777
+            ],
+            "water": [
+              88.22222222222223,
+              141.11111111111111,
+              153
+            ]
+          },
+          {
+            "local": [
+              0,
+              0.21289999999999998,
+              -2.8699999999999997
+            ],
+            "world": [
+              0.005321945692412555,
+              5.854257199093327,
+              -2.867239412794448
+            ],
+            "screen": {
+              "x": 244,
+              "y": 133,
+              "w": 3.2955375883506948
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 113.55555555555556,
+            "beforeWet": [
+              3.5555555555555554,
+              73.77777777777777,
+              80.55555555555556
+            ],
+            "afterWet": [
+              3.5555555555555554,
+              73.77777777777777,
+              80.55555555555556
+            ],
+            "water": [
+              117.11111111111111,
+              158.55555555555554,
+              169
+            ]
+          },
+          {
+            "local": [
+              0.310043542878858,
+              0.21289999999999998,
+              -2.8699999999999997
+            ],
+            "world": [
+              0.31526859774651667,
+              5.84650747619596,
+              -2.8673324139327225
+            ],
+            "screen": {
+              "x": 235,
+              "y": 129,
+              "w": 3.027722333574463
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 82.88888888888889,
+            "beforeWet": [
+              4.555555555555555,
+              75.55555555555556,
+              80.77777777777777
+            ],
+            "afterWet": [
+              4.555555555555555,
+              75.55555555555556,
+              80.77777777777777
+            ],
+            "water": [
+              87.44444444444444,
+              139.55555555555554,
+              151.33333333333334
+            ]
+          }
+        ],
+        "changedPixels": 380,
+        "frame": [
+          461,
+          259
+        ]
+      }
+    },
+    {
+      "name": "phone powRiverSkiff-above has opaque interior over production river water",
+      "passed": true,
+      "actual": {
+        "id": "powRiverSkiff-above",
+        "mesh": "powRiverSkiff",
+        "view": "above",
+        "eye": [
+          0.9680000000000001,
+          10,
+          -3.2249999999999996
+        ],
+        "pose": [
+          0,
+          0,
+          0
+        ],
+        "origin": [
+          0,
+          5.63,
+          0
+        ],
+        "probes": [
+          {
+            "local": [
+              -0.45,
+              0.27,
+              -0.75
+            ],
+            "world": [
+              -0.45,
+              5.9000001144409175,
+              -0.75
+            ],
+            "screen": {
+              "x": 268,
+              "y": 111,
+              "w": 4.950534974218397
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 104.22222222222223,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 122,
+            "beforeWet": [
+              56,
+              120.22222222222223,
+              133.44444444444446
+            ],
+            "afterWet": [
+              178,
+              146.44444444444446,
+              89.33333333333333
+            ],
+            "water": [
+              56,
+              120.22222222222223,
+              133.44444444444446
+            ]
+          },
+          {
+            "local": [
+              -0.2,
+              0.27,
+              -0.75
+            ],
+            "world": [
+              -0.2,
+              5.9000001144409175,
+              -0.75
+            ],
+            "screen": {
+              "x": 253,
+              "y": 107,
+              "w": 4.904086221934347
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 101.44444444444446,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 125.88888888888889,
+            "beforeWet": [
+              54.666666666666664,
+              118.88888888888889,
+              132
+            ],
+            "afterWet": [
+              180.55555555555554,
+              148.77777777777777,
+              90.88888888888889
+            ],
+            "water": [
+              54.666666666666664,
+              118.88888888888889,
+              132
+            ]
+          },
+          {
+            "local": [
+              0.2,
+              0.27,
+              -0.75
+            ],
+            "world": [
+              0.2,
+              5.9000001144409175,
+              -0.75
+            ],
+            "screen": {
+              "x": 229,
+              "y": 101,
+              "w": 4.829768218279868
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 103.11111111111111,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 131.11111111111111,
+            "beforeWet": [
+              56.666666666666664,
+              120.88888888888889,
+              133.77777777777777
+            ],
+            "afterWet": [
+              187.77777777777777,
+              157.44444444444446,
+              99.88888888888889
+            ],
+            "water": [
+              56.666666666666664,
+              120.88888888888889,
+              133.77777777777777
+            ]
+          },
+          {
+            "local": [
+              0.45,
+              0.27,
+              -0.75
+            ],
+            "world": [
+              0.45,
+              5.9000001144409175,
+              -0.75
+            ],
+            "screen": {
+              "x": 213,
+              "y": 96,
+              "w": 4.783319465995818
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 97.22222222222223,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 132.66666666666666,
+            "beforeWet": [
+              57.888888888888886,
+              121.33333333333333,
+              134.22222222222223
+            ],
+            "afterWet": [
+              190.55555555555554,
+              160.77777777777777,
+              103.55555555555556
+            ],
+            "water": [
+              57.888888888888886,
+              121.33333333333333,
+              134.22222222222223
+            ]
+          },
+          {
+            "local": [
+              -0.45,
+              0.27,
+              -0.2
+            ],
+            "world": [
+              -0.45,
+              5.9000001144409175,
+              -0.2
+            ],
+            "screen": {
+              "x": 256,
+              "y": 137,
+              "w": 5.269870133877783
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 97.33333333333334,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 137.55555555555554,
+            "beforeWet": [
+              52.333333333333336,
+              115.77777777777777,
+              129.11111111111111
+            ],
+            "afterWet": [
+              189.88888888888889,
+              161.22222222222223,
+              107.22222222222223
+            ],
+            "water": [
+              52.333333333333336,
+              115.77777777777777,
+              129.11111111111111
+            ]
+          },
+          {
+            "local": [
+              -0.2,
+              0.27,
+              -0.2
+            ],
+            "world": [
+              -0.2,
+              5.9000001144409175,
+              -0.2
+            ],
+            "screen": {
+              "x": 242,
+              "y": 133,
+              "w": 5.223421381593733
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 98.88888888888889,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 135.2222222222222,
+            "beforeWet": [
+              52.333333333333336,
+              115.66666666666667,
+              129
+            ],
+            "afterWet": [
+              187.55555555555554,
+              157.44444444444446,
+              99.88888888888889
+            ],
+            "water": [
+              52.333333333333336,
+              115.66666666666667,
+              129
+            ]
+          },
+          {
+            "local": [
+              0.2,
+              0.27,
+              -0.2
+            ],
+            "world": [
+              0.2,
+              5.9000001144409175,
+              -0.2
+            ],
+            "screen": {
+              "x": 219,
+              "y": 128,
+              "w": 5.149103377939253
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 104.77777777777777,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 133.11111111111111,
+            "beforeWet": [
+              51,
+              113.33333333333333,
+              126.44444444444444
+            ],
+            "afterWet": [
+              184.11111111111111,
+              153.11111111111111,
+              95.77777777777777
+            ],
+            "water": [
+              51,
+              113.33333333333333,
+              126.44444444444444
+            ]
+          },
+          {
+            "local": [
+              0.45,
+              0.27,
+              -0.2
+            ],
+            "world": [
+              0.45,
+              5.9000001144409175,
+              -0.2
+            ],
+            "screen": {
+              "x": 204,
+              "y": 124,
+              "w": 5.1026546256552034
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 99,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 139.22222222222223,
+            "beforeWet": [
+              50.888888888888886,
+              113.77777777777777,
+              127.22222222222223
+            ],
+            "afterWet": [
+              190.11111111111111,
+              160.66666666666666,
+              103.88888888888889
+            ],
+            "water": [
+              50.888888888888886,
+              113.77777777777777,
+              127.22222222222223
+            ]
+          },
+          {
+            "local": [
+              -0.45,
+              0.27,
+              0.4
+            ],
+            "world": [
+              -0.45,
+              5.9000001144409175,
+              0.4
+            ],
+            "screen": {
+              "x": 244,
+              "y": 162,
+              "w": 5.618235762597112
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 94.8888888888889,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 127.22222222222221,
+            "beforeWet": [
+              54.55555555555556,
+              118.33333333333333,
+              131.33333333333334
+            ],
+            "afterWet": [
+              181.77777777777777,
+              150.77777777777777,
+              93.88888888888889
+            ],
+            "water": [
+              54.55555555555556,
+              118.33333333333333,
+              131.33333333333334
+            ]
+          },
+          {
+            "local": [
+              -0.2,
+              0.27,
+              0.4
+            ],
+            "world": [
+              -0.2,
+              5.9000001144409175,
+              0.4
+            ],
+            "screen": {
+              "x": 231,
+              "y": 159,
+              "w": 5.571787010313062
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 97.11111111111111,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 130,
+            "beforeWet": [
+              58.333333333333336,
+              122.44444444444444,
+              135.22222222222223
+            ],
+            "afterWet": [
+              188.33333333333334,
+              158.22222222222223,
+              100.77777777777777
+            ],
+            "water": [
+              58.333333333333336,
+              122.44444444444444,
+              135.22222222222223
+            ]
+          },
+          {
+            "local": [
+              0.2,
+              0.27,
+              0.4
+            ],
+            "world": [
+              0.2,
+              5.9000001144409175,
+              0.4
+            ],
+            "screen": {
+              "x": 209,
+              "y": 154,
+              "w": 5.497469006658583
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 107.1111111111111,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 133.22222222222223,
+            "beforeWet": [
+              56.55555555555556,
+              120.66666666666667,
+              133.88888888888889
+            ],
+            "afterWet": [
+              189.77777777777777,
+              159.77777777777777,
+              102.33333333333333
+            ],
+            "water": [
+              56.55555555555556,
+              120.66666666666667,
+              133.88888888888889
+            ]
+          },
+          {
+            "local": [
+              0.45,
+              0.27,
+              0.4
+            ],
+            "world": [
+              0.45,
+              5.9000001144409175,
+              0.4
+            ],
+            "screen": {
+              "x": 195,
+              "y": 150,
+              "w": 5.451020254374533
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 94.55555555555557,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 124.55555555555557,
+            "beforeWet": [
+              60.888888888888886,
+              125.77777777777777,
+              138.66666666666666
+            ],
+            "afterWet": [
+              185.44444444444446,
+              154.66666666666666,
+              97.22222222222223
+            ],
+            "water": [
+              60.888888888888886,
+              125.77777777777777,
+              138.66666666666666
+            ]
+          }
+        ],
+        "changedPixels": 13758,
+        "frame": [
+          461,
+          259
+        ]
+      }
+    },
+    {
+      "name": "phone powRiverSkiff-water-level has opaque interior over production river water",
+      "passed": true,
+      "actual": {
+        "id": "powRiverSkiff-water-level",
+        "mesh": "powRiverSkiff",
+        "view": "water-level",
+        "eye": [
+          2.64,
+          6.699999999999999,
+          -0.2
+        ],
+        "pose": [
+          0,
+          0,
+          0
+        ],
+        "origin": [
+          0,
+          5.63,
+          0
+        ],
+        "probes": [
+          {
+            "local": [
+              -0.45,
+              0.27,
+              -0.75
+            ],
+            "world": [
+              -0.45,
+              5.9000001144409175,
+              -0.75
+            ],
+            "screen": {
+              "x": 268,
+              "y": 141,
+              "w": 3.1876856669278464
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 123.11111111111111,
+            "beforeWet": [
+              110.55555555555556,
+              77.77777777777777,
+              33
+            ],
+            "afterWet": [
+              110.55555555555556,
+              77.77777777777777,
+              33
+            ],
+            "water": [
+              93.11111111111111,
+              144.66666666666666,
+              156.11111111111111
+            ]
+          },
+          {
+            "local": [
+              -0.2,
+              0.27,
+              -0.75
+            ],
+            "world": [
+              -0.2,
+              5.9000001144409175,
+              -0.75
+            ],
+            "screen": {
+              "x": 271,
+              "y": 136,
+              "w": 2.949194623479398
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 119.66666666666669,
+            "beforeWet": [
+              109.66666666666667,
+              76.77777777777777,
+              32.77777777777778
+            ],
+            "afterWet": [
+              109.66666666666667,
+              76.77777777777777,
+              32.77777777777778
+            ],
+            "water": [
+              87.22222222222223,
+              140.77777777777777,
+              152.44444444444446
+            ]
+          },
+          {
+            "local": [
+              0.2,
+              0.27,
+              -0.75
+            ],
+            "world": [
+              0.2,
+              5.9000001144409175,
+              -0.75
+            ],
+            "screen": {
+              "x": 277,
+              "y": 127,
+              "w": 2.567608953961881
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 114.22222222222223,
+            "beforeWet": [
+              108.44444444444444,
+              75.55555555555556,
+              31.88888888888889
+            ],
+            "afterWet": [
+              108.44444444444444,
+              75.55555555555556,
+              31.88888888888889
+            ],
+            "water": [
+              80.11111111111111,
+              135.44444444444446,
+              146.11111111111111
+            ]
+          },
+          {
+            "local": [
+              0.45,
+              0.27,
+              -0.75
+            ],
+            "world": [
+              0.45,
+              5.9000001144409175,
+              -0.75
+            ],
+            "screen": {
+              "x": 281,
+              "y": 120,
+              "w": 2.3291179105134328
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 120.77777777777777,
+            "beforeWet": [
+              108.88888888888889,
+              76.44444444444444,
+              32.22222222222222
+            ],
+            "afterWet": [
+              108.88888888888889,
+              76.44444444444444,
+              32.22222222222222
+            ],
+            "water": [
+              89.33333333333333,
+              141.77777777777777,
+              153
+            ]
+          },
+          {
+            "local": [
+              -0.45,
+              0.27,
+              -0.2
+            ],
+            "world": [
+              -0.45,
+              5.9000001144409175,
+              -0.2
+            ],
+            "screen": {
+              "x": 231,
+              "y": 141,
+              "w": 3.1876856669278464
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 120.44444444444444,
+            "beforeWet": [
+              104.33333333333333,
+              71.88888888888889,
+              29.444444444444443
+            ],
+            "afterWet": [
+              104.33333333333333,
+              71.88888888888889,
+              29.444444444444443
+            ],
+            "water": [
+              85.77777777777777,
+              138.22222222222223,
+              149.88888888888889
+            ]
+          },
+          {
+            "local": [
+              -0.2,
+              0.27,
+              -0.2
+            ],
+            "world": [
+              -0.2,
+              5.9000001144409175,
+              -0.2
+            ],
+            "screen": {
+              "x": 231,
+              "y": 136,
+              "w": 2.949194623479398
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 116.77777777777779,
+            "beforeWet": [
+              104.55555555555556,
+              72.22222222222223,
+              29.555555555555557
+            ],
+            "afterWet": [
+              104.55555555555556,
+              72.22222222222223,
+              29.555555555555557
+            ],
+            "water": [
+              78.77777777777777,
+              134.33333333333334,
+              146.33333333333334
+            ]
+          },
+          {
+            "local": [
+              0.2,
+              0.27,
+              -0.2
+            ],
+            "world": [
+              0.2,
+              5.9000001144409175,
+              -0.2
+            ],
+            "screen": {
+              "x": 231,
+              "y": 127,
+              "w": 2.567608953961881
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 112.11111111111111,
+            "beforeWet": [
+              112.11111111111111,
+              79.11111111111111,
+              34.111111111111114
+            ],
+            "afterWet": [
+              112.11111111111111,
+              79.11111111111111,
+              34.111111111111114
+            ],
+            "water": [
+              77.33333333333333,
+              134.22222222222223,
+              146.22222222222223
+            ]
+          },
+          {
+            "local": [
+              0.45,
+              0.27,
+              -0.2
+            ],
+            "world": [
+              0.45,
+              5.9000001144409175,
+              -0.2
+            ],
+            "screen": {
+              "x": 231,
+              "y": 120,
+              "w": 2.3291179105134328
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 108.44444444444443,
+            "beforeWet": [
+              119,
+              85.33333333333333,
+              38.22222222222222
+            ],
+            "afterWet": [
+              119,
+              85.33333333333333,
+              38.22222222222222
+            ],
+            "water": [
+              78.33333333333333,
+              134.66666666666666,
+              146.66666666666666
+            ]
+          },
+          {
+            "local": [
+              -0.45,
+              0.27,
+              0.4
+            ],
+            "world": [
+              -0.45,
+              5.9000001144409175,
+              0.4
+            ],
+            "screen": {
+              "x": 190,
+              "y": 141,
+              "w": 3.1876856669278464
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 126.11111111111111,
+            "beforeWet": [
+              99.44444444444444,
+              67.33333333333333,
+              26.88888888888889
+            ],
+            "afterWet": [
+              99.44444444444444,
+              67.33333333333333,
+              26.88888888888889
+            ],
+            "water": [
+              90.44444444444444,
+              141.55555555555554,
+              153
+            ]
+          },
+          {
+            "local": [
+              -0.2,
+              0.27,
+              0.4
+            ],
+            "world": [
+              -0.2,
+              5.9000001144409175,
+              0.4
+            ],
+            "screen": {
+              "x": 187,
+              "y": 136,
+              "w": 2.949194623479398
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 118,
+            "beforeWet": [
+              105.44444444444444,
+              72.88888888888889,
+              30.11111111111111
+            ],
+            "afterWet": [
+              105.44444444444444,
+              72.88888888888889,
+              30.11111111111111
+            ],
+            "water": [
+              82.66666666666667,
+              136.55555555555554,
+              148.11111111111111
+            ]
+          },
+          {
+            "local": [
+              0.2,
+              0.27,
+              0.4
+            ],
+            "world": [
+              0.2,
+              5.9000001144409175,
+              0.4
+            ],
+            "screen": {
+              "x": 180,
+              "y": 127,
+              "w": 2.567608953961881
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 111.22222222222223,
+            "beforeWet": [
+              109.88888888888889,
+              77.11111111111111,
+              32.888888888888886
+            ],
+            "afterWet": [
+              109.88888888888889,
+              77.11111111111111,
+              32.888888888888886
+            ],
+            "water": [
+              75.88888888888889,
+              131.88888888888889,
+              144.11111111111111
+            ]
+          },
+          {
+            "local": [
+              0.45,
+              0.27,
+              0.4
+            ],
+            "world": [
+              0.45,
+              5.9000001144409175,
+              0.4
+            ],
+            "screen": {
+              "x": 175,
+              "y": 120,
+              "w": 2.3291179105134328
+            },
+            "pixels": 9,
+            "beforeWaterDifference": 0,
+            "afterWaterDifference": 0,
+            "afterVersusWater": 113.33333333333333,
+            "beforeWet": [
+              107.33333333333333,
+              74.77777777777777,
+              31.444444444444443
+            ],
+            "afterWet": [
+              107.33333333333333,
+              74.77777777777777,
+              31.444444444444443
+            ],
+            "water": [
+              73.22222222222223,
+              132.77777777777777,
+              144.77777777777777
+            ]
+          }
+        ],
+        "changedPixels": 534,
+        "frame": [
+          461,
+          259
+        ]
+      }
+    },
+    {
+      "name": "phone isolated floor views preserve player, guards, route, health and score",
+      "passed": true,
+      "actual": {
+        "gameUnchanged": true,
+        "gl": 0,
+        "materials": {
+          "ready": true,
+          "error": null,
+          "draws": 28,
+          "width": 1536,
+          "height": 1024,
+          "bytes": 8388608
+        }
+      }
+    },
+    {
+      "name": "Source/test files remain stable and all native resources load",
+      "passed": true
+    }
+  ],
+  "screenshots": [
+    "boat-floor/desktop-fishingSampan-above-before.png",
+    "boat-floor/desktop-fishingSampan-above-after.png",
+    "boat-floor/desktop-fishingSampan-water-level-before.png",
+    "boat-floor/desktop-fishingSampan-water-level-after.png",
+    "boat-floor/desktop-fishingCanopyHull-above-before.png",
+    "boat-floor/desktop-fishingCanopyHull-above-after.png",
+    "boat-floor/desktop-fishingCanopyHull-water-level-before.png",
+    "boat-floor/desktop-fishingCanopyHull-water-level-after.png",
+    "boat-floor/desktop-fishingWorkboat-above-before.png",
+    "boat-floor/desktop-fishingWorkboat-above-after.png",
+    "boat-floor/desktop-fishingWorkboat-water-level-before.png",
+    "boat-floor/desktop-fishingWorkboat-water-level-after.png",
+    "boat-floor/desktop-powRiverSkiff-above-before.png",
+    "boat-floor/desktop-powRiverSkiff-above-after.png",
+    "boat-floor/desktop-powRiverSkiff-water-level-before.png",
+    "boat-floor/desktop-powRiverSkiff-water-level-after.png",
+    "boat-floor/phone-fishingSampan-above-before.png",
+    "boat-floor/phone-fishingSampan-above-after.png",
+    "boat-floor/phone-fishingSampan-water-level-before.png",
+    "boat-floor/phone-fishingSampan-water-level-after.png",
+    "boat-floor/phone-fishingCanopyHull-above-before.png",
+    "boat-floor/phone-fishingCanopyHull-above-after.png",
+    "boat-floor/phone-fishingCanopyHull-water-level-before.png",
+    "boat-floor/phone-fishingCanopyHull-water-level-after.png",
+    "boat-floor/phone-fishingWorkboat-above-before.png",
+    "boat-floor/phone-fishingWorkboat-above-after.png",
+    "boat-floor/phone-fishingWorkboat-water-level-before.png",
+    "boat-floor/phone-fishingWorkboat-water-level-after.png",
+    "boat-floor/phone-powRiverSkiff-above-before.png",
+    "boat-floor/phone-powRiverSkiff-above-after.png",
+    "boat-floor/phone-powRiverSkiff-water-level-before.png",
+    "boat-floor/phone-powRiverSkiff-water-level-after.png"
+  ],
+  "errors": [],
+  "missing": [],
+  "scope": "Native Chromium WebGL2 desktop/phone river entry, followed by labelled isolated above/low-gunwale views of the three real fishing hulls and original working skiff. Exact former geometry and current geometry share production materials, river-water mesh, camera and depth state. Interior pixel patches compare each mesh with and without water; the current interior must hide water and the former overhead view must reproduce leakage. Low views include maximum prescribed bob/pitch/roll for fishing hulls. Gameplay is frozen; no mission outcome, physical Safari or hardware-FPS claim.",
+  "target": "http://127.0.0.1:43557/",
+  "recordedAt": "2026-10-27T01:17:21.015Z"
+}

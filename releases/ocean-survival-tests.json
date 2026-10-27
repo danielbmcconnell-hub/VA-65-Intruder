@@ -1,0 +1,77 @@
+{
+  "passed": true,
+  "testedSourceCommit": "38e4fcc50408cd85c832ac317b74a156b1f9c5ca",
+  "suites": [
+    {
+      "suite": "cpu",
+      "passed": true,
+      "checks": 1262,
+      "programs": 105,
+      "scope": "All CPU-only node:test and legacy assertion programs; browser modules excluded. Legacy assertion scripts contribute file-level runner cases, not a fabricated count of every inner assertion.",
+      "report": "releases/ocean-survival-cpu.json"
+    },
+    {
+      "suite": "floors",
+      "passed": true,
+      "checks": 21,
+      "programs": null,
+      "scope": "Native Chromium WebGL2 desktop/phone river entry, followed by labelled isolated above/low-gunwale views of the three real fishing hulls and original working skiff. Exact former geometry and current geometry share production materials, river-water mesh, camera and depth state. Interior pixel patches compare each mesh with and without water; the current interior must hide water and the former overhead view must reproduce leakage. Low views include maximum prescribed bob/pitch/roll for fishing hulls. Gameplay is frozen; no mission outcome, physical Safari or hardware-FPS claim.",
+      "report": "releases/ocean-survival-floors.json"
+    },
+    {
+      "suite": "navy",
+      "passed": true,
+      "checks": 10,
+      "programs": null,
+      "scope": "Actual Chromium WebGL2 desktop and phone layouts after a declared restored morning checkpoint one logical metre before the gulf. Original updates physically cross into the ocean. Native W movement, F/context-button holds and Space/DIVE drive signaling, interruption, approach and pickup; no rescue/acknowledgement/damage is injected. Shore riflemen remain the real module-owned actors with actual LOS/tracers. Checkpoint setup bypasses earlier flight/prison/river travel and is not an earned full-campaign outcome. Physical iPhone Safari, hardware FPS and subjective listening quality are untested.",
+      "report": "releases/ocean-survival-navy.json"
+    },
+    {
+      "suite": "jellyfish",
+      "passed": true,
+      "checks": 16,
+      "programs": null,
+      "scope": "Actual Chromium WebGL2 desktop and phone layouts, original ejection into initial ocean swimming, and a declared original near-gulf checkpoint with offshore starting feet. Close-organism starting feet are fixtures; native keyboard/touch swimming generates contact, avoidance and injury. Underwater organism art comparisons use a labelled renderer camera and do not claim that initial-ocean Space performs a dive. Gulf DIVE uses native input. No damage, sting, acknowledgement or rescue result is assigned. Gulf has no physical tile recenter; fixed-field pause and movement are tested instead of fabricating a recenter. Physical Safari, hardware FPS and medical accuracy are untested.",
+      "report": "releases/ocean-survival-jellyfish.json"
+    },
+    {
+      "suite": "voices",
+      "passed": true,
+      "checks": 8,
+      "programs": null,
+      "scope": "Actual Chromium desktop and touch-layout native gesture, real bundled MP3 fetching/decoding, unmodified-rate AudioBufferSource playback and completion through original App.radio/Audio2. Three generic male roles play with no simultaneous system speech; preview fixture only, no game outcome. No claim of recorded actors, subjective listening evaluation or physical Safari.",
+      "report": "releases/ocean-survival-voices.json"
+    },
+    {
+      "suite": "popups",
+      "passed": true,
+      "checks": 12,
+      "programs": null,
+      "scope": "Actual Chromium WebGL2 desktop and phone layouts, native H/menu/pause input, persisted preference after actual reload, and native flight entry. Popup text uses declared presentation-only calls through production POW.notify/App.radio. Original gameplay state is fingerprinted unchanged by toggle operations; no threat, health or outcome is assigned. Central40%x40% screen view is measured against actual visible message boxes. Modal pause remains functional. Physical Safari and hardware FPS are untested.",
+      "report": "releases/ocean-survival-popups.json"
+    },
+    {
+      "suite": "package",
+      "passed": true,
+      "checks": 40,
+      "programs": null,
+      "scope": "Every exact runtime file served over HTTP; actual packaged local-server range responses and MP4 video-only track metadata; native Chromium WebGL2 desktop/touch flight, prison, photographs and mission-control smoke; metadata-only muted inline video probes, no montage playback during a live mission. Declared fixed-clock and checkpoint fixtures. Physical devices, Safari media playback and hardware FPS are not tested.",
+      "report": "releases/ocean-survival-package.json"
+    },
+    {
+      "suite": "route",
+      "passed": true,
+      "checks": 5,
+      "programs": null,
+      "scope": "Original river practice chapter entry followed by original MissionDemo controller, 1/30-second game updates, physical boat collisions, wildlife and river objective code. No position/health/outcome injection after the declared original chapter entry. The gulf is genuinely rendered until jellyfish art is ready before continuing physics. Checks full river/delta/offshore signal only, not flight/ejection/camp success. Chromium initializes actual WebGL2; update fast-forward is not a full-speed video or hardware FPS test. Physical Safari is untested.",
+      "report": "releases/ocean-survival-route.json"
+    }
+  ],
+  "runtimeFiles": 476,
+  "limits": [
+    "Chromium desktop and touch layouts, not physical iPhone Safari.",
+    "Native input suites use declared chapter checkpoints and close-organism/camera fixtures.",
+    "River controller checks original river practice only; no full campaign or hardware FPS claim.",
+    "Three neural male roles fetched, decoded and played; subjective voice quality requires listening."
+  ]
+}

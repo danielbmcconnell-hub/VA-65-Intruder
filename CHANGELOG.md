@@ -1,3 +1,13 @@
+# Ocean survival, Navy rescue and natural dialogue
+
+- Seal fishing-boat interiors with continuous wooden floors above the water, and correct the old working skiff’s downward-facing top.
+- Make the offshore US Navy craft identifiable; add visible cloth waving, watch recognition and a separate orange-buoy rescue-line pickup.
+- Retain real NVA and VC shore riflemen during the ocean approach, with warnings, tracers, diving, cover and bounded range.
+- Add visible box/fire jellyfish with physical stings and steerable avoidance in both ocean settings.
+- Move popups to the edges, make all messages toggleable, and retain compact action/rescue state.
+- Bundle 116 generic neural male dialogue clips, shared playback ownership and natural system fallback.
+- [Controls, verification and complete-game download](releases/ocean-survival-notes.md).
+
 # Living river and carrier opening
 
 - Add a 12.2-second silent montage from three uploaded carrier clips, with immediate Skip, Pause, Replay, automatic completion and reduced-motion support. Preserve original uploads.
