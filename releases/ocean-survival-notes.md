@@ -51,3 +51,8 @@ Recorded source hashes match the final tested code except one explicitly accepte
 These are actual Chromium WebGL2 desktop and emulated phone-layout checks, not physical iPhone Safari or hardware FPS measurements. Native suites declare their chapter checkpoints and close-organism/camera fixtures; the initial-ocean underwater camera is a renderer fixture, not evidence of a dive control there. The river controller starts at the original river practice entry, runs original physics/objective code, and waits for real jellyfish artwork before proceeding offshore. It is not a complete flight/capture/camp campaign replay. The successful offshore escape is fictional.
 
 Playback checks prove real neural audio execution, not subjective listening quality or human-actor recording. Dynamic speech also depends on installed system voices. The voices are generic synthesis; photographs, original media, legal notices, source audio/transcripts and previous releases are preserved. Runtime excludes model weights, source WAVs, generators and private reference folders.
+
+
+## Delivery integrity
+
+The [local delivery receipt](ocean-survival-delivery.json) binds all 476 runtime files to the tested ZIP and runtime commit `1786de360c4c0c87512914eb3918220938b61c7e`, whose sole parent is the tested source. ZIP CRC and every file SHA-256 passed. All 846 protected media/archive blobs, all 93 preceding published-ref records and the earlier Living River ZIP remain unchanged. Source documentation commits may follow the tested code without changing any packaged assets, tests or tools.
