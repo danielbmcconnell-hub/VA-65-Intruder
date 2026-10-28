@@ -1,7 +1,7 @@
 'use strict';
 // Release verification: serve only the generated deployment folder, verify all
 // packaged bytes over HTTP, then launch a real flight in both browser layouts.
-const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),http=require('node:http'),crypto=require('node:crypto');
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),http=require('node:http'),crypto=require('node:crypto'),cp=require('node:child_process');
 const root=path.resolve(__dirname,'..'),site=path.join(root,'dist/site');
 const {chromium}=require(path.join(root,'node_modules/playwright'));
 const mime={'.html':'text/html','.js':'text/javascript','.jpg':'image/jpeg','.jpeg':'image/jpeg','.png':'image/png','.webp':'image/webp'};
@@ -17,6 +17,33 @@ const server=http.createServer((req,res)=>{
  try{
   fs.mkdirSync(path.join(root,'test-results'),{recursive:true});
   const manifest=JSON.parse(fs.readFileSync(path.join(root,'dist/build-manifest.json')));
+  // Test the exact ZIP delivered to a host, not just the unzipped staging folder.
+  // Python's standard-library unzipper is also used by the existing packaging task.
+  const zipAudit = `
+import hashlib,json,pathlib,sys,tempfile,zipfile
+archive=pathlib.Path(sys.argv[1])
+manifest=json.loads(pathlib.Path(sys.argv[2]).read_text())
+want={f['file']:f['sha256'] for f in manifest['files']}
+want['_headers']=None
+with zipfile.ZipFile(archive) as z:
+    names=z.namelist()
+    assert len(names)==len(set(names)), 'Duplicate ZIP entries'
+    assert set(names)==set(want), 'Unexpected or missing ZIP entries: '+str(set(names)^set(want))
+    assert all(not p.startswith('/') and '..' not in pathlib.PurePosixPath(p).parts and '\\\\' not in p for p in names), 'Unsafe ZIP path'
+    with tempfile.TemporaryDirectory() as temp:
+        z.extractall(temp)
+        for name,expected in want.items():
+            data=(pathlib.Path(temp)/name).read_bytes()
+            if expected:
+                assert hashlib.sha256(data).hexdigest()==expected, 'ZIP asset hash mismatch: '+name
+        assert (pathlib.Path(temp)/'index.html').is_file()
+print(json.dumps({'checked':len(names),'entrySHA256':want['index.html']}))
+`;
+  const zipFile=path.join(root,'dist/Intruder_Yankee_Station_Milestone1.zip');
+  const checkedZip=JSON.parse(cp.execFileSync('python3',['-c',zipAudit,zipFile,
+    path.join(root,'dist/build-manifest.json')],{encoding:'utf8'}));
+  assert.equal(checkedZip.entrySHA256,manifest.entrySHA256);
+  checks.push({name:'ZIP extract/hash/allowlist audit: '+checkedZip.checked+' exact runtime files',passed:true});
   for(const item of manifest.files){const response=await fetch(target+item.file);assert.equal(response.status,200);const bytes=Buffer.from(await response.arrayBuffer());assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'),item.sha256)}
   checks.push({name:'All '+manifest.files.length+' packaged runtime files served with exact hashes',passed:true});
   browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE||(fs.existsSync('/usr/bin/chromium')?'/usr/bin/chromium':undefined),headless:true,args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
