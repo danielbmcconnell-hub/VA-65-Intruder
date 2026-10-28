@@ -14,7 +14,9 @@
     "build": "node tools/package-build.cjs",
     "test:ground": "node tests/run-browser.cjs --suite=ground",
     "test:renderer": "node tests/run-browser.cjs --suite=renderer",
-    "test:build": "node tests/build-browser.cjs"
+    "test:build": "node tests/build-browser.cjs",
+    "test:lifecycle": "node tests/run-browser.cjs --suite=lifecycle",
+    "test:webkit": "node tests/run-browser.cjs --suite=lifecycle --engine=webkit"
   },
   "devDependencies": {
     "playwright": "1.62.1"
