@@ -1,0 +1,92 @@
+name: Milestone 1 Safari and desktop compatibility
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  browser-and-package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Manifest must name the source commit, not a temporary PR merge SHA.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: python3 -m pip install -r requirements-dev.txt
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Preserve original data, geometry, missions and physics
+        run: npm run test:assets
+      - name: Full Chromium browser regressions (desktop and emulated touch)
+        run: npm test
+      - name: WebKit interruption, rotation, control reachability
+        run: npm run test:webkit
+      - name: Package unchanged Milestone 1 assets with compatibility fixes
+        run: npm run build
+      - name: Audit extracted ZIP and launch packaged game
+        run: npm run test:build
+      - name: Upload candidate ZIP and manifest (not a device-certified release)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Intruder-Milestone1-Safari-Desktop-Candidate
+          path: |
+            dist/Intruder_Yankee_Station_Milestone1.zip
+            dist/build-manifest.json
+          retention-days: 14
+      - name: Upload machine-readable test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Compatibility-Test-JSON
+          path: test-results/*.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+  windows-chromium:
+    runs-on: windows-2025
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            index.html
+            assets
+            tests
+            tools
+            package.json
+            package-lock.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install chromium
+      - name: Windows Chromium desktop and emulated-touch lifecycle
+        run: npm run test:lifecycle
+      - name: Windows machine-readable smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-Lifecycle-Test-JSON
+          path: test-results/lifecycle.json
+          if-no-files-found: ignore
+          retention-days: 14

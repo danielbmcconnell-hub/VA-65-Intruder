@@ -421,6 +421,7 @@ body.onfoot.desktop #btnFire{display:none}
   .rpow{bottom:calc(86px + env(safe-area-inset-bottom,0px));gap:3px}
   .rcol .sbtn,.rpow .sbtn{height:32px;width:54px;font-size:9.5px}
   #pickle{width:72px;height:72px;font-size:10.5px;bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+  #btnFire{width:72px;height:72px;font-size:12px;bottom:calc(8px + env(safe-area-inset-bottom,0px))}
   #teach{width:min(70vw,400px);padding:8px 11px}
   #teachPeek{max-width:56vw;font-size:10px;padding:4px 10px}
   #teach .tb{font-size:12px;line-height:1.4}
@@ -10675,7 +10676,13 @@ class Audio2 {
     for (let i = 0; i < n; i++) { const w = Math.random() * 2 - 1; last = (last + 0.02 * w) / 1.02; d[i] = last * 3.2; }
     return b;
   }
-  resume() { if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume(); }
+  resume() {
+    // Safari may report an interrupted rather than suspended context after tab/app switching.
+    if (this.ctx && this.ctx.state !== 'running' && this.ctx.state !== 'closed') {
+      const pending = this.ctx.resume();
+      if (pending && pending.catch) pending.catch(() => {}); // audio is optional; captions persist
+    }
+  }
 
   /* A node that places a sound left or right of the nose. Flak off the port
      wing belongs in the left ear. */
@@ -10973,7 +10980,19 @@ const App = {
     document.body.classList.toggle('desktop', IS_DESKTOP);
     this.bindUI();
     this.renderReady();
-    window.addEventListener('resize', () => this.resize());
+    const refreshViewport = () => { this.resize(); this.pauseForPortrait(); };
+    window.addEventListener('resize', refreshViewport);
+    // iOS orientation/visual viewport changes may finish after the first resize event.
+    window.addEventListener('orientationchange', () => setTimeout(refreshViewport, 160));
+    window.addEventListener('blur', () => this.suspendForInterruption());
+    window.addEventListener('pagehide', () => this.suspendForInterruption());
+    window.addEventListener('pageshow', () => {
+      this._acc = 0; this._last = performance.now(); refreshViewport();
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) this.suspendForInterruption();
+      else { this._acc = 0; this._last = performance.now(); refreshViewport(); }
+    });
     this.resize();
     requestAnimationFrame(t => this.frame(t));
   },
@@ -11122,6 +11141,8 @@ const App = {
       const saved = this._graphicsResume; this._graphicsResume = null;
       if (saved && this.game === saved.game) this.game.paused = saved.paused || !!this.game.result;
       this._acc = 0; this._last = performance.now(); veil.remove();
+      this.audio.resume();
+      this.pauseForPortrait();
     });
     if (restored && this.mission) button('Restart mission', () => {
       this._graphicsResume = null; this.game = null; veil.remove(); this.start(this.mission);
@@ -11153,8 +11174,40 @@ const App = {
 
   resize() {
     const w = window.innerWidth, h = window.innerHeight, d = window.devicePixelRatio || 1;
-    if (this.rend) this.rend.resize(w, h, d);
+    if (this.rend && !this.graphicsContextLost) this.rend.resize(w, h, d);
     this.hud.resize(w, h, d);
+  },
+
+  clearHeldControls() {
+    // A browser can discard pointerup/keyup when the OS changes app, tab, or orientation.
+    if (this.keys) for (const code of Object.keys(this.keys)) this.keys[code] = 0;
+    if (this.gctl) for (const key of Object.keys(this.gctl))
+      if (typeof this.gctl[key] === 'number') this.gctl[key] = 0;
+    const knob = $('#stick .knob');
+    if (knob) knob.style.transform = '';
+    for (const id of ['pickle','thrUp','thrDn','btnRun','btnCrouch'])
+      $('#' + id)?.classList.remove('on');
+  },
+
+  suspendForInterruption() {
+    this.clearHeldControls();
+    this._acc = 0; this._last = performance.now();
+    // Cancel speech and suspend audio while unfocused. Resume is explicitly user-initiated.
+    if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
+    if (this.audio.ctx && this.audio.ctx.state === 'running') {
+      const pending = this.audio.ctx.suspend();
+      if (pending && pending.catch) pending.catch(() => {});
+    }
+    if (!this.game || this.screen !== 'game' || this.game.paused) return;
+    // Do not cover an existing capture/debrief modal with the pause menu.
+    if (this.game.result || $('#captVeil').classList.contains('on') ||
+        $('#debriefVeil').classList.contains('on')) this.game.paused = true;
+    else this.pause(true);
+  },
+
+  pauseForPortrait() {
+    if (!IS_DESKTOP && matchMedia('(orientation: portrait)').matches &&
+        this.screen === 'game' && this.game) this.suspendForInterruption();
   },
 
   show(id) {
@@ -11198,12 +11251,21 @@ const App = {
     stick.addEventListener('pointermove', e => { if (e.pointerId !== sid) return; const r = stick.getBoundingClientRect(); setStick(e.clientX - r.left - r.width / 2, e.clientY - r.top - r.height / 2); });
     const relStick = e => { if (sid === null) return; sid = null; knob.style.transform = ''; g.roll = 0; g.pitch = 0; };
     stick.addEventListener('pointerup', relStick); stick.addEventListener('pointercancel', relStick);
+    stick.addEventListener('lostpointercapture', relStick);
 
     const hold = (id, prop) => {
       const b = $(id);
-      b.addEventListener('pointerdown', e => { e.preventDefault(); g[prop] = 1; b.classList.add('on'); });
+      b.addEventListener('pointerdown', e => {
+        e.preventDefault();
+        if (b.setPointerCapture) {
+          // Synthetic test events do not own an active pointer; actual touches do.
+          try { b.setPointerCapture(e.pointerId); } catch (_) {}
+        }
+        g[prop] = 1; b.classList.add('on');
+      });
       const up = () => { g[prop] = 0; b.classList.remove('on'); };
-      b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up); b.addEventListener('pointerleave', up);
+      b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up);
+      b.addEventListener('lostpointercapture', up); b.addEventListener('pointerleave', up);
     };
     hold('#thrUp', 'thrUp'); hold('#thrDn', 'thrDn'); hold('#pickle', 'commit');
     /* On foot. These drive the same state the keys do, so the ground
@@ -11319,6 +11381,7 @@ const App = {
       if (drag && this.hud.scope && drag.moved < 8 && this.game) this.lockTarget();
       drag = null;
     });
+    stack.addEventListener('pointercancel', () => { drag = null; });
 
     // keyboard
     const K = this.keys = {};
@@ -12974,6 +13037,7 @@ const App = {
         this.audio.init(); this.audio.resume(); this.audio.initSpeech();
         if (this.audio.master) this.audio.master.gain.value = this.set.sound ? 0.55 : 0;
       } catch (audioError) { console.warn('Audio unavailable; gameplay continues',audioError); }
+      this.pauseForPortrait();
       if (IS_DESKTOP && !Store.get('sawkeys', 0)) { Store.set('sawkeys', 1); this.toggleLegend(true); }
       if (IS_DESKTOP && this.set.mouse) setTimeout(() => {
         if (this._missionStart === startToken && this.screen === 'game') this.toggleMouseFly();
@@ -12983,9 +13047,12 @@ const App = {
 
   pause(on) {
     if (!this.game) return;
+    // Never allow a keyboard/programmatic Resume under Safari's portrait warning.
+    if (!on && (document.hidden || (!IS_DESKTOP && matchMedia('(orientation: portrait)').matches))) return;
     this.game.paused = on;
     $('#pauseVeil').classList.toggle('on', on);
-    if (!on) return;
+    this._acc = 0; this._last = performance.now();
+    if (!on) { this.audio.resume(); return; }
     const b = $('#pauseBody'); b.innerHTML = '';
     const m = this.mission;
     b.appendChild(el('div', '', `<div class="eyebrow">${m.year} · ${m.code}</div><h3 style="margin:6px 0 10px">${m.title}</h3>`));
@@ -17864,17 +17931,19 @@ App.frame = function (now) {
        laptop it is actually for, and an unplayable first mission is a worse
        outcome than a plainer-looking one. Measured over the first few
        seconds of flight, once, and never raised again on its own. */
-    if (!this._fpsDone && g.t > 2.5) {
+    if (!g.paused && !this._fpsDone && g.t > 2.5) {
       this._ft = (this._ft || 0) + raw; this._fn = (this._fn || 0) + 1;
-      if (this._fn > 90) {
+      // Sample a sustained eight-second flight window, not the first ~90 frames.
+      if (this._ft >= 8) {
         const avg = this._ft / this._fn;
-        this._fpsDone = 1;
-        if (avg > 0.048 && this.set.quality > 0) {
+        this._ft = 0; this._fn = 0;
+        if (avg > (1 / 28) && this.set.quality > 0) {
           this.set.quality--; Store.set('set', this.set);
           this.rend.quality = this.set.quality; this.rend.W = 0; this.resize();
           if (this.rend.quality === 0) this.rend.shadows = false;
           this.radio('SHIP', 'Graphics stepped down to keep the frame rate up — you can set it back in Settings.', 'warn');
-        }
+          // A second sustained sample determines whether Medium also needs Low.
+        } else this._fpsDone = 1;
       }
     }
     this._acc = Math.min((this._acc || 0) + raw, STEP * 9);
