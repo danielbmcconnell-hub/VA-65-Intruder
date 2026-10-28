@@ -4,18 +4,19 @@
 const fs = require('node:fs/promises');
 const { existsSync } = require('node:fs');
 const path = require('node:path');
-const { chromium } = require('playwright');
+const { chromium, webkit } = require('playwright');
 const { createServer } = require('../tools/dev-server.cjs');
 
 const args = process.argv.slice(2);
 const option = (name, fallback) => args.find(arg => arg.startsWith('--' + name + '='))?.split('=').slice(1).join('=') || fallback;
 const requestedTarget = option('url', process.env.INTRUDER_TEST_URL || '');
 const suite = option('suite', 'all');
+const engine = option('engine', 'chromium');
 const evidenceDir = path.resolve(option('evidence', path.join(__dirname, '..', 'test-results')));
 
 async function main() {
-  const modules = { renderer: './renderer-browser.cjs', missions: './mission-browser.cjs', progression: './progression-browser.cjs', ground: './ground-browser.cjs' };
-  const suites = suite === 'all' ? ['renderer', 'missions', 'progression', 'ground'] : suite === 'regressions' ? ['renderer', 'ground'] : [suite];
+  const modules = { renderer: './renderer-browser.cjs', missions: './mission-browser.cjs', progression: './progression-browser.cjs', ground: './ground-browser.cjs', lifecycle: './lifecycle-browser.cjs' };
+  const suites = suite === 'all' ? ['renderer', 'missions', 'progression', 'ground', 'lifecycle'] : suite === 'regressions' ? ['renderer', 'ground'] : [suite];
   if (suites.some(name => !modules[name])) throw new Error('Unknown browser suite: ' + suite);
   let server, browser;
   let target = requestedTarget;
@@ -26,10 +27,14 @@ async function main() {
       target = 'http://127.0.0.1:' + server.address().port + '/';
     }
     const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || (existsSync('/usr/bin/chromium') ? '/usr/bin/chromium' : undefined);
-    browser = await chromium.launch({ executablePath, headless: true, args: ['--no-sandbox', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+    if (engine === 'webkit') browser = await webkit.launch({ headless: true });
+    else if (engine === 'chromium')
+      browser = await chromium.launch({ executablePath, headless: true,
+        args: ['--no-sandbox', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+    else throw new Error('Unknown browser engine: ' + engine);
     await fs.mkdir(evidenceDir, { recursive: true });
     for (const name of suites) {
-      console.log('RUN ' + name + ' ' + target);
+      console.log('RUN ' + engine + ' ' + name + ' ' + target);
       let report;
       try { report = await require(modules[name])(browser, target, evidenceDir); }
       catch (error) {
