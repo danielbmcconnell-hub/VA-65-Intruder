@@ -1,9 +1,11 @@
 name: Milestone 1 Safari and desktop compatibility
 on:
-  push:
-    branches: [fix/safari-desktop-release-stability]
   pull_request:
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
