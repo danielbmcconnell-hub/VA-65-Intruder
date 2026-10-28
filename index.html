@@ -11256,7 +11256,10 @@ const App = {
       const b = $(id);
       b.addEventListener('pointerdown', e => {
         e.preventDefault();
-        if (b.setPointerCapture) b.setPointerCapture(e.pointerId);
+        if (b.setPointerCapture) {
+          // Synthetic test events do not own an active pointer; actual touches do.
+          try { b.setPointerCapture(e.pointerId); } catch (_) {}
+        }
         g[prop] = 1; b.classList.add('on');
       });
       const up = () => { g[prop] = 0; b.classList.remove('on'); };
