@@ -57,3 +57,36 @@ jobs:
           path: test-results/*.json
           if-no-files-found: ignore
           retention-days: 14
+
+  windows-chromium:
+    runs-on: windows-2025
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            index.html
+            assets
+            tests
+            tools
+            package.json
+            package-lock.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install chromium
+      - name: Windows Chromium desktop and emulated-touch lifecycle
+        run: npm run test:lifecycle
+      - name: Windows machine-readable smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-Lifecycle-Test-JSON
+          path: test-results/lifecycle.json
+          if-no-files-found: ignore
+          retention-days: 14
