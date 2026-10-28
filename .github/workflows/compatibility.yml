@@ -17,6 +17,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          # Manifest must name the source commit, not a temporary PR merge SHA.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
